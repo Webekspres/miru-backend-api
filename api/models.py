@@ -9,6 +9,7 @@ class User(AbstractUser):
         ('koordinator', 'Koordinator'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
+    nama_lengkap = models.CharField(max_length=255)
     nik = models.CharField(max_length=16, blank=True)
     no_hp = models.CharField(max_length=15, blank=True)
     alamat = models.TextField(blank=True)

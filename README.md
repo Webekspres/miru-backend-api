@@ -36,9 +36,11 @@ docker-compose up --build -d
 docker-compose exec web python manage.py migrate
 ```
 
-## API Access
+## API Access & Documentation
 
 - **API Base URL**: `http://localhost:8000/api/`
+- **OpenAPI Schema**: `http://localhost:8000/api/schema/`
+- **Swagger UI**: `http://localhost:8000/api/docs/`
 
 ### Authentication
 
