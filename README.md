@@ -16,7 +16,6 @@ pip install -r requirements.txt
 ### 2. Run Migrations & Server
 ```bash
 python manage.py migrate
-python manage.py createsuperuser
 python manage.py runserver
 ```
 
@@ -35,13 +34,11 @@ docker-compose up --build -d
 ### 3. Run Migrations in Docker
 ```bash
 docker-compose exec web python manage.py migrate
-docker-compose exec web python manage.py createsuperuser
 ```
 
 ## API Access
 
 - **API Base URL**: `http://localhost:8000/api/`
-- **Django Admin**: `http://localhost:8000/admin/`
 
 ### Authentication
 
