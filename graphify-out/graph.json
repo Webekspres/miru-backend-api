@@ -1,0 +1,1209 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "api/__init__.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_init",
+      "community": 7,
+      "norm_label": "__init__.py"
+    },
+    {
+      "label": "admin.py",
+      "file_type": "code",
+      "source_file": "api/admin.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_admin",
+      "community": 6,
+      "norm_label": "admin.py"
+    },
+    {
+      "label": "apps.py",
+      "file_type": "code",
+      "source_file": "api/apps.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_apps",
+      "community": 4,
+      "norm_label": "apps.py"
+    },
+    {
+      "label": "ApiConfig",
+      "file_type": "code",
+      "source_file": "api/apps.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "api_apps_apiconfig",
+      "community": 4,
+      "norm_label": "apiconfig"
+    },
+    {
+      "label": "AppConfig",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "appconfig",
+      "community": 4,
+      "norm_label": "appconfig"
+    },
+    {
+      "label": "0001_initial.py",
+      "file_type": "code",
+      "source_file": "api/migrations/0001_initial.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "migrations_0001_initial",
+      "community": 5,
+      "norm_label": "0001_initial.py"
+    },
+    {
+      "label": "Migration",
+      "file_type": "code",
+      "source_file": "api/migrations/0001_initial.py",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "migrations_0001_initial_migration",
+      "community": 5,
+      "norm_label": "migration"
+    },
+    {
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "api/migrations/__init__.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "migrations_init",
+      "community": 9,
+      "norm_label": "__init__.py"
+    },
+    {
+      "label": "models.py",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_models",
+      "community": 1,
+      "norm_label": "models.py"
+    },
+    {
+      "label": "User",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "api_models_user",
+      "community": 1,
+      "norm_label": "user"
+    },
+    {
+      "label": "AbstractUser",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "abstractuser",
+      "community": 1,
+      "norm_label": "abstractuser"
+    },
+    {
+      "label": "KategoriSampah",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "api_models_kategorisampah",
+      "community": 1,
+      "norm_label": "kategorisampah"
+    },
+    {
+      "label": "TransaksiSetoran",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "api_models_transaksisetoran",
+      "community": 1,
+      "norm_label": "transaksisetoran"
+    },
+    {
+      "label": "DetailSetoran",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "api_models_detailsetoran",
+      "community": 1,
+      "norm_label": "detailsetoran"
+    },
+    {
+      "label": "Penjemputan",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "api_models_penjemputan",
+      "community": 1,
+      "norm_label": "penjemputan"
+    },
+    {
+      "label": "PenarikanSaldo",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "api_models_penarikansaldo",
+      "community": 1,
+      "norm_label": "penarikansaldo"
+    },
+    {
+      "label": "Reward",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L62",
+      "_origin": "ast",
+      "id": "api_models_reward",
+      "community": 1,
+      "norm_label": "reward"
+    },
+    {
+      "label": "PenukaranPoin",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L67",
+      "_origin": "ast",
+      "id": "api_models_penukaranpoin",
+      "community": 1,
+      "norm_label": "penukaranpoin"
+    },
+    {
+      "label": "MitraPengepul",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "api_models_mitrapengepul",
+      "community": 1,
+      "norm_label": "mitrapengepul"
+    },
+    {
+      "label": "PenjualanMitra",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L78",
+      "_origin": "ast",
+      "id": "api_models_penjualanmitra",
+      "community": 1,
+      "norm_label": "penjualanmitra"
+    },
+    {
+      "label": "Pengaduan",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L86",
+      "_origin": "ast",
+      "id": "api_models_pengaduan",
+      "community": 1,
+      "norm_label": "pengaduan"
+    },
+    {
+      "label": "permissions.py",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_permissions",
+      "community": 3,
+      "norm_label": "permissions.py"
+    },
+    {
+      "label": "IsAdminOrKoordinator",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "api_permissions_isadminorkoordinator",
+      "community": 3,
+      "norm_label": "isadminorkoordinator"
+    },
+    {
+      "label": ".has_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "api_permissions_isadminorkoordinator_has_permission",
+      "community": 3,
+      "norm_label": ".has_permission()"
+    },
+    {
+      "label": "IsPetugasOrAdmin",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "api_permissions_ispetugasoradmin",
+      "community": 3,
+      "norm_label": "ispetugasoradmin"
+    },
+    {
+      "label": ".has_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "api_permissions_ispetugasoradmin_has_permission",
+      "community": 3,
+      "norm_label": ".has_permission()"
+    },
+    {
+      "label": "IsOwnerOrAdmin",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "api_permissions_isowneroradmin",
+      "community": 3,
+      "norm_label": "isowneroradmin"
+    },
+    {
+      "label": ".has_object_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "api_permissions_isowneroradmin_has_object_permission",
+      "community": 3,
+      "norm_label": ".has_object_permission()"
+    },
+    {
+      "label": "serializers.py",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_serializers",
+      "community": 0,
+      "norm_label": "serializers.py"
+    },
+    {
+      "label": "UserSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "api_serializers_userserializer",
+      "community": 0,
+      "norm_label": "userserializer"
+    },
+    {
+      "label": "Meta",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "api_serializers_meta",
+      "community": 0,
+      "norm_label": "meta"
+    },
+    {
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "api_serializers_userserializer_create",
+      "community": 0,
+      "norm_label": ".create()"
+    },
+    {
+      "label": "KategoriSampahSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "api_serializers_kategorisampahserializer",
+      "community": 0,
+      "norm_label": "kategorisampahserializer"
+    },
+    {
+      "label": "DetailSetoranSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "api_serializers_detailsetoranserializer",
+      "community": 0,
+      "norm_label": "detailsetoranserializer"
+    },
+    {
+      "label": "TransaksiSetoranSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetoranserializer",
+      "community": 0,
+      "norm_label": "transaksisetoranserializer"
+    },
+    {
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetoranserializer_create",
+      "community": 0,
+      "norm_label": ".create()"
+    },
+    {
+      "label": "PenjemputanSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "api_serializers_penjemputanserializer",
+      "community": 0,
+      "norm_label": "penjemputanserializer"
+    },
+    {
+      "label": "PenarikanSaldoSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L64",
+      "_origin": "ast",
+      "id": "api_serializers_penarikansaldoserializer",
+      "community": 0,
+      "norm_label": "penarikansaldoserializer"
+    },
+    {
+      "label": "RewardSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L69",
+      "_origin": "ast",
+      "id": "api_serializers_rewardserializer",
+      "community": 0,
+      "norm_label": "rewardserializer"
+    },
+    {
+      "label": "PenukaranPoinSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "api_serializers_penukaranpoinserializer",
+      "community": 0,
+      "norm_label": "penukaranpoinserializer"
+    },
+    {
+      "label": "MitraPengepulSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "api_serializers_mitrapengepulserializer",
+      "community": 0,
+      "norm_label": "mitrapengepulserializer"
+    },
+    {
+      "label": "PenjualanMitraSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "api_serializers_penjualanmitraserializer",
+      "community": 0,
+      "norm_label": "penjualanmitraserializer"
+    },
+    {
+      "label": "PengaduanSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L89",
+      "_origin": "ast",
+      "id": "api_serializers_pengaduanserializer",
+      "community": 0,
+      "norm_label": "pengaduanserializer"
+    },
+    {
+      "label": "tests.py",
+      "file_type": "code",
+      "source_file": "api/tests.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_tests",
+      "community": 8,
+      "norm_label": "tests.py"
+    },
+    {
+      "label": "urls.py",
+      "file_type": "code",
+      "source_file": "api/urls.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_urls",
+      "community": 2,
+      "norm_label": "urls.py"
+    },
+    {
+      "label": "views.py",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_views",
+      "community": 2,
+      "norm_label": "views.py"
+    },
+    {
+      "label": "UserViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "api_views_userviewset",
+      "community": 3,
+      "norm_label": "userviewset"
+    },
+    {
+      "label": ".get_permissions()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "api_views_userviewset_get_permissions",
+      "community": 3,
+      "norm_label": ".get_permissions()"
+    },
+    {
+      "label": "KategoriSampahViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "api_views_kategorisampahviewset",
+      "community": 3,
+      "norm_label": "kategorisampahviewset"
+    },
+    {
+      "label": ".get_permissions()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "api_views_kategorisampahviewset_get_permissions",
+      "community": 3,
+      "norm_label": ".get_permissions()"
+    },
+    {
+      "label": "TransaksiSetoranViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "api_views_transaksisetoranviewset",
+      "community": 2,
+      "norm_label": "transaksisetoranviewset"
+    },
+    {
+      "label": "PenjemputanViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L34",
+      "_origin": "ast",
+      "id": "api_views_penjemputanviewset",
+      "community": 2,
+      "norm_label": "penjemputanviewset"
+    },
+    {
+      "label": "PenarikanSaldoViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L40",
+      "_origin": "ast",
+      "id": "api_views_penarikansaldoviewset",
+      "community": 2,
+      "norm_label": "penarikansaldoviewset"
+    },
+    {
+      "label": ".perform_update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "api_views_penarikansaldoviewset_perform_update",
+      "community": 2,
+      "norm_label": ".perform_update()"
+    },
+    {
+      "label": "RewardViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L52",
+      "_origin": "ast",
+      "id": "api_views_rewardviewset",
+      "community": 2,
+      "norm_label": "rewardviewset"
+    },
+    {
+      "label": "PenukaranPoinViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L56",
+      "_origin": "ast",
+      "id": "api_views_penukaranpoinviewset",
+      "community": 2,
+      "norm_label": "penukaranpoinviewset"
+    },
+    {
+      "label": ".perform_update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "api_views_penukaranpoinviewset_perform_update",
+      "community": 2,
+      "norm_label": ".perform_update()"
+    },
+    {
+      "label": "MitraPengepulViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "api_views_mitrapengepulviewset",
+      "community": 2,
+      "norm_label": "mitrapengepulviewset"
+    },
+    {
+      "label": "PenjualanMitraViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "api_views_penjualanmitraviewset",
+      "community": 2,
+      "norm_label": "penjualanmitraviewset"
+    },
+    {
+      "label": ".perform_create()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L78",
+      "_origin": "ast",
+      "id": "api_views_penjualanmitraviewset_perform_create",
+      "community": 2,
+      "norm_label": ".perform_create()"
+    },
+    {
+      "label": "PengaduanViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "id": "api_views_pengaduanviewset",
+      "community": 2,
+      "norm_label": "pengaduanviewset"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/apps.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_apps",
+      "target": "api_apps_apiconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "api/apps.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_apps_apiconfig",
+      "target": "appconfig",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/migrations/0001_initial.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "migrations_0001_initial",
+      "target": "migrations_0001_initial_migration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_detailsetoran",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_mitrapengepul",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_penarikansaldo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_pengaduan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_penjemputan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_penjualanmitra",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_penukaranpoin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_reward",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_models",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_models",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_models_user",
+      "target": "abstractuser",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_permissions",
+      "target": "api_permissions_isadminorkoordinator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_permissions",
+      "target": "api_permissions_isowneroradmin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "api_permissions",
+      "target": "api_permissions_ispetugasoradmin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_permissions_isadminorkoordinator",
+      "target": "api_permissions_isadminorkoordinator_has_permission",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "source": "api_views_kategorisampahviewset_get_permissions",
+      "target": "api_permissions_isadminorkoordinator"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "api_permissions_ispetugasoradmin",
+      "target": "api_permissions_ispetugasoradmin_has_permission",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/permissions.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "api_permissions_isowneroradmin",
+      "target": "api_permissions_isowneroradmin_has_object_permission",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "api_views_userviewset_get_permissions",
+      "target": "api_permissions_isowneroradmin"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_detailsetoranserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_kategorisampahserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L90",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_meta",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_mitrapengepulserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L64",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_penarikansaldoserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_pengaduanserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_penjemputanserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_penjualanmitraserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_penukaranpoinserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_rewardserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_transaksisetoranserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_userserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_serializers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "api_serializers_userserializer",
+      "target": "api_serializers_userserializer_create",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "api_serializers_transaksisetoranserializer",
+      "target": "api_serializers_transaksisetoranserializer_create",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/urls.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_urls",
+      "target": "api_views",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_kategorisampahviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_mitrapengepulviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_penarikansaldoviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L84",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_pengaduanviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_penjemputanviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_penjualanmitraviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L56",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_penukaranpoinviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_rewardviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_transaksisetoranviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_userviewset",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "api_views_userviewset",
+      "target": "api_views_userviewset_get_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "api_views_userviewset_get_permissions",
+      "target": "api_views_kategorisampahviewset_get_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "api_views_kategorisampahviewset",
+      "target": "api_views_kategorisampahviewset_get_permissions",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "api_views_penarikansaldoviewset",
+      "target": "api_views_penarikansaldoviewset_perform_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "api_views_penukaranpoinviewset",
+      "target": "api_views_penukaranpoinviewset_perform_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "api_views_penjualanmitraviewset",
+      "target": "api_views_penjualanmitraviewset_perform_create",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": [],
+  "built_at_commit": "94a24e89a38343721ac92bbd44585c182ca3873f"
+}

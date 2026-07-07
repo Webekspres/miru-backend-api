@@ -1,0 +1,24 @@
+---
+description: Token-efficient .ai-steering navigation — read on demand, not all upfront
+alwaysApply: true
+---
+
+# AI Steering — lazy load (token saver)
+
+Do **NOT** read all `.ai-steering/*.md` files upfront. Use this index and load only what the task needs:
+
+| File | Buka saat |
+|------|-----------|
+| `00-system-prompt.md` | Konvensi kode, persona, clean code |
+| `01-project-overview.md` | Konteks bisnis, role pengguna |
+| `02-architecture-and-stack.md` | Stack, struktur folder, env |
+| `03-database-schema-erd.md` / `03-state-management.md` | Schema DB atau state management |
+| `04-api-contracts-and-standards.md` / `04-api-integration.md` | Kontrak API, format request |
+| `05-business-rules-sops.md` | Logika bisnis (saldo, poin, status) |
+| `06-system-constraints.md` | Batasan sistem (payment, GPS, dll.) |
+| `07-modules-and-features.md` | Modul spesifik yang sedang dikerjakan |
+| `08-task-list.md` | Roadmap / urutan pengerjaan |
+
+**Prefer graphify first:** `graphify query "<topik>"` often covers steering + code in one subgraph — cheaper than reading 9 markdown files.
+
+Only read a steering file directly when graphify/wiki does not answer the specific detail you need.

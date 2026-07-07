@@ -1,0 +1,15 @@
+---
+description: Context7 MCP for up-to-date library docs (saves tokens vs guessing)
+alwaysApply: true
+---
+
+Use Context7 MCP to fetch current documentation whenever the user asks about a library, framework, SDK, API, CLI tool, or cloud service — even well-known ones like React, Next.js, Prisma, Express, Tailwind, Django, or Flutter. Prefer this over web search for library docs.
+
+Do not use for: refactoring, writing scripts from scratch, debugging business logic, code review, or general programming concepts.
+
+## Steps
+
+1. `resolve-library-id` with the library name and the user's question
+2. Pick the best match (`/org/project`) by name, description, reputation, benchmark score
+3. `query-docs` with the selected library ID and the user's full question
+4. Answer using the fetched docs

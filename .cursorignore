@@ -1,0 +1,11 @@
+﻿# Token saver — exclude from AI context indexing
+graphify-out/cache/
+graphify-out/*.html
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+db.sqlite3
+staticfiles/
+media/
