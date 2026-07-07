@@ -1,0 +1,3246 @@
+openapi: 3.0.3
+info:
+  title: MIRU Bank Sampah API
+  version: 1.0.0
+  description: 'REST API untuk sistem MIRU Bank Sampah, Distrik Mimika Baru. Semua
+    response menggunakan JSON Envelope (`success`, `status_code`, `message`, `data`,
+    `meta`). Panduan alur per role: `/api/guide/`. Akun demo (setelah `seed_data`):
+    `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`, `koordinator/koordinator123`.'
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: 'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil
+        singkat user. Akun demo: `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`.'
+      summary: Login — dapatkan access & refresh token
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MiruTokenObtainPairRequest'
+            examples:
+              AkunDemo(setelahSeedData):
+                value:
+                  username: nasabah001
+                  password: nasabah123
+                summary: Akun demo (setelah seed_data)
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MiruTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MiruTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          description: No response body
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Ambil profil lengkap user dari JWT. Nasabah tidak bisa ubah role/saldo/poin.
+      summary: Profil user yang sedang login
+      tags:
+      - Auth
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      description: Update nama, no HP, atau alamat profil user login.
+      summary: Perbarui profil sendiri
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+  /api/auth/refresh/:
+    post:
+      operationId: auth_refresh_create
+      description: Perbarui access token menggunakan refresh token dari login.
+      summary: Refresh access token
+      tags:
+      - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefreshRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/complaints/:
+    get:
+      operationId: complaints_list
+      summary: Daftar pengaduan
+      parameters:
+      - in: query
+        name: nasabah
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - ditutup
+          - terbuka
+        description: |-
+          * `terbuka` - Terbuka
+          * `ditutup` - Ditutup
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPengaduanList'
+          description: ''
+    post:
+      operationId: complaints_create
+      summary: Kirim pengaduan (nasabah)
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+            examples:
+              PengaduanSaldo:
+                value:
+                  jenis_pengaduan: saldo_belum_masuk
+                  isi_pengaduan: Setoran kemarin belum masuk ke saldo.
+                summary: Pengaduan saldo
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pengaduan'
+          description: ''
+  /api/complaints/{id}/:
+    get:
+      operationId: complaints_retrieve
+      summary: Detail pengaduan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengaduan.
+        required: true
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pengaduan'
+          description: ''
+    put:
+      operationId: complaints_update
+      summary: Perbarui pengaduan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengaduan.
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PengaduanRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pengaduan'
+          description: ''
+    patch:
+      operationId: complaints_partial_update
+      summary: Perbarui pengaduan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengaduan.
+        required: true
+      tags:
+      - Complaints
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaduanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaduanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaduanRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pengaduan'
+          description: ''
+    delete:
+      operationId: complaints_destroy
+      summary: Hapus pengaduan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengaduan.
+        required: true
+      tags:
+      - Complaints
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/deposits/:
+    get:
+      operationId: deposits_list
+      summary: Daftar transaksi setoran
+      parameters:
+      - in: query
+        name: nasabah
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+      tags:
+      - Deposits
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransaksiSetoranList'
+          description: ''
+    post:
+      operationId: deposits_create
+      summary: Catat setoran sampah (petugas/admin)
+      tags:
+      - Deposits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+            examples:
+              SetoranNasabah:
+                value:
+                  nasabah: 5
+                  details:
+                  - kategori: 1
+                    berat_kg: '5.00'
+                  - kategori: 3
+                    berat_kg: '3.50'
+                summary: Setoran nasabah
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransaksiSetoran'
+          description: ''
+  /api/deposits/{id}/:
+    get:
+      operationId: deposits_retrieve
+      summary: Detail setoran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaksi setoran.
+        required: true
+      tags:
+      - Deposits
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransaksiSetoran'
+          description: ''
+    put:
+      operationId: deposits_update
+      summary: Perbarui setoran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaksi setoran.
+        required: true
+      tags:
+      - Deposits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransaksiSetoranRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransaksiSetoran'
+          description: ''
+    patch:
+      operationId: deposits_partial_update
+      summary: Perbarui setoran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaksi setoran.
+        required: true
+      tags:
+      - Deposits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransaksiSetoran'
+          description: ''
+    delete:
+      operationId: deposits_destroy
+      summary: Hapus setoran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaksi setoran.
+        required: true
+      tags:
+      - Deposits
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/partner-sales/:
+    get:
+      operationId: partner_sales_list
+      summary: Daftar penjualan ke mitra
+      parameters:
+      - in: query
+        name: kategori
+        schema:
+          type: integer
+      - in: query
+        name: mitra
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Partner Sales
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPenjualanMitraList'
+          description: ''
+    post:
+      operationId: partner_sales_create
+      summary: Catat penjualan stok ke mitra (admin)
+      tags:
+      - Partner Sales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+            examples:
+              JualStokPET:
+                value:
+                  mitra: 1
+                  kategori: 1
+                  berat_jual_kg: '100.00'
+                  harga_jual_per_kg: '2500.00'
+                summary: Jual stok PET
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenjualanMitra'
+          description: ''
+  /api/partner-sales/{id}/:
+    get:
+      operationId: partner_sales_retrieve
+      summary: Detail penjualan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjualan mitra.
+        required: true
+      tags:
+      - Partner Sales
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenjualanMitra'
+          description: ''
+    put:
+      operationId: partner_sales_update
+      summary: Perbarui penjualan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjualan mitra.
+        required: true
+      tags:
+      - Partner Sales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenjualanMitraRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenjualanMitra'
+          description: ''
+    patch:
+      operationId: partner_sales_partial_update
+      summary: Perbarui penjualan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjualan mitra.
+        required: true
+      tags:
+      - Partner Sales
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenjualanMitra'
+          description: ''
+    delete:
+      operationId: partner_sales_destroy
+      summary: Hapus penjualan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjualan mitra.
+        required: true
+      tags:
+      - Partner Sales
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/partners/:
+    get:
+      operationId: partners_list
+      summary: Daftar mitra pengepul
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Partners
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMitraPengepulList'
+          description: ''
+    post:
+      operationId: partners_create
+      summary: Tambah mitra (admin)
+      tags:
+      - Partners
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitraPengepul'
+          description: ''
+  /api/partners/{id}/:
+    get:
+      operationId: partners_retrieve
+      summary: Detail mitra
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitra pengepul.
+        required: true
+      tags:
+      - Partners
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitraPengepul'
+          description: ''
+    put:
+      operationId: partners_update
+      summary: Perbarui mitra
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitra pengepul.
+        required: true
+      tags:
+      - Partners
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MitraPengepulRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitraPengepul'
+          description: ''
+    patch:
+      operationId: partners_partial_update
+      summary: Perbarui mitra
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitra pengepul.
+        required: true
+      tags:
+      - Partners
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMitraPengepulRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMitraPengepulRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMitraPengepulRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitraPengepul'
+          description: ''
+    delete:
+      operationId: partners_destroy
+      summary: Hapus mitra
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this mitra pengepul.
+        required: true
+      tags:
+      - Partners
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/pickups/:
+    get:
+      operationId: pickups_list
+      summary: Daftar penjemputan
+      parameters:
+      - in: query
+        name: nasabah
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: petugas
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - dijadwalkan
+          - dijemput
+          - disetujui
+          - ditolak
+          - menunggu
+          - selesai
+        description: |-
+          * `menunggu` - Menunggu
+          * `disetujui` - Disetujui
+          * `dijadwalkan` - Dijadwalkan
+          * `dijemput` - Dijemput
+          * `selesai` - Selesai
+          * `ditolak` - Ditolak
+      tags:
+      - Pickups
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPenjemputanList'
+          description: ''
+    post:
+      operationId: pickups_create
+      summary: Ajukan penjemputan (nasabah)
+      tags:
+      - Pickups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+            examples:
+              AjuanPenjemputan:
+                value:
+                  estimasi_berat: '8.00'
+                  alamat_jemput: Jl. Cendrawasih, Timika
+                  jadwal: '2026-07-08T09:00:00+09:00'
+                  catatan: Sampah sudah dipilah
+                summary: Ajuan penjemputan
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+  /api/pickups/{id}/:
+    get:
+      operationId: pickups_retrieve
+      summary: Detail penjemputan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - Pickups
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+    put:
+      operationId: pickups_update
+      summary: Perbarui penjemputan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - Pickups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenjemputanRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+    patch:
+      operationId: pickups_partial_update
+      summary: Perbarui penjemputan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - Pickups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+    delete:
+      operationId: pickups_destroy
+      summary: Hapus penjemputan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - Pickups
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/reward-redemptions/:
+    get:
+      operationId: reward_redemptions_list
+      summary: Daftar penukaran poin
+      parameters:
+      - in: query
+        name: nasabah
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - menunggu
+          - selesai
+        description: |-
+          * `menunggu` - Menunggu
+          * `selesai` - Selesai
+      tags:
+      - Reward Redemptions
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPenukaranPoinList'
+          description: ''
+    post:
+      operationId: reward_redemptions_create
+      summary: Tukar poin dengan reward (nasabah)
+      tags:
+      - Reward Redemptions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+            examples:
+              PenukaranPulsa:
+                value:
+                  reward: 1
+                summary: Penukaran pulsa
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenukaranPoin'
+          description: ''
+  /api/reward-redemptions/{id}/:
+    get:
+      operationId: reward_redemptions_retrieve
+      summary: Detail penukaran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penukaran poin.
+        required: true
+      tags:
+      - Reward Redemptions
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenukaranPoin'
+          description: ''
+    put:
+      operationId: reward_redemptions_update
+      summary: Ubah penukaran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penukaran poin.
+        required: true
+      tags:
+      - Reward Redemptions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenukaranPoinRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenukaranPoin'
+          description: ''
+    patch:
+      operationId: reward_redemptions_partial_update
+      summary: Setujui penukaran (admin)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penukaran poin.
+        required: true
+      tags:
+      - Reward Redemptions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenukaranPoin'
+          description: ''
+    delete:
+      operationId: reward_redemptions_destroy
+      summary: Hapus penukaran
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penukaran poin.
+        required: true
+      tags:
+      - Reward Redemptions
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/rewards/:
+    get:
+      operationId: rewards_list
+      summary: Daftar reward
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Rewards
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRewardList'
+          description: ''
+    post:
+      operationId: rewards_create
+      summary: Tambah reward (admin)
+      tags:
+      - Rewards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reward'
+          description: ''
+  /api/rewards/{id}/:
+    get:
+      operationId: rewards_retrieve
+      summary: Detail reward
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reward.
+        required: true
+      tags:
+      - Rewards
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reward'
+          description: ''
+    put:
+      operationId: rewards_update
+      summary: Perbarui reward
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reward.
+        required: true
+      tags:
+      - Rewards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RewardRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reward'
+          description: ''
+    patch:
+      operationId: rewards_partial_update
+      summary: Perbarui reward
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reward.
+        required: true
+      tags:
+      - Rewards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRewardRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRewardRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRewardRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reward'
+          description: ''
+    delete:
+      operationId: rewards_destroy
+      summary: Hapus reward
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this reward.
+        required: true
+      tags:
+      - Rewards
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/users/:
+    get:
+      operationId: users_list
+      summary: Daftar pengguna
+      parameters:
+      - in: query
+        name: is_active
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: query
+        name: role
+        schema:
+          type: string
+          enum:
+          - admin
+          - koordinator
+          - nasabah
+          - petugas
+        description: |-
+          * `nasabah` - Nasabah
+          * `petugas` - Petugas
+          * `admin` - Admin Aplikasi
+          * `koordinator` - Koordinator
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserAdminList'
+          description: ''
+    post:
+      operationId: users_create
+      summary: Registrasi nasabah (public) atau buat user staff (admin)
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+            examples:
+              RegistrasiNasabah:
+                value:
+                  username: budi_santoso
+                  password: rahasia123
+                  nama_lengkap: Budi Santoso
+                  no_hp: 08123456789
+                  alamat: Jl. Cendrawasih, Timika
+                summary: Registrasi nasabah
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/users/{id}/:
+    get:
+      operationId: users_retrieve
+      summary: Detail pengguna
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengguna.
+        required: true
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAdmin'
+          description: ''
+    put:
+      operationId: users_update
+      summary: Perbarui pengguna
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengguna.
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserAdminRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserAdminRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserAdminRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAdmin'
+          description: ''
+    patch:
+      operationId: users_partial_update
+      summary: Perbarui pengguna
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengguna.
+        required: true
+      tags:
+      - Users
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserAdminRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAdmin'
+          description: ''
+    delete:
+      operationId: users_destroy
+      summary: Hapus pengguna
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this pengguna.
+        required: true
+      tags:
+      - Users
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/waste-categories/:
+    get:
+      operationId: waste_categories_list
+      summary: Daftar kategori sampah
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Waste Categories
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKategoriSampahList'
+          description: ''
+    post:
+      operationId: waste_categories_create
+      summary: Tambah kategori (admin/koordinator)
+      tags:
+      - Waste Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KategoriSampah'
+          description: ''
+  /api/waste-categories/{id}/:
+    get:
+      operationId: waste_categories_retrieve
+      summary: Detail kategori sampah
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this kategori sampah.
+        required: true
+      tags:
+      - Waste Categories
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KategoriSampah'
+          description: ''
+    put:
+      operationId: waste_categories_update
+      summary: Perbarui kategori
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this kategori sampah.
+        required: true
+      tags:
+      - Waste Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KategoriSampahRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KategoriSampah'
+          description: ''
+    patch:
+      operationId: waste_categories_partial_update
+      summary: Perbarui kategori
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this kategori sampah.
+        required: true
+      tags:
+      - Waste Categories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKategoriSampahRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedKategoriSampahRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedKategoriSampahRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KategoriSampah'
+          description: ''
+    delete:
+      operationId: waste_categories_destroy
+      summary: Hapus kategori
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this kategori sampah.
+        required: true
+      tags:
+      - Waste Categories
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/withdrawals/:
+    get:
+      operationId: withdrawals_list
+      summary: Daftar penarikan saldo
+      parameters:
+      - in: query
+        name: nasabah
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - menunggu
+          - selesai
+        description: |-
+          * `menunggu` - Menunggu
+          * `selesai` - Selesai
+      tags:
+      - Withdrawals
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPenarikanSaldoList'
+          description: ''
+    post:
+      operationId: withdrawals_create
+      summary: Ajukan penarikan saldo (nasabah)
+      tags:
+      - Withdrawals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+            examples:
+              PenarikanTunai:
+                value:
+                  nominal: '100000.00'
+                  metode: tunai
+                summary: Penarikan tunai
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldo'
+          description: ''
+  /api/withdrawals/{id}/:
+    get:
+      operationId: withdrawals_retrieve
+      summary: Detail penarikan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penarikan saldo.
+        required: true
+      tags:
+      - Withdrawals
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldo'
+          description: ''
+    put:
+      operationId: withdrawals_update
+      summary: Ubah penarikan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penarikan saldo.
+        required: true
+      tags:
+      - Withdrawals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PenarikanSaldoRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldo'
+          description: ''
+    patch:
+      operationId: withdrawals_partial_update
+      summary: Setujui / ubah status penarikan (admin/koordinator)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penarikan saldo.
+        required: true
+      tags:
+      - Withdrawals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldo'
+          description: ''
+    delete:
+      operationId: withdrawals_destroy
+      summary: Hapus penarikan
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penarikan saldo.
+        required: true
+      tags:
+      - Withdrawals
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /health/:
+    get:
+      operationId: health_retrieve
+      description: Cek apakah server berjalan. Public, tanpa autentikasi.
+      summary: Health check server
+      tags:
+      - Health
+      security:
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  status_code:
+                    type: integer
+                  message:
+                    type: string
+                  data:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                        example: ok
+          description: ''
+components:
+  schemas:
+    DetailSetoran:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        berat_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_saat_itu:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        transaksi:
+          type: integer
+          readOnly: true
+        kategori:
+          type: integer
+      required:
+      - berat_kg
+      - harga_saat_itu
+      - id
+      - kategori
+      - subtotal
+      - transaksi
+    DetailSetoranRequest:
+      type: object
+      properties:
+        berat_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_saat_itu:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        subtotal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        kategori:
+          type: integer
+      required:
+      - berat_kg
+      - harga_saat_itu
+      - kategori
+      - subtotal
+    KategoriSampah:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nama:
+          type: string
+          maxLength: 100
+        harga_beli_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stok_terkini_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - harga_beli_per_kg
+      - id
+      - nama
+    KategoriSampahRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        harga_beli_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stok_terkini_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - harga_beli_per_kg
+      - nama
+    MiruTokenObtainPairRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    MitraPengepul:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nama:
+          type: string
+          maxLength: 100
+        kontak:
+          type: string
+          maxLength: 50
+      required:
+      - id
+      - kontak
+      - nama
+    MitraPengepulRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        kontak:
+          type: string
+          minLength: 1
+          maxLength: 50
+      required:
+      - kontak
+      - nama
+    PaginatedKategoriSampahList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KategoriSampah'
+    PaginatedMitraPengepulList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MitraPengepul'
+    PaginatedPenarikanSaldoList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PenarikanSaldo'
+    PaginatedPengaduanList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Pengaduan'
+    PaginatedPenjemputanList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Penjemputan'
+    PaginatedPenjualanMitraList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PenjualanMitra'
+    PaginatedPenukaranPoinList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PenukaranPoin'
+    PaginatedRewardList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reward'
+    PaginatedTransaksiSetoranList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransaksiSetoran'
+    PaginatedUserAdminList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAdmin'
+    PatchedKategoriSampahRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        harga_beli_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        stok_terkini_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+    PatchedMitraPengepulRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        kontak:
+          type: string
+          minLength: 1
+          maxLength: 50
+    PatchedPenarikanSaldoRequest:
+      type: object
+      properties:
+        nominal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        metode:
+          type: string
+          minLength: 1
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        nasabah:
+          type: integer
+    PatchedPengaduanRequest:
+      type: object
+      properties:
+        keluhan:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/PengaduanStatusEnum'
+        nasabah:
+          type: integer
+    PatchedPenjemputanRequest:
+      type: object
+      properties:
+        estimasi_berat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        alamat_jemput:
+          type: string
+          minLength: 1
+        jadwal:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/PenjemputanStatusEnum'
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+    PatchedPenjualanMitraRequest:
+      type: object
+      properties:
+        berat_jual_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_jual_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        total_penjualan:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        mitra:
+          type: integer
+        kategori:
+          type: integer
+    PatchedPenukaranPoinRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        nasabah:
+          type: integer
+        reward:
+          type: integer
+    PatchedRewardRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        poin_dibutuhkan:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        stok:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+    PatchedTransaksiSetoranRequest:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailSetoranRequest'
+          writeOnly: true
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        status:
+          type: string
+          minLength: 1
+          maxLength: 20
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+    PatchedUserAdminRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 6
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        nama_lengkap:
+          type: string
+          minLength: 1
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+        saldo:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        poin:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        is_active:
+          type: boolean
+          title: Aktif
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
+            tanpa perlu menghapus akunnya.
+    PatchedUserProfileRequest:
+      type: object
+      properties:
+        nama_lengkap:
+          type: string
+          minLength: 1
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+    PenarikanSaldo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nominal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        metode:
+          type: string
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        nasabah:
+          type: integer
+      required:
+      - id
+      - metode
+      - nasabah
+      - nominal
+      - tanggal
+    PenarikanSaldoRequest:
+      type: object
+      properties:
+        nominal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        metode:
+          type: string
+          minLength: 1
+          maxLength: 50
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        nasabah:
+          type: integer
+      required:
+      - metode
+      - nasabah
+      - nominal
+    Pengaduan:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        keluhan:
+          type: string
+        status:
+          $ref: '#/components/schemas/PengaduanStatusEnum'
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        nasabah:
+          type: integer
+      required:
+      - id
+      - keluhan
+      - nasabah
+      - tanggal
+    PengaduanRequest:
+      type: object
+      properties:
+        keluhan:
+          type: string
+          minLength: 1
+        status:
+          $ref: '#/components/schemas/PengaduanStatusEnum'
+        nasabah:
+          type: integer
+      required:
+      - keluhan
+      - nasabah
+    PengaduanStatusEnum:
+      enum:
+      - terbuka
+      - ditutup
+      type: string
+      description: |-
+        * `terbuka` - Terbuka
+        * `ditutup` - Ditutup
+    Penjemputan:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        estimasi_berat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        alamat_jemput:
+          type: string
+        jadwal:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/PenjemputanStatusEnum'
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+      required:
+      - alamat_jemput
+      - estimasi_berat
+      - id
+      - jadwal
+      - nasabah
+    PenjemputanRequest:
+      type: object
+      properties:
+        estimasi_berat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        alamat_jemput:
+          type: string
+          minLength: 1
+        jadwal:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/PenjemputanStatusEnum'
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+      required:
+      - alamat_jemput
+      - estimasi_berat
+      - jadwal
+      - nasabah
+    PenjemputanStatusEnum:
+      enum:
+      - menunggu
+      - disetujui
+      - dijadwalkan
+      - dijemput
+      - selesai
+      - ditolak
+      type: string
+      description: |-
+        * `menunggu` - Menunggu
+        * `disetujui` - Disetujui
+        * `dijadwalkan` - Dijadwalkan
+        * `dijemput` - Dijemput
+        * `selesai` - Selesai
+        * `ditolak` - Ditolak
+    PenjualanMitra:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        berat_jual_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_jual_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        total_penjualan:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        mitra:
+          type: integer
+        kategori:
+          type: integer
+      required:
+      - berat_jual_kg
+      - harga_jual_per_kg
+      - id
+      - kategori
+      - mitra
+      - tanggal
+      - total_penjualan
+    PenjualanMitraRequest:
+      type: object
+      properties:
+        berat_jual_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_jual_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        total_penjualan:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        mitra:
+          type: integer
+        kategori:
+          type: integer
+      required:
+      - berat_jual_kg
+      - harga_jual_per_kg
+      - kategori
+      - mitra
+      - total_penjualan
+    PenukaranPoin:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        nasabah:
+          type: integer
+        reward:
+          type: integer
+      required:
+      - id
+      - nasabah
+      - reward
+      - tanggal
+    PenukaranPoinRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/StatusA0bEnum'
+        nasabah:
+          type: integer
+        reward:
+          type: integer
+      required:
+      - nasabah
+      - reward
+    Reward:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nama:
+          type: string
+          maxLength: 100
+        poin_dibutuhkan:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        stok:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - id
+      - nama
+      - poin_dibutuhkan
+      - stok
+    RewardRequest:
+      type: object
+      properties:
+        nama:
+          type: string
+          minLength: 1
+          maxLength: 100
+        poin_dibutuhkan:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        stok:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - nama
+      - poin_dibutuhkan
+      - stok
+    RoleEnum:
+      enum:
+      - nasabah
+      - petugas
+      - admin
+      - koordinator
+      type: string
+      description: |-
+        * `nasabah` - Nasabah
+        * `petugas` - Petugas
+        * `admin` - Admin Aplikasi
+        * `koordinator` - Koordinator
+    StatusA0bEnum:
+      enum:
+      - menunggu
+      - selesai
+      type: string
+      description: |-
+        * `menunggu` - Menunggu
+        * `selesai` - Selesai
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+      required:
+      - access
+    TokenRefreshRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - refresh
+    TransaksiSetoran:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        status:
+          type: string
+          maxLength: 20
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+      required:
+      - id
+      - nasabah
+      - tanggal
+    TransaksiSetoranRequest:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailSetoranRequest'
+          writeOnly: true
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        status:
+          type: string
+          minLength: 1
+          maxLength: 20
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          nullable: true
+      required:
+      - details
+      - nasabah
+    UserAdmin:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        nama_lengkap:
+          type: string
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+        saldo:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        poin:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        is_active:
+          type: boolean
+          title: Aktif
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
+            tanpa perlu menghapus akunnya.
+      required:
+      - id
+      - nama_lengkap
+      - username
+    UserAdminRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 6
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        nama_lengkap:
+          type: string
+          minLength: 1
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+        saldo:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+        poin:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        is_active:
+          type: boolean
+          title: Aktif
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
+            tanpa perlu menghapus akunnya.
+      required:
+      - nama_lengkap
+      - username
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          readOnly: true
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        nama_lengkap:
+          type: string
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+        saldo:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        poin:
+          type: integer
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Aktif
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
+            tanpa perlu menghapus akunnya.
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Tanggal daftar
+      required:
+      - date_joined
+      - id
+      - is_active
+      - nama_lengkap
+      - poin
+      - role
+      - saldo
+      - username
+    UserRegistration:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        nama_lengkap:
+          type: string
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+        saldo:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        poin:
+          type: integer
+          readOnly: true
+        is_active:
+          type: boolean
+          readOnly: true
+          title: Aktif
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
+            tanpa perlu menghapus akunnya.
+      required:
+      - id
+      - is_active
+      - nama_lengkap
+      - poin
+      - role
+      - saldo
+      - username
+    UserRegistrationRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          title: Nama pengguna
+          description: Wajib. 150 karakter atau sedikit. Hanya huruf, angka, dan @/./+/-/_.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 6
+        nama_lengkap:
+          type: string
+          minLength: 1
+          maxLength: 255
+        nik:
+          type: string
+          maxLength: 16
+        no_hp:
+          type: string
+          maxLength: 15
+        alamat:
+          type: string
+      required:
+      - nama_lengkap
+      - password
+      - username
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Token dari `POST /api/auth/login/`. Format: `Bearer <access_token>`'
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+tags:
+- name: Auth
+  description: Login JWT, refresh token, dan profil user.
+- name: Health
+  description: Status server.
+- name: Users
+  description: Registrasi nasabah dan manajemen pengguna.
+- name: Waste Categories
+  description: Kategori sampah dan harga beli per kg.
+- name: Deposits
+  description: Transaksi setoran sampah.
+- name: Pickups
+  description: Penjemputan sampah dari nasabah.
+- name: Withdrawals
+  description: Penarikan saldo nasabah.
+- name: Rewards
+  description: Katalog reward penukaran poin.
+- name: Reward Redemptions
+  description: Penukaran poin nasabah.
+- name: Partners
+  description: Mitra pengepul sampah.
+- name: Partner Sales
+  description: Penjualan stok ke mitra.
+- name: Complaints
+  description: Pengaduan nasabah.

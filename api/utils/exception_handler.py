@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.views import exception_handler
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .response import error_envelope
 
@@ -21,10 +22,13 @@ def _flatten_errors(detail, prefix=''):
 
 
 def _get_error_code(exc, status_code: int) -> str:
-    if hasattr(exc, 'default_code'):
-        code = exc.default_code
-        if isinstance(code, str):
-            return code.upper()
+    if status_code == 400:
+        return 'VALIDATION_ERROR'
+    if isinstance(exc, ValidationError):
+        code = getattr(exc, 'default_code', None)
+        if code and str(code).upper() not in ('INVALID',):
+            return str(code).upper()
+        return 'VALIDATION_ERROR'
     mapping = {
         400: 'VALIDATION_ERROR',
         401: 'AUTHENTICATION_FAILED',
@@ -58,6 +62,18 @@ def _get_error_message(exc, status_code: int) -> str:
 
 
 def miru_exception_handler(exc, context):
+    if isinstance(exc, TokenError):
+        request = context.get('request')
+        envelope = error_envelope(
+            message='Token tidak valid atau sudah kedaluwarsa.',
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            code='AUTHENTICATION_FAILED',
+            errors={'detail': [str(exc)]},
+            request=request,
+        )
+        from rest_framework.response import Response
+        return Response(envelope, status=status.HTTP_401_UNAUTHORIZED)
+
     response = exception_handler(exc, context)
     request = context.get('request')
 

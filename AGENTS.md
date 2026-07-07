@@ -22,5 +22,5 @@ Only use Read/Grep/Glob directly when graphify has oriented you or `graphify-out
 ## Stack
 
 - Django 5.2 + DRF + JWT + PostgreSQL/SQLite
-- API docs: `/api/docs/`
+- API docs (OpenAPI): `/api/docs/` · Panduan alur: `/api/guide/`
 - Steering docs: `.ai-steering/` (on-demand only)

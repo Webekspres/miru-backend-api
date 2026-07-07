@@ -45,11 +45,79 @@ docker-compose up --build -d
 docker-compose exec web python manage.py migrate
 ```
 
+### 4. Seed Demo Data
+
+Management command `seed_data` mengisi database dengan data demo MIRU.
+
+#### Mode minimal (Fase 1.5 — development awal)
+
+Membuat data inti saja:
+- 8 kategori sampah: PET, Gelas Plastik, Kardus, Kertas, Aluminium, Besi, Kaca, Jelantah
+- 4 reward: Pulsa, Bibit, Sembako, Alat Kebersihan
+- 1 user admin: `admin` / `admin123`
+
+```bash
+# Docker
+docker compose exec web python manage.py seed_data --minimal --flush
+
+# Local venv (SQLite)
+python manage.py seed_data --minimal --flush
+```
+
+#### Mode full (200+ records untuk uji integrasi)
+
+Selain data inti di atas, juga membuat koordinator, petugas, 180 nasabah, transaksi setoran, penjemputan, penarikan, pengaduan, mitra, dan penukaran poin.
+
+```bash
+# Docker — reset & seed ulang
+docker compose exec web python manage.py seed_data --flush
+
+# Custom jumlah nasabah
+docker compose exec web python manage.py seed_data --flush --nasabah 200
+
+# Local venv
+python manage.py seed_data --flush
+```
+
+| Flag | Deskripsi |
+|------|-----------|
+| `--minimal` | Hanya kategori, reward, dan admin (aman di DB kosong atau setelah `migrate`) |
+| `--flush` | Hapus data lama sebelum seed. Mode full: reset semua. Mode minimal: reset admin saja |
+| `--nasabah N` | Jumlah nasabah di mode full (default: 180) |
+
+**Akun demo (mode full):**
+
+| Username | Password | Role |
+|----------|----------|------|
+| `admin` | `admin123` | admin |
+| `koordinator` | `koordinator123` | koordinator |
+| `petugas1` | `petugas123` | petugas |
+| `nasabah001` | `nasabah123` | nasabah |
+
+### 5. Run Tests
+```bash
+docker-compose exec web python manage.py test api.tests --verbosity=2
+```
+
 ## API Access & Documentation
 
-- **API Base URL**: `http://localhost:8000/api/`
-- **OpenAPI Schema**: `http://localhost:8000/api/schema/`
-- **Swagger UI**: `http://localhost:8000/api/docs/`
+| Resource | URL | Kegunaan |
+|----------|-----|----------|
+| API Base | `http://localhost:8000/api/` | Endpoint REST |
+| **Swagger UI** | `http://localhost:8000/api/docs/` | Referensi teknis standar (OpenAPI) |
+| **Panduan Alur** | `http://localhost:8000/api/guide/` | Flow per role + contoh request/response |
+| ReDoc | `http://localhost:8000/api/redoc/` | Tampilan alternatif OpenAPI |
+| OpenAPI Schema | `http://localhost:8000/api/schema/` | JSON schema untuk Postman/codegen |
+
+**Swagger UI** (`/api/docs/`) adalah dokumentasi standar — auto-generated dari kode, dengan JWT auth dan grouping per modul.
+
+**Panduan Alur** (`/api/guide/`) adalah pelengkap onboarding: menu kiri berurutan login → nasabah → petugas → admin, dengan akun demo per role. Jalankan `seed_data` terlebih dahulu.
+
+Export schema ke file (untuk tim frontend):
+
+```bash
+python manage.py spectacular --color --file openapi.json
+```
 
 ### API Routes (English)
 

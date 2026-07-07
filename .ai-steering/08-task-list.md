@@ -122,34 +122,34 @@
 - [x] `meta` wajib berisi: `timestamp` (ISO 8601 WIT), `request_id`
 - [x] Standarkan format datetime ISO 8601 dengan timezone WIT di response
 
-### 1.3 Autentikasi & Registrasi (Modul 2)
-- [ ] Verifikasi `POST /api/auth/login/` — return access + refresh token
-- [ ] Verifikasi `POST /api/auth/refresh/` — refresh access token
-- [ ] Validasi registrasi: username unik, password min 6 karakter
-- [ ] Registrasi nasabah: `POST /api/users/` — role default `nasabah`, saldo/poin = 0
-- [ ] Endpoint `GET /api/auth/me/` — profil user yang sedang login (tanpa perlu tahu ID)
-- [ ] Return role di response login/me untuk kebutuhan redirect frontend
+### 1.3 Autentikasi & Registrasi (Modul 2) ✅
+- [x] Verifikasi `POST /api/auth/login/` — return access + refresh token
+- [x] Verifikasi `POST /api/auth/refresh/` — refresh access token
+- [x] Validasi registrasi: username unik, password min 6 karakter
+- [x] Registrasi nasabah: `POST /api/users/` — role default `nasabah`, saldo/poin = 0
+- [x] Endpoint `GET /api/auth/me/` — profil user yang sedang login (tanpa perlu tahu ID)
+- [x] Return role di response login/me untuk kebutuhan redirect frontend
 
-### 1.4 Manajemen Pengguna (Modul 1)
-- [ ] Perbaiki bug import `permissions` di `views.py`
-- [ ] `GET /api/users/` — filter `?role=`, `?is_active=`, search `?search=`
-- [ ] `PATCH /api/users/{id}/` — nasabah hanya edit profil sendiri
-- [ ] Admin bisa create user petugas/admin/koordinator (bukan via registrasi publik)
-- [ ] Sembunyikan field `password` di response (sudah write_only, verifikasi)
-- [ ] Validasi: nasabah tidak bisa ubah `role`, `saldo`, `poin` via PATCH
+### 1.4 Manajemen Pengguna (Modul 1) ✅
+- [x] Perbaiki bug import `permissions` di `views.py`
+- [x] `GET /api/users/` — filter `?role=`, `?is_active=`, search `?search=`
+- [x] `PATCH /api/users/{id}/` — nasabah hanya edit profil sendiri
+- [x] Admin bisa create user petugas/admin/koordinator (bukan via registrasi publik)
+- [x] Sembunyikan field `password` di response (sudah write_only, verifikasi)
+- [x] Validasi: nasabah tidak bisa ubah `role`, `saldo`, `poin` via PATCH
 
-### 1.5 Seed Data (Modul 4–5)
-- [ ] Buat management command `seed_data`:
-  - [ ] 8 kategori sampah (PET, Gelas Plastik, Kardus, Kertas, Aluminium, Besi, Kaca, Jelantah)
-  - [ ] 4 reward default (Pulsa, Bibit, Sembako, Alat Kebersihan)
-  - [ ] 1 user admin default (untuk development)
-- [ ] Dokumentasikan cara menjalankan seed di README
+### 1.5 Seed Data (Modul 4–5) ✅
+- [x] Buat management command `seed_data`:
+  - [x] 8 kategori sampah (PET, Gelas Plastik, Kardus, Kertas, Aluminium, Besi, Kaca, Jelantah)
+  - [x] 4 reward default (Pulsa, Bibit, Sembako, Alat Kebersihan)
+  - [x] 1 user admin default (untuk development)
+- [x] Dokumentasikan cara menjalankan seed di README
 
-### 1.6 Kategori Sampah (Modul 4–5)
-- [ ] `GET /api/waste-categories/` — public, tanpa auth
-- [ ] `GET /api/waste-categories/{id}/` — public
-- [ ] Admin CRUD kategori — permission `IsAdminOrKoordinator`
-- [ ] Response include `stok_terkini_kg` untuk monitoring admin
+### 1.6 Kategori Sampah (Modul 4–5) ✅
+- [x] `GET /api/waste-categories/` — public, tanpa auth
+- [x] `GET /api/waste-categories/{id}/` — public
+- [x] Admin CRUD kategori — permission `IsAdminOrKoordinator`
+- [x] Response include `stok_terkini_kg` untuk monitoring admin
 
 ---
 

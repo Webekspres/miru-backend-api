@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MIRU Bank Sampah — Panduan API</title>
+  <style>
+    :root {
+      --bg: #f4f7f5;
+      --sidebar: #0f3d2e;
+      --sidebar-hover: #1a5c45;
+      --sidebar-text: #d4ebe3;
+      --sidebar-muted: #8fb9a8;
+      --accent: #2d9f6f;
+      --accent-light: #e8f7f0;
+      --card: #ffffff;
+      --border: #dde8e3;
+      --text: #1a2e27;
+      --text-muted: #5a7268;
+      --code-bg: #1e2a26;
+      --code-text: #c8e6d4;
+      --get: #2d9f6f;
+      --post: #2563eb;
+      --patch: #d97706;
+      --delete: #dc2626;
+      --public: #6b7280;
+      --shadow: 0 1px 3px rgba(15, 61, 46, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: var(--sidebar);
+      color: var(--sidebar-text);
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem 1.25rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-header p {
+      font-size: 0.78rem;
+      color: var(--sidebar-muted);
+      margin-top: 0.25rem;
+    }
+
+    .sidebar-links {
+      padding: 0.75rem 0 2rem;
+      flex: 1;
+    }
+
+    .nav-group {
+      margin-bottom: 0.5rem;
+    }
+
+    .nav-group-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--sidebar-muted);
+      padding: 0.75rem 1.25rem 0.35rem;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.45rem 1.25rem 0.45rem 1.5rem;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      font-size: 0.875rem;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .nav-link:hover {
+      background: var(--sidebar-hover);
+      color: #fff;
+    }
+
+    .nav-link.active {
+      background: rgba(45, 159, 111, 0.2);
+      border-left-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .sidebar-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.75rem;
+    }
+
+    .sidebar-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .sidebar-footer a:hover { text-decoration: underline; }
+
+    /* Main content */
+    .main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 2rem 2.5rem 4rem;
+      max-width: 960px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--sidebar) 0%, #1a5c45 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 2rem 2.25rem;
+      margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+      max-width: 600px;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta span {
+      font-size: 0.8rem;
+      background: rgba(255,255,255,0.12);
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    /* Sections */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      scroll-margin-top: 1.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .section h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .group-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.35rem;
+      display: inline-block;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-desc code {
+      background: var(--accent-light);
+      color: var(--accent);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    .flow-hint {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #92400e;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Demo user card */
+    .demo-user-card {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .demo-user-card .role-tag {
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-user-card .credentials {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .demo-user-card .credentials strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .demo-user-card .cred-row {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+
+    .demo-user-card .cred-row span {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Demo users grid */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .demo-grid .demo-user-card {
+      margin-bottom: 0;
+      flex-direction: column;
+    }
+
+    /* Endpoint card */
+    .endpoint {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 1.25rem;
+      overflow: hidden;
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.25rem;
+      background: #f8faf9;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .method {
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 0.25rem 0.55rem;
+      border-radius: 4px;
+      color: #fff;
+      letter-spacing: 0.04em;
+      min-width: 52px;
+      text-align: center;
+    }
+
+    .method-GET { background: var(--get); }
+    .method-POST { background: var(--post); }
+    .method-PATCH { background: var(--patch); }
+    .method-DELETE { background: var(--delete); }
+
+    .endpoint-path {
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .auth-badge {
+      margin-left: auto;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      background: #f3f4f6;
+      color: var(--public);
+    }
+
+    .auth-badge.jwt {
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
+
+    .endpoint-body {
+      padding: 1.25rem;
+    }
+
+    .endpoint-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .endpoint-desc code {
+      background: #f3f4f6;
+      padding: 0.1rem 0.35rem;
+      border-radius: 3px;
+      font-size: 0.85em;
+    }
+
+    /* Code panels */
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .panels { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #2a3d35;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #2a3d35;
+      padding: 0.45rem 0.85rem;
+    }
+
+    .panel-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8fb9a8;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #c8e6d4;
+      font-size: 0.68rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .copy-btn:hover { background: rgba(255,255,255,0.1); }
+    .copy-btn.copied { background: var(--accent); border-color: var(--accent); }
+
+    .panel pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 1rem;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .panel-single {
+      margin-top: 0.5rem;
+    }
+
+    .panel-error .panel-header { background: #4a2020; }
+    .panel-error .panel-title { color: #fca5a5; }
+
+    /* Extra blocks */
+    .extra-block {
+      margin-bottom: 1rem;
+    }
+
+    .extra-block h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    /* Mobile */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 1rem;
+      left: 1rem;
+      z-index: 200;
+      background: var(--sidebar);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s;
+      }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; padding: 1.5rem 1.25rem 3rem; padding-top: 4rem; }
+      .menu-toggle { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+
+  <div class="layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h1>MIRU Bank Sampah</h1>
+        <p>Panduan API — alur per role</p>
+      </div>
+      <div class="sidebar-links">
+        {% for group in nav_groups %}
+        <div class="nav-group">
+          <div class="nav-group-title">{{ group.name }}</div>
+          {% for item in group.items %}
+          <a href="#{{ item.id }}" class="nav-link" data-section="{{ item.id }}">{{ item.title }}</a>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="sidebar-footer">
+        <a href="/api/docs/" target="_blank">Swagger UI (referensi) →</a><br>
+        <a href="/api/redoc/" target="_blank">ReDoc →</a><br>
+        <a href="/api/schema/" target="_blank">OpenAPI JSON →</a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <div class="hero">
+        <h2>Panduan API berbasis Alur</h2>
+        <p>
+          Dokumentasi ini mengikuti urutan penggunaan nyata — mulai dari login,
+          lalu flow nasabah, petugas, hingga admin. Setiap langkah menampilkan
+          contoh request &amp; response dengan akun demo per role.
+        </p>
+        <div class="hero-meta">
+          <span>Base URL: {{ base_url }}</span>
+          <span>Format: JSON Envelope</span>
+          <span>Auth: JWT Bearer</span>
+          <span><a href="/api/docs/" style="color:#86efac;">Swagger UI →</a></span>
+        </div>
+      </div>
+
+      {% for section in sections %}
+      <section class="section" id="{{ section.id }}">
+        <div class="section-header">
+          <div>
+            <div class="group-badge">{{ section.group }}</div>
+            <h3>{{ section.title }}</h3>
+          </div>
+        </div>
+
+        {% if section.description %}
+        <div class="section-desc">{{ section.description|safe }}</div>
+        {% endif %}
+
+        {% if section.flow_diagram %}
+        <div class="flow-hint">Alur: {{ section.flow_diagram }}</div>
+        {% endif %}
+
+        {% if section.show_demo_users %}
+        <div class="demo-grid">
+          {% for user in demo_users %}
+          <div class="demo-user-card">
+            <span class="role-tag">{{ user.role }}</span>
+            <div class="credentials">
+              <strong>{{ user.nama_lengkap }}</strong>
+              <div class="cred-row">username: <span>{{ user.username }}</span></div>
+              <div class="cred-row">password: <span>{{ user.password }}</span></div>
+              <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.35rem;">{{ user.keterangan }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if section.demo_user_data %}
+        <div class="demo-user-card">
+          <span class="role-tag">{{ section.demo_user_data.role }}</span>
+          <div class="credentials">
+            <strong>{{ section.demo_user_data.nama_lengkap }}</strong>
+            <div class="cred-row">username: <span>{{ section.demo_user_data.username }}</span></div>
+            <div class="cred-row">password: <span>{{ section.demo_user_data.password }}</span></div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% for block in section.extra_blocks %}
+        <div class="extra-block">
+          <h4>{{ block.title }}</h4>
+          <div class="panel panel-single">
+            <div class="panel-header">
+              <span class="panel-title">JSON</span>
+              <button class="copy-btn" onclick="copyText(this)">Salin</button>
+            </div>
+            <pre>{{ block.content }}</pre>
+          </div>
+        </div>
+        {% endfor %}
+
+        {% for ep in section.endpoints %}
+        <div class="endpoint">
+          <div class="endpoint-header">
+            <span class="method method-{{ ep.method }}">{{ ep.method }}</span>
+            <span class="endpoint-path">{{ ep.path }}</span>
+            <span class="auth-badge{% if ep.auth != 'Public' %} jwt{% endif %}">{{ ep.auth }}</span>
+          </div>
+          <div class="endpoint-body">
+            <p class="endpoint-desc">{{ ep.description|safe }}</p>
+
+            {% if ep.demo_user_data %}
+            <div class="demo-user-card" style="margin-bottom:1rem;padding:0.75rem 1rem;">
+              <span class="role-tag">{{ ep.demo_user_data.role }}</span>
+              <div class="credentials">
+                <div class="cred-row">username: <span>{{ ep.demo_user_data.username }}</span> · password: <span>{{ ep.demo_user_data.password }}</span></div>
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="panels">
+              {% if ep.request_body or ep.request_headers %}
+              <div class="panel">
+                <div class="panel-header">
+                  <span class="panel-title">Request</span>
+                  <button class="copy-btn" onclick="copyText(this)">Salin</button>
+                </div>
+                <pre>{% if ep.request_headers %}{{ ep.request_headers }}
+{% endif %}{% if ep.request_body %}{{ ep.request_body }}{% else %}(tanpa body){% endif %}</pre>
+              </div>
+              {% endif %}
+
+              <div class="panel{% if not ep.request_body and not ep.request_headers %} panel-single{% endif %}">
+                <div class="panel-header">
+                  <span class="panel-title">Response {{ ep.response_status|default:"200" }}</span>
+                  <button class="copy-btn" onclick="copyText(this)">Salin</button>
+                </div>
+                <pre>{{ ep.response }}</pre>
+              </div>
+            </div>
+
+            {% if ep.response_error %}
+            <div class="panel panel-error panel-single" style="margin-top:1rem;">
+              <div class="panel-header">
+                <span class="panel-title">Response Error</span>
+                <button class="copy-btn" onclick="copyText(this)">Salin</button>
+              </div>
+              <pre>{{ ep.response_error }}</pre>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </section>
+      {% endfor %}
+    </main>
+  </div>
+
+  <script>
+    function copyText(btn) {
+      const pre = btn.closest('.panel').querySelector('pre');
+      navigator.clipboard.writeText(pre.textContent).then(() => {
+        btn.textContent = 'Tersalin!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Salin'; btn.classList.remove('copied'); }, 1500);
+      });
+    }
+
+    const links = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.nav-link[data-section="${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('open');
+    });
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

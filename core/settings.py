@@ -134,3 +134,49 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MIRU Bank Sampah API',
+    'DESCRIPTION': (
+        'REST API untuk sistem MIRU Bank Sampah, Distrik Mimika Baru. '
+        'Semua response menggunakan JSON Envelope (`success`, `status_code`, `message`, `data`, `meta`). '
+        'Panduan alur per role: `/api/guide/`. '
+        'Akun demo (setelah `seed_data`): `admin/admin123`, `nasabah001/nasabah123`, '
+        '`petugas1/petugas123`, `koordinator/koordinator123`.'
+    ),
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
+    'TAGS': [
+        {'name': 'Auth', 'description': 'Login JWT, refresh token, dan profil user.'},
+        {'name': 'Health', 'description': 'Status server.'},
+        {'name': 'Users', 'description': 'Registrasi nasabah dan manajemen pengguna.'},
+        {'name': 'Waste Categories', 'description': 'Kategori sampah dan harga beli per kg.'},
+        {'name': 'Deposits', 'description': 'Transaksi setoran sampah.'},
+        {'name': 'Pickups', 'description': 'Penjemputan sampah dari nasabah.'},
+        {'name': 'Withdrawals', 'description': 'Penarikan saldo nasabah.'},
+        {'name': 'Rewards', 'description': 'Katalog reward penukaran poin.'},
+        {'name': 'Reward Redemptions', 'description': 'Penukaran poin nasabah.'},
+        {'name': 'Partners', 'description': 'Mitra pengepul sampah.'},
+        {'name': 'Partner Sales', 'description': 'Penjualan stok ke mitra.'},
+        {'name': 'Complaints', 'description': 'Pengaduan nasabah.'},
+    ],
+    'APPEND_COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+                'description': 'Token dari `POST /api/auth/login/`. Format: `Bearer <access_token>`',
+            },
+        },
+    },
+    'SECURITY': [{'BearerAuth': []}],
+    'SWAGGER_UI_SETTINGS': {
+        'deepLinking': True,
+        'persistAuthorization': True,
+        'displayOperationId': False,
+        'filter': True,
+    },
+}

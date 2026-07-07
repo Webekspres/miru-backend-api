@@ -5,6 +5,7 @@ from .response import get_action_message, success_envelope
 SKIP_ENVELOPE_PREFIXES = (
     '/api/schema',
     '/api/docs',
+    '/api/redoc',
 )
 
 
