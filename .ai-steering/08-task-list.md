@@ -56,7 +56,7 @@
 | Field `tindak_lanjut` | Belum ada di model Pengaduan | Tambah field TextField |
 | Field `jenis_pengaduan` | Belum ada | Tambah choices (7 jenis dari SOP) |
 | Pagination | Belum dikonfigurasi global | PageNumberPagination 20/halaman |
-| Error format | Format DRF default | RFC 7807 Problem Details (lihat `04`) |
+| Error format | Format DRF default | JSON Envelope error (lihat `04` §3) |
 | `transaction.atomic()` | Belum dipakai | Wajib untuk semua operasi saldo/stok/poin |
 | `SECRET_KEY` | Hardcoded | Dari environment variable |
 | `TIME_ZONE` | UTC | `Asia/Jayapura` (WIT) |
@@ -101,20 +101,25 @@
 
 > **Tujuan:** Backend siap dipakai tim frontend dengan konfigurasi aman, auth stabil, dan data awal terisi.
 
-### 1.1 Konfigurasi & Keamanan Dasar
-- [ ] Pindahkan `SECRET_KEY` ke environment variable (wajib production)
-- [ ] Tambah `python-dotenv` atau load `.env` di `settings.py`
-- [ ] Set `TIME_ZONE = 'Asia/Jayapura'` dan `USE_TZ = True`
-- [ ] Set `ALLOWED_HOSTS` dari environment variable
-- [ ] Konfigurasi `SIMPLE_JWT` — access token 24 jam (sesuai constraint)
-- [ ] Tambah `restart: unless-stopped` di `docker-compose.yml` (dev convenience)
-- [ ] Tambah healthcheck Postgres di `docker-compose.yml`
+### 1.1 Konfigurasi & Keamanan Dasar ✅
+- [x] Pindahkan `SECRET_KEY` ke environment variable (wajib production)
+- [x] Tambah `python-dotenv` atau load `.env` di `settings.py`
+- [x] Set `TIME_ZONE = 'Asia/Jayapura'` dan `USE_TZ = True`
+- [x] Set `ALLOWED_HOSTS` dari environment variable
+- [x] Konfigurasi `SIMPLE_JWT` — access token 24 jam (sesuai constraint)
+- [x] Tambah `restart: unless-stopped` di `docker-compose.yml` (dev convenience)
+- [x] Tambah healthcheck Postgres di `docker-compose.yml`
 
-### 1.2 Standar API Response (lihat `04-api-contracts-and-standards.md`)
-- [ ] Implementasi custom exception handler (RFC 7807 Problem Details)
-- [ ] Konfigurasi global pagination: `PageNumberPagination`, 20/halaman, max 100
+### 1.2 Standar API Response — JSON Envelope (lihat `04-api-contracts-and-standards.md` §3)
+- [ ] Buat `api/utils/response.py` — helper `success_response()`, `error_response()`
+- [ ] Buat `api/utils/pagination.py` — pagination → `meta.pagination`
+- [ ] Buat `api/utils/exception_handler.py` — wrap semua error ke envelope
+- [ ] Buat `api/utils/renderers.py` — custom JSON renderer untuk envelope sukses
+- [ ] Konfigurasi global pagination: 20/halaman, max 100
 - [ ] Konfigurasi global ordering: `OrderingFilter`
 - [ ] Konfigurasi global search: `SearchFilter` pada endpoint user
+- [ ] Setiap response wajib punya: `success`, `status_code`, `message`, `data`, `meta`
+- [ ] `meta` wajib berisi: `timestamp` (ISO 8601 WIT), `request_id`
 - [ ] Standarkan format datetime ISO 8601 dengan timezone WIT di response
 
 ### 1.3 Autentikasi & Registrasi (Modul 2)
@@ -362,8 +367,9 @@
 - [ ] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`)
 
 ### 6.3 Error Handling
-- [ ] Custom exception handler mengembalikan RFC 7807 format
-- [ ] Mapping error bisnis ke kode yang konsisten (lihat `04-api-contracts-and-standards.md`)
+- [ ] Custom exception handler mengembalikan JSON Envelope error (`success: false`, `code`, `errors`)
+- [ ] Custom renderer mengembalikan JSON Envelope sukses (`success: true`, `data`, `meta`)
+- [ ] Mapping error bisnis ke kode yang konsisten (lihat `04` §3.7)
 - [ ] Logging error ke console (dev) dan file/Sentry (prod)
 
 ---

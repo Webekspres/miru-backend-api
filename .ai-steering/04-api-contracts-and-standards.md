@@ -47,19 +47,39 @@ Content-Type: application/json
 **Response `200 OK`:**
 ```json
 {
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "success": true,
+  "status_code": 200,
+  "message": "Login berhasil.",
+  "data": {
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "user": {
+      "id": 1,
+      "username": "nasabah1",
+      "role": "nasabah",
+      "nama_lengkap": "Budi Santoso"
+    }
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc123"
+  }
 }
 ```
 
 **Response `401 Unauthorized`:**
 ```json
 {
-  "type": "https://mirubanksampah.id/errors/authentication-failed",
-  "title": "Authentication Failed",
-  "status": 401,
-  "detail": "No active account found with the given credentials.",
-  "code": "AUTHENTICATION_FAILED"
+  "success": false,
+  "status_code": 401,
+  "message": "Username atau password salah.",
+  "code": "AUTHENTICATION_FAILED",
+  "data": null,
+  "errors": null,
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc124"
+  }
 }
 ```
 
@@ -80,7 +100,16 @@ Content-Type: application/json
 **Response `200 OK`:**
 ```json
 {
-  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  "success": true,
+  "status_code": 200,
+  "message": "Token berhasil diperbarui.",
+  "data": {
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc125"
+  }
 }
 ```
 
@@ -94,17 +123,26 @@ Authorization: Bearer <access_token>
 **Response `200 OK`:**
 ```json
 {
-  "id": 1,
-  "username": "nasabah1",
-  "role": "nasabah",
-  "nama_lengkap": "Budi Santoso",
-  "nik": "",
-  "no_hp": "08123456789",
-  "alamat": "Jl. Cendrawasih No. 1, Timika",
-  "saldo": "125000.00",
-  "poin": 125,
-  "is_active": true,
-  "date_joined": "2026-07-01T08:00:00+09:00"
+  "success": true,
+  "status_code": 200,
+  "message": "Profil berhasil diambil.",
+  "data": {
+    "id": 1,
+    "username": "nasabah1",
+    "role": "nasabah",
+    "nama_lengkap": "Budi Santoso",
+    "nik": "",
+    "no_hp": "08123456789",
+    "alamat": "Jl. Cendrawasih No. 1, Timika",
+    "saldo": "125000.00",
+    "poin": 125,
+    "is_active": true,
+    "date_joined": "2026-07-01T08:00:00+09:00"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc126"
+  }
 }
 ```
 
@@ -127,56 +165,113 @@ Accept-Language: id
 
 ---
 
-## 3. Format Response Standar Industri
+## 3. Format Response Standar Industri — JSON Envelope
 
-API MIRU mengikuti kombinasi **REST best practices**, **RFC 7807 Problem Details**, dan **DRF pagination**.
+API MIRU menggunakan **JSON Envelope** — format response lengkap yang membungkus semua data dalam struktur konsisten. Ini adalah pola standar industri yang dipakai banyak API enterprise, fintech, dan aplikasi pemerintahan di Indonesia.
 
-### 3.1 Response Sukses — Resource Tunggal
+> **Prinsip ganda:** HTTP status code **tetap dikirim di header** (`200`, `400`, `401`, dll.) **dan** dicerminkan di body (`status_code`). Frontend bisa cek keduanya; `success` boolean memudahkan pengecekan cepat.
 
-HTTP status code mencerminkan operasi. Body berisi resource langsung (tanpa envelope).
+### 3.1 Struktur Envelope (Semua Response)
+
+| Field | Tipe | Sukses | Error | Deskripsi |
+|-------|------|--------|-------|-----------|
+| `success` | boolean | ✅ | ✅ | `true` jika berhasil, `false` jika gagal |
+| `status_code` | integer | ✅ | ✅ | HTTP status code (mirror dari header) |
+| `message` | string | ✅ | ✅ | Pesan human-readable (Bahasa Indonesia) |
+| `data` | object/array/null | ✅ | ✅ | Payload utama; `null` jika error |
+| `code` | string | ❌ | ✅ | Kode error machine-readable (hanya saat error) |
+| `errors` | object/null | ❌ | ✅ | Detail error per-field (validasi) |
+| `meta` | object | ✅ | ✅ | Metadata tambahan (pagination, timestamp, request_id) |
+
+### 3.2 Response Sukses — Resource Tunggal
 
 **`200 OK` — GET / PATCH:**
 ```json
 {
-  "id": 1,
-  "nama_lengkap": "Budi Santoso",
-  "saldo": "125000.00"
+  "success": true,
+  "status_code": 200,
+  "message": "Data berhasil diambil.",
+  "data": {
+    "id": 1,
+    "nama_lengkap": "Budi Santoso",
+    "saldo": "125000.00"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc127"
+  }
 }
 ```
 
 **`201 Created` — POST:**
 ```json
 {
-  "id": 42,
-  "status": "menunggu",
-  "tanggal": "2026-07-07T10:30:00+09:00"
+  "success": true,
+  "status_code": 201,
+  "message": "Transaksi setoran berhasil dicatat.",
+  "data": {
+    "id": 42,
+    "status": "selesai",
+    "tanggal": "2026-07-07T10:30:00+09:00",
+    "total_nilai": "20250.00"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T10:30:00+09:00",
+    "request_id": "req_abc128"
+  }
 }
 ```
 
 **`204 No Content` — DELETE:**
-```
-(tanpa body)
+```json
+{
+  "success": true,
+  "status_code": 204,
+  "message": "Data berhasil dihapus.",
+  "data": null,
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc129"
+  }
+}
 ```
 
-### 3.2 Response Sukses — Koleksi (Paginated)
-
-Mengikuti format **DRF PageNumberPagination** (standar de facto REST API):
+### 3.3 Response Sukses — Koleksi (Paginated)
 
 **`200 OK`:**
 ```json
 {
-  "count": 150,
-  "next": "http://localhost:8000/api/transaksi/?page=2",
-  "previous": null,
-  "results": [
+  "success": true,
+  "status_code": 200,
+  "message": "Daftar transaksi berhasil diambil.",
+  "data": [
     {
       "id": 1,
       "nasabah": 5,
       "total_nilai": "19500.00",
       "tanggal": "2026-07-07T10:30:00+09:00",
       "status": "selesai"
+    },
+    {
+      "id": 2,
+      "nasabah": 5,
+      "total_nilai": "8500.00",
+      "tanggal": "2026-07-06T09:15:00+09:00",
+      "status": "selesai"
     }
-  ]
+  ],
+  "meta": {
+    "pagination": {
+      "count": 150,
+      "page": 1,
+      "page_size": 20,
+      "total_pages": 8,
+      "next": "http://localhost:8000/api/transaksi/?page=2",
+      "previous": null
+    },
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc130"
+  }
 }
 ```
 
@@ -187,48 +282,96 @@ Mengikuti format **DRF PageNumberPagination** (standar de facto REST API):
 | `page` | 1 | — | Nomor halaman |
 | `page_size` | 20 | 100 | Jumlah item per halaman |
 
-### 3.3 Response Sukses — Aksi Kustom
+### 3.4 Response Sukses — Aksi Kustom
 
 Untuk endpoint action (approve, reject, assign):
 
 **`200 OK`:**
 ```json
 {
-  "id": 10,
-  "status": "disetujui",
+  "success": true,
+  "status_code": 200,
   "message": "Penjemputan berhasil disetujui.",
-  "updated_at": "2026-07-07T11:00:00+09:00"
-}
-```
-
-### 3.4 Response Error — RFC 7807 Problem Details
-
-Semua error mengembalikan format konsisten (target implementasi Fase 1):
-
-```json
-{
-  "type": "https://mirubanksampah.id/errors/validation-error",
-  "title": "Validation Error",
-  "status": 400,
-  "detail": "Satu atau lebih field tidak valid.",
-  "code": "VALIDATION_ERROR",
-  "errors": {
-    "nominal": ["Nominal penarikan minimal Rp50.000."],
-    "saldo": ["Saldo tidak mencukupi."]
+  "data": {
+    "id": 10,
+    "status": "disetujui",
+    "updated_at": "2026-07-07T11:00:00+09:00"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T11:00:00+09:00",
+    "request_id": "req_abc131"
   }
 }
 ```
 
-| Field | Tipe | Wajib | Deskripsi |
-|-------|------|-------|-----------|
-| `type` | string (URI) | ✅ | URI identifikasi tipe error |
-| `title` | string | ✅ | Ringkasan error (human-readable) |
-| `status` | integer | ✅ | HTTP status code |
-| `detail` | string | ✅ | Penjelasan error |
-| `code` | string | ✅ | Kode error machine-readable |
-| `errors` | object | ❌ | Detail per-field (validation errors) |
+### 3.5 Response Error — Format Standar
 
-### 3.5 Kode Error Standar
+Semua error mengembalikan envelope yang sama (target implementasi Fase 1):
+
+**Validasi gagal `400`:**
+```json
+{
+  "success": false,
+  "status_code": 400,
+  "message": "Satu atau lebih field tidak valid.",
+  "code": "VALIDATION_ERROR",
+  "data": null,
+  "errors": {
+    "nominal": ["Nominal penarikan minimal Rp50.000."],
+    "password": ["Password minimal 6 karakter."]
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc132"
+  }
+}
+```
+
+**Aturan bisnis dilanggar `422`:**
+```json
+{
+  "success": false,
+  "status_code": 422,
+  "message": "Saldo tidak mencukupi untuk penarikan ini.",
+  "code": "INSUFFICIENT_BALANCE",
+  "data": null,
+  "errors": {
+    "nominal": ["Saldo tersedia: Rp45.000,00. Minimal penarikan: Rp50.000,00."]
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc133"
+  }
+}
+```
+
+**Tidak punya akses `403`:**
+```json
+{
+  "success": false,
+  "status_code": 403,
+  "message": "Anda tidak memiliki izin untuk melakukan aksi ini.",
+  "code": "PERMISSION_DENIED",
+  "data": null,
+  "errors": null,
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc134"
+  }
+}
+```
+
+| Field Error | Tipe | Wajib | Deskripsi |
+|-------------|------|-------|-----------|
+| `success` | boolean | ✅ | Selalu `false` |
+| `status_code` | integer | ✅ | HTTP status code |
+| `message` | string | ✅ | Pesan error untuk ditampilkan ke user |
+| `code` | string | ✅ | Kode error machine-readable |
+| `data` | null | ✅ | Selalu `null` saat error |
+| `errors` | object/null | ✅ | Detail per-field; `null` jika bukan validasi |
+| `meta` | object | ✅ | `timestamp`, `request_id` |
+
+### 3.6 Kode Error Standar
 
 | HTTP Status | Code | Kapan Digunakan |
 |-------------|------|-----------------|
@@ -241,7 +384,7 @@ Semua error mengembalikan format konsisten (target implementasi Fase 1):
 | `429` | `RATE_LIMIT_EXCEEDED` | Terlalu banyak request |
 | `500` | `INTERNAL_ERROR` | Error server (jangan expose detail di production) |
 
-### 3.6 Kode Error Bisnis (Domain-Specific)
+### 3.7 Kode Error Bisnis (Domain-Specific)
 
 | Code | Pesan | Modul |
 |------|-------|-------|
@@ -256,6 +399,57 @@ Semua error mengembalikan format konsisten (target implementasi Fase 1):
 | `ALREADY_PROCESSED` | Pengajuan sudah diproses | Penarikan/Penukaran |
 | `SCHEDULE_TOO_SOON` | Jadwal penjemputan minimal H+1 | Penjemputan |
 | `OUTSIDE_SERVICE_HOURS` | Di luar jam layanan (08.00–17.00 WIT) | Umum |
+
+### 3.8 Pesan Sukses Standar (Bahasa Indonesia)
+
+| Operasi | Message Default |
+|---------|-----------------|
+| GET list | `"Daftar {resource} berhasil diambil."` |
+| GET detail | `"Data {resource} berhasil diambil."` |
+| POST create | `"{Resource} berhasil dibuat."` |
+| PATCH update | `"{Resource} berhasil diperbarui."` |
+| DELETE | `"{Resource} berhasil dihapus."` |
+| Approve | `"{Resource} berhasil disetujui."` |
+| Reject | `"{Resource} berhasil ditolak."` |
+
+### 3.9 Implementasi Backend (DRF)
+
+Target Fase 1 — buat custom renderer & exception handler:
+
+```
+api/
+├── utils/
+│   ├── response.py          # helper: success_response(), error_response()
+│   ├── pagination.py        # custom pagination → meta.pagination
+│   ├── exception_handler.py # wrap semua error ke envelope
+│   └── renderers.py         # custom JSON renderer untuk envelope
+```
+
+**Contoh helper:**
+```python
+def success_response(data, message="Berhasil.", status_code=200, meta=None):
+    return Response({
+        "success": True,
+        "status_code": status_code,
+        "message": message,
+        "data": data,
+        "meta": {
+            "timestamp": timezone.now().isoformat(),
+            "request_id": get_request_id(),
+            **(meta or {})
+        }
+    }, status=status_code)
+```
+
+### 3.10 Perbandingan dengan Pola Lain
+
+| Pola | Contoh | Dipakai MIRU? |
+|------|--------|---------------|
+| **JSON Envelope** | `{ success, status_code, message, data, meta }` | ✅ **Ya — standar MIRU** |
+| REST murni | Body = resource langsung, status di header saja | ❌ Tidak |
+| RFC 7807 Problem Details | `{ type, title, status, detail }` | ❌ Tidak (diganti envelope) |
+| JSON:API | `{ data, included, links }` | ❌ Terlalu kompleks untuk proyek ini |
+| GraphQL | Query/mutation terpisah | ❌ Tidak dipakai |
 
 ---
 
@@ -308,6 +502,8 @@ GET /api/penjemputan/?ordering=status,-jadwal
 
 ## 6. Spesifikasi Endpoint Lengkap
 
+> **Catatan format:** Semua response API menggunakan **JSON Envelope** (lihat §3). Contoh di bawah menampilkan struktur lengkap. Field `meta.timestamp` dan `meta.request_id` selalu ada di setiap response.
+
 ### 6.1 Health Check
 
 ```
@@ -318,17 +514,34 @@ Public
 **Response `200 OK`:**
 ```json
 {
-  "status": "ok"
+  "success": true,
+  "status_code": 200,
+  "message": "Server berjalan normal.",
+  "data": {
+    "status": "ok"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_health_001"
+  }
 }
 ```
 
 **Response production (target Fase 7):**
 ```json
 {
-  "status": "ok",
-  "database": "connected",
-  "version": "1.0.0",
-  "timestamp": "2026-07-07T14:30:00+09:00"
+  "success": true,
+  "status_code": 200,
+  "message": "Server berjalan normal.",
+  "data": {
+    "status": "ok",
+    "database": "connected",
+    "version": "1.0.0"
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_health_001"
+  }
 }
 ```
 
@@ -362,31 +575,44 @@ Request:
 Response `201 Created`:
 ```json
 {
-  "id": 15,
-  "username": "budi_santoso",
-  "role": "nasabah",
-  "nama_lengkap": "Budi Santoso",
-  "nik": "",
-  "no_hp": "08123456789",
-  "alamat": "Jl. Cendrawasih No. 1, Timika",
-  "saldo": "0.00",
-  "poin": 0,
-  "is_active": true
+  "success": true,
+  "status_code": 201,
+  "message": "Registrasi nasabah berhasil.",
+  "data": {
+    "id": 15,
+    "username": "budi_santoso",
+    "role": "nasabah",
+    "nama_lengkap": "Budi Santoso",
+    "nik": "",
+    "no_hp": "08123456789",
+    "alamat": "Jl. Cendrawasih No. 1, Timika",
+    "saldo": "0.00",
+    "poin": 0,
+    "is_active": true
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc140"
+  }
 }
 ```
 
 Validation errors `400`:
 ```json
 {
-  "type": "https://mirubanksampah.id/errors/validation-error",
-  "title": "Validation Error",
-  "status": 400,
-  "detail": "Satu atau lebih field tidak valid.",
+  "success": false,
+  "status_code": 400,
+  "message": "Satu atau lebih field tidak valid.",
   "code": "VALIDATION_ERROR",
+  "data": null,
   "errors": {
     "username": ["Username sudah digunakan."],
     "password": ["Password minimal 6 karakter."],
     "setuju_kebijakan_data": ["Anda harus menyetujui kebijakan data pribadi."]
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc141"
   }
 }
 ```
@@ -500,11 +726,11 @@ Response `201 Created`:
 Business error `422`:
 ```json
 {
-  "type": "https://mirubanksampah.id/errors/business-rule-violation",
-  "title": "Business Rule Violation",
-  "status": 422,
-  "detail": "Berat setoran per jenis minimal 1 kg.",
+  "success": false,
+  "status_code": 422,
+  "message": "Berat setoran per jenis minimal 1 kg.",
   "code": "MIN_WEIGHT_NOT_MET",
+  "data": null,
   "errors": {
     "details": [
       {
@@ -512,6 +738,10 @@ Business error `422`:
         "berat_kg": ["Minimal 1 kg per jenis sampah."]
       }
     ]
+  },
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc150"
   }
 }
 ```
@@ -594,11 +824,16 @@ menunggu → ditolak
 Invalid transition `409`:
 ```json
 {
-  "type": "https://mirubanksampah.id/errors/conflict",
-  "title": "Conflict",
-  "status": 409,
-  "detail": "Tidak dapat mengubah status dari 'menunggu' ke 'selesai'.",
-  "code": "INVALID_STATUS_TRANSITION"
+  "success": false,
+  "status_code": 409,
+  "message": "Tidak dapat mengubah status dari 'menunggu' ke 'selesai'.",
+  "code": "INVALID_STATUS_TRANSITION",
+  "data": null,
+  "errors": null,
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc160"
+  }
 }
 ```
 
@@ -1036,12 +1271,17 @@ Semua endpoint harus memiliki:
 Response `429 Too Many Requests`:
 ```json
 {
-  "type": "https://mirubanksampah.id/errors/rate-limit-exceeded",
-  "title": "Rate Limit Exceeded",
-  "status": 429,
-  "detail": "Terlalu banyak permintaan. Coba lagi dalam 60 detik.",
+  "success": false,
+  "status_code": 429,
+  "message": "Terlalu banyak permintaan. Coba lagi dalam 60 detik.",
   "code": "RATE_LIMIT_EXCEEDED",
-  "retry_after": 60
+  "data": null,
+  "errors": null,
+  "meta": {
+    "timestamp": "2026-07-07T14:30:00+09:00",
+    "request_id": "req_abc170",
+    "retry_after": 60
+  }
 }
 ```
 
@@ -1092,8 +1332,9 @@ Breaking change policy:
 
 | Aspek | Saat Ini | Target (Fase 1–6) |
 |-------|----------|-------------------|
-| Error format | DRF default | RFC 7807 Problem Details |
-| Pagination | Belum dikonfigurasi | PageNumberPagination 20/halaman |
+| Response format | DRF default (resource langsung) | JSON Envelope (`success`, `status_code`, `message`, `data`, `meta`) |
+| Error format | DRF default | JSON Envelope error (`success: false`, `code`, `errors`) |
+| Pagination | Belum dikonfigurasi | `meta.pagination` dalam envelope |
 | `/api/auth/me/` | Belum ada | Fase 1 |
 | Action endpoints (approve/reject) | Belum ada | Fase 3 |
 | Dashboard & Laporan | Belum ada | Fase 4 |
@@ -1103,10 +1344,26 @@ Breaking change policy:
 
 ### Konvensi Frontend
 
+- **Selalu cek `success` boolean** sebelum memproses `data`
+- **Tampilkan `message`** ke user (toast/alert) — sudah Bahasa Indonesia
+- **Gunakan `errors` object** untuk highlight field form yang invalid
+- **Jangan andalkan HTTP status saja** — parse `status_code` dari body sebagai fallback
 - Simpan `access` token di memory / secure storage (mobile: `flutter_secure_storage`)
 - Simpan `refresh` token di secure storage
-- Refresh otomatis saat dapat `401` dengan code `AUTHENTICATION_FAILED`
-- Tampilkan `detail` dari error response ke user
-- Gunakan `errors` object untuk highlight field form yang invalid
+- Refresh otomatis saat `success === false` && `code === "AUTHENTICATION_FAILED"`
+- Pagination: baca dari `meta.pagination` (bukan `count`/`results` di root)
 - Format tanggal tampilan: konversi ISO 8601 ke locale `id-ID` di frontend
 - Format rupiah: `Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })`
+
+**Contoh handler frontend:**
+```typescript
+async function apiCall<T>(url: string, options?: RequestInit): Promise<T> {
+  const res = await fetch(url, options);
+  const json = await res.json();
+
+  if (!json.success) {
+    throw new ApiError(json.message, json.code, json.errors, json.status_code);
+  }
+  return json.data as T;
+}
+```

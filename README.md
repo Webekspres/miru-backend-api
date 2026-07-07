@@ -24,7 +24,16 @@ python manage.py runserver
 Docker Compose is used to spin up the Django app alongside a PostgreSQL database for staging or production.
 
 ### 1. Environment Variables
-Copy `.env.example` to `.env` (ensure `USE_POSTGRES=True` is set).
+Copy `.env.example` to `.env` and configure:
+
+| Variable | Description | Default (dev) |
+|----------|-------------|---------------|
+| `SECRET_KEY` | Django secret key | Required — generate unique for production |
+| `DEBUG` | Debug mode | `True` |
+| `ALLOWED_HOSTS` | Comma-separated hosts | `localhost,127.0.0.1` |
+| `USE_POSTGRES` | Use PostgreSQL | `True` for Docker |
+| `DB_*` | Database credentials | See `.env.example` |
+| `CORS_ALLOW_ALL_ORIGINS` | Allow all CORS origins | `True` for local dev |
 
 ### 2. Build and Run
 ```bash
