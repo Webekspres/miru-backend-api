@@ -40,11 +40,11 @@
 - Data untuk QR code: `{id, nama_lengkap, no_hp}` — di-encode di frontend
 
 ### Modul 4-5: Kategori & Harga Sampah
-- `GET/POST/PATCH/DELETE /api/sampah/kategori/`
+- `GET/POST/PATCH/DELETE /api/waste-categories/`
 - Kategori default: Plastik PET, Gelas Plastik, Kardus, Kertas Putih, Aluminium, Besi, Kaca, Minyak Jelantah
 
 ### Modul 6: Setor Sampah Langsung
-- `POST /api/transaksi/` — Create dengan nested details
+- `POST /api/deposits/` — Create dengan nested details
 - Side effects:
   - Hitung total_nilai dari details.
   - Update saldo nasabah (+total_nilai).
@@ -52,8 +52,8 @@
   - Update stok kategori (+berat_kg per detail).
 
 ### Modul 7: Penjemputan Sampah
-- `POST /api/penjemputan/` — Ajukan (nasabah)
-- `PATCH /api/penjemputan/{id}/` — Update status (petugas/admin)
+- `POST /api/pickups/` — Ajukan (nasabah)
+- `PATCH /api/pickups/{id}/` — Update status (petugas/admin)
 - Filter by status: `?status=menunggu`
 
 ### Modul 8: Penimbangan & Verifikasi
@@ -61,32 +61,32 @@
 - Petugas input kategori + berat → sistem hitung subtotal otomatis.
 
 ### Modul 9: Saldo & Riwayat
-- `GET /api/transaksi/?nasabah={id}` — Riwayat setoran
-- `GET /api/saldo/?nasabah={id}` — Riwayat penarikan
-- `GET /api/reward/tukar/?nasabah={id}` — Riwayat penukaran poin
+- `GET /api/deposits/?nasabah={id}` — Riwayat setoran
+- `GET /api/withdrawals/?nasabah={id}` — Riwayat penarikan
+- `GET /api/reward-redemptions/?nasabah={id}` — Riwayat penukaran poin
 
 ### Modul 10: Penarikan Saldo
-- `POST /api/saldo/` — Ajukan (validasi: nominal >= 50000, saldo >= nominal)
-- `PATCH /api/saldo/{id}/` — Admin setujui (status → 'selesai', kurangi saldo)
+- `POST /api/withdrawals/` — Ajukan (validasi: nominal >= 50000, saldo >= nominal)
+- `PATCH /api/withdrawals/{id}/` — Admin setujui (status → 'selesai', kurangi saldo)
 - Filter: `?status=menunggu`
 
 ### Modul 11: Poin & Reward
-- `GET/POST/PATCH/DELETE /api/reward/katalog/` — CRUD reward
-- `POST /api/reward/tukar/` — Tukar poin (validasi: poin >= reward.poin_dibutuhkan)
-- `PATCH /api/reward/tukar/{id}/` — Admin setujui
+- `GET/POST/PATCH/DELETE /api/rewards/` — CRUD reward
+- `POST /api/reward-redemptions/` — Tukar poin (validasi: poin >= reward.poin_dibutuhkan)
+- `PATCH /api/reward-redemptions/{id}/` — Admin setujui
 
 ### Modul 12: Stok Gudang
-- `GET /api/sampah/kategori/` — Lihat stok per kategori (stok_terkini_kg)
+- `GET /api/waste-categories/` — Lihat stok per kategori (stok_terkini_kg)
 - Update otomatis via transaksi setoran (+stok) dan penjualan mitra (-stok)
 
 ### Modul 13: Penjualan ke Mitra
-- `POST /api/gudang/jual/` — Catat penjualan (kurangi stok otomatis)
-- `POST /api/gudang/mitra/` — CRUD mitra
+- `POST /api/partner-sales/` — Catat penjualan (kurangi stok otomatis)
+- `POST /api/partners/` — CRUD mitra
 
 ### Modul 14: Pengaduan
-- `POST /api/pengaduan/` — Ajukan (nasabah)
-- `GET /api/pengaduan/` — List (nasabah lihat sendiri, admin lihat semua)
-- `PATCH /api/pengaduan/{id}/` — Admin update tindak lanjut & status
+- `POST /api/complaints/` — Ajukan (nasabah)
+- `GET /api/complaints/` — List (nasabah lihat sendiri, admin lihat semua)
+- `PATCH /api/complaints/{id}/` — Admin update tindak lanjut & status
 
 ### Modul 15: Dashboard & Monitoring
 - Data agregat yang perlu disediakan:
@@ -98,8 +98,8 @@
 
 ### Modul 16: Laporan & Ekspor
 - Endpoint khusus untuk data laporan:
-  - `GET /api/laporan/harian/?tanggal=2026-07-03`
-  - `GET /api/laporan/bulanan/?bulan=7&tahun=2026`
+  - `GET /api/reports/daily/?tanggal=2026-07-03`
+  - `GET /api/reports/monthly/?bulan=7&tahun=2026`
 - Ekspor bisa dilakukan di frontend (download CSV/Excel dari data JSON)
 
 ### Modul 17: Pengaturan Sistem & Audit Log

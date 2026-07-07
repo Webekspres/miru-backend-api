@@ -23,6 +23,29 @@
 | Idempotensi | Operasi approve/reject harus aman dari double-submit |
 | Versioning | Prefix `/api/` (v1 implisit); `/api/v2/` jika breaking change |
 
+### 1.1 Route Naming (English, kebab-case)
+
+Semua URL API menggunakan **bahasa Inggris**, plural nouns, kebab-case.
+
+| Resource | Route | Deskripsi |
+|----------|-------|-----------|
+| Users | `/api/users/` | Manajemen pengguna |
+| Waste categories | `/api/waste-categories/` | Kategori & harga sampah |
+| Deposits | `/api/deposits/` | Transaksi setoran |
+| Pickups | `/api/pickups/` | Penjemputan sampah |
+| Withdrawals | `/api/withdrawals/` | Penarikan saldo |
+| Rewards | `/api/rewards/` | Katalog reward |
+| Reward redemptions | `/api/reward-redemptions/` | Penukaran poin |
+| Partners | `/api/partners/` | Mitra pengepul |
+| Partner sales | `/api/partner-sales/` | Penjualan ke mitra |
+| Inventory | `/api/inventory/` | Stok gudang (planned) |
+| Complaints | `/api/complaints/` | Pengaduan nasabah |
+| Activity | `/api/activity/` | Riwayat gabungan (planned) |
+| Dashboard | `/api/dashboard/` | Monitoring (planned) |
+| Reports | `/api/reports/` | Laporan (planned) |
+| Settings | `/api/settings/` | Pengaturan institusi (planned) |
+| Auth | `/api/auth/login/`, `/api/auth/refresh/`, `/api/auth/me/` | Autentikasi |
+
 ---
 
 ## 2. Autentikasi — JWT (RFC 7519)
@@ -266,7 +289,7 @@ API MIRU menggunakan **JSON Envelope** — format response lengkap yang membungk
       "page": 1,
       "page_size": 20,
       "total_pages": 8,
-      "next": "http://localhost:8000/api/transaksi/?page=2",
+      "next": "http://localhost:8000/api/deposits/?page=2",
       "previous": null
     },
     "timestamp": "2026-07-07T14:30:00+09:00",
@@ -470,19 +493,19 @@ def success_response(data, message="Berhasil.", status_code=200, meta=None):
 ### 5.1 Filtering (django-filter)
 
 ```
-GET /api/transaksi/?nasabah=5&status=selesai
-GET /api/penjemputan/?status=menunggu&petugas=3
+GET /api/deposits/?nasabah=5&status=selesai
+GET /api/pickups/?status=menunggu&petugas=3
 GET /api/users/?role=nasabah&is_active=true
-GET /api/pengaduan/?status=terbuka&jenis_pengaduan=saldo_belum_masuk
-GET /api/saldo/?status=menunggu
+GET /api/complaints/?status=terbuka&jenis_pengaduan=saldo_belum_masuk
+GET /api/withdrawals/?status=menunggu
 ```
 
 ### 5.2 Date Range Filtering
 
 ```
-GET /api/transaksi/?tanggal_after=2026-07-01&tanggal_before=2026-07-31
-GET /api/laporan/harian/?tanggal=2026-07-07
-GET /api/laporan/bulanan/?bulan=7&tahun=2026
+GET /api/deposits/?tanggal_after=2026-07-01&tanggal_before=2026-07-31
+GET /api/reports/daily/?tanggal=2026-07-07
+GET /api/reports/monthly/?bulan=7&tahun=2026
 ```
 
 ### 5.3 Searching
@@ -494,8 +517,8 @@ GET /api/users/?search=budi
 ### 5.4 Ordering
 
 ```
-GET /api/transaksi/?ordering=-tanggal
-GET /api/penjemputan/?ordering=status,-jadwal
+GET /api/deposits/?ordering=-tanggal
+GET /api/pickups/?ordering=status,-jadwal
 ```
 
 ---
@@ -623,13 +646,13 @@ Validation errors `400`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/sampah/kategori/` | Public | Semua |
-| `GET` | `/api/sampah/kategori/{id}/` | Public | Semua |
-| `POST` | `/api/sampah/kategori/` | JWT | Admin, Koordinator |
-| `PATCH` | `/api/sampah/kategori/{id}/` | JWT | Admin, Koordinator |
-| `DELETE` | `/api/sampah/kategori/{id}/` | JWT | Admin |
+| `GET` | `/api/waste-categories/` | Public | Semua |
+| `GET` | `/api/waste-categories/{id}/` | Public | Semua |
+| `POST` | `/api/waste-categories/` | JWT | Admin, Koordinator |
+| `PATCH` | `/api/waste-categories/{id}/` | JWT | Admin, Koordinator |
+| `DELETE` | `/api/waste-categories/{id}/` | JWT | Admin |
 
-**GET /api/sampah/kategori/ — Response `200 OK`:**
+**GET /api/waste-categories/ — Response `200 OK`:**
 ```json
 {
   "count": 8,
@@ -652,7 +675,7 @@ Validation errors `400`:
 }
 ```
 
-**POST /api/sampah/kategori/ — Request:**
+**POST /api/waste-categories/ — Request:**
 ```json
 {
   "nama": "Plastik PET",
@@ -666,11 +689,11 @@ Validation errors `400`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/transaksi/` | JWT | Owner, Petugas, Admin, Koordinator |
-| `GET` | `/api/transaksi/{id}/` | JWT | Owner, Petugas, Admin, Koordinator |
-| `POST` | `/api/transaksi/` | JWT | Petugas, Admin |
+| `GET` | `/api/deposits/` | JWT | Owner, Petugas, Admin, Koordinator |
+| `GET` | `/api/deposits/{id}/` | JWT | Owner, Petugas, Admin, Koordinator |
+| `POST` | `/api/deposits/` | JWT | Petugas, Admin |
 
-**POST /api/transaksi/ — Input Setoran**
+**POST /api/deposits/ — Input Setoran**
 
 Request:
 ```json
@@ -757,16 +780,16 @@ Business error `422`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `POST` | `/api/penjemputan/` | JWT | Nasabah |
-| `GET` | `/api/penjemputan/` | JWT | Owner, Petugas, Admin |
-| `GET` | `/api/penjemputan/{id}/` | JWT | Owner, Petugas, Admin |
-| `PATCH` | `/api/penjemputan/{id}/` | JWT | Admin, Petugas (assigned) |
-| `POST` | `/api/penjemputan/{id}/approve/` | JWT | Admin |
-| `POST` | `/api/penjemputan/{id}/reject/` | JWT | Admin |
-| `POST` | `/api/penjemputan/{id}/assign/` | JWT | Admin |
-| `POST` | `/api/penjemputan/{id}/update-status/` | JWT | Petugas (assigned), Admin |
+| `POST` | `/api/pickups/` | JWT | Nasabah |
+| `GET` | `/api/pickups/` | JWT | Owner, Petugas, Admin |
+| `GET` | `/api/pickups/{id}/` | JWT | Owner, Petugas, Admin |
+| `PATCH` | `/api/pickups/{id}/` | JWT | Admin, Petugas (assigned) |
+| `POST` | `/api/pickups/{id}/approve/` | JWT | Admin |
+| `POST` | `/api/pickups/{id}/reject/` | JWT | Admin |
+| `POST` | `/api/pickups/{id}/assign/` | JWT | Admin |
+| `POST` | `/api/pickups/{id}/update-status/` | JWT | Petugas (assigned), Admin |
 
-**POST /api/penjemputan/ — Ajukan Penjemputan**
+**POST /api/pickups/ — Ajukan Penjemputan**
 
 Request:
 ```json
@@ -794,7 +817,7 @@ Response `201 Created`:
 }
 ```
 
-**POST /api/penjemputan/{id}/assign/ — Tugaskan Petugas**
+**POST /api/pickups/{id}/assign/ — Tugaskan Petugas**
 
 Request:
 ```json
@@ -843,13 +866,13 @@ Invalid transition `409`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `POST` | `/api/saldo/` | JWT | Nasabah |
-| `GET` | `/api/saldo/` | JWT | Owner, Admin, Koordinator |
-| `GET` | `/api/saldo/{id}/` | JWT | Owner, Admin, Koordinator |
-| `POST` | `/api/saldo/{id}/approve/` | JWT | Admin, Koordinator |
-| `POST` | `/api/saldo/{id}/reject/` | JWT | Admin, Koordinator |
+| `POST` | `/api/withdrawals/` | JWT | Nasabah |
+| `GET` | `/api/withdrawals/` | JWT | Owner, Admin, Koordinator |
+| `GET` | `/api/withdrawals/{id}/` | JWT | Owner, Admin, Koordinator |
+| `POST` | `/api/withdrawals/{id}/approve/` | JWT | Admin, Koordinator |
+| `POST` | `/api/withdrawals/{id}/reject/` | JWT | Admin, Koordinator |
 
-**POST /api/saldo/ — Ajukan Penarikan**
+**POST /api/withdrawals/ — Ajukan Penarikan**
 
 Request:
 ```json
@@ -871,7 +894,7 @@ Response `201 Created`:
 }
 ```
 
-**POST /api/saldo/{id}/approve/ — Setujui (admin bayar manual, lalu approve)**
+**POST /api/withdrawals/{id}/approve/ — Setujui (admin bayar manual, lalu approve)**
 
 Response `200 OK`:
 ```json
@@ -890,15 +913,15 @@ Response `200 OK`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/reward/katalog/` | Public | Semua |
-| `POST` | `/api/reward/katalog/` | JWT | Admin |
-| `PATCH` | `/api/reward/katalog/{id}/` | JWT | Admin |
-| `DELETE` | `/api/reward/katalog/{id}/` | JWT | Admin |
-| `POST` | `/api/reward/tukar/` | JWT | Nasabah |
-| `GET` | `/api/reward/tukar/` | JWT | Owner, Admin |
-| `POST` | `/api/reward/tukar/{id}/approve/` | JWT | Admin |
+| `GET` | `/api/rewards/` | Public | Semua |
+| `POST` | `/api/rewards/` | JWT | Admin |
+| `PATCH` | `/api/rewards/{id}/` | JWT | Admin |
+| `DELETE` | `/api/rewards/{id}/` | JWT | Admin |
+| `POST` | `/api/reward-redemptions/` | JWT | Nasabah |
+| `GET` | `/api/reward-redemptions/` | JWT | Owner, Admin |
+| `POST` | `/api/reward-redemptions/{id}/approve/` | JWT | Admin |
 
-**GET /api/reward/katalog/ — Response `200 OK`:**
+**GET /api/rewards/ — Response `200 OK`:**
 ```json
 {
   "count": 4,
@@ -921,7 +944,7 @@ Response `200 OK`:
 }
 ```
 
-**POST /api/reward/tukar/ — Request:**
+**POST /api/reward-redemptions/ — Request:**
 ```json
 {
   "reward": 1
@@ -947,14 +970,14 @@ Response `201 Created`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/gudang/mitra/` | JWT | Admin, Koordinator |
-| `POST` | `/api/gudang/mitra/` | JWT | Admin |
-| `PATCH` | `/api/gudang/mitra/{id}/` | JWT | Admin |
-| `GET` | `/api/gudang/jual/` | JWT | Admin, Koordinator |
-| `POST` | `/api/gudang/jual/` | JWT | Admin |
-| `GET` | `/api/gudang/stok/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/partners/` | JWT | Admin, Koordinator |
+| `POST` | `/api/partners/` | JWT | Admin |
+| `PATCH` | `/api/partners/{id}/` | JWT | Admin |
+| `GET` | `/api/partner-sales/` | JWT | Admin, Koordinator |
+| `POST` | `/api/partner-sales/` | JWT | Admin |
+| `GET` | `/api/inventory/` | JWT | Admin, Koordinator, Pemerintah |
 
-**POST /api/gudang/jual/ — Catat Penjualan ke Mitra**
+**POST /api/partner-sales/ — Catat Penjualan ke Mitra**
 
 Request:
 ```json
@@ -988,12 +1011,12 @@ Response `201 Created`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `POST` | `/api/pengaduan/` | JWT | Nasabah |
-| `GET` | `/api/pengaduan/` | JWT | Owner, Admin |
-| `GET` | `/api/pengaduan/{id}/` | JWT | Owner, Admin |
-| `PATCH` | `/api/pengaduan/{id}/` | JWT | Admin |
+| `POST` | `/api/complaints/` | JWT | Nasabah |
+| `GET` | `/api/complaints/` | JWT | Owner, Admin |
+| `GET` | `/api/complaints/{id}/` | JWT | Owner, Admin |
+| `PATCH` | `/api/complaints/{id}/` | JWT | Admin |
 
-**POST /api/pengaduan/ — Request:**
+**POST /api/complaints/ — Request:**
 ```json
 {
   "jenis_pengaduan": "saldo_belum_masuk",
@@ -1017,7 +1040,7 @@ Response `201 Created`:
 }
 ```
 
-**PATCH /api/pengaduan/{id}/ — Admin tindak lanjut**
+**PATCH /api/complaints/{id}/ — Admin tindak lanjut**
 
 Request:
 ```json
@@ -1033,17 +1056,17 @@ Request:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/riwayat/` | JWT | Nasabah (milik sendiri), Admin |
+| `GET` | `/api/activity/` | JWT | Nasabah (milik sendiri), Admin |
 
 ```
-GET /api/riwayat/?jenis=setoran&page=1&ordering=-tanggal
+GET /api/activity/?jenis=setoran&page=1&ordering=-tanggal
 ```
 
 Response `200 OK`:
 ```json
 {
   "count": 25,
-  "next": "http://localhost:8000/api/riwayat/?page=2",
+  "next": "http://localhost:8000/api/activity/?page=2",
   "previous": null,
   "results": [
     {
@@ -1082,8 +1105,8 @@ Response `200 OK`:
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
 | `GET` | `/api/dashboard/overview/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/dashboard/grafik-setoran/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/dashboard/aktivitas-terbaru/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/dashboard/deposit-chart/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/dashboard/recent-activity/` | JWT | Admin, Koordinator, Pemerintah |
 
 **GET /api/dashboard/overview/ — Response `200 OK`:**
 ```json
@@ -1110,7 +1133,7 @@ Response `200 OK`:
 }
 ```
 
-**GET /api/dashboard/grafik-setoran/?bulan=7&tahun=2026:**
+**GET /api/dashboard/deposit-chart/?bulan=7&tahun=2026:**
 ```json
 {
   "labels": ["01", "02", "03", "04", "05", "06", "07"],
@@ -1133,13 +1156,13 @@ Response `200 OK`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/laporan/harian/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/laporan/mingguan/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/laporan/bulanan/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/laporan/sampah/` | JWT | Admin, Koordinator, Pemerintah |
-| `GET` | `/api/laporan/evaluasi/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/reports/daily/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/reports/weekly/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/reports/monthly/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/reports/waste/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/reports/evaluation/` | JWT | Admin, Koordinator, Pemerintah |
 
-**GET /api/laporan/harian/?tanggal=2026-07-07 — Response `200 OK`:**
+**GET /api/reports/daily/?tanggal=2026-07-07 — Response `200 OK`:**
 ```json
 {
   "tanggal": "2026-07-07",
@@ -1164,7 +1187,7 @@ Response `200 OK`:
 }
 ```
 
-**GET /api/laporan/bulanan/?bulan=7&tahun=2026 — Response `200 OK`:**
+**GET /api/reports/monthly/?bulan=7&tahun=2026 — Response `200 OK`:**
 ```json
 {
   "bulan": 7,
@@ -1189,10 +1212,10 @@ Response `200 OK`:
 
 | Method | Endpoint | Auth | Permission |
 |--------|----------|------|------------|
-| `GET` | `/api/pengaturan/` | Public | Semua |
-| `PATCH` | `/api/pengaturan/` | JWT | Admin |
+| `GET` | `/api/settings/` | Public | Semua |
+| `PATCH` | `/api/settings/` | JWT | Admin |
 
-**GET /api/pengaturan/ — Response `200 OK`:**
+**GET /api/settings/ — Response `200 OK`:**
 ```json
 {
   "nama_institusi": "Bank Sampah MIRU - Distrik Mimika Baru",

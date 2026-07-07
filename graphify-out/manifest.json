@@ -50,13 +50,13 @@
     "semantic_hash": ""
   },
   "api/urls.py": {
-    "mtime": 1783052633.5745883,
-    "ast_hash": "bec16ed9904ca34d04208af31203e7bd",
+    "mtime": 1783406555.7419226,
+    "ast_hash": "2ee103e2258d2d30790999497e4c91dd",
     "semantic_hash": ""
   },
   "api/views.py": {
-    "mtime": 1783052633.576598,
-    "ast_hash": "e83f45a81fd0c7952eb055444a11095b",
+    "mtime": 1783406332.5275364,
+    "ast_hash": "e022dd7c4259866ec8b2f32b3b003bde",
     "semantic_hash": ""
   },
   "core/__init__.py": {
@@ -70,13 +70,13 @@
     "semantic_hash": ""
   },
   "core/settings.py": {
-    "mtime": 1783405939.4776926,
-    "ast_hash": "0a97985b478393700724e805bdc87520",
+    "mtime": 1783406306.0891876,
+    "ast_hash": "645e99359c87b71db92462b4dffc4f2a",
     "semantic_hash": ""
   },
   "core/urls.py": {
-    "mtime": 1783061371.0734797,
-    "ast_hash": "16658dea3929497bce88e4bf5d71def4",
+    "mtime": 1783406306.597658,
+    "ast_hash": "f5d51bdb8b25eff15f095fbcebee0938",
     "semantic_hash": ""
   },
   "core/wsgi.py": {
@@ -135,8 +135,8 @@
     "semantic_hash": ""
   },
   ".ai-steering/08-task-list.md": {
-    "mtime": 1783405950.2936788,
-    "ast_hash": "ac49210df029808c1347797a1c79a964",
+    "mtime": 1783406337.721866,
+    "ast_hash": "3ce8fb240a40dbf25a696dfaccccaeca",
     "semantic_hash": ""
   },
   ".ai-steering/09-data-dictionary.md": {
@@ -172,6 +172,46 @@
   "requirements.txt": {
     "mtime": 1783405930.7196536,
     "ast_hash": "080c96e02b1093c0b2fd1db5c389cdfd",
+    "semantic_hash": ""
+  },
+  "api/auth_views.py": {
+    "mtime": 1783406294.5481372,
+    "ast_hash": "77447e31f29b524489df55dd77f27a1f",
+    "semantic_hash": ""
+  },
+  "api/health_views.py": {
+    "mtime": 1783406294.5518415,
+    "ast_hash": "b01c5d5532a1948d55ae2e7af78c47bb",
+    "semantic_hash": ""
+  },
+  "api/middleware.py": {
+    "mtime": 1783406288.9628434,
+    "ast_hash": "40ee13a5224f4a4061a53dc0bcf5829e",
+    "semantic_hash": ""
+  },
+  "api/utils/__init__.py": {
+    "mtime": 1783406272.3320017,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
+  "api/utils/exception_handler.py": {
+    "mtime": 1783406332.7800353,
+    "ast_hash": "213199674003ac42a2a210570028f003",
+    "semantic_hash": ""
+  },
+  "api/utils/pagination.py": {
+    "mtime": 1783406277.1796193,
+    "ast_hash": "7215bd66a1a7c61d9cd6fe1d4b6a2a99",
+    "semantic_hash": ""
+  },
+  "api/utils/renderers.py": {
+    "mtime": 1783406288.1000721,
+    "ast_hash": "085b1b26a5cc131654bbb192bb49a9db",
+    "semantic_hash": ""
+  },
+  "api/utils/response.py": {
+    "mtime": 1783406275.775003,
+    "ast_hash": "cdb5c4b7589c41d8eb751b30924ae91c",
     "semantic_hash": ""
   }
 }

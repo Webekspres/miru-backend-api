@@ -4,15 +4,15 @@ from .views import *
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
-router.register(r'sampah/kategori', KategoriSampahViewSet, basename='kategori')
-router.register(r'transaksi', TransaksiSetoranViewSet, basename='transaksi')
-router.register(r'penjemputan', PenjemputanViewSet, basename='penjemputan')
-router.register(r'saldo', PenarikanSaldoViewSet, basename='saldo')
-router.register(r'reward/katalog', RewardViewSet, basename='reward')
-router.register(r'reward/tukar', PenukaranPoinViewSet, basename='tukar')
-router.register(r'gudang/mitra', MitraPengepulViewSet, basename='mitra')
-router.register(r'gudang/jual', PenjualanMitraViewSet, basename='jual')
-router.register(r'pengaduan', PengaduanViewSet, basename='pengaduan')
+router.register(r'waste-categories', KategoriSampahViewSet, basename='waste-category')
+router.register(r'deposits', TransaksiSetoranViewSet, basename='deposit')
+router.register(r'pickups', PenjemputanViewSet, basename='pickup')
+router.register(r'withdrawals', PenarikanSaldoViewSet, basename='withdrawal')
+router.register(r'rewards', RewardViewSet, basename='reward')
+router.register(r'reward-redemptions', PenukaranPoinViewSet, basename='reward-redemption')
+router.register(r'partners', MitraPengepulViewSet, basename='partner')
+router.register(r'partner-sales', PenjualanMitraViewSet, basename='partner-sale')
+router.register(r'complaints', PengaduanViewSet, basename='complaint')
 
 urlpatterns = [
     path('', include(router.urls)),

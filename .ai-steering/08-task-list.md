@@ -146,8 +146,8 @@
 - [ ] Dokumentasikan cara menjalankan seed di README
 
 ### 1.6 Kategori Sampah (Modul 4–5)
-- [ ] `GET /api/sampah/kategori/` — public, tanpa auth
-- [ ] `GET /api/sampah/kategori/{id}/` — public
+- [ ] `GET /api/waste-categories/` — public, tanpa auth
+- [ ] `GET /api/waste-categories/{id}/` — public
 - [ ] Admin CRUD kategori — permission `IsAdminOrKoordinator`
 - [ ] Response include `stok_terkini_kg` untuk monitoring admin
 
@@ -240,26 +240,26 @@
 ### 3.1 Alur Setor Langsung (SOP B.1)
 - [ ] Petugas scan/cari nasabah → input setoran → saldo & poin terupdate
 - [ ] Response setoran include bukti digital (id, tanggal, detail, total)
-- [ ] Endpoint `GET /api/transaksi/{id}/` — detail lengkap untuk bukti
+- [ ] Endpoint `GET /api/deposits/{id}/` — detail lengkap untuk bukti
 
 ### 3.2 Alur Penjemputan (SOP B.2)
 - [ ] Nasabah ajukan → admin approve → assign petugas → petugas update status → selesai
-- [ ] Endpoint action: `POST /api/penjemputan/{id}/approve/`
-- [ ] Endpoint action: `POST /api/penjemputan/{id}/reject/`
-- [ ] Endpoint action: `POST /api/penjemputan/{id}/assign/` (body: `petugas_id`)
-- [ ] Endpoint action: `POST /api/penjemputan/{id}/update-status/` (body: `status`)
+- [ ] Endpoint action: `POST /api/pickups/{id}/approve/`
+- [ ] Endpoint action: `POST /api/pickups/{id}/reject/`
+- [ ] Endpoint action: `POST /api/pickups/{id}/assign/` (body: `petugas_id`)
+- [ ] Endpoint action: `POST /api/pickups/{id}/update-status/` (body: `status`)
 
 ### 3.3 Alur Penarikan (SOP A.3)
 - [ ] Nasabah ajukan → admin approve manual → status selesai → saldo berkurang
-- [ ] Endpoint action: `POST /api/saldo/{id}/approve/`
-- [ ] Endpoint action: `POST /api/saldo/{id}/reject/` (opsional, kembalikan jika perlu)
+- [ ] Endpoint action: `POST /api/withdrawals/{id}/approve/`
+- [ ] Endpoint action: `POST /api/withdrawals/{id}/reject/` (opsional, kembalikan jika perlu)
 
 ### 3.4 Alur Penukaran Poin (SOP A.4)
 - [ ] Nasabah pilih reward → admin verifikasi → serahkan reward → approve
-- [ ] Endpoint action: `POST /api/reward/tukar/{id}/approve/`
+- [ ] Endpoint action: `POST /api/reward-redemptions/{id}/approve/`
 
 ### 3.5 Riwayat Transaksi Gabungan (Modul 9)
-- [ ] `GET /api/riwayat/` — gabungan setoran + penarikan + penukaran untuk nasabah login
+- [ ] `GET /api/activity/` — gabungan setoran + penarikan + penukaran untuk nasabah login
 - [ ] Query param: `?jenis=setoran|penarikan|poin`, `?page=`, `?ordering=-tanggal`
 - [ ] Response format standar dengan `type` field per item
 
@@ -268,7 +268,7 @@
 - [ ] `PATCH /api/auth/me/` — update profil tanpa ubah saldo/poin/role
 
 ### 3.7 Reward Katalog (Modul 11)
-- [ ] `GET /api/reward/katalog/` — public list
+- [ ] `GET /api/rewards/` — public list
 - [ ] Admin CRUD reward
 - [ ] Response include `stok` dan `poin_dibutuhkan`
 
@@ -285,27 +285,27 @@
   - total_penarikan, total_penukaran_poin
   - penjemputan_menunggu, pengaduan_terbuka
   - stok_per_kategori (array)
-- [ ] `GET /api/dashboard/grafik-setoran/?bulan=6&tahun=2026`
+- [ ] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
   - data per hari/minggu untuk chart
-- [ ] `GET /api/dashboard/aktivitas-terbaru/?limit=10`
+- [ ] `GET /api/dashboard/recent-activity/?limit=10`
   - 10 transaksi terbaru (setoran, penarikan, penjemputan)
 - [ ] Permission: admin, koordinator, pemerintah (read-only)
 
 ### 4.2 Laporan API (Modul 16)
-- [ ] `GET /api/laporan/harian/?tanggal=2026-07-07`
+- [ ] `GET /api/reports/daily/?tanggal=2026-07-07`
   - jumlah_transaksi, total_setoran, total_penarikan, tonase_per_jenis
-- [ ] `GET /api/laporan/mingguan/?minggu=27&tahun=2026`
+- [ ] `GET /api/reports/weekly/?minggu=27&tahun=2026`
   - rekap mingguan, nasabah_baru, tonase_per_jenis
-- [ ] `GET /api/laporan/bulanan/?bulan=7&tahun=2026`
+- [ ] `GET /api/reports/monthly/?bulan=7&tahun=2026`
   - laporan lengkap sesuai format SOP (lihat `09-data-dictionary.md` H.1)
-- [ ] `GET /api/laporan/sampah/?start=2026-07-01&end=2026-07-31`
+- [ ] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
   - tonase dan nilai per kategori per periode
-- [ ] `GET /api/laporan/evaluasi/?start=&end=` — data agregat untuk evaluasi program
+- [ ] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
 - [ ] Permission: admin, koordinator, pemerintah
 
 ### 4.3 Stok Gudang (Modul 12)
-- [ ] `GET /api/gudang/stok/` — ringkasan stok semua kategori
-- [ ] `GET /api/gudang/stok/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
+- [ ] `GET /api/inventory/` — ringkasan stok semua kategori
+- [ ] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
 
 ---
 
@@ -321,14 +321,14 @@
 
 ### 5.2 Pengaturan Institusi (Modul 17)
 - [ ] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
-- [ ] `GET /api/pengaturan/` — public (untuk tampilan mobile)
-- [ ] `PATCH /api/pengaturan/` — admin only
+- [ ] `GET /api/settings/` — public (untuk tampilan mobile)
+- [ ] `PATCH /api/settings/` — admin only
 - [ ] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
 
 ### 5.3 Riwayat Harga (Modul 5 — opsional MVP)
 - [ ] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
 - [ ] Auto-catat saat admin ubah `harga_beli_per_kg`
-- [ ] `GET /api/sampah/kategori/{id}/riwayat-harga/`
+- [ ] `GET /api/waste-categories/{id}/price-history/`
 
 ### 5.4 Role Pemerintah Distrik
 - [ ] Tambah role `pemerintah` ke User.ROLE_CHOICES

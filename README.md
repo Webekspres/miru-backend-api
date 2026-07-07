@@ -51,6 +51,21 @@ docker-compose exec web python manage.py migrate
 - **OpenAPI Schema**: `http://localhost:8000/api/schema/`
 - **Swagger UI**: `http://localhost:8000/api/docs/`
 
+### API Routes (English)
+
+| Route | Description |
+|-------|-------------|
+| `GET/POST /api/users/` | User management |
+| `GET/POST /api/waste-categories/` | Waste categories & prices |
+| `GET/POST /api/deposits/` | Deposit transactions |
+| `GET/POST /api/pickups/` | Waste pickups |
+| `GET/POST /api/withdrawals/` | Balance withdrawals |
+| `GET/POST /api/rewards/` | Reward catalog |
+| `GET/POST /api/reward-redemptions/` | Point redemptions |
+| `GET/POST /api/partners/` | Collector partners |
+| `GET/POST /api/partner-sales/` | Partner sales |
+| `GET/POST /api/complaints/` | Customer complaints |
+
 ### Authentication
 
 The API uses JWT for authentication.
