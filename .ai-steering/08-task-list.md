@@ -110,17 +110,17 @@
 - [x] Tambah `restart: unless-stopped` di `docker-compose.yml` (dev convenience)
 - [x] Tambah healthcheck Postgres di `docker-compose.yml`
 
-### 1.2 Standar API Response — JSON Envelope (lihat `04-api-contracts-and-standards.md` §3)
-- [ ] Buat `api/utils/response.py` — helper `success_response()`, `error_response()`
-- [ ] Buat `api/utils/pagination.py` — pagination → `meta.pagination`
-- [ ] Buat `api/utils/exception_handler.py` — wrap semua error ke envelope
-- [ ] Buat `api/utils/renderers.py` — custom JSON renderer untuk envelope sukses
-- [ ] Konfigurasi global pagination: 20/halaman, max 100
-- [ ] Konfigurasi global ordering: `OrderingFilter`
-- [ ] Konfigurasi global search: `SearchFilter` pada endpoint user
-- [ ] Setiap response wajib punya: `success`, `status_code`, `message`, `data`, `meta`
-- [ ] `meta` wajib berisi: `timestamp` (ISO 8601 WIT), `request_id`
-- [ ] Standarkan format datetime ISO 8601 dengan timezone WIT di response
+### 1.2 Standar API Response — JSON Envelope ✅
+- [x] Buat `api/utils/response.py` — helper `success_response()`, `error_response()`
+- [x] Buat `api/utils/pagination.py` — pagination → `meta.pagination`
+- [x] Buat `api/utils/exception_handler.py` — wrap semua error ke envelope
+- [x] Buat `api/utils/renderers.py` — custom JSON renderer untuk envelope sukses
+- [x] Konfigurasi global pagination: 20/halaman, max 100
+- [x] Konfigurasi global ordering: `OrderingFilter`
+- [x] Konfigurasi global search: `SearchFilter` pada endpoint user
+- [x] Setiap response wajib punya: `success`, `status_code`, `message`, `data`, `meta`
+- [x] `meta` wajib berisi: `timestamp` (ISO 8601 WIT), `request_id`
+- [x] Standarkan format datetime ISO 8601 dengan timezone WIT di response
 
 ### 1.3 Autentikasi & Registrasi (Modul 2)
 - [ ] Verifikasi `POST /api/auth/login/` — return access + refresh token

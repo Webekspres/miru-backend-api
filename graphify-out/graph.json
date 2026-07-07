@@ -4,16 +4,6 @@
   "graph": {},
   "nodes": [
     {
-      "label": "after-code-workflows.md",
-      "file_type": "document",
-      "source_file": ".agents/workflows/after-code-workflows.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "workflows_after_code_workflows",
-      "community": 27,
-      "norm_label": "after-code-workflows.md"
-    },
-    {
       "label": "04-api-contracts-and-standards.md",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
@@ -67,7 +57,7 @@
       "label": "2.2 Refresh Token",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L66",
+      "source_location": "L86",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_2_2_refresh_token",
       "community": 13,
@@ -77,7 +67,7 @@
       "label": "2.3 Profil User Login",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L87",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_2_3_profil_user_login",
       "community": 13,
@@ -87,7 +77,7 @@
       "label": "2.4 Header Autentikasi",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L111",
+      "source_location": "L149",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_2_4_header_autentikasi",
       "community": 13,
@@ -97,87 +87,127 @@
       "label": "2.5 JWT Claims",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L120",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_2_5_jwt_claims",
       "community": 13,
       "norm_label": "2.5 jwt claims"
     },
     {
-      "label": "3. Format Response Standar Industri",
+      "label": "3. Format Response Standar Industri \u2014 JSON Envelope",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L130",
+      "source_location": "L168",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "community": 19,
-      "norm_label": "3. format response standar industri"
+      "id": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "community": 17,
+      "norm_label": "3. format response standar industri \u2014 json envelope"
     },
     {
-      "label": "3.1 Response Sukses \u2014 Resource Tunggal",
+      "label": "3.1 Struktur Envelope (Semua Response)",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L134",
+      "source_location": "L174",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_1_response_sukses_resource_tunggal",
-      "community": 19,
-      "norm_label": "3.1 response sukses \u2014 resource tunggal"
+      "id": "ai_steering_04_api_contracts_and_standards_3_1_struktur_envelope_semua_response",
+      "community": 17,
+      "norm_label": "3.1 struktur envelope (semua response)"
     },
     {
-      "label": "3.2 Response Sukses \u2014 Koleksi (Paginated)",
+      "label": "3.2 Response Sukses \u2014 Resource Tunggal",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L161",
+      "source_location": "L186",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_2_response_sukses_koleksi_paginated",
-      "community": 19,
-      "norm_label": "3.2 response sukses \u2014 koleksi (paginated)"
+      "id": "ai_steering_04_api_contracts_and_standards_3_2_response_sukses_resource_tunggal",
+      "community": 17,
+      "norm_label": "3.2 response sukses \u2014 resource tunggal"
     },
     {
-      "label": "3.3 Response Sukses \u2014 Aksi Kustom",
+      "label": "3.3 Response Sukses \u2014 Koleksi (Paginated)",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L190",
+      "source_location": "L239",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_3_response_sukses_aksi_kustom",
-      "community": 19,
-      "norm_label": "3.3 response sukses \u2014 aksi kustom"
+      "id": "ai_steering_04_api_contracts_and_standards_3_3_response_sukses_koleksi_paginated",
+      "community": 17,
+      "norm_label": "3.3 response sukses \u2014 koleksi (paginated)"
     },
     {
-      "label": "3.4 Response Error \u2014 RFC 7807 Problem Details",
+      "label": "3.4 Response Sukses \u2014 Aksi Kustom",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L204",
+      "source_location": "L285",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_4_response_error_rfc_7807_problem_details",
-      "community": 19,
-      "norm_label": "3.4 response error \u2014 rfc 7807 problem details"
+      "id": "ai_steering_04_api_contracts_and_standards_3_4_response_sukses_aksi_kustom",
+      "community": 17,
+      "norm_label": "3.4 response sukses \u2014 aksi kustom"
     },
     {
-      "label": "3.5 Kode Error Standar",
+      "label": "3.5 Response Error \u2014 Format Standar",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L231",
+      "source_location": "L307",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_5_kode_error_standar",
-      "community": 19,
-      "norm_label": "3.5 kode error standar"
+      "id": "ai_steering_04_api_contracts_and_standards_3_5_response_error_format_standar",
+      "community": 17,
+      "norm_label": "3.5 response error \u2014 format standar"
     },
     {
-      "label": "3.6 Kode Error Bisnis (Domain-Specific)",
+      "label": "3.6 Kode Error Standar",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L244",
+      "source_location": "L374",
       "_origin": "ast",
-      "id": "ai_steering_04_api_contracts_and_standards_3_6_kode_error_bisnis_domain_specific",
-      "community": 19,
-      "norm_label": "3.6 kode error bisnis (domain-specific)"
+      "id": "ai_steering_04_api_contracts_and_standards_3_6_kode_error_standar",
+      "community": 17,
+      "norm_label": "3.6 kode error standar"
+    },
+    {
+      "label": "3.7 Kode Error Bisnis (Domain-Specific)",
+      "file_type": "document",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L387",
+      "_origin": "ast",
+      "id": "ai_steering_04_api_contracts_and_standards_3_7_kode_error_bisnis_domain_specific",
+      "community": 17,
+      "norm_label": "3.7 kode error bisnis (domain-specific)"
+    },
+    {
+      "label": "3.8 Pesan Sukses Standar (Bahasa Indonesia)",
+      "file_type": "document",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L403",
+      "_origin": "ast",
+      "id": "ai_steering_04_api_contracts_and_standards_3_8_pesan_sukses_standar_bahasa_indonesia",
+      "community": 17,
+      "norm_label": "3.8 pesan sukses standar (bahasa indonesia)"
+    },
+    {
+      "label": "3.9 Implementasi Backend (DRF)",
+      "file_type": "document",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L415",
+      "_origin": "ast",
+      "id": "ai_steering_04_api_contracts_and_standards_3_9_implementasi_backend_drf",
+      "community": 17,
+      "norm_label": "3.9 implementasi backend (drf)"
+    },
+    {
+      "label": "3.10 Perbandingan dengan Pola Lain",
+      "file_type": "document",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L444",
+      "_origin": "ast",
+      "id": "ai_steering_04_api_contracts_and_standards_3_10_perbandingan_dengan_pola_lain",
+      "community": 17,
+      "norm_label": "3.10 perbandingan dengan pola lain"
     },
     {
       "label": "4. Konvensi HTTP Methods & Status",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L262",
+      "source_location": "L456",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_4_konvensi_http_methods_status",
       "community": 13,
@@ -187,7 +217,7 @@
       "label": "5. Filtering, Searching, Ordering",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L274",
+      "source_location": "L468",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
       "community": 13,
@@ -197,7 +227,7 @@
       "label": "5.1 Filtering (django-filter)",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L276",
+      "source_location": "L470",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_5_1_filtering_django_filter",
       "community": 13,
@@ -207,7 +237,7 @@
       "label": "5.2 Date Range Filtering",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L286",
+      "source_location": "L480",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_5_2_date_range_filtering",
       "community": 13,
@@ -217,7 +247,7 @@
       "label": "5.3 Searching",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L294",
+      "source_location": "L488",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_5_3_searching",
       "community": 13,
@@ -227,7 +257,7 @@
       "label": "5.4 Ordering",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L300",
+      "source_location": "L494",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_5_4_ordering",
       "community": 13,
@@ -237,7 +267,7 @@
       "label": "6. Spesifikasi Endpoint Lengkap",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L309",
+      "source_location": "L503",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
       "community": 14,
@@ -247,7 +277,7 @@
       "label": "6.1 Health Check",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L311",
+      "source_location": "L507",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_1_health_check",
       "community": 14,
@@ -257,7 +287,7 @@
       "label": "6.2 Users \u2014 Manajemen Pengguna",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L337",
+      "source_location": "L550",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_2_users_manajemen_pengguna",
       "community": 14,
@@ -267,7 +297,7 @@
       "label": "6.3 Kategori Sampah",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L396",
+      "source_location": "L622",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_3_kategori_sampah",
       "community": 14,
@@ -277,7 +307,7 @@
       "label": "6.4 Transaksi Setoran",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L439",
+      "source_location": "L665",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_4_transaksi_setoran",
       "community": 14,
@@ -287,7 +317,7 @@
       "label": "6.5 Penjemputan",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L526",
+      "source_location": "L756",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_5_penjemputan",
       "community": 14,
@@ -297,7 +327,7 @@
       "label": "6.6 Penarikan Saldo",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L607",
+      "source_location": "L842",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_6_penarikan_saldo",
       "community": 14,
@@ -307,7 +337,7 @@
       "label": "6.7 Reward & Penukaran Poin",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L654",
+      "source_location": "L889",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_7_reward_penukaran_poin",
       "community": 14,
@@ -317,7 +347,7 @@
       "label": "6.8 Mitra Pengepul & Penjualan",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L711",
+      "source_location": "L946",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_8_mitra_pengepul_penjualan",
       "community": 14,
@@ -327,7 +357,7 @@
       "label": "6.9 Pengaduan",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L752",
+      "source_location": "L987",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_9_pengaduan",
       "community": 14,
@@ -337,7 +367,7 @@
       "label": "6.10 Riwayat Transaksi Gabungan",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L797",
+      "source_location": "L1032",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_10_riwayat_transaksi_gabungan",
       "community": 14,
@@ -347,7 +377,7 @@
       "label": "6.11 Dashboard",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L845",
+      "source_location": "L1080",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_11_dashboard",
       "community": 14,
@@ -357,7 +387,7 @@
       "label": "6.12 Laporan",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L897",
+      "source_location": "L1132",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_12_laporan",
       "community": 14,
@@ -367,7 +397,7 @@
       "label": "6.13 Pengaturan Institusi",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L953",
+      "source_location": "L1188",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_13_pengaturan_institusi",
       "community": 14,
@@ -377,7 +407,7 @@
       "label": "6.14 Audit Log",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L975",
+      "source_location": "L1210",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_6_14_audit_log",
       "community": 14,
@@ -387,7 +417,7 @@
       "label": "7. OpenAPI / Swagger",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1011",
+      "source_location": "L1246",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_7_openapi_swagger",
       "community": 13,
@@ -397,7 +427,7 @@
       "label": "8. Rate Limiting (Target Fase 7)",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1027",
+      "source_location": "L1262",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_8_rate_limiting_target_fase_7",
       "community": 13,
@@ -407,7 +437,7 @@
       "label": "9. Versioning",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1050",
+      "source_location": "L1290",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_9_versioning",
       "community": 13,
@@ -417,7 +447,7 @@
       "label": "10. Mapping Role \u2192 Endpoint Access",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1064",
+      "source_location": "L1304",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_10_mapping_role_endpoint_access",
       "community": 13,
@@ -427,7 +457,7 @@
       "label": "11. Catatan Implementasi",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1089",
+      "source_location": "L1329",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_11_catatan_implementasi",
       "community": 13,
@@ -437,7 +467,7 @@
       "label": "Status Saat Ini vs Target",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1091",
+      "source_location": "L1331",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_status_saat_ini_vs_target",
       "community": 13,
@@ -447,7 +477,7 @@
       "label": "Konvensi Frontend",
       "file_type": "document",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L1104",
+      "source_location": "L1345",
       "_origin": "ast",
       "id": "ai_steering_04_api_contracts_and_standards_konvensi_frontend",
       "community": 13,
@@ -554,30 +584,30 @@
       "norm_label": "fase 1: mvp \u2014 infrastruktur & auth"
     },
     {
-      "label": "1.1 Konfigurasi & Keamanan Dasar",
+      "label": "1.1 Konfigurasi & Keamanan Dasar \u2705",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L104",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_1_1_konfigurasi_keamanan_dasar",
       "community": 20,
-      "norm_label": "1.1 konfigurasi & keamanan dasar"
+      "norm_label": "1.1 konfigurasi & keamanan dasar \u2705"
     },
     {
-      "label": "1.2 Standar API Response (lihat `04-api-contracts-and-standards.md`)",
+      "label": "1.2 Standar API Response \u2014 JSON Envelope (lihat `04-api-contracts-and-standards.md` \u00a73)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L113",
       "_origin": "ast",
-      "id": "ai_steering_08_task_list_1_2_standar_api_response_lihat_04_api_contracts_and_standards_md",
+      "id": "ai_steering_08_task_list_1_2_standar_api_response_json_envelope_lihat_04_api_contracts_and_standards_md_3",
       "community": 20,
-      "norm_label": "1.2 standar api response (lihat `04-api-contracts-and-standards.md`)"
+      "norm_label": "1.2 standar api response \u2014 json envelope (lihat `04-api-contracts-and-standards.md` \u00a73)"
     },
     {
       "label": "1.3 Autentikasi & Registrasi (Modul 2)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L120",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_1_3_autentikasi_registrasi_modul_2",
       "community": 20,
@@ -587,7 +617,7 @@
       "label": "1.4 Manajemen Pengguna (Modul 1)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L128",
+      "source_location": "L133",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_1_4_manajemen_pengguna_modul_1",
       "community": 20,
@@ -597,7 +627,7 @@
       "label": "1.5 Seed Data (Modul 4\u20135)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L136",
+      "source_location": "L141",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_1_5_seed_data_modul_4_5",
       "community": 20,
@@ -607,7 +637,7 @@
       "label": "1.6 Kategori Sampah (Modul 4\u20135)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L143",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_1_6_kategori_sampah_modul_4_5",
       "community": 20,
@@ -617,7 +647,7 @@
       "label": "Fase 2: MVP \u2014 Logika Bisnis Inti",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L151",
+      "source_location": "L156",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
       "community": 16,
@@ -627,7 +657,7 @@
       "label": "2.1 Integritas Data Transaksional",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L155",
+      "source_location": "L160",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_1_integritas_data_transaksional",
       "community": 16,
@@ -637,7 +667,7 @@
       "label": "2.2 Transaksi Setoran (Modul 6, 8, 9)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L161",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_2_transaksi_setoran_modul_6_8_9",
       "community": 16,
@@ -647,7 +677,7 @@
       "label": "2.3 Penjemputan Workflow (Modul 7)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L174",
+      "source_location": "L179",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_3_penjemputan_workflow_modul_7",
       "community": 16,
@@ -657,7 +687,7 @@
       "label": "2.4 Penarikan Saldo (Modul 10)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L190",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_4_penarikan_saldo_modul_10",
       "community": 16,
@@ -667,7 +697,7 @@
       "label": "2.5 Penukaran Poin (Modul 11)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L199",
+      "source_location": "L204",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_5_penukaran_poin_modul_11",
       "community": 16,
@@ -677,7 +707,7 @@
       "label": "2.6 Penjualan Mitra & Stok (Modul 12\u201313)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L206",
+      "source_location": "L211",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_6_penjualan_mitra_stok_modul_12_13",
       "community": 16,
@@ -687,7 +717,7 @@
       "label": "2.7 Pengaduan (Modul 14)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L213",
+      "source_location": "L218",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_7_pengaduan_modul_14",
       "community": 16,
@@ -697,7 +727,7 @@
       "label": "2.8 Permission & Queryset per Role",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L221",
+      "source_location": "L226",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_2_8_permission_queryset_per_role",
       "community": 16,
@@ -707,7 +737,7 @@
       "label": "Fase 3: MVP \u2014 Operasional Harian (End-to-End)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L231",
+      "source_location": "L236",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
       "community": 18,
@@ -717,7 +747,7 @@
       "label": "3.1 Alur Setor Langsung (SOP B.1)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L235",
+      "source_location": "L240",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_1_alur_setor_langsung_sop_b_1",
       "community": 18,
@@ -727,7 +757,7 @@
       "label": "3.2 Alur Penjemputan (SOP B.2)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L240",
+      "source_location": "L245",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_2_alur_penjemputan_sop_b_2",
       "community": 18,
@@ -737,7 +767,7 @@
       "label": "3.3 Alur Penarikan (SOP A.3)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L247",
+      "source_location": "L252",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_3_alur_penarikan_sop_a_3",
       "community": 18,
@@ -747,7 +777,7 @@
       "label": "3.4 Alur Penukaran Poin (SOP A.4)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L252",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_4_alur_penukaran_poin_sop_a_4",
       "community": 18,
@@ -757,7 +787,7 @@
       "label": "3.5 Riwayat Transaksi Gabungan (Modul 9)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L256",
+      "source_location": "L261",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_5_riwayat_transaksi_gabungan_modul_9",
       "community": 18,
@@ -767,7 +797,7 @@
       "label": "3.6 Profil & Kartu Digital (Modul 3)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L261",
+      "source_location": "L266",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_6_profil_kartu_digital_modul_3",
       "community": 18,
@@ -777,7 +807,7 @@
       "label": "3.7 Reward Katalog (Modul 11)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L265",
+      "source_location": "L270",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_3_7_reward_katalog_modul_11",
       "community": 18,
@@ -787,47 +817,47 @@
       "label": "Fase 4: MVP \u2014 Monitoring & Laporan",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L272",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan",
-      "community": 3,
+      "community": 28,
       "norm_label": "fase 4: mvp \u2014 monitoring & laporan"
     },
     {
       "label": "4.1 Dashboard API (Modul 15)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L276",
+      "source_location": "L281",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_4_1_dashboard_api_modul_15",
-      "community": 3,
+      "community": 28,
       "norm_label": "4.1 dashboard api (modul 15)"
     },
     {
       "label": "4.2 Laporan API (Modul 16)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L289",
+      "source_location": "L294",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_4_2_laporan_api_modul_16",
-      "community": 3,
+      "community": 28,
       "norm_label": "4.2 laporan api (modul 16)"
     },
     {
       "label": "4.3 Stok Gudang (Modul 12)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L301",
+      "source_location": "L306",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_4_3_stok_gudang_modul_12",
-      "community": 3,
+      "community": 28,
       "norm_label": "4.3 stok gudang (modul 12)"
     },
     {
       "label": "Fase 5: MVP Lengkap \u2014 Governance",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L307",
+      "source_location": "L312",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
       "community": 21,
@@ -837,7 +867,7 @@
       "label": "5.1 Audit Log (Modul 17)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L311",
+      "source_location": "L316",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_5_1_audit_log_modul_17",
       "community": 21,
@@ -847,7 +877,7 @@
       "label": "5.2 Pengaturan Institusi (Modul 17)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L317",
+      "source_location": "L322",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_5_2_pengaturan_institusi_modul_17",
       "community": 21,
@@ -857,7 +887,7 @@
       "label": "5.3 Riwayat Harga (Modul 5 \u2014 opsional MVP)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L323",
+      "source_location": "L328",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_5_3_riwayat_harga_modul_5_opsional_mvp",
       "community": 21,
@@ -867,7 +897,7 @@
       "label": "5.4 Role Pemerintah Distrik",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L328",
+      "source_location": "L333",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_5_4_role_pemerintah_distrik",
       "community": 21,
@@ -877,7 +907,7 @@
       "label": "5.5 Kebijakan Data Pribadi (UU PDP)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L333",
+      "source_location": "L338",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_5_5_kebijakan_data_pribadi_uu_pdp",
       "community": 21,
@@ -887,7 +917,7 @@
       "label": "Fase 6: Kualitas & Dokumentasi",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L340",
+      "source_location": "L345",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi",
       "community": 3,
@@ -897,7 +927,7 @@
       "label": "6.1 Unit & Integration Tests",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L344",
+      "source_location": "L349",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_6_1_unit_integration_tests",
       "community": 3,
@@ -907,7 +937,7 @@
       "label": "6.2 API Documentation (OpenAPI)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L357",
+      "source_location": "L362",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_6_2_api_documentation_openapi",
       "community": 3,
@@ -917,7 +947,7 @@
       "label": "6.3 Error Handling",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L364",
+      "source_location": "L369",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_6_3_error_handling",
       "community": 3,
@@ -927,67 +957,67 @@
       "label": "Fase 7: Production Ready",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L371",
+      "source_location": "L377",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_7_production_ready",
-      "community": 3,
+      "community": 19,
       "norm_label": "fase 7: production ready"
     },
     {
       "label": "7.1 Keamanan",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L375",
+      "source_location": "L381",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_7_1_keamanan",
-      "community": 3,
+      "community": 19,
       "norm_label": "7.1 keamanan"
     },
     {
       "label": "7.2 Deployment",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L385",
+      "source_location": "L391",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_7_2_deployment",
-      "community": 3,
+      "community": 19,
       "norm_label": "7.2 deployment"
     },
     {
       "label": "7.3 Backup & Recovery",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L393",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_7_3_backup_recovery",
-      "community": 3,
+      "community": 19,
       "norm_label": "7.3 backup & recovery"
     },
     {
       "label": "7.4 Monitoring & Logging",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L400",
+      "source_location": "L406",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_7_4_monitoring_logging",
-      "community": 3,
+      "community": 19,
       "norm_label": "7.4 monitoring & logging"
     },
     {
       "label": "7.5 Performance",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L406",
+      "source_location": "L412",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_7_5_performance",
-      "community": 3,
+      "community": 19,
       "norm_label": "7.5 performance"
     },
     {
       "label": "Fase 8: Post-MVP & Peningkatan",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L414",
+      "source_location": "L420",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan",
       "community": 3,
@@ -997,7 +1027,7 @@
       "label": "8.1 Fitur Tambahan",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L418",
+      "source_location": "L424",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_8_1_fitur_tambahan",
       "community": 3,
@@ -1007,7 +1037,7 @@
       "label": "8.2 Optimasi & Skalabilitas",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L429",
+      "source_location": "L435",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_8_2_optimasi_skalabilitas",
       "community": 3,
@@ -1017,7 +1047,7 @@
       "label": "8.3 Yang TIDAK BOLEH Diimplementasikan (System Constraints)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L436",
+      "source_location": "L442",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_8_3_yang_tidak_boleh_diimplementasikan_system_constraints",
       "community": 3,
@@ -1027,151 +1057,101 @@
       "label": "Urutan Pengerjaan Rekomendasi (Sprint)",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L446",
+      "source_location": "L452",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "community": 17,
+      "community": 3,
       "norm_label": "urutan pengerjaan rekomendasi (sprint)"
     },
     {
       "label": "Sprint 1 (Minggu 1) \u2014 Fase 1",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L448",
+      "source_location": "L454",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_1_minggu_1_fase_1",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 1 (minggu 1) \u2014 fase 1"
     },
     {
       "label": "Sprint 2 (Minggu 2) \u2014 Fase 2.1\u20132.2",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L454",
+      "source_location": "L460",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_2_minggu_2_fase_2_1_2_2",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 2 (minggu 2) \u2014 fase 2.1\u20132.2"
     },
     {
       "label": "Sprint 3 (Minggu 3) \u2014 Fase 2.3\u20132.5",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L458",
+      "source_location": "L464",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_3_minggu_3_fase_2_3_2_5",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 3 (minggu 3) \u2014 fase 2.3\u20132.5"
     },
     {
       "label": "Sprint 4 (Minggu 4) \u2014 Fase 2.6\u20133",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L463",
+      "source_location": "L469",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_4_minggu_4_fase_2_6_3",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 4 (minggu 4) \u2014 fase 2.6\u20133"
     },
     {
       "label": "Sprint 5 (Minggu 5) \u2014 Fase 4",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L467",
+      "source_location": "L473",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_5_minggu_5_fase_4",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 5 (minggu 5) \u2014 fase 4"
     },
     {
       "label": "Sprint 6 (Minggu 6) \u2014 Fase 5\u20136",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L472",
+      "source_location": "L478",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_6_minggu_6_fase_5_6",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 6 (minggu 6) \u2014 fase 5\u20136"
     },
     {
       "label": "Sprint 7 (Minggu 7) \u2014 Fase 7",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L476",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_sprint_7_minggu_7_fase_7",
-      "community": 17,
+      "community": 3,
       "norm_label": "sprint 7 (minggu 7) \u2014 fase 7"
     },
     {
       "label": "Post-Launch \u2014 Fase 8",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L479",
+      "source_location": "L485",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_post_launch_fase_8",
-      "community": 17,
+      "community": 3,
       "norm_label": "post-launch \u2014 fase 8"
     },
     {
       "label": "Definisi \"Selesai\" per Tahap",
       "file_type": "document",
       "source_file": ".ai-steering/08-task-list.md",
-      "source_location": "L484",
+      "source_location": "L490",
       "_origin": "ast",
       "id": "ai_steering_08_task_list_definisi_selesai_per_tahap",
       "community": 3,
       "norm_label": "definisi \"selesai\" per tahap"
-    },
-    {
-      "label": "AGENTS.md",
-      "file_type": "document",
-      "source_file": "AGENTS.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents",
-      "community": 11,
-      "norm_label": "agents.md"
-    },
-    {
-      "label": "MIRU Backend API \u2014 Agent Rules",
-      "file_type": "document",
-      "source_file": "AGENTS.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "agents_miru_backend_api_agent_rules",
-      "community": 11,
-      "norm_label": "miru backend api \u2014 agent rules"
-    },
-    {
-      "label": "Token Savers (WAJIB)",
-      "file_type": "document",
-      "source_file": "AGENTS.md",
-      "source_location": "L3",
-      "_origin": "ast",
-      "id": "agents_token_savers_wajib",
-      "community": 11,
-      "norm_label": "token savers (wajib)"
-    },
-    {
-      "label": "Graphify Knowledge Graph",
-      "file_type": "document",
-      "source_file": "AGENTS.md",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "agents_graphify_knowledge_graph",
-      "community": 11,
-      "norm_label": "graphify knowledge graph"
-    },
-    {
-      "label": "Stack",
-      "file_type": "document",
-      "source_file": "AGENTS.md",
-      "source_location": "L22",
-      "_origin": "ast",
-      "id": "agents_stack",
-      "community": 11,
-      "norm_label": "stack"
     },
     {
       "label": "README.md",
@@ -1247,7 +1227,7 @@
       "label": "2. Build and Run",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L29",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "readme_2_build_and_run",
       "community": 15,
@@ -1257,7 +1237,7 @@
       "label": "3. Run Migrations in Docker",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L34",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "readme_3_run_migrations_in_docker",
       "community": 15,
@@ -1267,7 +1247,7 @@
       "label": "API Access & Documentation",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L39",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "readme_api_access_documentation",
       "community": 15,
@@ -1277,681 +1257,11 @@
       "label": "Authentication",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L45",
+      "source_location": "L54",
       "_origin": "ast",
       "id": "readme_authentication",
       "community": 15,
       "norm_label": "authentication"
-    },
-    {
-      "label": "RTK.md",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "rtk",
-      "community": 10,
-      "norm_label": "rtk.md"
-    },
-    {
-      "label": "RTK - Rust Token Killer",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "rtk_rtk_rust_token_killer",
-      "community": 10,
-      "norm_label": "rtk - rust token killer"
-    },
-    {
-      "label": "Meta Commands (always use rtk directly)",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "rtk_meta_commands_always_use_rtk_directly",
-      "community": 10,
-      "norm_label": "meta commands (always use rtk directly)"
-    },
-    {
-      "label": "Installation Verification",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "rtk_installation_verification",
-      "community": 10,
-      "norm_label": "installation verification"
-    },
-    {
-      "label": "Hook-Based Usage",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "rtk_hook_based_usage",
-      "community": 10,
-      "norm_label": "hook-based usage"
-    },
-    {
-      "label": "graphify",
-      "file_type": "document",
-      "source_file": "RTK.md",
-      "source_location": "L29",
-      "_origin": "ast",
-      "id": "rtk_graphify",
-      "community": 10,
-      "norm_label": "graphify"
-    },
-    {
-      "label": "admin.py",
-      "file_type": "code",
-      "source_file": "api/admin.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_admin",
-      "community": 6,
-      "norm_label": "admin.py"
-    },
-    {
-      "label": "apps.py",
-      "file_type": "code",
-      "source_file": "api/apps.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_apps",
-      "community": 4,
-      "norm_label": "apps.py"
-    },
-    {
-      "label": "ApiConfig",
-      "file_type": "code",
-      "source_file": "api/apps.py",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "api_apps_apiconfig",
-      "community": 4,
-      "norm_label": "apiconfig"
-    },
-    {
-      "label": "AppConfig",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "appconfig",
-      "community": 4,
-      "norm_label": "appconfig"
-    },
-    {
-      "label": "0001_initial.py",
-      "file_type": "code",
-      "source_file": "api/migrations/0001_initial.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "migrations_0001_initial",
-      "community": 5,
-      "norm_label": "0001_initial.py"
-    },
-    {
-      "label": "Migration",
-      "file_type": "code",
-      "source_file": "api/migrations/0001_initial.py",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "migrations_0001_initial_migration",
-      "community": 5,
-      "norm_label": "migration"
-    },
-    {
-      "label": "models.py",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_models",
-      "community": 1,
-      "norm_label": "models.py"
-    },
-    {
-      "label": "User",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "api_models_user",
-      "community": 1,
-      "norm_label": "user"
-    },
-    {
-      "label": "AbstractUser",
-      "file_type": "code",
-      "source_file": "",
-      "source_location": "",
-      "_origin": "ast",
-      "id": "abstractuser",
-      "community": 1,
-      "norm_label": "abstractuser"
-    },
-    {
-      "label": "KategoriSampah",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "api_models_kategorisampah",
-      "community": 1,
-      "norm_label": "kategorisampah"
-    },
-    {
-      "label": "TransaksiSetoran",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "api_models_transaksisetoran",
-      "community": 1,
-      "norm_label": "transaksisetoran"
-    },
-    {
-      "label": "DetailSetoran",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "api_models_detailsetoran",
-      "community": 1,
-      "norm_label": "detailsetoran"
-    },
-    {
-      "label": "Penjemputan",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L38",
-      "_origin": "ast",
-      "id": "api_models_penjemputan",
-      "community": 1,
-      "norm_label": "penjemputan"
-    },
-    {
-      "label": "PenarikanSaldo",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L54",
-      "_origin": "ast",
-      "id": "api_models_penarikansaldo",
-      "community": 1,
-      "norm_label": "penarikansaldo"
-    },
-    {
-      "label": "Reward",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L62",
-      "_origin": "ast",
-      "id": "api_models_reward",
-      "community": 1,
-      "norm_label": "reward"
-    },
-    {
-      "label": "PenukaranPoin",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L67",
-      "_origin": "ast",
-      "id": "api_models_penukaranpoin",
-      "community": 1,
-      "norm_label": "penukaranpoin"
-    },
-    {
-      "label": "MitraPengepul",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L74",
-      "_origin": "ast",
-      "id": "api_models_mitrapengepul",
-      "community": 1,
-      "norm_label": "mitrapengepul"
-    },
-    {
-      "label": "PenjualanMitra",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L78",
-      "_origin": "ast",
-      "id": "api_models_penjualanmitra",
-      "community": 1,
-      "norm_label": "penjualanmitra"
-    },
-    {
-      "label": "Pengaduan",
-      "file_type": "code",
-      "source_file": "api/models.py",
-      "source_location": "L86",
-      "_origin": "ast",
-      "id": "api_models_pengaduan",
-      "community": 1,
-      "norm_label": "pengaduan"
-    },
-    {
-      "label": "permissions.py",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_permissions",
-      "community": 2,
-      "norm_label": "permissions.py"
-    },
-    {
-      "label": "IsAdminOrKoordinator",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L3",
-      "_origin": "ast",
-      "id": "api_permissions_isadminorkoordinator",
-      "community": 2,
-      "norm_label": "isadminorkoordinator"
-    },
-    {
-      "label": ".has_permission()",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "api_permissions_isadminorkoordinator_has_permission",
-      "community": 2,
-      "norm_label": ".has_permission()"
-    },
-    {
-      "label": "IsPetugasOrAdmin",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "api_permissions_ispetugasoradmin",
-      "community": 2,
-      "norm_label": "ispetugasoradmin"
-    },
-    {
-      "label": ".has_permission()",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "api_permissions_ispetugasoradmin_has_permission",
-      "community": 2,
-      "norm_label": ".has_permission()"
-    },
-    {
-      "label": "IsOwnerOrAdmin",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "api_permissions_isowneroradmin",
-      "community": 2,
-      "norm_label": "isowneroradmin"
-    },
-    {
-      "label": ".has_object_permission()",
-      "file_type": "code",
-      "source_file": "api/permissions.py",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "api_permissions_isowneroradmin_has_object_permission",
-      "community": 2,
-      "norm_label": ".has_object_permission()"
-    },
-    {
-      "label": "serializers.py",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_serializers",
-      "community": 0,
-      "norm_label": "serializers.py"
-    },
-    {
-      "label": "UserSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L4",
-      "_origin": "ast",
-      "id": "api_serializers_userserializer",
-      "community": 0,
-      "norm_label": "userserializer"
-    },
-    {
-      "label": "Meta",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L5",
-      "_origin": "ast",
-      "id": "api_serializers_meta",
-      "community": 0,
-      "norm_label": "meta"
-    },
-    {
-      "label": ".create()",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "api_serializers_userserializer_create",
-      "community": 0,
-      "norm_label": ".create()"
-    },
-    {
-      "label": "KategoriSampahSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L14",
-      "_origin": "ast",
-      "id": "api_serializers_kategorisampahserializer",
-      "community": 0,
-      "norm_label": "kategorisampahserializer"
-    },
-    {
-      "label": "DetailSetoranSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "api_serializers_detailsetoranserializer",
-      "community": 0,
-      "norm_label": "detailsetoranserializer"
-    },
-    {
-      "label": "TransaksiSetoranSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "api_serializers_transaksisetoranserializer",
-      "community": 0,
-      "norm_label": "transaksisetoranserializer"
-    },
-    {
-      "label": ".create()",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L32",
-      "_origin": "ast",
-      "id": "api_serializers_transaksisetoranserializer_create",
-      "community": 0,
-      "norm_label": ".create()"
-    },
-    {
-      "label": "PenjemputanSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L59",
-      "_origin": "ast",
-      "id": "api_serializers_penjemputanserializer",
-      "community": 0,
-      "norm_label": "penjemputanserializer"
-    },
-    {
-      "label": "PenarikanSaldoSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L64",
-      "_origin": "ast",
-      "id": "api_serializers_penarikansaldoserializer",
-      "community": 0,
-      "norm_label": "penarikansaldoserializer"
-    },
-    {
-      "label": "RewardSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L69",
-      "_origin": "ast",
-      "id": "api_serializers_rewardserializer",
-      "community": 0,
-      "norm_label": "rewardserializer"
-    },
-    {
-      "label": "PenukaranPoinSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L74",
-      "_origin": "ast",
-      "id": "api_serializers_penukaranpoinserializer",
-      "community": 0,
-      "norm_label": "penukaranpoinserializer"
-    },
-    {
-      "label": "MitraPengepulSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L79",
-      "_origin": "ast",
-      "id": "api_serializers_mitrapengepulserializer",
-      "community": 0,
-      "norm_label": "mitrapengepulserializer"
-    },
-    {
-      "label": "PenjualanMitraSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L84",
-      "_origin": "ast",
-      "id": "api_serializers_penjualanmitraserializer",
-      "community": 0,
-      "norm_label": "penjualanmitraserializer"
-    },
-    {
-      "label": "PengaduanSerializer",
-      "file_type": "code",
-      "source_file": "api/serializers.py",
-      "source_location": "L89",
-      "_origin": "ast",
-      "id": "api_serializers_pengaduanserializer",
-      "community": 0,
-      "norm_label": "pengaduanserializer"
-    },
-    {
-      "label": "tests.py",
-      "file_type": "code",
-      "source_file": "api/tests.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_tests",
-      "community": 8,
-      "norm_label": "tests.py"
-    },
-    {
-      "label": "urls.py",
-      "file_type": "code",
-      "source_file": "api/urls.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_urls",
-      "community": 2,
-      "norm_label": "urls.py"
-    },
-    {
-      "label": "views.py",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "api_views",
-      "community": 2,
-      "norm_label": "views.py"
-    },
-    {
-      "label": "UserViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "api_views_userviewset",
-      "community": 2,
-      "norm_label": "userviewset"
-    },
-    {
-      "label": ".get_permissions()",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "api_views_userviewset_get_permissions",
-      "community": 2,
-      "norm_label": ".get_permissions()"
-    },
-    {
-      "label": "KategoriSampahViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L19",
-      "_origin": "ast",
-      "id": "api_views_kategorisampahviewset",
-      "community": 2,
-      "norm_label": "kategorisampahviewset"
-    },
-    {
-      "label": ".get_permissions()",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L23",
-      "_origin": "ast",
-      "id": "api_views_kategorisampahviewset_get_permissions",
-      "community": 2,
-      "norm_label": ".get_permissions()"
-    },
-    {
-      "label": "TransaksiSetoranViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "api_views_transaksisetoranviewset",
-      "community": 2,
-      "norm_label": "transaksisetoranviewset"
-    },
-    {
-      "label": "PenjemputanViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L34",
-      "_origin": "ast",
-      "id": "api_views_penjemputanviewset",
-      "community": 2,
-      "norm_label": "penjemputanviewset"
-    },
-    {
-      "label": "PenarikanSaldoViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L40",
-      "_origin": "ast",
-      "id": "api_views_penarikansaldoviewset",
-      "community": 2,
-      "norm_label": "penarikansaldoviewset"
-    },
-    {
-      "label": ".perform_update()",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L45",
-      "_origin": "ast",
-      "id": "api_views_penarikansaldoviewset_perform_update",
-      "community": 2,
-      "norm_label": ".perform_update()"
-    },
-    {
-      "label": "RewardViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L52",
-      "_origin": "ast",
-      "id": "api_views_rewardviewset",
-      "community": 2,
-      "norm_label": "rewardviewset"
-    },
-    {
-      "label": "PenukaranPoinViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L56",
-      "_origin": "ast",
-      "id": "api_views_penukaranpoinviewset",
-      "community": 2,
-      "norm_label": "penukaranpoinviewset"
-    },
-    {
-      "label": ".perform_update()",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L61",
-      "_origin": "ast",
-      "id": "api_views_penukaranpoinviewset_perform_update",
-      "community": 2,
-      "norm_label": ".perform_update()"
-    },
-    {
-      "label": "MitraPengepulViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L68",
-      "_origin": "ast",
-      "id": "api_views_mitrapengepulviewset",
-      "community": 2,
-      "norm_label": "mitrapengepulviewset"
-    },
-    {
-      "label": "PenjualanMitraViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L73",
-      "_origin": "ast",
-      "id": "api_views_penjualanmitraviewset",
-      "community": 2,
-      "norm_label": "penjualanmitraviewset"
-    },
-    {
-      "label": ".perform_create()",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L78",
-      "_origin": "ast",
-      "id": "api_views_penjualanmitraviewset_perform_create",
-      "community": 2,
-      "norm_label": ".perform_create()"
-    },
-    {
-      "label": "PengaduanViewSet",
-      "file_type": "code",
-      "source_file": "api/views.py",
-      "source_location": "L84",
-      "_origin": "ast",
-      "id": "api_views_pengaduanviewset",
-      "community": 2,
-      "norm_label": "pengaduanviewset"
-    },
-    {
-      "label": "asgi.py",
-      "file_type": "code",
-      "source_file": "core/asgi.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "core_asgi",
-      "community": 23,
-      "norm_label": "asgi.py"
-    },
-    {
-      "label": "ASGI config for core project.  It exposes the ASGI callable as a module-level",
-      "file_type": "rationale",
-      "source_file": "core/asgi.py",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "core_asgi_rationale_1",
-      "community": 23,
-      "norm_label": "asgi config for core project.  it exposes the asgi callable as a module-level"
     },
     {
       "label": "settings.py",
@@ -1964,14 +1274,744 @@
       "norm_label": "settings.py"
     },
     {
+      "label": "after-code-workflows.md",
+      "file_type": "document",
+      "source_file": ".agents/workflows/after-code-workflows.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 27,
+      "norm_label": "after-code-workflows.md",
+      "id": "workflows_after_code_workflows"
+    },
+    {
+      "label": "AGENTS.md",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 11,
+      "norm_label": "agents.md",
+      "id": "agents"
+    },
+    {
+      "label": "MIRU Backend API \u2014 Agent Rules",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 11,
+      "norm_label": "miru backend api \u2014 agent rules",
+      "id": "agents_miru_backend_api_agent_rules"
+    },
+    {
+      "label": "Token Savers (WAJIB)",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L3",
+      "_origin": "ast",
+      "community": 11,
+      "norm_label": "token savers (wajib)",
+      "id": "agents_token_savers_wajib"
+    },
+    {
+      "label": "Graphify Knowledge Graph",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 11,
+      "norm_label": "graphify knowledge graph",
+      "id": "agents_graphify_knowledge_graph"
+    },
+    {
+      "label": "Stack",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L22",
+      "_origin": "ast",
+      "community": 11,
+      "norm_label": "stack",
+      "id": "agents_stack"
+    },
+    {
+      "label": "RTK.md",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "rtk.md",
+      "id": "rtk"
+    },
+    {
+      "label": "RTK - Rust Token Killer",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "rtk - rust token killer",
+      "id": "rtk_rtk_rust_token_killer"
+    },
+    {
+      "label": "Meta Commands (always use rtk directly)",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "meta commands (always use rtk directly)",
+      "id": "rtk_meta_commands_always_use_rtk_directly"
+    },
+    {
+      "label": "Installation Verification",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L14",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "installation verification",
+      "id": "rtk_installation_verification"
+    },
+    {
+      "label": "Hook-Based Usage",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L24",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "hook-based usage",
+      "id": "rtk_hook_based_usage"
+    },
+    {
+      "label": "graphify",
+      "file_type": "document",
+      "source_file": "RTK.md",
+      "source_location": "L29",
+      "_origin": "ast",
+      "community": 10,
+      "norm_label": "graphify",
+      "id": "rtk_graphify"
+    },
+    {
+      "label": "admin.py",
+      "file_type": "code",
+      "source_file": "api/admin.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 6,
+      "norm_label": "admin.py",
+      "id": "api_admin"
+    },
+    {
+      "label": "apps.py",
+      "file_type": "code",
+      "source_file": "api/apps.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 4,
+      "norm_label": "apps.py",
+      "id": "api_apps"
+    },
+    {
+      "label": "ApiConfig",
+      "file_type": "code",
+      "source_file": "api/apps.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "community": 4,
+      "norm_label": "apiconfig",
+      "id": "api_apps_apiconfig"
+    },
+    {
+      "label": "AppConfig",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "community": 4,
+      "norm_label": "appconfig",
+      "id": "appconfig"
+    },
+    {
+      "label": "0001_initial.py",
+      "file_type": "code",
+      "source_file": "api/migrations/0001_initial.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 5,
+      "norm_label": "0001_initial.py",
+      "id": "migrations_0001_initial"
+    },
+    {
+      "label": "Migration",
+      "file_type": "code",
+      "source_file": "api/migrations/0001_initial.py",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 5,
+      "norm_label": "migration",
+      "id": "migrations_0001_initial_migration"
+    },
+    {
+      "label": "models.py",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "models.py",
+      "id": "api_models"
+    },
+    {
+      "label": "User",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "user",
+      "id": "api_models_user"
+    },
+    {
+      "label": "AbstractUser",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "abstractuser",
+      "id": "abstractuser"
+    },
+    {
+      "label": "KategoriSampah",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "kategorisampah",
+      "id": "api_models_kategorisampah"
+    },
+    {
+      "label": "TransaksiSetoran",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L24",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "transaksisetoran",
+      "id": "api_models_transaksisetoran"
+    },
+    {
+      "label": "DetailSetoran",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "detailsetoran",
+      "id": "api_models_detailsetoran"
+    },
+    {
+      "label": "Penjemputan",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L38",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "penjemputan",
+      "id": "api_models_penjemputan"
+    },
+    {
+      "label": "PenarikanSaldo",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L54",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "penarikansaldo",
+      "id": "api_models_penarikansaldo"
+    },
+    {
+      "label": "Reward",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L62",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "reward",
+      "id": "api_models_reward"
+    },
+    {
+      "label": "PenukaranPoin",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L67",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "penukaranpoin",
+      "id": "api_models_penukaranpoin"
+    },
+    {
+      "label": "MitraPengepul",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "mitrapengepul",
+      "id": "api_models_mitrapengepul"
+    },
+    {
+      "label": "PenjualanMitra",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L78",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "penjualanmitra",
+      "id": "api_models_penjualanmitra"
+    },
+    {
+      "label": "Pengaduan",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L86",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "pengaduan",
+      "id": "api_models_pengaduan"
+    },
+    {
+      "label": "permissions.py",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "permissions.py",
+      "id": "api_permissions"
+    },
+    {
+      "label": "IsAdminOrKoordinator",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L3",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "isadminorkoordinator",
+      "id": "api_permissions_isadminorkoordinator"
+    },
+    {
+      "label": ".has_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".has_permission()",
+      "id": "api_permissions_isadminorkoordinator_has_permission"
+    },
+    {
+      "label": "IsPetugasOrAdmin",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "ispetugasoradmin",
+      "id": "api_permissions_ispetugasoradmin"
+    },
+    {
+      "label": ".has_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L8",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".has_permission()",
+      "id": "api_permissions_ispetugasoradmin_has_permission"
+    },
+    {
+      "label": "IsOwnerOrAdmin",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L11",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "isowneroradmin",
+      "id": "api_permissions_isowneroradmin"
+    },
+    {
+      "label": ".has_object_permission()",
+      "file_type": "code",
+      "source_file": "api/permissions.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".has_object_permission()",
+      "id": "api_permissions_isowneroradmin_has_object_permission"
+    },
+    {
+      "label": "serializers.py",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "serializers.py",
+      "id": "api_serializers"
+    },
+    {
+      "label": "UserSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L4",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "userserializer",
+      "id": "api_serializers_userserializer"
+    },
+    {
+      "label": "Meta",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L5",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "meta",
+      "id": "api_serializers_meta"
+    },
+    {
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L10",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": ".create()",
+      "id": "api_serializers_userserializer_create"
+    },
+    {
+      "label": "KategoriSampahSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L14",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "kategorisampahserializer",
+      "id": "api_serializers_kategorisampahserializer"
+    },
+    {
+      "label": "DetailSetoranSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "detailsetoranserializer",
+      "id": "api_serializers_detailsetoranserializer"
+    },
+    {
+      "label": "TransaksiSetoranSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L25",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "transaksisetoranserializer",
+      "id": "api_serializers_transaksisetoranserializer"
+    },
+    {
+      "label": ".create()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L32",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": ".create()",
+      "id": "api_serializers_transaksisetoranserializer_create"
+    },
+    {
+      "label": "PenjemputanSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L59",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "penjemputanserializer",
+      "id": "api_serializers_penjemputanserializer"
+    },
+    {
+      "label": "PenarikanSaldoSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L64",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "penarikansaldoserializer",
+      "id": "api_serializers_penarikansaldoserializer"
+    },
+    {
+      "label": "RewardSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L69",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "rewardserializer",
+      "id": "api_serializers_rewardserializer"
+    },
+    {
+      "label": "PenukaranPoinSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "penukaranpoinserializer",
+      "id": "api_serializers_penukaranpoinserializer"
+    },
+    {
+      "label": "MitraPengepulSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "mitrapengepulserializer",
+      "id": "api_serializers_mitrapengepulserializer"
+    },
+    {
+      "label": "PenjualanMitraSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "penjualanmitraserializer",
+      "id": "api_serializers_penjualanmitraserializer"
+    },
+    {
+      "label": "PengaduanSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L89",
+      "_origin": "ast",
+      "community": 0,
+      "norm_label": "pengaduanserializer",
+      "id": "api_serializers_pengaduanserializer"
+    },
+    {
+      "label": "tests.py",
+      "file_type": "code",
+      "source_file": "api/tests.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 8,
+      "norm_label": "tests.py",
+      "id": "api_tests"
+    },
+    {
+      "label": "urls.py",
+      "file_type": "code",
+      "source_file": "api/urls.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "urls.py",
+      "id": "api_urls"
+    },
+    {
+      "label": "views.py",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "views.py",
+      "id": "api_views"
+    },
+    {
+      "label": "UserViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "userviewset",
+      "id": "api_views_userviewset"
+    },
+    {
+      "label": ".get_permissions()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".get_permissions()",
+      "id": "api_views_userviewset_get_permissions"
+    },
+    {
+      "label": "KategoriSampahViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L19",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "kategorisampahviewset",
+      "id": "api_views_kategorisampahviewset"
+    },
+    {
+      "label": ".get_permissions()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L23",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".get_permissions()",
+      "id": "api_views_kategorisampahviewset_get_permissions"
+    },
+    {
+      "label": "TransaksiSetoranViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L28",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "transaksisetoranviewset",
+      "id": "api_views_transaksisetoranviewset"
+    },
+    {
+      "label": "PenjemputanViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L34",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "penjemputanviewset",
+      "id": "api_views_penjemputanviewset"
+    },
+    {
+      "label": "PenarikanSaldoViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L40",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "penarikansaldoviewset",
+      "id": "api_views_penarikansaldoviewset"
+    },
+    {
+      "label": ".perform_update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".perform_update()",
+      "id": "api_views_penarikansaldoviewset_perform_update"
+    },
+    {
+      "label": "RewardViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L52",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "rewardviewset",
+      "id": "api_views_rewardviewset"
+    },
+    {
+      "label": "PenukaranPoinViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L56",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "penukaranpoinviewset",
+      "id": "api_views_penukaranpoinviewset"
+    },
+    {
+      "label": ".perform_update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L61",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".perform_update()",
+      "id": "api_views_penukaranpoinviewset_perform_update"
+    },
+    {
+      "label": "MitraPengepulViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L68",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "mitrapengepulviewset",
+      "id": "api_views_mitrapengepulviewset"
+    },
+    {
+      "label": "PenjualanMitraViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L73",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "penjualanmitraviewset",
+      "id": "api_views_penjualanmitraviewset"
+    },
+    {
+      "label": ".perform_create()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L78",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": ".perform_create()",
+      "id": "api_views_penjualanmitraviewset_perform_create"
+    },
+    {
+      "label": "PengaduanViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L84",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "pengaduanviewset",
+      "id": "api_views_pengaduanviewset"
+    },
+    {
+      "label": "asgi.py",
+      "file_type": "code",
+      "source_file": "core/asgi.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 23,
+      "norm_label": "asgi.py",
+      "id": "core_asgi"
+    },
+    {
+      "label": "ASGI config for core project.  It exposes the ASGI callable as a module-level",
+      "file_type": "rationale",
+      "source_file": "core/asgi.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 23,
+      "norm_label": "asgi config for core project.  it exposes the asgi callable as a module-level",
+      "id": "core_asgi_rationale_1"
+    },
+    {
       "label": "urls.py",
       "file_type": "code",
       "source_file": "core/urls.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "core_urls",
       "community": 24,
-      "norm_label": "urls.py"
+      "norm_label": "urls.py",
+      "id": "core_urls"
     },
     {
       "label": "health_check()",
@@ -1979,9 +2019,9 @@
       "source_file": "core/urls.py",
       "source_location": "L7",
       "_origin": "ast",
-      "id": "core_urls_health_check",
       "community": 24,
-      "norm_label": "health_check()"
+      "norm_label": "health_check()",
+      "id": "core_urls_health_check"
     },
     {
       "label": "wsgi.py",
@@ -1989,9 +2029,9 @@
       "source_file": "core/wsgi.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "core_wsgi",
       "community": 25,
-      "norm_label": "wsgi.py"
+      "norm_label": "wsgi.py",
+      "id": "core_wsgi"
     },
     {
       "label": "WSGI config for core project.  It exposes the WSGI callable as a module-level",
@@ -1999,9 +2039,9 @@
       "source_file": "core/wsgi.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "core_wsgi_rationale_1",
       "community": 25,
-      "norm_label": "wsgi config for core project.  it exposes the wsgi callable as a module-level"
+      "norm_label": "wsgi config for core project.  it exposes the wsgi callable as a module-level",
+      "id": "core_wsgi_rationale_1"
     },
     {
       "label": "manage.py",
@@ -2009,9 +2049,9 @@
       "source_file": "manage.py",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "manage",
       "community": 22,
-      "norm_label": "manage.py"
+      "norm_label": "manage.py",
+      "id": "manage"
     },
     {
       "label": "main()",
@@ -2019,9 +2059,9 @@
       "source_file": "manage.py",
       "source_location": "L7",
       "_origin": "ast",
-      "id": "manage_main",
       "community": 22,
-      "norm_label": "main()"
+      "norm_label": "main()",
+      "id": "manage_main"
     },
     {
       "label": "Run administrative tasks.",
@@ -2029,9 +2069,9 @@
       "source_file": "manage.py",
       "source_location": "L8",
       "_origin": "ast",
-      "id": "manage_rationale_8",
       "community": 22,
-      "norm_label": "run administrative tasks."
+      "norm_label": "run administrative tasks.",
+      "id": "manage_rationale_8"
     },
     {
       "label": ".claude.md",
@@ -2111,9 +2151,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards"
     },
     {
       "relation": "contains",
@@ -2121,9 +2161,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1064",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_10_mapping_role_endpoint_access",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_10_mapping_role_endpoint_access"
     },
     {
       "relation": "contains",
@@ -2131,9 +2171,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1089",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_11_catatan_implementasi",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_11_catatan_implementasi"
     },
     {
       "relation": "contains",
@@ -2141,9 +2181,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_1_prinsip_desain_api",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_1_prinsip_desain_api"
     },
     {
       "relation": "contains",
@@ -2151,18 +2191,18 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L130",
+      "source_location": "L168",
       "weight": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
+      "target": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
       "confidence_score": 1.0
     },
     {
@@ -2171,9 +2211,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L262",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_4_konvensi_http_methods_status",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_4_konvensi_http_methods_status"
     },
     {
       "relation": "contains",
@@ -2181,9 +2221,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L274",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering"
     },
     {
       "relation": "contains",
@@ -2191,9 +2231,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L309",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap"
     },
     {
       "relation": "contains",
@@ -2201,9 +2241,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1011",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_7_openapi_swagger",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_7_openapi_swagger"
     },
     {
       "relation": "contains",
@@ -2211,9 +2251,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1027",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_8_rate_limiting_target_fase_7",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_8_rate_limiting_target_fase_7"
     },
     {
       "relation": "contains",
@@ -2221,9 +2261,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1050",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_04_api_contracts_standards",
-      "target": "ai_steering_04_api_contracts_and_standards_9_versioning",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_9_versioning"
     },
     {
       "relation": "contains",
@@ -2231,9 +2271,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "target": "ai_steering_04_api_contracts_and_standards_2_1_login",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_2_1_login"
     },
     {
       "relation": "contains",
@@ -2241,9 +2281,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "target": "ai_steering_04_api_contracts_and_standards_2_2_refresh_token",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_2_2_refresh_token"
     },
     {
       "relation": "contains",
@@ -2251,9 +2291,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "target": "ai_steering_04_api_contracts_and_standards_2_3_profil_user_login",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_2_3_profil_user_login"
     },
     {
       "relation": "contains",
@@ -2261,9 +2301,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L111",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "target": "ai_steering_04_api_contracts_and_standards_2_4_header_autentikasi",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_2_4_header_autentikasi"
     },
     {
       "relation": "contains",
@@ -2271,68 +2311,108 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_2_autentikasi_jwt_rfc_7519",
-      "target": "ai_steering_04_api_contracts_and_standards_2_5_jwt_claims",
+      "target": "ai_steering_04_api_contracts_and_standards_2_5_jwt_claims"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L444",
+      "weight": 1.0,
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_10_perbandingan_dengan_pola_lain",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L134",
+      "source_location": "L174",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_1_response_sukses_resource_tunggal",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_1_struktur_envelope_semua_response",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L161",
+      "source_location": "L186",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_2_response_sukses_koleksi_paginated",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_2_response_sukses_resource_tunggal",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L190",
+      "source_location": "L239",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_3_response_sukses_aksi_kustom",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_3_response_sukses_koleksi_paginated",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L204",
+      "source_location": "L285",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_4_response_error_rfc_7807_problem_details",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_4_response_sukses_aksi_kustom",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L231",
+      "source_location": "L307",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_5_kode_error_standar",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_5_response_error_format_standar",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
-      "source_location": "L244",
+      "source_location": "L374",
       "weight": 1.0,
-      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri",
-      "target": "ai_steering_04_api_contracts_and_standards_3_6_kode_error_bisnis_domain_specific",
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_6_kode_error_standar",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L387",
+      "weight": 1.0,
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_7_kode_error_bisnis_domain_specific",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L403",
+      "weight": 1.0,
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_8_pesan_sukses_standar_bahasa_indonesia",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".ai-steering/04-api-contracts-and-standards.md",
+      "source_location": "L415",
+      "weight": 1.0,
+      "source": "ai_steering_04_api_contracts_and_standards_3_format_response_standar_industri_json_envelope",
+      "target": "ai_steering_04_api_contracts_and_standards_3_9_implementasi_backend_drf",
       "confidence_score": 1.0
     },
     {
@@ -2341,9 +2421,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
-      "target": "ai_steering_04_api_contracts_and_standards_5_1_filtering_django_filter",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_5_1_filtering_django_filter"
     },
     {
       "relation": "contains",
@@ -2351,9 +2431,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L286",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
-      "target": "ai_steering_04_api_contracts_and_standards_5_2_date_range_filtering",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_5_2_date_range_filtering"
     },
     {
       "relation": "contains",
@@ -2361,9 +2441,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L294",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
-      "target": "ai_steering_04_api_contracts_and_standards_5_3_searching",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_5_3_searching"
     },
     {
       "relation": "contains",
@@ -2371,9 +2451,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L300",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_5_filtering_searching_ordering",
-      "target": "ai_steering_04_api_contracts_and_standards_5_4_ordering",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_5_4_ordering"
     },
     {
       "relation": "contains",
@@ -2381,9 +2461,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L797",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_10_riwayat_transaksi_gabungan",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_10_riwayat_transaksi_gabungan"
     },
     {
       "relation": "contains",
@@ -2391,9 +2471,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L845",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_11_dashboard",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_11_dashboard"
     },
     {
       "relation": "contains",
@@ -2401,9 +2481,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L897",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_12_laporan",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_12_laporan"
     },
     {
       "relation": "contains",
@@ -2411,9 +2491,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L953",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_13_pengaturan_institusi",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_13_pengaturan_institusi"
     },
     {
       "relation": "contains",
@@ -2421,9 +2501,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L975",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_14_audit_log",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_14_audit_log"
     },
     {
       "relation": "contains",
@@ -2431,9 +2511,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L311",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_1_health_check",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_1_health_check"
     },
     {
       "relation": "contains",
@@ -2441,9 +2521,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L337",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_2_users_manajemen_pengguna",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_2_users_manajemen_pengguna"
     },
     {
       "relation": "contains",
@@ -2451,9 +2531,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L396",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_3_kategori_sampah",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_3_kategori_sampah"
     },
     {
       "relation": "contains",
@@ -2461,9 +2541,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L439",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_4_transaksi_setoran",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_4_transaksi_setoran"
     },
     {
       "relation": "contains",
@@ -2471,9 +2551,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L526",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_5_penjemputan",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_5_penjemputan"
     },
     {
       "relation": "contains",
@@ -2481,9 +2561,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L607",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_6_penarikan_saldo",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_6_penarikan_saldo"
     },
     {
       "relation": "contains",
@@ -2491,9 +2571,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L654",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_7_reward_penukaran_poin",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_7_reward_penukaran_poin"
     },
     {
       "relation": "contains",
@@ -2501,9 +2581,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L711",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_8_mitra_pengepul_penjualan",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_8_mitra_pengepul_penjualan"
     },
     {
       "relation": "contains",
@@ -2511,9 +2591,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L752",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_6_spesifikasi_endpoint_lengkap",
-      "target": "ai_steering_04_api_contracts_and_standards_6_9_pengaduan",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_6_9_pengaduan"
     },
     {
       "relation": "contains",
@@ -2521,9 +2601,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_11_catatan_implementasi",
-      "target": "ai_steering_04_api_contracts_and_standards_konvensi_frontend",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_konvensi_frontend"
     },
     {
       "relation": "contains",
@@ -2531,9 +2611,9 @@
       "source_file": ".ai-steering/04-api-contracts-and-standards.md",
       "source_location": "L1091",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_04_api_contracts_and_standards_11_catatan_implementasi",
-      "target": "ai_steering_04_api_contracts_and_standards_status_saat_ini_vs_target",
-      "confidence_score": 1.0
+      "target": "ai_steering_04_api_contracts_and_standards_status_saat_ini_vs_target"
     },
     {
       "relation": "contains",
@@ -2541,9 +2621,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list",
-      "target": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_08_task_list_backend_development_roadmap"
     },
     {
       "relation": "contains",
@@ -2551,9 +2631,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L484",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_definisi_selesai_per_tahap",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_definisi_selesai_per_tahap"
     },
     {
       "relation": "contains",
@@ -2561,9 +2641,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_0_foundation_selesai",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_0_foundation_selesai"
     },
     {
       "relation": "contains",
@@ -2571,9 +2651,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth"
     },
     {
       "relation": "contains",
@@ -2581,9 +2661,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L151",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti"
     },
     {
       "relation": "contains",
@@ -2591,9 +2671,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end"
     },
     {
       "relation": "contains",
@@ -2601,9 +2681,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L272",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan"
     },
     {
       "relation": "contains",
@@ -2611,9 +2691,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L307",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance"
     },
     {
       "relation": "contains",
@@ -2621,9 +2701,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L340",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi"
     },
     {
       "relation": "contains",
@@ -2631,9 +2711,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L371",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_7_production_ready",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_7_production_ready"
     },
     {
       "relation": "contains",
@@ -2641,9 +2721,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L414",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan"
     },
     {
       "relation": "contains",
@@ -2651,9 +2731,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_ringkasan_fase",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_ringkasan_fase"
     },
     {
       "relation": "contains",
@@ -2661,9 +2741,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L446",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_08_task_list_backend_development_roadmap",
-      "target": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint"
     },
     {
       "relation": "contains",
@@ -2671,9 +2751,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_ringkasan_fase",
-      "target": "ai_steering_08_task_list_cakupan_17_modul_backend",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_cakupan_17_modul_backend"
     },
     {
       "relation": "contains",
@@ -2681,9 +2761,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_ringkasan_fase",
-      "target": "ai_steering_08_task_list_gap_kode_vs_dokumen_perlu_ditangani",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_gap_kode_vs_dokumen_perlu_ditangani"
     },
     {
       "relation": "contains",
@@ -2691,9 +2771,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_0_foundation_selesai",
-      "target": "ai_steering_08_task_list_0_1_project_setup",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_0_1_project_setup"
     },
     {
       "relation": "contains",
@@ -2701,9 +2781,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_0_foundation_selesai",
-      "target": "ai_steering_08_task_list_0_2_database_models",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_0_2_database_models"
     },
     {
       "relation": "contains",
@@ -2711,9 +2791,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_0_foundation_selesai",
-      "target": "ai_steering_08_task_list_0_3_core_api_setup",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_0_3_core_api_setup"
     },
     {
       "relation": "contains",
@@ -2721,9 +2801,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L104",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_1_konfigurasi_keamanan_dasar",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_1_1_konfigurasi_keamanan_dasar"
     },
     {
       "relation": "contains",
@@ -2732,7 +2812,7 @@
       "source_location": "L113",
       "weight": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_2_standar_api_response_lihat_04_api_contracts_and_standards_md",
+      "target": "ai_steering_08_task_list_1_2_standar_api_response_json_envelope_lihat_04_api_contracts_and_standards_md_3",
       "confidence_score": 1.0
     },
     {
@@ -2741,9 +2821,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_3_autentikasi_registrasi_modul_2",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_1_3_autentikasi_registrasi_modul_2"
     },
     {
       "relation": "contains",
@@ -2751,9 +2831,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_4_manajemen_pengguna_modul_1",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_1_4_manajemen_pengguna_modul_1"
     },
     {
       "relation": "contains",
@@ -2761,9 +2841,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_5_seed_data_modul_4_5",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_1_5_seed_data_modul_4_5"
     },
     {
       "relation": "contains",
@@ -2771,9 +2851,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_1_mvp_infrastruktur_auth",
-      "target": "ai_steering_08_task_list_1_6_kategori_sampah_modul_4_5",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_1_6_kategori_sampah_modul_4_5"
     },
     {
       "relation": "contains",
@@ -2781,9 +2861,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L155",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_1_integritas_data_transaksional",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_1_integritas_data_transaksional"
     },
     {
       "relation": "contains",
@@ -2791,9 +2871,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_2_transaksi_setoran_modul_6_8_9",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_2_transaksi_setoran_modul_6_8_9"
     },
     {
       "relation": "contains",
@@ -2801,9 +2881,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_3_penjemputan_workflow_modul_7",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_3_penjemputan_workflow_modul_7"
     },
     {
       "relation": "contains",
@@ -2811,9 +2891,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L190",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_4_penarikan_saldo_modul_10",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_4_penarikan_saldo_modul_10"
     },
     {
       "relation": "contains",
@@ -2821,9 +2901,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L199",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_5_penukaran_poin_modul_11",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_5_penukaran_poin_modul_11"
     },
     {
       "relation": "contains",
@@ -2831,9 +2911,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L206",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_6_penjualan_mitra_stok_modul_12_13",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_6_penjualan_mitra_stok_modul_12_13"
     },
     {
       "relation": "contains",
@@ -2841,9 +2921,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L213",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_7_pengaduan_modul_14",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_7_pengaduan_modul_14"
     },
     {
       "relation": "contains",
@@ -2851,9 +2931,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L221",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_2_mvp_logika_bisnis_inti",
-      "target": "ai_steering_08_task_list_2_8_permission_queryset_per_role",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_2_8_permission_queryset_per_role"
     },
     {
       "relation": "contains",
@@ -2861,9 +2941,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L235",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_1_alur_setor_langsung_sop_b_1",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_1_alur_setor_langsung_sop_b_1"
     },
     {
       "relation": "contains",
@@ -2871,9 +2951,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L240",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_2_alur_penjemputan_sop_b_2",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_2_alur_penjemputan_sop_b_2"
     },
     {
       "relation": "contains",
@@ -2881,9 +2961,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L247",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_3_alur_penarikan_sop_a_3",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_3_alur_penarikan_sop_a_3"
     },
     {
       "relation": "contains",
@@ -2891,9 +2971,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L252",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_4_alur_penukaran_poin_sop_a_4",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_4_alur_penukaran_poin_sop_a_4"
     },
     {
       "relation": "contains",
@@ -2901,9 +2981,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L256",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_5_riwayat_transaksi_gabungan_modul_9",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_5_riwayat_transaksi_gabungan_modul_9"
     },
     {
       "relation": "contains",
@@ -2911,9 +2991,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L261",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_6_profil_kartu_digital_modul_3",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_6_profil_kartu_digital_modul_3"
     },
     {
       "relation": "contains",
@@ -2921,9 +3001,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L265",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_3_mvp_operasional_harian_end_to_end",
-      "target": "ai_steering_08_task_list_3_7_reward_katalog_modul_11",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_3_7_reward_katalog_modul_11"
     },
     {
       "relation": "contains",
@@ -2931,9 +3011,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L276",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan",
-      "target": "ai_steering_08_task_list_4_1_dashboard_api_modul_15",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_4_1_dashboard_api_modul_15"
     },
     {
       "relation": "contains",
@@ -2941,9 +3021,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L289",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan",
-      "target": "ai_steering_08_task_list_4_2_laporan_api_modul_16",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_4_2_laporan_api_modul_16"
     },
     {
       "relation": "contains",
@@ -2951,9 +3031,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L301",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_4_mvp_monitoring_laporan",
-      "target": "ai_steering_08_task_list_4_3_stok_gudang_modul_12",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_4_3_stok_gudang_modul_12"
     },
     {
       "relation": "contains",
@@ -2961,9 +3041,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L311",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "target": "ai_steering_08_task_list_5_1_audit_log_modul_17",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_5_1_audit_log_modul_17"
     },
     {
       "relation": "contains",
@@ -2971,9 +3051,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L317",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "target": "ai_steering_08_task_list_5_2_pengaturan_institusi_modul_17",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_5_2_pengaturan_institusi_modul_17"
     },
     {
       "relation": "contains",
@@ -2981,9 +3061,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L323",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "target": "ai_steering_08_task_list_5_3_riwayat_harga_modul_5_opsional_mvp",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_5_3_riwayat_harga_modul_5_opsional_mvp"
     },
     {
       "relation": "contains",
@@ -2991,9 +3071,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L328",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "target": "ai_steering_08_task_list_5_4_role_pemerintah_distrik",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_5_4_role_pemerintah_distrik"
     },
     {
       "relation": "contains",
@@ -3001,9 +3081,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_5_mvp_lengkap_governance",
-      "target": "ai_steering_08_task_list_5_5_kebijakan_data_pribadi_uu_pdp",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_5_5_kebijakan_data_pribadi_uu_pdp"
     },
     {
       "relation": "contains",
@@ -3011,9 +3091,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L344",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi",
-      "target": "ai_steering_08_task_list_6_1_unit_integration_tests",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_6_1_unit_integration_tests"
     },
     {
       "relation": "contains",
@@ -3021,9 +3101,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L357",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi",
-      "target": "ai_steering_08_task_list_6_2_api_documentation_openapi",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_6_2_api_documentation_openapi"
     },
     {
       "relation": "contains",
@@ -3031,9 +3111,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L364",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_6_kualitas_dokumentasi",
-      "target": "ai_steering_08_task_list_6_3_error_handling",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_6_3_error_handling"
     },
     {
       "relation": "contains",
@@ -3041,9 +3121,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L375",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_7_production_ready",
-      "target": "ai_steering_08_task_list_7_1_keamanan",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_7_1_keamanan"
     },
     {
       "relation": "contains",
@@ -3051,9 +3131,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L385",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_7_production_ready",
-      "target": "ai_steering_08_task_list_7_2_deployment",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_7_2_deployment"
     },
     {
       "relation": "contains",
@@ -3061,9 +3141,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L393",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_7_production_ready",
-      "target": "ai_steering_08_task_list_7_3_backup_recovery",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_7_3_backup_recovery"
     },
     {
       "relation": "contains",
@@ -3071,9 +3151,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L400",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_7_production_ready",
-      "target": "ai_steering_08_task_list_7_4_monitoring_logging",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_7_4_monitoring_logging"
     },
     {
       "relation": "contains",
@@ -3081,9 +3161,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L406",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_7_production_ready",
-      "target": "ai_steering_08_task_list_7_5_performance",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_7_5_performance"
     },
     {
       "relation": "contains",
@@ -3091,9 +3171,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L418",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan",
-      "target": "ai_steering_08_task_list_8_1_fitur_tambahan",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_8_1_fitur_tambahan"
     },
     {
       "relation": "contains",
@@ -3101,9 +3181,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L429",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan",
-      "target": "ai_steering_08_task_list_8_2_optimasi_skalabilitas",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_8_2_optimasi_skalabilitas"
     },
     {
       "relation": "contains",
@@ -3111,9 +3191,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L436",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_fase_8_post_mvp_peningkatan",
-      "target": "ai_steering_08_task_list_8_3_yang_tidak_boleh_diimplementasikan_system_constraints",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_8_3_yang_tidak_boleh_diimplementasikan_system_constraints"
     },
     {
       "relation": "contains",
@@ -3121,9 +3201,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L479",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_post_launch_fase_8",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_post_launch_fase_8"
     },
     {
       "relation": "contains",
@@ -3131,9 +3211,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L448",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_1_minggu_1_fase_1",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_1_minggu_1_fase_1"
     },
     {
       "relation": "contains",
@@ -3141,9 +3221,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L454",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_2_minggu_2_fase_2_1_2_2",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_2_minggu_2_fase_2_1_2_2"
     },
     {
       "relation": "contains",
@@ -3151,9 +3231,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L458",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_3_minggu_3_fase_2_3_2_5",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_3_minggu_3_fase_2_3_2_5"
     },
     {
       "relation": "contains",
@@ -3161,9 +3241,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L463",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_4_minggu_4_fase_2_6_3",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_4_minggu_4_fase_2_6_3"
     },
     {
       "relation": "contains",
@@ -3171,9 +3251,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L467",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_5_minggu_5_fase_4",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_5_minggu_5_fase_4"
     },
     {
       "relation": "contains",
@@ -3181,9 +3261,9 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L472",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_6_minggu_6_fase_5_6",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_6_minggu_6_fase_5_6"
     },
     {
       "relation": "contains",
@@ -3191,9 +3271,109 @@
       "source_file": ".ai-steering/08-task-list.md",
       "source_location": "L476",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ai_steering_08_task_list_urutan_pengerjaan_rekomendasi_sprint",
-      "target": "ai_steering_08_task_list_sprint_7_minggu_7_fase_7",
-      "confidence_score": 1.0
+      "target": "ai_steering_08_task_list_sprint_7_minggu_7_fase_7"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme",
+      "target": "readme_miru_bank_sampah_backend"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_miru_bank_sampah_backend",
+      "target": "readme_api_access_documentation"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_miru_bank_sampah_backend",
+      "target": "readme_local_development_sqlite"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_miru_bank_sampah_backend",
+      "target": "readme_staging_production_docker_postgresql"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_local_development_sqlite",
+      "target": "readme_1_setup_environment"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L16",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_local_development_sqlite",
+      "target": "readme_2_run_migrations_server"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_staging_production_docker_postgresql",
+      "target": "readme_1_environment_variables"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_staging_production_docker_postgresql",
+      "target": "readme_2_build_and_run"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_staging_production_docker_postgresql",
+      "target": "readme_3_run_migrations_in_docker"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L45",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "readme_api_access_documentation",
+      "target": "readme_authentication"
     },
     {
       "relation": "contains",
@@ -3234,106 +3414,6 @@
       "confidence_score": 1.0,
       "source": "agents_miru_backend_api_agent_rules",
       "target": "agents_token_savers_wajib"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L1",
-      "weight": 1.0,
-      "source": "readme",
-      "target": "readme_miru_bank_sampah_backend",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L39",
-      "weight": 1.0,
-      "source": "readme_miru_bank_sampah_backend",
-      "target": "readme_api_access_documentation",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "readme_miru_bank_sampah_backend",
-      "target": "readme_local_development_sqlite",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "readme_miru_bank_sampah_backend",
-      "target": "readme_staging_production_docker_postgresql",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L9",
-      "weight": 1.0,
-      "source": "readme_local_development_sqlite",
-      "target": "readme_1_setup_environment",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "readme_local_development_sqlite",
-      "target": "readme_2_run_migrations_server",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L26",
-      "weight": 1.0,
-      "source": "readme_staging_production_docker_postgresql",
-      "target": "readme_1_environment_variables",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "readme_staging_production_docker_postgresql",
-      "target": "readme_2_build_and_run",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L34",
-      "weight": 1.0,
-      "source": "readme_staging_production_docker_postgresql",
-      "target": "readme_3_run_migrations_in_docker",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "README.md",
-      "source_location": "L45",
-      "weight": 1.0,
-      "source": "readme_api_access_documentation",
-      "target": "readme_authentication",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -3979,9 +4059,9 @@
       "source_file": "core/asgi.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_asgi_rationale_1",
-      "target": "core_asgi",
-      "confidence_score": 1.0
+      "target": "core_asgi"
     },
     {
       "relation": "contains",
@@ -3989,9 +4069,9 @@
       "source_file": "core/urls.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_urls",
-      "target": "core_urls_health_check",
-      "confidence_score": 1.0
+      "target": "core_urls_health_check"
     },
     {
       "relation": "rationale_for",
@@ -3999,9 +4079,9 @@
       "source_file": "core/wsgi.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "core_wsgi_rationale_1",
-      "target": "core_wsgi",
-      "confidence_score": 1.0
+      "target": "core_wsgi"
     },
     {
       "relation": "contains",
@@ -4009,9 +4089,9 @@
       "source_file": "manage.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "manage",
-      "target": "manage_main",
-      "confidence_score": 1.0
+      "target": "manage_main"
     },
     {
       "relation": "rationale_for",
@@ -4019,9 +4099,9 @@
       "source_file": "manage.py",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "manage_rationale_8",
-      "target": "manage_main",
-      "confidence_score": 1.0
+      "target": "manage_main"
     },
     {
       "relation": "contains",
@@ -4065,5 +4145,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c5f1dd6ad27578bfb8ef4623870905123a44c31f"
+  "built_at_commit": "937d2adc5c8e2f2914e3b9cefe487c2247addb6f"
 }

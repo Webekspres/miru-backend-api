@@ -1,16 +1,16 @@
 # Graph Report - backend  (2026-07-07)
 
 ## Corpus Check
-- 33 files · ~16,153 words
+- 33 files · ~17,223 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 210 nodes · 195 edges · 28 communities (23 shown, 5 thin omitted)
+- 214 nodes · 199 edges · 29 communities (24 shown, 5 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c5f1dd6a`
+- Built from commit: `937d2adc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,15 +36,16 @@
 - [[_COMMUNITY_Community 22|Community 22]]
 - [[_COMMUNITY_Community 23|Community 23]]
 - [[_COMMUNITY_Community 25|Community 25]]
+- [[_COMMUNITY_Community 28|Community 28]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `6. Spesifikasi Endpoint Lengkap` - 15 edges
 2. `08 — Task List: Backend Development Roadmap` - 13 edges
 3. `04 — API Contracts & Standards` - 12 edges
-4. `Fase 2: MVP — Logika Bisnis Inti` - 9 edges
-5. `Urutan Pengerjaan Rekomendasi (Sprint)` - 9 edges
-6. `Fase 3: MVP — Operasional Harian (End-to-End)` - 8 edges
-7. `3. Format Response Standar Industri` - 7 edges
+4. `3. Format Response Standar Industri — JSON Envelope` - 11 edges
+5. `Fase 2: MVP — Logika Bisnis Inti` - 9 edges
+6. `Urutan Pengerjaan Rekomendasi (Sprint)` - 9 edges
+7. `Fase 3: MVP — Operasional Harian (End-to-End)` - 8 edges
 8. `Fase 1: MVP — Infrastruktur & Auth` - 7 edges
 9. `2. Autentikasi — JWT (RFC 7519)` - 6 edges
 10. `Fase 5: MVP Lengkap — Governance` - 6 edges
@@ -55,7 +56,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (28 total, 5 thin omitted)
+## Communities (29 total, 5 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.13
@@ -71,7 +72,7 @@ Nodes (13): IsAdminOrKoordinator, IsOwnerOrAdmin, IsPetugasOrAdmin, KategoriSamp
 
 ### Community 3 - "Community 3"
 Cohesion: 0.07
-Nodes (27): 08 — Task List: Backend Development Roadmap, 0.1 Project Setup ✅, 0.2 Database Models ✅, 0.3 Core API Setup ✅, 4.1 Dashboard API (Modul 15), 4.2 Laporan API (Modul 16), 4.3 Stok Gudang (Modul 12), 6.1 Unit & Integration Tests (+19 more)
+Nodes (26): 08 — Task List: Backend Development Roadmap, 0.1 Project Setup ✅, 0.2 Database Models ✅, 0.3 Core API Setup ✅, 6.1 Unit & Integration Tests, 6.2 API Documentation (OpenAPI), 6.3 Error Handling, 8.1 Fitur Tambahan (+18 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.33
@@ -102,44 +103,48 @@ Cohesion: 0.22
 Nodes (9): 2.1 Integritas Data Transaksional, 2.2 Transaksi Setoran (Modul 6, 8, 9), 2.3 Penjemputan Workflow (Modul 7), 2.4 Penarikan Saldo (Modul 10), 2.5 Penukaran Poin (Modul 11), 2.6 Penjualan Mitra & Stok (Modul 12–13), 2.7 Pengaduan (Modul 14), 2.8 Permission & Queryset per Role (+1 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.22
-Nodes (9): Post-Launch — Fase 8, Sprint 1 (Minggu 1) — Fase 1, Sprint 2 (Minggu 2) — Fase 2.1–2.2, Sprint 3 (Minggu 3) — Fase 2.3–2.5, Sprint 4 (Minggu 4) — Fase 2.6–3, Sprint 5 (Minggu 5) — Fase 4, Sprint 6 (Minggu 6) — Fase 5–6, Sprint 7 (Minggu 7) — Fase 7 (+1 more)
+Cohesion: 0.18
+Nodes (11): 3.10 Perbandingan dengan Pola Lain, 3.1 Struktur Envelope (Semua Response), 3.2 Response Sukses — Resource Tunggal, 3.3 Response Sukses — Koleksi (Paginated), 3.4 Response Sukses — Aksi Kustom, 3.5 Response Error — Format Standar, 3.6 Kode Error Standar, 3.7 Kode Error Bisnis (Domain-Specific) (+3 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.25
 Nodes (8): 3.1 Alur Setor Langsung (SOP B.1), 3.2 Alur Penjemputan (SOP B.2), 3.3 Alur Penarikan (SOP A.3), 3.4 Alur Penukaran Poin (SOP A.4), 3.5 Riwayat Transaksi Gabungan (Modul 9), 3.6 Profil & Kartu Digital (Modul 3), 3.7 Reward Katalog (Modul 11), Fase 3: MVP — Operasional Harian (End-to-End)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.29
-Nodes (7): 3.1 Response Sukses — Resource Tunggal, 3.2 Response Sukses — Koleksi (Paginated), 3.3 Response Sukses — Aksi Kustom, 3.4 Response Error — RFC 7807 Problem Details, 3.5 Kode Error Standar, 3.6 Kode Error Bisnis (Domain-Specific), 3. Format Response Standar Industri
+Cohesion: 0.33
+Nodes (6): 7.1 Keamanan, 7.2 Deployment, 7.3 Backup & Recovery, 7.4 Monitoring & Logging, 7.5 Performance, Fase 7: Production Ready
 
 ### Community 20 - "Community 20"
 Cohesion: 0.29
-Nodes (7): 1.1 Konfigurasi & Keamanan Dasar, 1.2 Standar API Response (lihat `04-api-contracts-and-standards.md`), 1.3 Autentikasi & Registrasi (Modul 2), 1.4 Manajemen Pengguna (Modul 1), 1.5 Seed Data (Modul 4–5), 1.6 Kategori Sampah (Modul 4–5), Fase 1: MVP — Infrastruktur & Auth
+Nodes (7): 1.1 Konfigurasi & Keamanan Dasar ✅, 1.2 Standar API Response — JSON Envelope (lihat `04-api-contracts-and-standards.md` §3), 1.3 Autentikasi & Registrasi (Modul 2), 1.4 Manajemen Pengguna (Modul 1), 1.5 Seed Data (Modul 4–5), 1.6 Kategori Sampah (Modul 4–5), Fase 1: MVP — Infrastruktur & Auth
 
 ### Community 21 - "Community 21"
 Cohesion: 0.33
 Nodes (6): 5.1 Audit Log (Modul 17), 5.2 Pengaturan Institusi (Modul 17), 5.3 Riwayat Harga (Modul 5 — opsional MVP), 5.4 Role Pemerintah Distrik, 5.5 Kebijakan Data Pribadi (UU PDP), Fase 5: MVP Lengkap — Governance
 
+### Community 28 - "Community 28"
+Cohesion: 0.50
+Nodes (4): 4.1 Dashboard API (Modul 15), 4.2 Laporan API (Modul 16), 4.3 Stok Gudang (Modul 12), Fase 4: MVP — Monitoring & Laporan
+
 ## Knowledge Gaps
-- **133 isolated node(s):** `1. Prinsip Desain API`, `2.1 Login`, `2.2 Refresh Token`, `2.3 Profil User Login`, `2.4 Header Autentikasi` (+128 more)
+- **137 isolated node(s):** `1. Prinsip Desain API`, `2.1 Login`, `2.2 Refresh Token`, `2.3 Profil User Login`, `2.4 Header Autentikasi` (+132 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `08 — Task List: Backend Development Roadmap` connect `Community 3` to `Community 16`, `Community 17`, `Community 18`, `Community 20`, `Community 21`?**
-  _High betweenness centrality (0.090) - this node is a cross-community bridge._
-- **Why does `04 — API Contracts & Standards` connect `Community 13` to `Community 19`, `Community 14`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
+- **Why does `08 — Task List: Backend Development Roadmap` connect `Community 3` to `Community 16`, `Community 18`, `Community 19`, `Community 20`, `Community 21`, `Community 28`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
+- **Why does `04 — API Contracts & Standards` connect `Community 13` to `Community 17`, `Community 14`?**
+  _High betweenness centrality (0.040) - this node is a cross-community bridge._
 - **Why does `6. Spesifikasi Endpoint Lengkap` connect `Community 14` to `Community 13`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **What connects `1. Prinsip Desain API`, `2.1 Login`, `2.2 Refresh Token` to the rest of the system?**
-  _136 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _140 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 0` be split into smaller, more focused modules?**
   _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
   _Cohesion score 0.09420289855072464 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.07142857142857142 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07407407407407407 - nodes in this community are weakly interconnected._
