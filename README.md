@@ -144,3 +144,12 @@ Pass the token in the `Authorization` header for protected endpoints:
 ```
 Authorization: Bearer <your_access_token>
 ```
+
+## Related Projects (Repositori GitHub Terpisah)
+
+| Repositori | Description |
+|------------|-------------|
+| **miru-web-admin** | Panel admin (petugas, admin, koordinator, distrik) — Next.js |
+| **mirumobileapp** | Aplikasi mobile nasabah (Flutter) |
+
+> Ketiga proyek MIRU disimpan di repositori GitHub masing-masing. Clone dan jalankan secara terpisah; integrasi hanya melalui REST API.

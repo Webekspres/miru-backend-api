@@ -1,16 +1,16 @@
 # Graph Report - backend  (2026-07-07)
 
 ## Corpus Check
-- 41 files · ~18,569 words
+- 54 files · ~32,886 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 279 nodes · 297 edges · 30 communities (24 shown, 6 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 5 edges (avg confidence: 0.5)
+- 442 nodes · 564 edges · 51 communities (34 shown, 17 thin omitted)
+- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `d4ae4021`
+- Built from commit: `0870fd6f`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -21,6 +21,7 @@
 - [[_COMMUNITY_Community 3|Community 3]]
 - [[_COMMUNITY_Community 4|Community 4]]
 - [[_COMMUNITY_Community 5|Community 5]]
+- [[_COMMUNITY_Community 8|Community 8]]
 - [[_COMMUNITY_Community 10|Community 10]]
 - [[_COMMUNITY_Community 11|Community 11]]
 - [[_COMMUNITY_Community 12|Community 12]]
@@ -38,51 +39,69 @@
 - [[_COMMUNITY_Community 24|Community 24]]
 - [[_COMMUNITY_Community 25|Community 25]]
 - [[_COMMUNITY_Community 28|Community 28]]
+- [[_COMMUNITY_Community 30|Community 30]]
+- [[_COMMUNITY_Community 31|Community 31]]
+- [[_COMMUNITY_Community 32|Community 32]]
+- [[_COMMUNITY_Community 33|Community 33]]
+- [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
+- [[_COMMUNITY_Community 36|Community 36]]
+- [[_COMMUNITY_Community 37|Community 37]]
+- [[_COMMUNITY_Community 38|Community 38]]
+- [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
+- [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
+- [[_COMMUNITY_Community 43|Community 43]]
+- [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
+- [[_COMMUNITY_Community 47|Community 47]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `Detail Endpoint Backend per Modul` - 17 edges
-2. `6. Spesifikasi Endpoint Lengkap` - 15 edges
-3. `08 — Task List: Backend Development Roadmap` - 13 edges
-4. `04 — API Contracts & Standards` - 12 edges
-5. `3. Format Response Standar Industri — JSON Envelope` - 11 edges
-6. `success_envelope()` - 10 edges
-7. `Fase 2: MVP — Logika Bisnis Inti` - 9 edges
-8. `Urutan Pengerjaan Rekomendasi (Sprint)` - 9 edges
-9. `Fase 3: MVP — Operasional Harian (End-to-End)` - 8 edges
-10. `error_envelope()` - 8 edges
+1. `EnvelopeAPITestCase` - 22 edges
+2. `Command` - 18 edges
+3. `Detail Endpoint Backend per Modul` - 17 edges
+4. `IsAdminOrKoordinator` - 16 edges
+5. `IsUserOwnerOrAdmin` - 16 edges
+6. `6. Spesifikasi Endpoint Lengkap` - 15 edges
+7. `IsAdmin` - 14 edges
+8. `IsOwnerOrAdmin` - 14 edges
+9. `08 — Task List: Backend Development Roadmap` - 13 edges
+10. `UserViewSet` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `MiruTokenObtainPairSerializer` --uses--> `Response`  [INFERRED]
-  api/auth_views.py → api/utils/response.py
-- `MiruTokenObtainPairView` --uses--> `Response`  [INFERRED]
-  api/auth_views.py → api/utils/response.py
-- `MiruTokenRefreshView` --uses--> `Response`  [INFERRED]
-  api/auth_views.py → api/utils/response.py
-- `MiruPagination` --uses--> `Response`  [INFERRED]
-  api/utils/pagination.py → api/utils/response.py
-- `miru_exception_handler()` --calls--> `error_envelope()`  [EXTRACTED]
-  api/utils/exception_handler.py → api/utils/response.py
+- `LoginTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
+  api/tests/test_auth.py → api/tests/base.py
+- `MeEndpointTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
+  api/tests/test_auth.py → api/tests/base.py
+- `RefreshTokenTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
+  api/tests/test_auth.py → api/tests/base.py
+- `RegistrationTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
+  api/tests/test_auth.py → api/tests/base.py
+- `AdminCreateStaffTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
+  api/tests/test_users.py → api/tests/base.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (30 total, 6 thin omitted)
-
-### Community 0 - "Community 0"
-Cohesion: 0.13
-Nodes (12): DetailSetoranSerializer, KategoriSampahSerializer, Meta, MitraPengepulSerializer, PenarikanSaldoSerializer, PengaduanSerializer, PenjemputanSerializer, PenjualanMitraSerializer (+4 more)
+## Communities (51 total, 17 thin omitted)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.15
-Nodes (12): AbstractUser, DetailSetoran, KategoriSampah, MitraPengepul, PenarikanSaldo, Pengaduan, Penjemputan, PenjualanMitra (+4 more)
+Cohesion: 0.10
+Nodes (15): AbstractUser, DetailSetoran, KategoriSampah, MitraPengepul, PenarikanSaldo, Pengaduan, Penjemputan, PenjualanMitra (+7 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.09
-Nodes (13): IsAdminOrKoordinator, IsOwnerOrAdmin, IsPetugasOrAdmin, KategoriSampahViewSet, MitraPengepulViewSet, PenarikanSaldoViewSet, PengaduanViewSet, PenjemputanViewSet (+5 more)
+Cohesion: 0.12
+Nodes (16): IsAdmin, IsAdminOrKoordinator, IsOwnerOrAdmin, IsPetugasOrAdmin, IsUserOwnerOrAdmin, Object-level permission for the User model (/api/users/{id}/)., KategoriSampahViewSet, MitraPengepulViewSet (+8 more)
 
 ### Community 3 - "Community 3"
-Cohesion: 0.05
-Nodes (36): 08 — Task List: Backend Development Roadmap, 0.1 Project Setup ✅, 0.2 Database Models ✅, 0.3 Core API Setup ✅, 4.1 Dashboard API (Modul 15), 4.2 Laporan API (Modul 16), 4.3 Stok Gudang (Modul 12), 5.1 Audit Log (Modul 17) (+28 more)
+Cohesion: 0.22
+Nodes (9): Post-Launch — Fase 8, Sprint 1 (Minggu 1) — Fase 1, Sprint 2 (Minggu 2) — Fase 2.1–2.2, Sprint 3 (Minggu 3) — Fase 2.3–2.5, Sprint 4 (Minggu 4) — Fase 2.6–3, Sprint 5 (Minggu 5) — Fase 4, Sprint 6 (Minggu 6) — Fase 5–6, Sprint 7 (Minggu 7) — Fase 7 (+1 more)
+
+### Community 8 - "Community 8"
+Cohesion: 0.14
+Nodes (13): 1. Extend `EnvelopeAPITestCase`, 2. Assert JSON Envelope (required), 3. File Organization, 4. What to Test per Feature, 5. Use English Routes, 6. Seed Data for Manual / Integration Tests, Do Not, MIRU Backend Feature Testing (+5 more)
 
 ### Community 10 - "Community 10"
 Cohesion: 0.33
@@ -97,16 +116,12 @@ Cohesion: 0.40
 Nodes (4): ⚠️ AI Steering — baca on-demand (jangan semua sekaligus), Aturan Keras, graphify, MIRU Bank Sampah — Backend API (Django)
 
 ### Community 13 - "Community 13"
-Cohesion: 0.09
-Nodes (22): 04 — API Contracts & Standards, 10. Mapping Role → Endpoint Access, 11. Catatan Implementasi, 1.1 Route Naming (English, kebab-case), 1. Prinsip Desain API, 2.1 Login, 2.2 Refresh Token, 2.3 Profil User Login (+14 more)
-
-### Community 14 - "Community 14"
-Cohesion: 0.13
-Nodes (15): 6.10 Riwayat Transaksi Gabungan, 6.11 Dashboard, 6.12 Laporan, 6.13 Pengaturan Institusi, 6.14 Audit Log, 6.1 Health Check, 6.2 Users — Manajemen Pengguna, 6.3 Kategori Sampah (+7 more)
+Cohesion: 0.05
+Nodes (37): 04 — API Contracts & Standards, 10. Mapping Role → Endpoint Access, 11. Catatan Implementasi, 1.1 Route Naming (English, kebab-case), 1. Prinsip Desain API, 2.1 Login, 2.2 Refresh Token, 2.3 Profil User Login (+29 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.17
-Nodes (11): 1. Environment Variables, 1. Setup Environment, 2. Build and Run, 2. Run Migrations & Server, 3. Run Migrations in Docker, API Access & Documentation, API Routes (English), Authentication (+3 more)
+Cohesion: 0.12
+Nodes (15): 1. Environment Variables, 1. Setup Environment, 2. Build and Run, 2. Run Migrations & Server, 3. Run Migrations in Docker, 4. Seed Demo Data, 5. Run Tests, API Access & Documentation (+7 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.22
@@ -126,35 +141,71 @@ Nodes (8): 3.1 Alur Setor Langsung (SOP B.1), 3.2 Alur Penjemputan (SOP B.2), 3.
 
 ### Community 20 - "Community 20"
 Cohesion: 0.29
-Nodes (7): 1.1 Konfigurasi & Keamanan Dasar ✅, 1.2 Standar API Response — JSON Envelope ✅, 1.3 Autentikasi & Registrasi (Modul 2), 1.4 Manajemen Pengguna (Modul 1), 1.5 Seed Data (Modul 4–5), 1.6 Kategori Sampah (Modul 4–5), Fase 1: MVP — Infrastruktur & Auth
+Nodes (7): 1.1 Konfigurasi & Keamanan Dasar ✅, 1.2 Standar API Response — JSON Envelope ✅, 1.3 Autentikasi & Registrasi (Modul 2) ✅, 1.4 Manajemen Pengguna (Modul 1) ✅, 1.5 Seed Data (Modul 4–5) ✅, 1.6 Kategori Sampah (Modul 4–5) ✅, Fase 1: MVP — Infrastruktur & Auth
 
 ### Community 21 - "Community 21"
 Cohesion: 0.33
 Nodes (6): 7.1 Keamanan, 7.2 Deployment, 7.3 Backup & Recovery, 7.4 Monitoring & Logging, 7.5 Performance, Fase 7: Production Ready
 
 ### Community 24 - "Community 24"
-Cohesion: 0.10
-Nodes (25): MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, HealthCheckView, APIView, JSONRenderer, PageNumberPagination, Response (+17 more)
+Cohesion: 0.06
+Nodes (38): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), HealthCheckView, OpenAPI / drf-spectacular configuration helpers., DetailSetoranSerializer (+30 more)
+
+### Community 30 - "Community 30"
+Cohesion: 0.27
+Nodes (7): _envelope(), get_demo_user(), get_nav_groups(), _meta(), Flow-based API documentation data for MIRU Bank Sampah., FlowDocsView, TemplateView
+
+### Community 32 - "Community 32"
+Cohesion: 0.22
+Nodes (3): APITestCase, EnvelopeAPITestCase, Base test case with envelope helpers and user factories.
+
+### Community 35 - "Community 35"
+Cohesion: 0.33
+Nodes (5): 08 — Task List: Backend Development Roadmap, Cakupan 17 Modul Backend, Definisi "Selesai" per Tahap, Gap Kode vs Dokumen (perlu ditangani), Ringkasan Fase
+
+### Community 36 - "Community 36"
+Cohesion: 0.33
+Nodes (6): 5.1 Audit Log (Modul 17), 5.2 Pengaturan Institusi (Modul 17), 5.3 Riwayat Harga (Modul 5 — opsional MVP), 5.4 Role Pemerintah Distrik, 5.5 Kebijakan Data Pribadi (UU PDP), Fase 5: MVP Lengkap — Governance
+
+### Community 42 - "Community 42"
+Cohesion: 0.70
+Nodes (4): _flatten_errors(), _get_error_code(), _get_error_message(), miru_exception_handler()
+
+### Community 43 - "Community 43"
+Cohesion: 0.50
+Nodes (4): 0.1 Project Setup ✅, 0.2 Database Models ✅, 0.3 Core API Setup ✅, Fase 0: Foundation ✅ Selesai
+
+### Community 44 - "Community 44"
+Cohesion: 0.50
+Nodes (4): 4.1 Dashboard API (Modul 15), 4.2 Laporan API (Modul 16), 4.3 Stok Gudang (Modul 12), Fase 4: MVP — Monitoring & Laporan
+
+### Community 45 - "Community 45"
+Cohesion: 0.50
+Nodes (4): 6.1 Unit & Integration Tests, 6.2 API Documentation (OpenAPI), 6.3 Error Handling, Fase 6: Kualitas & Dokumentasi
+
+### Community 46 - "Community 46"
+Cohesion: 0.50
+Nodes (4): 8.1 Fitur Tambahan, 8.2 Optimasi & Skalabilitas, 8.3 Yang TIDAK BOLEH Diimplementasikan (System Constraints), Fase 8: Post-MVP & Peningkatan
 
 ## Knowledge Gaps
-- **154 isolated node(s):** `1.1 Route Naming (English, kebab-case)`, `2.1 Login`, `2.2 Refresh Token`, `2.3 Profil User Login`, `2.4 Header Autentikasi` (+149 more)
+- **163 isolated node(s):** `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅`, `0.2 Database Models ✅`, `0.3 Core API Setup ✅` (+158 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `08 — Task List: Backend Development Roadmap` connect `Community 3` to `Community 16`, `Community 19`, `Community 20`, `Community 21`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
-- **Why does `04 — API Contracts & Standards` connect `Community 13` to `Community 17`, `Community 14`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `6. Spesifikasi Endpoint Lengkap` connect `Community 14` to `Community 13`?**
-  _High betweenness centrality (0.015) - this node is a cross-community bridge._
-- **What connects `1.1 Route Naming (English, kebab-case)`, `2.1 Login`, `2.2 Refresh Token` to the rest of the system?**
-  _158 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.13333333333333333 - nodes in this community are weakly interconnected._
-- **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.09333333333333334 - nodes in this community are weakly interconnected._
-- **Should `Community 3` be split into smaller, more focused modules?**
-  _Cohesion score 0.05405405405405406 - nodes in this community are weakly interconnected._
+- **Why does `EnvelopeAPITestCase` connect `Community 32` to `Community 33`, `Community 34`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 47`, `Community 31`?**
+  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+- **Why does `Command` connect `Community 0` to `Community 1`?**
+  _High betweenness centrality (0.039) - this node is a cross-community bridge._
+- **Why does `WasteCategoryAdminCrudTests` connect `Community 31` to `Community 32`, `Community 41`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Are the 10 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `LoginTests` and `MeEndpointTests`) actually correct?**
+  _`EnvelopeAPITestCase` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 10 inferred relationships involving `IsAdminOrKoordinator` (e.g. with `KategoriSampahViewSet` and `MitraPengepulViewSet`) actually correct?**
+  _`IsAdminOrKoordinator` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 10 inferred relationships involving `IsUserOwnerOrAdmin` (e.g. with `KategoriSampahViewSet` and `MitraPengepulViewSet`) actually correct?**
+  _`IsUserOwnerOrAdmin` has 10 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅` to the rest of the system?**
+  _172 weakly-connected nodes found - possible documentation gaps or missing edges._
