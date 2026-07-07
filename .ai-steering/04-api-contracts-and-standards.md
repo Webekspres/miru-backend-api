@@ -1,278 +1,1112 @@
 # 04 — API Contracts & Standards
 
-## Base URL
+> **Dokumen ini** mendefinisikan kontrak API backend MIRU Bank Sampah:
+> format request/response standar industri, kode HTTP, autentikasi, dan spesifikasi endpoint lengkap.
+>
+> **Base URL:**
+> - Development: `http://localhost:8000`
+> - Production: `https://api.mirubanksampah.id` (usulan)
 
-- Development: `http://localhost:8000/api/`
-- Production: `https://api.mirubanksampah.id/api/`
+---
 
-## Autentikasi — JWT (simplejwt)
+## 1. Prinsip Desain API
 
-Semua endpoint (kecuali registrasi dan list kategori) memerlukan JWT token.
+| Prinsip | Implementasi |
+|---------|--------------|
+| Arsitektur | REST over HTTP/JSON |
+| Format data | `application/json` (UTF-8) |
+| Penamaan field | `snake_case` (konvensi Django/Python) |
+| Penamaan URL | `kebab-case` untuk path multi-kata |
+| Timestamp | ISO 8601 dengan timezone: `2026-07-07T14:30:00+09:00` |
+| Mata uang | `Decimal` sebagai string JSON: `"50000.00"` |
+| Berat | Kilogram (`kg`), 2 desimal: `"5.50"` |
+| Idempotensi | Operasi approve/reject harus aman dari double-submit |
+| Versioning | Prefix `/api/` (v1 implisit); `/api/v2/` jika breaking change |
 
-### Endpoint Auth
+---
+
+## 2. Autentikasi — JWT (RFC 7519)
+
+Semua endpoint memerlukan JWT **kecuali** yang ditandai `Public`.
+
+### 2.1 Login
 
 ```
-POST /api/token/          # Login — dapatkan access + refresh token
-POST /api/token/refresh/  # Refresh access token
+POST /api/auth/login/
+Content-Type: application/json
 ```
 
-### Request Login
+**Request:**
 ```json
 {
-  "username": "string",
-  "password": "string"
+  "username": "nasabah1",
+  "password": "password123"
 }
 ```
 
-### Response Login
+**Response `200 OK`:**
 ```json
 {
-  "access": "eyJhbGciOiJIUzI1NiIs...",
-  "refresh": "eyJhbGciOiJIUzI1NiIs..."
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
-### Format Header
+**Response `401 Unauthorized`:**
+```json
+{
+  "type": "https://mirubanksampah.id/errors/authentication-failed",
+  "title": "Authentication Failed",
+  "status": 401,
+  "detail": "No active account found with the given credentials.",
+  "code": "AUTHENTICATION_FAILED"
+}
 ```
+
+### 2.2 Refresh Token
+
+```
+POST /api/auth/refresh/
+Content-Type: application/json
+```
+
+**Request:**
+```json
+{
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response `200 OK`:**
+```json
+{
+  "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+### 2.3 Profil User Login
+
+```
+GET /api/auth/me/
 Authorization: Bearer <access_token>
 ```
 
-### Claim JWT
-- `user_id`: ID user
-- `role`: role user ('nasabah', 'petugas', 'admin', 'koordinator')
-- `exp`: expiration time (default 24 jam)
-
-## Standar Response Format
-
-### Success Response (List)
-```json
-{
-  "count": 50,
-  "next": "http://api.example.com/api/users/?page=3",
-  "previous": null,
-  "results": [
-    { ... }
-  ]
-}
-```
-
-### Success Response (Detail)
-```json
-{
-  "id": 1,
-  "field1": "value1",
-  "field2": "value2"
-}
-```
-
-### Error Response (Validation)
-```json
-{
-  "field_name": ["Error message 1", "Error message 2"]
-}
-```
-
-### Error Response (General)
-```json
-{
-  "detail": "Authentication credentials were not provided."
-}
-```
-
-## API Endpoints Lengkap
-
-### 1. Users (Manajemen Pengguna)
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/users/` | AllowAny | Registrasi nasabah baru |
-| GET | `/api/users/` | Admin/Koordinator | List semua user |
-| GET | `/api/users/{id}/` | Owner/Admin | Detail user |
-| PATCH | `/api/users/{id}/` | Owner/Admin | Update profil user |
-| DELETE | `/api/users/{id}/` | Admin/Koordinator | Hapus user |
-
-**POST /api/users/ (Registrasi)**
-```json
-{
-  "username": "string (required)",
-  "password": "string (required, min 6 chars)",
-  "nama_lengkap": "string (required)",
-  "nik": "string (16 digit, optional)",
-  "no_hp": "string (optional)",
-  "alamat": "string (optional)",
-  "role": "nasabah (default)"
-}
-```
-
-**Response Registrasi:**
+**Response `200 OK`:**
 ```json
 {
   "id": 1,
   "username": "nasabah1",
   "role": "nasabah",
   "nama_lengkap": "Budi Santoso",
-  "nik": "1234567890123456",
+  "nik": "",
   "no_hp": "08123456789",
-  "alamat": "Jl. Contoh No. 1",
-  "saldo": 0,
-  "poin": 0
+  "alamat": "Jl. Cendrawasih No. 1, Timika",
+  "saldo": "125000.00",
+  "poin": 125,
+  "is_active": true,
+  "date_joined": "2026-07-01T08:00:00+09:00"
 }
 ```
 
-### 2. Kategori Sampah
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| GET | `/api/sampah/kategori/` | AllowAny | List semua kategori |
-| GET | `/api/sampah/kategori/{id}/` | AllowAny | Detail kategori |
-| POST | `/api/sampah/kategori/` | Admin/Koordinator | Tambah kategori |
-| PATCH | `/api/sampah/kategori/{id}/` | Admin/Koordinator | Update kategori |
-| DELETE | `/api/sampah/kategori/{id}/` | Admin/Koordinator | Hapus kategori |
+### 2.4 Header Autentikasi
 
-```json
-// GET /api/sampah/kategori/
-[
-  {
-    "id": 1,
-    "nama": "Plastik PET",
-    "harga_beli_per_kg": 3000.00,
-    "stok_terkini_kg": 150.50
-  },
-  ...
-]
+```
+Authorization: Bearer <access_token>
+Content-Type: application/json
+Accept: application/json
+Accept-Language: id
 ```
 
-### 3. Transaksi Setoran
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| GET | `/api/transaksi/` | Owner/Admin | List transaksi |
-| GET | `/api/transaksi/{id}/` | Owner/Admin | Detail transaksi + details |
-| POST | `/api/transaksi/` | Petugas/Admin | Input setoran baru |
+### 2.5 JWT Claims
 
-**POST /api/transaksi/**
-```json
-{
-  "nasabah": 1,
-  "petugas": 2,
-  "details": [
-    {
-      "kategori": 1,
-      "berat_kg": 5.00,
-      "harga_saat_itu": 3000.00,
-      "subtotal": 15000.00
-    },
-    {
-      "kategori": 2,
-      "berat_kg": 3.00,
-      "harga_saat_itu": 1500.00,
-      "subtotal": 4500.00
-    }
-  ]
-}
-```
+| Claim | Tipe | Deskripsi |
+|-------|------|-----------|
+| `user_id` | integer | ID user |
+| `role` | string | `nasabah`, `petugas`, `admin`, `koordinator`, `pemerintah` |
+| `exp` | integer | Unix timestamp expiry (default: 24 jam) |
 
-**Response:**
+---
+
+## 3. Format Response Standar Industri
+
+API MIRU mengikuti kombinasi **REST best practices**, **RFC 7807 Problem Details**, dan **DRF pagination**.
+
+### 3.1 Response Sukses — Resource Tunggal
+
+HTTP status code mencerminkan operasi. Body berisi resource langsung (tanpa envelope).
+
+**`200 OK` — GET / PATCH:**
 ```json
 {
   "id": 1,
-  "nasabah": 1,
-  "petugas": 2,
-  "tanggal": "2026-07-03T10:30:00Z",
-  "total_nilai": 19500.00,
-  "status": "selesai",
-  "details": [
+  "nama_lengkap": "Budi Santoso",
+  "saldo": "125000.00"
+}
+```
+
+**`201 Created` — POST:**
+```json
+{
+  "id": 42,
+  "status": "menunggu",
+  "tanggal": "2026-07-07T10:30:00+09:00"
+}
+```
+
+**`204 No Content` — DELETE:**
+```
+(tanpa body)
+```
+
+### 3.2 Response Sukses — Koleksi (Paginated)
+
+Mengikuti format **DRF PageNumberPagination** (standar de facto REST API):
+
+**`200 OK`:**
+```json
+{
+  "count": 150,
+  "next": "http://localhost:8000/api/transaksi/?page=2",
+  "previous": null,
+  "results": [
     {
       "id": 1,
-      "kategori": 1,
-      "berat_kg": 5.00,
-      "harga_saat_itu": 3000.00,
-      "subtotal": 15000.00
-    },
-    {
-      "id": 2,
-      "kategori": 2,
-      "berat_kg": 3.00,
-      "harga_saat_itu": 1500.00,
-      "subtotal": 4500.00
+      "nasabah": 5,
+      "total_nilai": "19500.00",
+      "tanggal": "2026-07-07T10:30:00+09:00",
+      "status": "selesai"
     }
   ]
 }
 ```
 
-**Side Effects (done automatis):**
-- Tambah saldo nasabah sebesar `total_nilai`
-- Tambah poin nasabah: `int(total_nilai / 1000)` (1 poin per Rp1.000)
-- Tambah stok_terkini_kg di KategoriSampah
+**Parameter pagination:**
 
-### 4. Penjemputan
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/penjemputan/` | Nasabah/Owner | Ajukan penjemputan |
-| GET | `/api/penjemputan/` | Owner/Admin | List penjemputan |
-| GET | `/api/penjemputan/{id}/` | Owner/Admin | Detail penjemputan |
-| PATCH | `/api/penjemputan/{id}/` | Petugas/Admin | Update status |
+| Param | Default | Max | Deskripsi |
+|-------|---------|-----|-----------|
+| `page` | 1 | — | Nomor halaman |
+| `page_size` | 20 | 100 | Jumlah item per halaman |
 
-**Filter:** `?nasabah=1&status=menunggu`
+### 3.3 Response Sukses — Aksi Kustom
 
-### 5. Penarikan Saldo
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/saldo/` | Nasabah | Ajukan penarikan |
-| GET | `/api/saldo/` | Owner/Admin | List penarikan |
-| PATCH | `/api/saldo/{id}/` | Admin | Setujui/tolak penarikan |
+Untuk endpoint action (approve, reject, assign):
 
-**Constraint:** nominal >= 50000, saldo nasabah >= nominal
-
-### 6. Reward
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| GET | `/api/reward/katalog/` | AllowAny | List reward |
-| POST | `/api/reward/katalog/` | Admin | Tambah reward |
-| PATCH | `/api/reward/katalog/{id}/` | Admin | Update reward |
-
-### 7. Penukaran Poin
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/reward/tukar/` | Nasabah | Ajukan tukar poin |
-| GET | `/api/reward/tukar/` | Owner/Admin | List penukaran |
-| PATCH | `/api/reward/tukar/{id}/` | Admin | Setujui penukaran |
-
-### 8. Mitra Pengepul
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| GET | `/api/gudang/mitra/` | Admin/Koordinator | List mitra |
-| POST | `/api/gudang/mitra/` | Admin | Tambah mitra |
-
-### 9. Penjualan Mitra
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/gudang/jual/` | Admin | Catat penjualan ke mitra |
-| GET | `/api/gudang/jual/` | Admin/Koordinator | List penjualan |
-
-### 10. Pengaduan
-| Method | Endpoint | Permission | Deskripsi |
-|--------|----------|------------|-----------|
-| POST | `/api/pengaduan/` | Nasabah | Ajukan pengaduan |
-| GET | `/api/pengaduan/` | Owner/Admin | List pengaduan |
-| PATCH | `/api/pengaduan/{id}/` | Admin | Update status/tindak lanjut |
-
-## Filtering (django-filter)
-
-Semua list endpoint mendukung filtering via query parameters:
-```
-GET /api/transaksi/?nasabah=1
-GET /api/penjemputan/?status=menunggu
-GET /api/users/?role=nasabah
-GET /api/pengaduan/?status=terbuka
+**`200 OK`:**
+```json
+{
+  "id": 10,
+  "status": "disetujui",
+  "message": "Penjemputan berhasil disetujui.",
+  "updated_at": "2026-07-07T11:00:00+09:00"
+}
 ```
 
-## Pagination
+### 3.4 Response Error — RFC 7807 Problem Details
 
-- Default: PageNumberPagination, 20 items per page
-- Kustom: `?page=1&page_size=50` (max page_size = 100)
+Semua error mengembalikan format konsisten (target implementasi Fase 1):
 
-## Rate Limiting (Future)
+```json
+{
+  "type": "https://mirubanksampah.id/errors/validation-error",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Satu atau lebih field tidak valid.",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "nominal": ["Nominal penarikan minimal Rp50.000."],
+    "saldo": ["Saldo tidak mencukupi."]
+  }
+}
+```
 
-Belum diimplementasikan — akan ditambahkan di tahap post-MVP jika diperlukan.
+| Field | Tipe | Wajib | Deskripsi |
+|-------|------|-------|-----------|
+| `type` | string (URI) | ✅ | URI identifikasi tipe error |
+| `title` | string | ✅ | Ringkasan error (human-readable) |
+| `status` | integer | ✅ | HTTP status code |
+| `detail` | string | ✅ | Penjelasan error |
+| `code` | string | ✅ | Kode error machine-readable |
+| `errors` | object | ❌ | Detail per-field (validation errors) |
 
-## Versioning
+### 3.5 Kode Error Standar
 
-API menggunakan URL prefix `/api/`. Saat ini versi 1 (tidak ada prefix v1). Jika ada breaking changes di masa depan, akan ditambahkan prefix `/api/v2/`.
+| HTTP Status | Code | Kapan Digunakan |
+|-------------|------|-----------------|
+| `400` | `VALIDATION_ERROR` | Input tidak valid |
+| `401` | `AUTHENTICATION_FAILED` | Token tidak ada / expired / invalid |
+| `403` | `PERMISSION_DENIED` | Role tidak punya akses |
+| `404` | `NOT_FOUND` | Resource tidak ditemukan |
+| `409` | `CONFLICT` | Transisi status tidak valid / double processing |
+| `422` | `BUSINESS_RULE_VIOLATION` | Melanggar aturan bisnis SOP |
+| `429` | `RATE_LIMIT_EXCEEDED` | Terlalu banyak request |
+| `500` | `INTERNAL_ERROR` | Error server (jangan expose detail di production) |
+
+### 3.6 Kode Error Bisnis (Domain-Specific)
+
+| Code | Pesan | Modul |
+|------|-------|-------|
+| `MIN_WEIGHT_NOT_MET` | Minimal setoran 1 kg per jenis sampah | Transaksi |
+| `MIN_PICKUP_WEIGHT` | Minimal estimasi penjemputan 5 kg | Penjemputan |
+| `MIN_WITHDRAWAL_AMOUNT` | Minimal penarikan Rp50.000 | Penarikan |
+| `INSUFFICIENT_BALANCE` | Saldo tidak mencukupi | Penarikan |
+| `INSUFFICIENT_POINTS` | Poin tidak mencukupi | Penukaran |
+| `INSUFFICIENT_STOCK` | Stok tidak mencukupi | Penjualan/Reward |
+| `INVALID_STATUS_TRANSITION` | Perubahan status tidak diizinkan | Penjemputan |
+| `DUPLICATE_PENDING_REQUEST` | Masih ada pengajuan yang menunggu | Penarikan/Penukaran |
+| `ALREADY_PROCESSED` | Pengajuan sudah diproses | Penarikan/Penukaran |
+| `SCHEDULE_TOO_SOON` | Jadwal penjemputan minimal H+1 | Penjemputan |
+| `OUTSIDE_SERVICE_HOURS` | Di luar jam layanan (08.00–17.00 WIT) | Umum |
+
+---
+
+## 4. Konvensi HTTP Methods & Status
+
+| Method | Penggunaan | Status Sukses |
+|--------|------------|---------------|
+| `GET` | Ambil data (idempotent) | `200` |
+| `POST` | Buat resource / aksi | `201` (create), `200` (action) |
+| `PATCH` | Update sebagian | `200` |
+| `PUT` | Replace penuh (hindari, pakai PATCH) | `200` |
+| `DELETE` | Hapus (hanya non-transaksi) | `204` |
+
+---
+
+## 5. Filtering, Searching, Ordering
+
+### 5.1 Filtering (django-filter)
+
+```
+GET /api/transaksi/?nasabah=5&status=selesai
+GET /api/penjemputan/?status=menunggu&petugas=3
+GET /api/users/?role=nasabah&is_active=true
+GET /api/pengaduan/?status=terbuka&jenis_pengaduan=saldo_belum_masuk
+GET /api/saldo/?status=menunggu
+```
+
+### 5.2 Date Range Filtering
+
+```
+GET /api/transaksi/?tanggal_after=2026-07-01&tanggal_before=2026-07-31
+GET /api/laporan/harian/?tanggal=2026-07-07
+GET /api/laporan/bulanan/?bulan=7&tahun=2026
+```
+
+### 5.3 Searching
+
+```
+GET /api/users/?search=budi
+```
+
+### 5.4 Ordering
+
+```
+GET /api/transaksi/?ordering=-tanggal
+GET /api/penjemputan/?ordering=status,-jadwal
+```
+
+---
+
+## 6. Spesifikasi Endpoint Lengkap
+
+### 6.1 Health Check
+
+```
+GET /health/
+Public
+```
+
+**Response `200 OK`:**
+```json
+{
+  "status": "ok"
+}
+```
+
+**Response production (target Fase 7):**
+```json
+{
+  "status": "ok",
+  "database": "connected",
+  "version": "1.0.0",
+  "timestamp": "2026-07-07T14:30:00+09:00"
+}
+```
+
+---
+
+### 6.2 Users — Manajemen Pengguna
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `POST` | `/api/users/` | Public | Registrasi nasabah |
+| `GET` | `/api/users/` | JWT | Admin, Koordinator |
+| `GET` | `/api/users/{id}/` | JWT | Owner, Admin, Koordinator |
+| `PATCH` | `/api/users/{id}/` | JWT | Owner (profil), Admin |
+| `DELETE` | `/api/users/{id}/` | JWT | Admin, Koordinator |
+
+**POST /api/users/ — Registrasi Nasabah**
+
+Request:
+```json
+{
+  "username": "budi_santoso",
+  "password": "rahasia123",
+  "nama_lengkap": "Budi Santoso",
+  "no_hp": "08123456789",
+  "alamat": "Jl. Cendrawasih No. 1, Timika",
+  "nik": "",
+  "setuju_kebijakan_data": true
+}
+```
+
+Response `201 Created`:
+```json
+{
+  "id": 15,
+  "username": "budi_santoso",
+  "role": "nasabah",
+  "nama_lengkap": "Budi Santoso",
+  "nik": "",
+  "no_hp": "08123456789",
+  "alamat": "Jl. Cendrawasih No. 1, Timika",
+  "saldo": "0.00",
+  "poin": 0,
+  "is_active": true
+}
+```
+
+Validation errors `400`:
+```json
+{
+  "type": "https://mirubanksampah.id/errors/validation-error",
+  "title": "Validation Error",
+  "status": 400,
+  "detail": "Satu atau lebih field tidak valid.",
+  "code": "VALIDATION_ERROR",
+  "errors": {
+    "username": ["Username sudah digunakan."],
+    "password": ["Password minimal 6 karakter."],
+    "setuju_kebijakan_data": ["Anda harus menyetujui kebijakan data pribadi."]
+  }
+}
+```
+
+---
+
+### 6.3 Kategori Sampah
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/sampah/kategori/` | Public | Semua |
+| `GET` | `/api/sampah/kategori/{id}/` | Public | Semua |
+| `POST` | `/api/sampah/kategori/` | JWT | Admin, Koordinator |
+| `PATCH` | `/api/sampah/kategori/{id}/` | JWT | Admin, Koordinator |
+| `DELETE` | `/api/sampah/kategori/{id}/` | JWT | Admin |
+
+**GET /api/sampah/kategori/ — Response `200 OK`:**
+```json
+{
+  "count": 8,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "nama": "Plastik PET",
+      "harga_beli_per_kg": "3000.00",
+      "stok_terkini_kg": "150.50"
+    },
+    {
+      "id": 2,
+      "nama": "Gelas Plastik",
+      "harga_beli_per_kg": "4000.00",
+      "stok_terkini_kg": "75.00"
+    }
+  ]
+}
+```
+
+**POST /api/sampah/kategori/ — Request:**
+```json
+{
+  "nama": "Plastik PET",
+  "harga_beli_per_kg": "3000.00"
+}
+```
+
+---
+
+### 6.4 Transaksi Setoran
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/transaksi/` | JWT | Owner, Petugas, Admin, Koordinator |
+| `GET` | `/api/transaksi/{id}/` | JWT | Owner, Petugas, Admin, Koordinator |
+| `POST` | `/api/transaksi/` | JWT | Petugas, Admin |
+
+**POST /api/transaksi/ — Input Setoran**
+
+Request:
+```json
+{
+  "nasabah": 5,
+  "details": [
+    {
+      "kategori": 1,
+      "berat_kg": "5.00"
+    },
+    {
+      "kategori": 3,
+      "berat_kg": "3.50"
+    }
+  ]
+}
+```
+
+> **Catatan:** `harga_saat_itu` dan `subtotal` dihitung server-side. `petugas` diisi otomatis dari user login.
+
+Response `201 Created`:
+```json
+{
+  "id": 42,
+  "nasabah": 5,
+  "petugas": 2,
+  "tanggal": "2026-07-07T10:30:00+09:00",
+  "total_nilai": "20250.00",
+  "status": "selesai",
+  "details": [
+    {
+      "id": 80,
+      "kategori": 1,
+      "kategori_nama": "Plastik PET",
+      "berat_kg": "5.00",
+      "harga_saat_itu": "3000.00",
+      "subtotal": "15000.00"
+    },
+    {
+      "id": 81,
+      "kategori": 3,
+      "kategori_nama": "Kardus",
+      "berat_kg": "3.50",
+      "harga_saat_itu": "1500.00",
+      "subtotal": "5250.00"
+    }
+  ],
+  "poin_didapat": 20,
+  "saldo_nasabah_baru": "145250.00"
+}
+```
+
+Business error `422`:
+```json
+{
+  "type": "https://mirubanksampah.id/errors/business-rule-violation",
+  "title": "Business Rule Violation",
+  "status": 422,
+  "detail": "Berat setoran per jenis minimal 1 kg.",
+  "code": "MIN_WEIGHT_NOT_MET",
+  "errors": {
+    "details": [
+      {
+        "kategori": 1,
+        "berat_kg": ["Minimal 1 kg per jenis sampah."]
+      }
+    ]
+  }
+}
+```
+
+**Side effects (atomik):**
+- `nasabah.saldo` += `total_nilai`
+- `nasabah.poin` += `floor(total_nilai / 1000)`
+- `kategori.stok_terkini_kg` += `berat_kg` per detail
+
+---
+
+### 6.5 Penjemputan
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `POST` | `/api/penjemputan/` | JWT | Nasabah |
+| `GET` | `/api/penjemputan/` | JWT | Owner, Petugas, Admin |
+| `GET` | `/api/penjemputan/{id}/` | JWT | Owner, Petugas, Admin |
+| `PATCH` | `/api/penjemputan/{id}/` | JWT | Admin, Petugas (assigned) |
+| `POST` | `/api/penjemputan/{id}/approve/` | JWT | Admin |
+| `POST` | `/api/penjemputan/{id}/reject/` | JWT | Admin |
+| `POST` | `/api/penjemputan/{id}/assign/` | JWT | Admin |
+| `POST` | `/api/penjemputan/{id}/update-status/` | JWT | Petugas (assigned), Admin |
+
+**POST /api/penjemputan/ — Ajukan Penjemputan**
+
+Request:
+```json
+{
+  "estimasi_berat": "8.00",
+  "alamat_jemput": "Jl. Cendrawasih Poros SP.II, Timika",
+  "jadwal": "2026-07-08T09:00:00+09:00",
+  "catatan": "Sampah sudah dipilah di depan rumah"
+}
+```
+
+Response `201 Created`:
+```json
+{
+  "id": 10,
+  "nasabah": 5,
+  "nasabah_nama": "Budi Santoso",
+  "petugas": null,
+  "estimasi_berat": "8.00",
+  "alamat_jemput": "Jl. Cendrawasih Poros SP.II, Timika",
+  "jadwal": "2026-07-08T09:00:00+09:00",
+  "status": "menunggu",
+  "catatan": "Sampah sudah dipilah di depan rumah",
+  "tanggal_pengajuan": "2026-07-07T10:00:00+09:00"
+}
+```
+
+**POST /api/penjemputan/{id}/assign/ — Tugaskan Petugas**
+
+Request:
+```json
+{
+  "petugas_id": 3,
+  "jadwal": "2026-07-08T09:00:00+09:00"
+}
+```
+
+Response `200 OK`:
+```json
+{
+  "id": 10,
+  "status": "dijadwalkan",
+  "petugas": 3,
+  "petugas_nama": "Petugas A",
+  "message": "Petugas berhasil ditugaskan."
+}
+```
+
+**Status flow:**
+```
+menunggu → disetujui → dijadwalkan → dalam_perjalanan → dijemput → selesai
+menunggu → ditolak
+```
+
+Invalid transition `409`:
+```json
+{
+  "type": "https://mirubanksampah.id/errors/conflict",
+  "title": "Conflict",
+  "status": 409,
+  "detail": "Tidak dapat mengubah status dari 'menunggu' ke 'selesai'.",
+  "code": "INVALID_STATUS_TRANSITION"
+}
+```
+
+---
+
+### 6.6 Penarikan Saldo
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `POST` | `/api/saldo/` | JWT | Nasabah |
+| `GET` | `/api/saldo/` | JWT | Owner, Admin, Koordinator |
+| `GET` | `/api/saldo/{id}/` | JWT | Owner, Admin, Koordinator |
+| `POST` | `/api/saldo/{id}/approve/` | JWT | Admin, Koordinator |
+| `POST` | `/api/saldo/{id}/reject/` | JWT | Admin, Koordinator |
+
+**POST /api/saldo/ — Ajukan Penarikan**
+
+Request:
+```json
+{
+  "nominal": "100000.00",
+  "metode": "tunai"
+}
+```
+
+Response `201 Created`:
+```json
+{
+  "id": 7,
+  "nasabah": 5,
+  "nominal": "100000.00",
+  "metode": "tunai",
+  "status": "menunggu",
+  "tanggal": "2026-07-07T11:00:00+09:00"
+}
+```
+
+**POST /api/saldo/{id}/approve/ — Setujui (admin bayar manual, lalu approve)**
+
+Response `200 OK`:
+```json
+{
+  "id": 7,
+  "status": "selesai",
+  "nominal": "100000.00",
+  "saldo_nasabah_baru": "45250.00",
+  "message": "Penarikan saldo berhasil disetujui."
+}
+```
+
+---
+
+### 6.7 Reward & Penukaran Poin
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/reward/katalog/` | Public | Semua |
+| `POST` | `/api/reward/katalog/` | JWT | Admin |
+| `PATCH` | `/api/reward/katalog/{id}/` | JWT | Admin |
+| `DELETE` | `/api/reward/katalog/{id}/` | JWT | Admin |
+| `POST` | `/api/reward/tukar/` | JWT | Nasabah |
+| `GET` | `/api/reward/tukar/` | JWT | Owner, Admin |
+| `POST` | `/api/reward/tukar/{id}/approve/` | JWT | Admin |
+
+**GET /api/reward/katalog/ — Response `200 OK`:**
+```json
+{
+  "count": 4,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 1,
+      "nama": "Pulsa Rp10.000",
+      "poin_dibutuhkan": 100,
+      "stok": 50
+    },
+    {
+      "id": 2,
+      "nama": "Bibit Tanaman",
+      "poin_dibutuhkan": 50,
+      "stok": 30
+    }
+  ]
+}
+```
+
+**POST /api/reward/tukar/ — Request:**
+```json
+{
+  "reward": 1
+}
+```
+
+Response `201 Created`:
+```json
+{
+  "id": 3,
+  "nasabah": 5,
+  "reward": 1,
+  "reward_nama": "Pulsa Rp10.000",
+  "poin_dibutuhkan": 100,
+  "status": "menunggu",
+  "tanggal": "2026-07-07T12:00:00+09:00"
+}
+```
+
+---
+
+### 6.8 Mitra Pengepul & Penjualan
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/gudang/mitra/` | JWT | Admin, Koordinator |
+| `POST` | `/api/gudang/mitra/` | JWT | Admin |
+| `PATCH` | `/api/gudang/mitra/{id}/` | JWT | Admin |
+| `GET` | `/api/gudang/jual/` | JWT | Admin, Koordinator |
+| `POST` | `/api/gudang/jual/` | JWT | Admin |
+| `GET` | `/api/gudang/stok/` | JWT | Admin, Koordinator, Pemerintah |
+
+**POST /api/gudang/jual/ — Catat Penjualan ke Mitra**
+
+Request:
+```json
+{
+  "mitra": 1,
+  "kategori": 1,
+  "berat_jual_kg": "100.00",
+  "harga_jual_per_kg": "2500.00"
+}
+```
+
+Response `201 Created`:
+```json
+{
+  "id": 5,
+  "mitra": 1,
+  "mitra_nama": "PT Pengepul Timika",
+  "kategori": 1,
+  "kategori_nama": "Plastik PET",
+  "berat_jual_kg": "100.00",
+  "harga_jual_per_kg": "2500.00",
+  "total_penjualan": "250000.00",
+  "stok_kategori_baru": "50.50",
+  "tanggal": "2026-07-07T14:00:00+09:00"
+}
+```
+
+---
+
+### 6.9 Pengaduan
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `POST` | `/api/pengaduan/` | JWT | Nasabah |
+| `GET` | `/api/pengaduan/` | JWT | Owner, Admin |
+| `GET` | `/api/pengaduan/{id}/` | JWT | Owner, Admin |
+| `PATCH` | `/api/pengaduan/{id}/` | JWT | Admin |
+
+**POST /api/pengaduan/ — Request:**
+```json
+{
+  "jenis_pengaduan": "saldo_belum_masuk",
+  "keluhan": "Setoran kemarin belum masuk ke saldo saya."
+}
+```
+
+**Jenis pengaduan (enum):**
+`saldo_belum_masuk`, `penjemputan_terlambat`, `berat_tidak_sesuai`, `harga_tidak_sesuai`, `petugas_tidak_datang`, `kesalahan_data`, `bukti_tidak_muncul`
+
+Response `201 Created`:
+```json
+{
+  "id": 12,
+  "nasabah": 5,
+  "jenis_pengaduan": "saldo_belum_masuk",
+  "keluhan": "Setoran kemarin belum masuk ke saldo saya.",
+  "status": "terbuka",
+  "tindak_lanjut": "",
+  "tanggal": "2026-07-07T13:00:00+09:00"
+}
+```
+
+**PATCH /api/pengaduan/{id}/ — Admin tindak lanjut**
+
+Request:
+```json
+{
+  "tindak_lanjut": "Saldo sudah diperbaiki dan dikonfirmasi ke nasabah via WA.",
+  "status": "ditutup"
+}
+```
+
+---
+
+### 6.10 Riwayat Transaksi Gabungan
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/riwayat/` | JWT | Nasabah (milik sendiri), Admin |
+
+```
+GET /api/riwayat/?jenis=setoran&page=1&ordering=-tanggal
+```
+
+Response `200 OK`:
+```json
+{
+  "count": 25,
+  "next": "http://localhost:8000/api/riwayat/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 42,
+      "type": "setoran",
+      "tanggal": "2026-07-07T10:30:00+09:00",
+      "nominal": "20250.00",
+      "status": "selesai",
+      "keterangan": "Setoran 2 jenis sampah"
+    },
+    {
+      "id": 7,
+      "type": "penarikan",
+      "tanggal": "2026-07-06T15:00:00+09:00",
+      "nominal": "100000.00",
+      "status": "selesai",
+      "keterangan": "Penarikan tunai"
+    },
+    {
+      "id": 3,
+      "type": "penukaran_poin",
+      "tanggal": "2026-07-05T11:00:00+09:00",
+      "nominal": null,
+      "poin": 100,
+      "status": "selesai",
+      "keterangan": "Pulsa Rp10.000"
+    }
+  ]
+}
+```
+
+---
+
+### 6.11 Dashboard
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/dashboard/overview/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/dashboard/grafik-setoran/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/dashboard/aktivitas-terbaru/` | JWT | Admin, Koordinator, Pemerintah |
+
+**GET /api/dashboard/overview/ — Response `200 OK`:**
+```json
+{
+  "total_nasabah": 250,
+  "nasabah_aktif_30_hari": 85,
+  "total_sampah_kg": "1250.50",
+  "total_nilai_setoran": "15750000.00",
+  "total_penarikan": "8500000.00",
+  "total_penukaran_poin": 45,
+  "penjemputan_menunggu": 3,
+  "pengaduan_terbuka": 2,
+  "stok_per_kategori": [
+    {
+      "kategori_id": 1,
+      "nama": "Plastik PET",
+      "stok_kg": "150.50"
+    }
+  ],
+  "periode": {
+    "start": "2026-07-01T00:00:00+09:00",
+    "end": "2026-07-07T23:59:59+09:00"
+  }
+}
+```
+
+**GET /api/dashboard/grafik-setoran/?bulan=7&tahun=2026:**
+```json
+{
+  "labels": ["01", "02", "03", "04", "05", "06", "07"],
+  "datasets": [
+    {
+      "label": "Tonase (kg)",
+      "data": [45.5, 52.0, 38.5, 60.0, 55.5, 48.0, 62.5]
+    },
+    {
+      "label": "Nilai (Rp juta)",
+      "data": [0.5, 0.6, 0.4, 0.7, 0.6, 0.5, 0.7]
+    }
+  ]
+}
+```
+
+---
+
+### 6.12 Laporan
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/laporan/harian/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/laporan/mingguan/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/laporan/bulanan/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/laporan/sampah/` | JWT | Admin, Koordinator, Pemerintah |
+| `GET` | `/api/laporan/evaluasi/` | JWT | Admin, Koordinator, Pemerintah |
+
+**GET /api/laporan/harian/?tanggal=2026-07-07 — Response `200 OK`:**
+```json
+{
+  "tanggal": "2026-07-07",
+  "jumlah_transaksi_setoran": 12,
+  "total_setoran": "450000.00",
+  "total_penarikan": "200000.00",
+  "jumlah_penjemputan_selesai": 3,
+  "jumlah_penukaran_poin": 2,
+  "tonase_per_jenis": [
+    {
+      "kategori": "Plastik PET",
+      "berat_kg": "35.50",
+      "nilai": "106500.00"
+    },
+    {
+      "kategori": "Kardus",
+      "berat_kg": "28.00",
+      "nilai": "42000.00"
+    }
+  ],
+  "nasabah_baru": 2
+}
+```
+
+**GET /api/laporan/bulanan/?bulan=7&tahun=2026 — Response `200 OK`:**
+```json
+{
+  "bulan": 7,
+  "tahun": 2026,
+  "jumlah_nasabah_terdaftar": 250,
+  "jumlah_nasabah_aktif": 85,
+  "total_sampah_kg": "1250.50",
+  "total_nilai_ekonomi": "15750000.00",
+  "jumlah_penjemputan_selesai": 45,
+  "total_saldo_nasabah": "3200000.00",
+  "jumlah_reward_diberikan": 15,
+  "tonase_per_jenis": [],
+  "wilayah_teraktif": [],
+  "kendala_lapangan": [],
+  "rekomendasi": []
+}
+```
+
+---
+
+### 6.13 Pengaturan Institusi
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/pengaturan/` | Public | Semua |
+| `PATCH` | `/api/pengaturan/` | JWT | Admin |
+
+**GET /api/pengaturan/ — Response `200 OK`:**
+```json
+{
+  "nama_institusi": "Bank Sampah MIRU - Distrik Mimika Baru",
+  "alamat": "Jl. Cendrawasih Poros SP.II, Timika, Papua Tengah 99910",
+  "kontak": "0821 977 3693",
+  "email": "distrikmiru@mimikakab.go.id",
+  "logo_url": null,
+  "jam_operasional": "Senin–Sabtu, 08.00–17.00 WIT",
+  "pengumuman": "Selamat datang di MIRU Bank Sampah!"
+}
+```
+
+---
+
+### 6.14 Audit Log
+
+| Method | Endpoint | Auth | Permission |
+|--------|----------|------|------------|
+| `GET` | `/api/audit-log/` | JWT | Admin |
+
+```
+GET /api/audit-log/?user=2&model=TransaksiSetoran&date_after=2026-07-01
+```
+
+Response `200 OK`:
+```json
+{
+  "count": 5,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "id": 101,
+      "user": 2,
+      "user_nama": "Admin Harorld",
+      "action": "update",
+      "model_name": "TransaksiSetoran",
+      "object_id": 42,
+      "changes": {
+        "total_nilai": { "old": "19000.00", "new": "19500.00" }
+      },
+      "timestamp": "2026-07-07T16:00:00+09:00",
+      "ip_address": "192.168.1.10"
+    }
+  ]
+}
+```
+
+---
+
+## 7. OpenAPI / Swagger
+
+| Resource | URL |
+|----------|-----|
+| Swagger UI | `GET /api/docs/` |
+| OpenAPI Schema (JSON) | `GET /api/schema/` |
+| ReDoc (opsional) | `GET /api/redoc/` |
+
+Semua endpoint harus memiliki:
+- Tag grouping per modul
+- `help_text` pada setiap field serializer
+- Contoh request/response di schema
+- Dokumentasi error response
+
+---
+
+## 8. Rate Limiting (Target Fase 7)
+
+| Endpoint | Limit |
+|----------|-------|
+| `POST /api/auth/login/` | 10 request / menit / IP |
+| `POST /api/auth/refresh/` | 30 request / menit / user |
+| Endpoint write (POST/PATCH) | 100 request / jam / user |
+| Endpoint read (GET) | 1000 request / jam / user |
+
+Response `429 Too Many Requests`:
+```json
+{
+  "type": "https://mirubanksampah.id/errors/rate-limit-exceeded",
+  "title": "Rate Limit Exceeded",
+  "status": 429,
+  "detail": "Terlalu banyak permintaan. Coba lagi dalam 60 detik.",
+  "code": "RATE_LIMIT_EXCEEDED",
+  "retry_after": 60
+}
+```
+
+---
+
+## 9. Versioning
+
+| Versi | Prefix | Status |
+|-------|--------|--------|
+| v1 (current) | `/api/` | Aktif |
+| v2 (future) | `/api/v2/` | Jika ada breaking change |
+
+Breaking change policy:
+- Field baru: backward compatible (tidak perlu versi baru)
+- Field dihapus / diubah tipe: butuh versi baru
+- Deprecation notice: minimal 3 bulan sebelum sunset
+
+---
+
+## 10. Mapping Role → Endpoint Access
+
+| Endpoint Group | Nasabah | Petugas | Admin | Koordinator | Pemerintah |
+|----------------|---------|---------|-------|-------------|------------|
+| Auth (login/register) | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Kategori (read) | ✅ Public | ✅ | ✅ | ✅ | ✅ |
+| Kategori (write) | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Transaksi setoran (create) | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Transaksi (read own) | ✅ | ✅ all | ✅ all | ✅ all | ❌ |
+| Penjemputan (create) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Penjemputan (manage) | ❌ | ✅ assigned | ✅ | ❌ | ❌ |
+| Penarikan (create) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Penarikan (approve) | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Reward (read) | ✅ Public | ✅ | ✅ | ✅ | ✅ |
+| Penukaran (create) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Pengaduan (create) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Pengaduan (manage) | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Gudang/Mitra | ❌ | ❌ | ✅ | ✅ read | ❌ |
+| Dashboard | ❌ | ❌ | ✅ | ✅ | ✅ read |
+| Laporan | ❌ | ❌ | ✅ | ✅ | ✅ read |
+| Audit Log | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Pengaturan (write) | ❌ | ❌ | ✅ | ❌ | ❌ |
+
+---
+
+## 11. Catatan Implementasi
+
+### Status Saat Ini vs Target
+
+| Aspek | Saat Ini | Target (Fase 1–6) |
+|-------|----------|-------------------|
+| Error format | DRF default | RFC 7807 Problem Details |
+| Pagination | Belum dikonfigurasi | PageNumberPagination 20/halaman |
+| `/api/auth/me/` | Belum ada | Fase 1 |
+| Action endpoints (approve/reject) | Belum ada | Fase 3 |
+| Dashboard & Laporan | Belum ada | Fase 4 |
+| Audit log | Belum ada | Fase 5 |
+| `harga_saat_itu` auto-calculate | Client-side | Server-side (Fase 2) |
+| `details` di response GET transaksi | write_only | Nested read (Fase 2) |
+
+### Konvensi Frontend
+
+- Simpan `access` token di memory / secure storage (mobile: `flutter_secure_storage`)
+- Simpan `refresh` token di secure storage
+- Refresh otomatis saat dapat `401` dengan code `AUTHENTICATION_FAILED`
+- Tampilkan `detail` dari error response ke user
+- Gunakan `errors` object untuk highlight field form yang invalid
+- Format tanggal tampilan: konversi ISO 8601 ke locale `id-ID` di frontend
+- Format rupiah: `Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })`
