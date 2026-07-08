@@ -1,0 +1,22 @@
+---
+description: RTK token saver untuk shell commands
+alwaysApply: true
+---
+
+# RTK — Rust Token Killer
+
+RTK menghemat 60–90% token pada output shell. Detail: `RTK.md`.
+
+## Cara kerja
+
+Hook Cursor (`rtk hook cursor` di `.cursor/hooks.json`) otomatis me-rewrite perintah Shell. **Jangan** tambahkan prefix `rtk` manual.
+
+## Praktik wajib
+
+1. Gunakan Shell tool untuk git, test, docker — output difilter RTK.
+2. Ringkas hasil relevan; jangan salin log panjang ke chat.
+3. Test terarah: `docker compose run --rm web python manage.py test api.tests.<module>`.
+
+## WSL + Docker
+
+Backend test via WSL; hook RTK aktif pada command terluar.
