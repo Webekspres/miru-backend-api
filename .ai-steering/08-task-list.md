@@ -158,10 +158,10 @@
 > **Tujuan:** Semua aturan bisnis SOP diterapkan di backend dengan integritas data terjaga.
 
 ### 2.1 Integritas Data Transaksional
-- [ ] Bungkus semua operasi saldo/stok/poin dalam `transaction.atomic()`
-- [ ] Gunakan `select_for_update()` saat update saldo nasabah (cegah race condition)
-- [ ] Tambah validasi saldo tidak boleh negatif setelah operasi
-- [ ] Tambah validasi stok tidak boleh negatif setelah penjualan
+- [x] Bungkus semua operasi saldo/stok/poin dalam `transaction.atomic()`
+- [x] Gunakan `select_for_update()` saat update saldo nasabah (cegah race condition)
+- [x] Tambah validasi saldo tidak boleh negatif setelah operasi
+- [x] Tambah validasi stok tidak boleh negatif setelah penjualan
 
 ### 2.2 Transaksi Setoran (Modul 6, 8, 9)
 - [ ] Validasi: minimal **1 kg** per detail setoran

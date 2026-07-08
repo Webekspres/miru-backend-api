@@ -1,7 +1,9 @@
+from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.permissions import AllowAny
 
 from .models import *
+from .services import debit_nasabah_poin, debit_nasabah_saldo, decrease_kategori_stok
 from .openapi import (
     complaint_schema,
     deposit_schema,
@@ -168,12 +170,11 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     filterset_fields = ['nasabah', 'status']
     ordering_fields = ['tanggal', 'nominal']
     ordering = ['-tanggal']
+    @transaction.atomic
     def perform_update(self, serializer):
         instance = serializer.save()
         if instance.status == 'selesai':
-            nasabah = instance.nasabah
-            nasabah.saldo -= instance.nominal
-            nasabah.save()
+            debit_nasabah_saldo(instance.nasabah, instance.nominal)
 
 @reward_schema
 class RewardViewSet(viewsets.ModelViewSet):
@@ -195,12 +196,11 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     filterset_fields = ['nasabah', 'status']
     ordering_fields = ['tanggal']
     ordering = ['-tanggal']
+    @transaction.atomic
     def perform_update(self, serializer):
         instance = serializer.save()
         if instance.status == 'selesai':
-            nasabah = instance.nasabah
-            nasabah.poin -= instance.reward.poin_dibutuhkan
-            nasabah.save()
+            debit_nasabah_poin(instance.nasabah, instance.reward.poin_dibutuhkan)
 
 @partner_schema
 class MitraPengepulViewSet(viewsets.ModelViewSet):
@@ -219,11 +219,10 @@ class PenjualanMitraViewSet(viewsets.ModelViewSet):
     filterset_fields = ['mitra', 'kategori']
     ordering_fields = ['tanggal', 'total_penjualan']
     ordering = ['-tanggal']
+    @transaction.atomic
     def perform_create(self, serializer):
         instance = serializer.save()
-        kat = instance.kategori
-        kat.stok_terkini_kg -= instance.berat_jual_kg
-        kat.save()
+        decrease_kategori_stok(instance.kategori, instance.berat_jual_kg)
 
 @complaint_schema
 class PengaduanViewSet(viewsets.ModelViewSet):

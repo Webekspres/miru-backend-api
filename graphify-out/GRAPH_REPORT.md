@@ -1,16 +1,16 @@
 # Graph Report - backend  (2026-07-07)
 
 ## Corpus Check
-- 54 files · ~32,886 words
+- 54 files · ~32,937 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 442 nodes · 564 edges · 51 communities (34 shown, 17 thin omitted)
+- 443 nodes · 565 edges · 51 communities (34 shown, 17 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 59 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0870fd6f`
+- Built from commit: `2a19c68a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -71,16 +71,16 @@
 10. `UserViewSet` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `MiruTokenObtainPairSerializer` --uses--> `Response`  [INFERRED]
+  api/auth_views.py → api/utils/response.py
+- `MiruTokenObtainPairView` --uses--> `Response`  [INFERRED]
+  api/auth_views.py → api/utils/response.py
+- `MiruTokenRefreshView` --uses--> `Response`  [INFERRED]
+  api/auth_views.py → api/utils/response.py
 - `LoginTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
   api/tests/test_auth.py → api/tests/base.py
 - `MeEndpointTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
   api/tests/test_auth.py → api/tests/base.py
-- `RefreshTokenTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
-  api/tests/test_auth.py → api/tests/base.py
-- `RegistrationTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
-  api/tests/test_auth.py → api/tests/base.py
-- `AdminCreateStaffTests` --uses--> `EnvelopeAPITestCase`  [INFERRED]
-  api/tests/test_users.py → api/tests/base.py
 
 ## Import Cycles
 - None detected.
@@ -121,7 +121,7 @@ Nodes (37): 04 — API Contracts & Standards, 10. Mapping Role → Endpoint Acce
 
 ### Community 15 - "Community 15"
 Cohesion: 0.12
-Nodes (15): 1. Environment Variables, 1. Setup Environment, 2. Build and Run, 2. Run Migrations & Server, 3. Run Migrations in Docker, 4. Seed Demo Data, 5. Run Tests, API Access & Documentation (+7 more)
+Nodes (16): 1. Environment Variables, 1. Setup Environment, 2. Build and Run, 2. Run Migrations & Server, 3. Run Migrations in Docker, 4. Seed Demo Data, 5. Run Tests, API Access & Documentation (+8 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.22
@@ -148,8 +148,8 @@ Cohesion: 0.33
 Nodes (6): 7.1 Keamanan, 7.2 Deployment, 7.3 Backup & Recovery, 7.4 Monitoring & Logging, 7.5 Performance, Fase 7: Production Ready
 
 ### Community 24 - "Community 24"
-Cohesion: 0.06
-Nodes (38): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), HealthCheckView, OpenAPI / drf-spectacular configuration helpers., DetailSetoranSerializer (+30 more)
+Cohesion: 0.07
+Nodes (25): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), HealthCheckView, OpenAPI / drf-spectacular configuration helpers., DetailSetoranSerializer (+17 more)
 
 ### Community 30 - "Community 30"
 Cohesion: 0.27
@@ -168,8 +168,8 @@ Cohesion: 0.33
 Nodes (6): 5.1 Audit Log (Modul 17), 5.2 Pengaturan Institusi (Modul 17), 5.3 Riwayat Harga (Modul 5 — opsional MVP), 5.4 Role Pemerintah Distrik, 5.5 Kebijakan Data Pribadi (UU PDP), Fase 5: MVP Lengkap — Governance
 
 ### Community 42 - "Community 42"
-Cohesion: 0.70
-Nodes (4): _flatten_errors(), _get_error_code(), _get_error_message(), miru_exception_handler()
+Cohesion: 0.15
+Nodes (17): JSONRenderer, PageNumberPagination, Response, _flatten_errors(), _get_error_code(), _get_error_message(), miru_exception_handler(), MiruPagination (+9 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.50
@@ -188,7 +188,7 @@ Cohesion: 0.50
 Nodes (4): 8.1 Fitur Tambahan, 8.2 Optimasi & Skalabilitas, 8.3 Yang TIDAK BOLEH Diimplementasikan (System Constraints), Fase 8: Post-MVP & Peningkatan
 
 ## Knowledge Gaps
-- **163 isolated node(s):** `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅`, `0.2 Database Models ✅`, `0.3 Core API Setup ✅` (+158 more)
+- **164 isolated node(s):** `1. Setup Environment`, `2. Run Migrations & Server`, `1. Environment Variables`, `2. Build and Run`, `3. Run Migrations in Docker` (+159 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -196,7 +196,7 @@ Nodes (4): 8.1 Fitur Tambahan, 8.2 Optimasi & Skalabilitas, 8.3 Yang TIDAK BOLEH
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `EnvelopeAPITestCase` connect `Community 32` to `Community 33`, `Community 34`, `Community 37`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 47`, `Community 31`?**
-  _High betweenness centrality (0.105) - this node is a cross-community bridge._
+  _High betweenness centrality (0.104) - this node is a cross-community bridge._
 - **Why does `Command` connect `Community 0` to `Community 1`?**
   _High betweenness centrality (0.039) - this node is a cross-community bridge._
 - **Why does `WasteCategoryAdminCrudTests` connect `Community 31` to `Community 32`, `Community 41`?**
@@ -207,5 +207,5 @@ _Questions this graph is uniquely positioned to answer:_
   _`IsAdminOrKoordinator` has 10 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 10 inferred relationships involving `IsUserOwnerOrAdmin` (e.g. with `KategoriSampahViewSet` and `MitraPengepulViewSet`) actually correct?**
   _`IsUserOwnerOrAdmin` has 10 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅` to the rest of the system?**
-  _172 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `1. Setup Environment`, `2. Run Migrations & Server`, `1. Environment Variables` to the rest of the system?**
+  _173 weakly-connected nodes found - possible documentation gaps or missing edges._

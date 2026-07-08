@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from .models import *
+from .services import create_setoran_with_side_effects
 
 PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_superuser')
 
@@ -167,27 +169,7 @@ class TransaksiSetoranSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         details_data = validated_data.pop('details', [])
-        transaksi = TransaksiSetoran.objects.create(**validated_data)
-
-        total_nilai = 0
-
-        for detail in details_data:
-            detail_obj = DetailSetoran.objects.create(transaksi=transaksi, **detail)
-            total_nilai += detail_obj.subtotal
-
-            kat = detail['kategori']
-            kat.stok_terkini_kg += detail['berat_kg']
-            kat.save()
-
-        transaksi.total_nilai = total_nilai
-        transaksi.save()
-
-        nasabah = transaksi.nasabah
-        nasabah.saldo += total_nilai
-        nasabah.poin += int(total_nilai / 1000)
-        nasabah.save()
-
-        return transaksi
+        return create_setoran_with_side_effects(validated_data, details_data)
 
 
 class PenjemputanSerializer(serializers.ModelSerializer):
