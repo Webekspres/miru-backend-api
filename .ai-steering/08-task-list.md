@@ -279,33 +279,33 @@
 > **Tujuan:** Admin, koordinator, dan pemerintah distrik bisa memantau program via data agregat.
 
 ### 4.1 Dashboard API (Modul 15)
-- [ ] `GET /api/dashboard/overview/`
+- [x] `GET /api/dashboard/overview/`
   - total_nasabah, nasabah_aktif_30_hari
   - total_sampah_kg, total_nilai_setoran
   - total_penarikan, total_penukaran_poin
   - penjemputan_menunggu, pengaduan_terbuka
   - stok_per_kategori (array)
-- [ ] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
+- [x] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
   - data per hari/minggu untuk chart
-- [ ] `GET /api/dashboard/recent-activity/?limit=10`
+- [x] `GET /api/dashboard/recent-activity/?limit=10`
   - 10 transaksi terbaru (setoran, penarikan, penjemputan)
-- [ ] Permission: admin, koordinator, pemerintah (read-only)
+- [x] Permission: admin, koordinator, pemerintah (read-only)
 
 ### 4.2 Laporan API (Modul 16)
-- [ ] `GET /api/reports/daily/?tanggal=2026-07-07`
+- [x] `GET /api/reports/daily/?tanggal=2026-07-07`
   - jumlah_transaksi, total_setoran, total_penarikan, tonase_per_jenis
-- [ ] `GET /api/reports/weekly/?minggu=27&tahun=2026`
+- [x] `GET /api/reports/weekly/?minggu=27&tahun=2026`
   - rekap mingguan, nasabah_baru, tonase_per_jenis
-- [ ] `GET /api/reports/monthly/?bulan=7&tahun=2026`
+- [x] `GET /api/reports/monthly/?bulan=7&tahun=2026`
   - laporan lengkap sesuai format SOP (lihat `09-data-dictionary.md` H.1)
-- [ ] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
+- [x] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
   - tonase dan nilai per kategori per periode
-- [ ] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
-- [ ] Permission: admin, koordinator, pemerintah
+- [x] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
+- [x] Permission: admin, koordinator, pemerintah
 
 ### 4.3 Stok Gudang (Modul 12)
-- [ ] `GET /api/inventory/` — ringkasan stok semua kategori
-- [ ] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
+- [x] `GET /api/inventory/` — ringkasan stok semua kategori
+- [x] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
 
 ---
 

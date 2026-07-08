@@ -1,6 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .monitoring_views import (
+    DashboardDepositChartView,
+    DashboardOverviewView,
+    DashboardRecentActivityView,
+    InventoryView,
+    InventoryHistoryView,
+    ReportDailyView,
+    ReportEvaluationView,
+    ReportMonthlyView,
+    ReportWasteView,
+    ReportWeeklyView,
+)
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -16,5 +28,19 @@ router.register(r'complaints', PengaduanViewSet, basename='complaint')
 
 urlpatterns = [
     path('activity/', ActivityListView.as_view(), name='activity'),
+    path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
+    path('dashboard/deposit-chart/', DashboardDepositChartView.as_view(), name='dashboard-deposit-chart'),
+    path('dashboard/recent-activity/', DashboardRecentActivityView.as_view(), name='dashboard-recent-activity'),
+    path('reports/daily/', ReportDailyView.as_view(), name='report-daily'),
+    path('reports/weekly/', ReportWeeklyView.as_view(), name='report-weekly'),
+    path('reports/monthly/', ReportMonthlyView.as_view(), name='report-monthly'),
+    path('reports/waste/', ReportWasteView.as_view(), name='report-waste'),
+    path('reports/evaluation/', ReportEvaluationView.as_view(), name='report-evaluation'),
+    path('inventory/', InventoryView.as_view(), name='inventory'),
+    path(
+        'inventory/<int:kategori_id>/history/',
+        InventoryHistoryView.as_view(),
+        name='inventory-history',
+    ),
     path('', include(router.urls)),
 ]
