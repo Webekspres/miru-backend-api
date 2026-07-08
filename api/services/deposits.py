@@ -44,3 +44,24 @@ def prepare_details_data(details_input: list[dict]) -> list[dict]:
         build_detail_data(detail['kategori'], detail['berat_kg'])
         for detail in details_input
     ]
+
+
+def build_bukti_digital(transaksi) -> dict:
+    """Struktur bukti digital untuk nasabah (SOP B.1)."""
+    details = []
+    for detail in transaksi.details.select_related('kategori').all():
+        details.append({
+            'id': detail.id,
+            'kategori': detail.kategori_id,
+            'kategori_nama': detail.kategori.nama,
+            'berat_kg': str(detail.berat_kg),
+            'harga_saat_itu': str(detail.harga_saat_itu),
+            'subtotal': str(detail.subtotal),
+        })
+
+    return {
+        'id': transaksi.id,
+        'tanggal': transaksi.tanggal.isoformat(),
+        'total_nilai': f'{transaksi.total_nilai:.2f}',
+        'details': details,
+    }

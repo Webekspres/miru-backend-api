@@ -4,6 +4,7 @@ from .models import *
 from .services import create_setoran_with_side_effects
 from .services.deposits import (
     MIN_BERAT_KG,
+    build_bukti_digital,
     prepare_details_data,
     validate_nasabah_for_setoran,
     validate_petugas_for_setoran,
@@ -65,6 +66,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 STAFF_ROLES = ('petugas', 'admin', 'koordinator')
+
+
+class NasabahLookupSerializer(serializers.ModelSerializer):
+    """Data nasabah untuk petugas (scan QR / cari nasabah)."""
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'nama_lengkap', 'no_hp', 'is_active']
+        read_only_fields = fields
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
@@ -188,7 +198,7 @@ class DetailSetoranSerializer(serializers.ModelSerializer):
         read_only_fields = ['transaksi']
 
 
-class TransaksiSetoranSerializer(serializers.ModelSerializer):
+class TransaksiSetoranCreateSerializer(serializers.ModelSerializer):
     details = DetailSetoranWriteSerializer(many=True)
 
     class Meta:
@@ -224,15 +234,38 @@ class TransaksiSetoranSerializer(serializers.ModelSerializer):
 
         return create_setoran_with_side_effects(validated_data, details_data)
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['details'] = DetailSetoranReadSerializer(
-            instance.details.all(), many=True,
-        ).data
-        data['poin_didapat'] = int(instance.total_nilai / 1000)
-        instance.nasabah.refresh_from_db()
-        data['saldo_nasabah_baru'] = str(instance.nasabah.saldo)
-        return data
+
+class TransaksiSetoranReadSerializer(serializers.ModelSerializer):
+    details = DetailSetoranReadSerializer(many=True, read_only=True)
+    nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+    petugas_nama = serializers.CharField(
+        source='petugas.nama_lengkap', read_only=True, default=None,
+    )
+    poin_didapat = serializers.SerializerMethodField()
+    saldo_nasabah_baru = serializers.SerializerMethodField()
+    bukti_digital = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TransaksiSetoran
+        fields = [
+            'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
+            'tanggal', 'total_nilai', 'status', 'details',
+            'poin_didapat', 'saldo_nasabah_baru', 'bukti_digital',
+        ]
+
+    def get_poin_didapat(self, obj):
+        return int(obj.total_nilai / 1000)
+
+    def get_saldo_nasabah_baru(self, obj):
+        obj.nasabah.refresh_from_db()
+        return str(obj.nasabah.saldo)
+
+    def get_bukti_digital(self, obj):
+        return build_bukti_digital(obj)
+
+
+# Backward-compatible alias
+TransaksiSetoranSerializer = TransaksiSetoranCreateSerializer
 
 
 class PenjemputanCreateSerializer(serializers.ModelSerializer):

@@ -238,9 +238,9 @@
 > **Tujuan:** Semua alur operasional bank sampah bisa jalan dari API tanpa workaround.
 
 ### 3.1 Alur Setor Langsung (SOP B.1)
-- [ ] Petugas scan/cari nasabah → input setoran → saldo & poin terupdate
-- [ ] Response setoran include bukti digital (id, tanggal, detail, total)
-- [ ] Endpoint `GET /api/deposits/{id}/` — detail lengkap untuk bukti
+- [x] Petugas scan/cari nasabah → input setoran → saldo & poin terupdate
+- [x] Response setoran include bukti digital (id, tanggal, detail, total)
+- [x] Endpoint `GET /api/deposits/{id}/` — detail lengkap untuk bukti
 
 ### 3.2 Alur Penjemputan (SOP B.2)
 - [ ] Nasabah ajukan → admin approve → assign petugas → petugas update status → selesai

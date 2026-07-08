@@ -1,16 +1,16 @@
 # Graph Report - backend  (2026-07-08)
 
 ## Corpus Check
-- 76 files · ~38,533 words
+- 76 files · ~38,917 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 903 nodes · 1673 edges · 78 communities (48 shown, 30 thin omitted)
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 345 edges (avg confidence: 0.51)
+- 924 nodes · 1722 edges · 77 communities (52 shown, 25 thin omitted)
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 360 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2b22ff17`
+- Built from commit: `a0689783`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -74,7 +74,6 @@
 - [[_COMMUNITY_Community 65|Community 65]]
 - [[_COMMUNITY_Community 66|Community 66]]
 - [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 68|Community 68]]
 - [[_COMMUNITY_Community 70|Community 70]]
 - [[_COMMUNITY_Community 71|Community 71]]
 - [[_COMMUNITY_Community 72|Community 72]]
@@ -85,18 +84,20 @@
 - [[_COMMUNITY_Community 77|Community 77]]
 
 ## God Nodes (most connected - your core abstractions)
-1. `EnvelopeAPITestCase` - 47 edges
-2. `KategoriSampah` - 41 edges
-3. `AlreadyProcessedError` - 31 edges
-4. `Command` - 29 edges
-5. `User` - 29 edges
-6. `Reward` - 26 edges
-7. `success_response()` - 26 edges
-8. `TransaksiSetoran` - 23 edges
+1. `EnvelopeAPITestCase` - 48 edges
+2. `KategoriSampah` - 42 edges
+3. `success_response()` - 34 edges
+4. `AlreadyProcessedError` - 33 edges
+5. `Command` - 29 edges
+6. `User` - 29 edges
+7. `Reward` - 26 edges
+8. `TransaksiSetoran` - 24 edges
 9. `IsPemerintahReadOnly` - 22 edges
 10. `InsufficientStokError` - 21 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `Meta` --uses--> `TransaksiSetoran`  [INFERRED]
+  api/filters.py → api/models.py
 - `DetailSetoranReadSerializer` --uses--> `AlreadyProcessedError`  [INFERRED]
   api/serializers.py → api/exceptions.py
 - `DetailSetoranSerializer` --uses--> `AlreadyProcessedError`  [INFERRED]
@@ -104,8 +105,6 @@
 - `Meta` --uses--> `AlreadyProcessedError`  [INFERRED]
   api/serializers.py → api/exceptions.py
 - `PenarikanSaldoCreateSerializer` --uses--> `AlreadyProcessedError`  [INFERRED]
-  api/serializers.py → api/exceptions.py
-- `PenarikanSaldoSerializer` --uses--> `AlreadyProcessedError`  [INFERRED]
   api/serializers.py → api/exceptions.py
 
 ## Import Cycles
@@ -115,15 +114,15 @@
 - 1-file cycle: `api/services/partner_sales.py -> api/services/partner_sales.py`
 - 1-file cycle: `api/services/withdrawals.py -> api/services/withdrawals.py`
 
-## Communities (78 total, 30 thin omitted)
+## Communities (77 total, 25 thin omitted)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.08
 Nodes (24): 05 — Business Rules & SOPs, A.1 Konversi Setoran ke Saldo, A.2 Konversi Saldo ke Poin Reward, A.3 Penarikan Saldo, A.4 Penukaran Poin, A. Aturan Keuangan, B.1 Setor Langsung (di Kantor), B.2 Penjemputan (via Aplikasi) (+16 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.08
-Nodes (30): TransaksiSetoranFilter, IsAdmin, IsAdminOrKoordinator, IsMonitorReadOnly, IsNasabah, IsOwnerOrAdmin, IsPemerintahReadOnly, IsPetugasOrAdmin (+22 more)
+Cohesion: 0.05
+Nodes (39): Meta, TransaksiSetoranFilter, IsAdmin, IsAdminOrKoordinator, IsMonitorReadOnly, IsNasabah, IsOwnerOrAdmin, IsPemerintahReadOnly (+31 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.22
@@ -150,8 +149,8 @@ Cohesion: 0.04
 Nodes (48): 04 — API Contracts & Standards, 10. Mapping Role → Endpoint Access, 11. Catatan Implementasi, 1.1 Route Naming (English, kebab-case), 1. Prinsip Desain API, 2.1 Login, 2.2 Refresh Token, 2.3 Profil User Login (+40 more)
 
 ### Community 14 - "Community 14"
-Cohesion: 0.05
-Nodes (71): AbstractUser, Meta, DetailSetoran, KategoriSampah, MitraPengepul, PenarikanSaldo, Pengaduan, Penjemputan (+63 more)
+Cohesion: 0.09
+Nodes (43): AbstractUser, DetailSetoran, Reward, TransaksiSetoran, User, Decimal, KategoriSampah, Reward (+35 more)
 
 ### Community 15 - "Community 15"
 Cohesion: 0.12
@@ -162,8 +161,8 @@ Cohesion: 0.22
 Nodes (9): 2.1 Integritas Data Transaksional, 2.2 Transaksi Setoran (Modul 6, 8, 9), 2.3 Penjemputan Workflow (Modul 7), 2.4 Penarikan Saldo (Modul 10), 2.5 Penukaran Poin (Modul 11), 2.6 Penjualan Mitra & Stok (Modul 12–13), 2.7 Pengaduan (Modul 14), 2.8 Permission & Queryset per Role (+1 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.25
-Nodes (5): TransaksiSetoranSerializer, User, prepare_details_data(), validate_nasabah_for_setoran(), validate_petugas_for_setoran()
+Cohesion: 0.15
+Nodes (11): TransaksiSetoranCreateSerializer, Decimal, KategoriSampah, User, build_bukti_digital(), build_detail_data(), prepare_details_data(), Business rules and price calculation for deposit transactions. (+3 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.10
@@ -182,20 +181,20 @@ Cohesion: 0.33
 Nodes (6): 7.1 Keamanan, 7.2 Deployment, 7.3 Backup & Recovery, 7.4 Monitoring & Logging, 7.5 Performance, Fase 7: Production Ready
 
 ### Community 24 - "Community 24"
-Cohesion: 0.12
-Nodes (17): AlreadyProcessedError, DetailSetoranSerializer, DetailSetoranWriteSerializer, KategoriSampahSerializer, Meta, MitraPengepulSerializer, PenarikanSaldoUpdateSerializer, PengaduanUpdateSerializer (+9 more)
+Cohesion: 0.14
+Nodes (15): AlreadyProcessedError, DetailSetoranReadSerializer, DetailSetoranSerializer, DetailSetoranWriteSerializer, KategoriSampahSerializer, Meta, MitraPengepulSerializer, NasabahLookupSerializer (+7 more)
 
 ### Community 30 - "Community 30"
-Cohesion: 0.24
-Nodes (12): InvalidStatusTransitionError, PenjemputanUpdateSerializer, Decimal, User, Penjemputan, Pickup request validation and status state machine., validate_estimasi_berat(), validate_jadwal_h_plus_one() (+4 more)
+Cohesion: 0.22
+Nodes (13): InvalidStatusTransitionError, PenjemputanUpdateSerializer, Decimal, User, APIException, Penjemputan, Pickup request validation and status state machine., validate_estimasi_berat() (+5 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.18
 Nodes (3): APITestCase, EnvelopeAPITestCase, Base test case with envelope helpers and user factories.
 
 ### Community 33 - "Community 33"
-Cohesion: 0.15
-Nodes (3): LoginTests, RefreshTokenTests, RegistrationTests
+Cohesion: 0.11
+Nodes (4): LoginTests, MeEndpointTests, RefreshTokenTests, RegistrationTests
 
 ### Community 35 - "Community 35"
 Cohesion: 0.33
@@ -205,13 +204,17 @@ Nodes (5): 08 — Task List: Backend Development Roadmap, Cakupan 17 Modul Backe
 Cohesion: 0.33
 Nodes (6): 5.1 Audit Log (Modul 17), 5.2 Pengaturan Institusi (Modul 17), 5.3 Riwayat Harga (Modul 5 — opsional MVP), 5.4 Role Pemerintah Distrik, 5.5 Kebijakan Data Pribadi (UU PDP), Fase 5: MVP Lengkap — Governance
 
-### Community 37 - "Community 37"
-Cohesion: 0.22
-Nodes (3): DetailSetoranReadSerializer, PenjualanMitraSerializer, UserRegistrationSerializer
+### Community 38 - "Community 38"
+Cohesion: 0.17
+Nodes (7): PenarikanSaldo, Pengaduan, Penjemputan, PenukaranPoin, KoordinatorAccessTests, NasabahDataIsolationTests, PetugasAccessTests
+
+### Community 39 - "Community 39"
+Cohesion: 0.12
+Nodes (3): AdminCreateStaffTests, UserPatchPermissionTests, UserResponseSecurityTests
 
 ### Community 42 - "Community 42"
-Cohesion: 0.06
-Nodes (32): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), HealthCheckView, OpenAPI / drf-spectacular configuration helpers., PenarikanSaldoSerializer (+24 more)
+Cohesion: 0.07
+Nodes (35): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), _envelope(), get_demo_user(), get_nav_groups() (+27 more)
 
 ### Community 43 - "Community 43"
 Cohesion: 0.50
@@ -232,6 +235,10 @@ Nodes (4): 8.1 Fitur Tambahan, 8.2 Optimasi & Skalabilitas, 8.3 Yang TIDAK BOLEH
 ### Community 52 - "Community 52"
 Cohesion: 0.08
 Nodes (23): 09 — Data Dictionary & Reference Values (Backend), A.1 Daftar Jenis Sampah yang Diterima, A.2 Ketentuan Kategori, A. KATEGORI & HARGA SAMPAH (Seed Data), B. KATALOG REWARD (Seed Data), C.1 Konversi Setoran, C.2 Contoh Perhitungan (dari SOP), C.3 Aturan Keuangan Ringkas (+15 more)
+
+### Community 53 - "Community 53"
+Cohesion: 0.13
+Nodes (3): DepositFlowTests, DepositReadFilterTests, SOP B.1 — petugas scan/cari nasabah → input setoran → bukti digital.
 
 ### Community 54 - "Community 54"
 Cohesion: 0.16
@@ -254,12 +261,12 @@ Cohesion: 0.15
 Nodes (12): 01 — Project Overview: MIRU Bank Sampah (Miru-G), 3 Repositori Sistem, 6 Role Pengguna, Indikator Keberhasilan Program, Informasi Aplikasi, Informasi Kontak & Organisasi, Jam Layanan Operasional, Latar Belakang (+4 more)
 
 ### Community 60 - "Community 60"
-Cohesion: 0.27
-Nodes (7): _envelope(), get_demo_user(), get_nav_groups(), _meta(), Flow-based API documentation data for MIRU Bank Sampah., FlowDocsView, TemplateView
+Cohesion: 0.40
+Nodes (3): Business rules for nasabah complaints., validate_admin_close(), validate_jenis_pengaduan()
 
 ### Community 61 - "Community 61"
-Cohesion: 0.54
-Nodes (7): Decimal, User, Business rules for saldo withdrawal requests., validate_create_withdrawal(), validate_no_pending_withdrawal(), validate_nominal(), validate_saldo_cukup()
+Cohesion: 0.40
+Nodes (9): Decimal, User, PenarikanSaldo, Business rules for saldo withdrawal requests., validate_approve_withdrawal(), validate_create_withdrawal(), validate_no_pending_withdrawal(), validate_nominal() (+1 more)
 
 ### Community 62 - "Community 62"
 Cohesion: 0.38
@@ -269,25 +276,33 @@ Nodes (8): PenukaranPoinCreateSerializer, Reward, User, Business rules for rewar
 Cohesion: 0.25
 Nodes (7): 02 — Architecture & Tech Stack (Backend), API Documentation, Arsitektur, CORS Configuration, Environment Variables (`.env`), Struktur Folder, Tech Stack
 
+### Community 74 - "Community 74"
+Cohesion: 0.16
+Nodes (8): KategoriSampah, MitraPengepul, PenjualanMitra, KategoriSampah, MitraPengepul, PenjualanMitra, MitraPengepulCrudTests, WasteCategoryPublicReadTests
+
+### Community 75 - "Community 75"
+Cohesion: 0.26
+Nodes (9): PenjualanMitraCreateSerializer, Decimal, build_sale_data(), create_partner_sale_with_side_effects(), Business rules and orchestration for partner waste sales., Create partner sale record and decrease category stock atomically., validate_berat_jual(), validate_harga_jual() (+1 more)
+
 ## Knowledge Gaps
-- **240 isolated node(s):** `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅`, `0.2 Database Models ✅`, `0.3 Core API Setup ✅` (+235 more)
+- **240 isolated node(s):** `Migration`, `Migration`, `Migration`, `Migration`, `Persona AI` (+235 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **30 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **25 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `EnvelopeAPITestCase` connect `Community 32` to `Community 14`, `Community 31`, `Community 33`, `Community 34`, `Community 38`, `Community 39`, `Community 40`, `Community 41`, `Community 47`, `Community 51`, `Community 53`, `Community 63`, `Community 64`, `Community 66`, `Community 67`, `Community 68`, `Community 70`, `Community 71`, `Community 73`, `Community 74`?**
+- **Why does `EnvelopeAPITestCase` connect `Community 32` to `Community 64`, `Community 33`, `Community 34`, `Community 67`, `Community 66`, `Community 38`, `Community 71`, `Community 70`, `Community 73`, `Community 41`, `Community 74`, `Community 40`, `Community 39`, `Community 47`, `Community 51`, `Community 53`, `Community 31`, `Community 63`?**
   _High betweenness centrality (0.090) - this node is a cross-community bridge._
-- **Why does `KategoriSampah` connect `Community 14` to `Community 0`, `Community 68`, `Community 70`, `Community 41`, `Community 74`, `Community 17`, `Community 53`, `Community 31`?**
-  _High betweenness centrality (0.044) - this node is a cross-community bridge._
-- **Why does `TransaksiSetoran` connect `Community 14` to `Community 0`, `Community 41`, `Community 2`, `Community 53`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **Are the 26 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `LoginTests` and `MeEndpointTests`) actually correct?**
-  _`EnvelopeAPITestCase` has 26 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 30 inferred relationships involving `KategoriSampah` (e.g. with `Decimal` and `KategoriSampah`) actually correct?**
-  _`KategoriSampah` has 30 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 26 inferred relationships involving `AlreadyProcessedError` (e.g. with `DetailSetoranReadSerializer` and `DetailSetoranSerializer`) actually correct?**
-  _`AlreadyProcessedError` has 26 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `KategoriSampah` connect `Community 74` to `Community 0`, `Community 38`, `Community 70`, `Community 40`, `Community 41`, `Community 75`, `Community 14`, `Community 17`, `Community 53`, `Community 31`?**
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `TransaksiSetoran` connect `Community 14` to `Community 0`, `Community 2`, `Community 38`, `Community 40`, `Community 41`, `Community 53`?**
+  _High betweenness centrality (0.029) - this node is a cross-community bridge._
+- **Are the 27 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `LoginTests` and `MeEndpointTests`) actually correct?**
+  _`EnvelopeAPITestCase` has 27 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 31 inferred relationships involving `KategoriSampah` (e.g. with `Decimal` and `KategoriSampah`) actually correct?**
+  _`KategoriSampah` has 31 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 28 inferred relationships involving `AlreadyProcessedError` (e.g. with `DetailSetoranReadSerializer` and `DetailSetoranSerializer`) actually correct?**
+  _`AlreadyProcessedError` has 28 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 11 inferred relationships involving `Command` (e.g. with `DetailSetoran` and `KategoriSampah`) actually correct?**
   _`Command` has 11 INFERRED edges - model-reasoned connections that need verification._

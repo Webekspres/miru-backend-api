@@ -121,6 +121,81 @@ class DepositCreateTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['data']['total_nilai'], '20250.00')
 
+    def test_create_response_includes_bukti_digital(self):
+        self.auth_as(self.petugas)
+        response = self.client.post(
+            '/api/deposits/', self._deposit_payload(), format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = response.data['data']
+        self.assertIn('bukti_digital', data)
+        bukti = data['bukti_digital']
+        self.assertEqual(bukti['id'], data['id'])
+        self.assertIn('tanggal', bukti)
+        self.assertEqual(bukti['total_nilai'], '20250.00')
+        self.assertEqual(len(bukti['details']), 2)
+        self.assertEqual(data['nasabah_nama'], self.nasabah.nama_lengkap)
+        self.assertEqual(data['petugas_nama'], self.petugas.nama_lengkap)
+
+
+class DepositFlowTests(EnvelopeAPITestCase):
+    """SOP B.1 — petugas scan/cari nasabah → input setoran → bukti digital."""
+
+    def setUp(self):
+        self.petugas = self.create_petugas(username='petugas_flow')
+        self.nasabah = self.create_nasabah(
+            username='budi_flow', password='secret12',
+        )
+        self.nasabah.nama_lengkap = 'Budi Santoso'
+        self.nasabah.save()
+        self.kategori = KategoriSampah.objects.create(
+            nama='PET', harga_beli_per_kg=Decimal('3000.00'),
+        )
+
+    def test_petugas_search_nasabah(self):
+        self.auth_as(self.petugas)
+        response = self.client.get('/api/users/?search=budi')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['data']), 1)
+        self.assertEqual(response.data['data'][0]['nama_lengkap'], 'Budi Santoso')
+        self.assertNotIn('saldo', response.data['data'][0])
+
+    def test_petugas_lookup_nasabah_by_id(self):
+        self.auth_as(self.petugas)
+        response = self.client.get(f'/api/users/{self.nasabah.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['id'], self.nasabah.id)
+        self.assertEqual(response.data['data']['nama_lengkap'], 'Budi Santoso')
+
+    def test_petugas_cannot_lookup_non_nasabah(self):
+        self.auth_as(self.petugas)
+        response = self.client.get(f'/api/users/{self.petugas.id}/')
+        self.assertIn(response.status_code, (
+            status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND,
+        ))
+
+    def test_e2e_lookup_deposit_saldo_poin_bukti(self):
+        self.auth_as(self.petugas)
+        lookup = self.client.get(f'/api/users/{self.nasabah.id}/')
+        self.assertEqual(lookup.status_code, status.HTTP_200_OK)
+
+        create = self.client.post('/api/deposits/', {
+            'nasabah': self.nasabah.id,
+            'details': [{'kategori': self.kategori.id, 'berat_kg': '5.00'}],
+        }, format='json')
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        deposit_id = create.data['data']['id']
+
+        self.nasabah.refresh_from_db()
+        self.assertEqual(self.nasabah.saldo, Decimal('15000.00'))
+        self.assertEqual(self.nasabah.poin, 15)
+
+        bukti = self.client.get(f'/api/deposits/{deposit_id}/')
+        self.assertEqual(bukti.status_code, status.HTTP_200_OK)
+        self.assertEqual(bukti.data['message'], 'Bukti setoran berhasil diambil.')
+        self.assertEqual(bukti.data['data']['bukti_digital']['total_nilai'], '15000.00')
+        self.assertEqual(len(bukti.data['data']['bukti_digital']['details']), 1)
+
 
 class DepositReadFilterTests(EnvelopeAPITestCase):
     def setUp(self):
@@ -146,13 +221,17 @@ class DepositReadFilterTests(EnvelopeAPITestCase):
             tanggal=timezone.now() - timedelta(days=10),
         )
 
-    def test_retrieve_includes_nested_details(self):
+    def test_retrieve_includes_nested_details_and_bukti(self):
         transaksi = TransaksiSetoran.objects.filter(nasabah=self.nasabah_a).first()
         self.auth_as(self.nasabah_a)
         response = self.client.get(f'/api/deposits/{transaksi.id}/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('details', response.data['data'])
         self.assertEqual(len(response.data['data']['details']), 1)
+        self.assertIn('bukti_digital', response.data['data'])
+        self.assertEqual(
+            response.data['data']['bukti_digital']['id'], transaksi.id,
+        )
 
     def test_nasabah_only_sees_own_deposits(self):
         self.auth_as(self.nasabah_a)

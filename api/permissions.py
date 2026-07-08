@@ -28,6 +28,17 @@ class IsPetugasOrAdmin(permissions.BasePermission):
         )
 
 
+class IsStaffManagerOrPetugas(permissions.BasePermission):
+    """Admin, koordinator, atau petugas — untuk lookup nasabah."""
+
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in ('admin', 'koordinator', 'petugas')
+        )
+
+
 class IsNasabah(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(
@@ -96,6 +107,12 @@ class IsUserOwnerOrAdmin(permissions.BasePermission):
             return True
         if user.role == 'koordinator':
             return view.action in ('retrieve', 'destroy')
+        if user.role == 'petugas':
+            return (
+                view.action == 'retrieve'
+                and obj.role == 'nasabah'
+                and request.method in permissions.SAFE_METHODS
+            )
         if user.role == 'nasabah':
             return (
                 obj.pk == user.pk

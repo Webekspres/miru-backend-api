@@ -30,6 +30,7 @@ from .permissions import (
     IsPetugasOrAdmin,
     IsPickupManager,
     IsMonitorReadOnly,
+    IsStaffManagerOrPetugas,
     IsUserOwnerOrAdmin,
 )
 from .serializers import *
@@ -49,11 +50,17 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return user.is_authenticated and user.role in ('admin', 'koordinator')
 
+    def _is_petugas_lookup(self):
+        user = self.request.user
+        return user.is_authenticated and user.role == 'petugas'
+
     def get_serializer_class(self):
         if self.action == 'create':
             if self._is_staff_manager():
                 return UserAdminSerializer
             return UserRegistrationSerializer
+        if self._is_petugas_lookup() and self.action in ('list', 'retrieve'):
+            return NasabahLookupSerializer
         if self.action in ('retrieve', 'update', 'partial_update'):
             if self.request.user.is_authenticated and self.request.user.role == 'nasabah':
                 return UserProfileSerializer
@@ -67,9 +74,17 @@ class UserViewSet(viewsets.ModelViewSet):
             if self._is_staff_manager():
                 return [IsAdminOrKoordinator()]
             return [AllowAny()]
+        if self.action == 'list':
+            return [IsAuthenticated(), IsStaffManagerOrPetugas()]
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
-            return [IsUserOwnerOrAdmin()]
+            return [IsAuthenticated(), IsUserOwnerOrAdmin()]
         return super().get_permissions()
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self._is_petugas_lookup():
+            return qs.filter(role='nasabah', is_active=True)
+        return qs
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -164,10 +179,15 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
     queryset = TransaksiSetoran.objects.select_related(
         'nasabah', 'petugas',
     ).prefetch_related('details__kategori')
-    serializer_class = TransaksiSetoranSerializer
     filterset_class = TransaksiSetoranFilter
     ordering_fields = ['tanggal', 'total_nilai']
     ordering = ['-tanggal']
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return TransaksiSetoranCreateSerializer
+        return TransaksiSetoranReadSerializer
 
     def get_permissions(self):
         if self.action == 'create':
@@ -181,8 +201,11 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        output = TransaksiSetoranReadSerializer(
+            serializer.instance, context={'request': request},
+        )
         return success_response(
-            data=serializer.data,
+            data=output.data,
             message='Transaksi setoran berhasil dicatat.',
             status_code=status.HTTP_201_CREATED,
             request=request,
@@ -190,10 +213,12 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
+        serializer = TransaksiSetoranReadSerializer(
+            instance, context={'request': request},
+        )
         return success_response(
             data=serializer.data,
-            message='Data berhasil diambil.',
+            message='Bukti setoran berhasil diambil.',
             request=request,
         )
 

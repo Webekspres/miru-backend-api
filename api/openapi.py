@@ -112,7 +112,7 @@ waste_category_schema = extend_schema_view(
 
 deposit_schema = extend_schema_view(
     list=extend_schema(summary='Daftar transaksi setoran', tags=[DEPOSITS_TAG]),
-    retrieve=extend_schema(summary='Detail setoran', tags=[DEPOSITS_TAG]),
+    retrieve=extend_schema(summary='Bukti digital setoran', tags=[DEPOSITS_TAG]),
     create=extend_schema(
         summary='Catat setoran sampah (petugas/admin)',
         tags=[DEPOSITS_TAG],
