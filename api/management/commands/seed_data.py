@@ -294,16 +294,18 @@ class Command(BaseCommand):
 
     def _seed_complaints(self, nasabah_list):
         keluhan_samples = [
-            'Saldo belum masuk setelah setoran.',
-            'Jadwal penjemputan terlambat.',
-            'Berat sampah tidak sesuai timbangan.',
-            'Petugas belum datang sesuai jadwal.',
+            ('Saldo belum masuk setelah setoran.', 'saldo_belum_masuk'),
+            ('Jadwal penjemputan terlambat.', 'penjemputan_terlambat'),
+            ('Berat sampah tidak sesuai timbangan.', 'berat_tidak_sesuai'),
+            ('Petugas belum datang sesuai jadwal.', 'petugas_tidak_datang'),
         ]
         created = 0
         for nasabah in random.sample(nasabah_list, min(20, len(nasabah_list))):
+            keluhan, jenis = random.choice(keluhan_samples)
             Pengaduan.objects.create(
                 nasabah=nasabah,
-                keluhan=random.choice(keluhan_samples),
+                jenis_pengaduan=jenis,
+                keluhan=keluhan,
                 status=random.choice(['terbuka', 'ditutup']),
             )
             created += 1

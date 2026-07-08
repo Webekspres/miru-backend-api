@@ -312,10 +312,70 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class PenarikanSaldoSerializer(serializers.ModelSerializer):
+class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenarikanSaldo
-        fields = '__all__'
+        fields = ['nominal', 'metode']
+
+    def validate_nominal(self, value):
+        from .services.withdrawals import validate_nominal
+        return validate_nominal(value)
+
+    def validate(self, attrs):
+        request = self.context['request']
+        if request.user.role != 'nasabah':
+            raise serializers.ValidationError(
+                'Hanya nasabah yang dapat mengajukan penarikan saldo.'
+            )
+        from .services.withdrawals import validate_create_withdrawal
+        validate_create_withdrawal(request.user, attrs['nominal'])
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['nasabah'] = self.context['request'].user
+        validated_data['status'] = 'menunggu'
+        return PenarikanSaldo.objects.create(**validated_data)
+
+
+class PenarikanSaldoUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PenarikanSaldo
+        fields = ['status']
+
+    def validate(self, attrs):
+        from api.exceptions import AlreadyProcessedError
+
+        if self.instance.status == 'selesai':
+            raise AlreadyProcessedError('Penarikan saldo sudah diproses.')
+
+        new_status = attrs.get('status', self.instance.status)
+        if new_status != 'selesai':
+            raise serializers.ValidationError(
+                {'status': ['Status hanya dapat diubah menjadi selesai.']}
+            )
+
+        from .services.withdrawals import validate_approve_withdrawal
+        validate_approve_withdrawal(self.instance)
+        return attrs
+
+
+class PenarikanSaldoSerializer(serializers.ModelSerializer):
+    nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+
+    class Meta:
+        model = PenarikanSaldo
+        fields = [
+            'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
+            'status', 'tanggal',
+        ]
+        read_only_fields = fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.status == 'selesai':
+            instance.nasabah.refresh_from_db()
+            data['saldo_nasabah_baru'] = str(instance.nasabah.saldo)
+        return data
 
 
 class RewardSerializer(serializers.ModelSerializer):
@@ -324,25 +384,170 @@ class RewardSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PenukaranPoinSerializer(serializers.ModelSerializer):
+class PenukaranPoinCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenukaranPoin
-        fields = '__all__'
+        fields = ['reward']
+
+    def validate(self, attrs):
+        request = self.context['request']
+        if request.user.role != 'nasabah':
+            raise serializers.ValidationError(
+                'Hanya nasabah yang dapat menukar poin.'
+            )
+        from .services.redemptions import validate_create_redemption
+        validate_create_redemption(request.user, attrs['reward'])
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['nasabah'] = self.context['request'].user
+        validated_data['status'] = 'menunggu'
+        return PenukaranPoin.objects.create(**validated_data)
+
+
+class PenukaranPoinUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PenukaranPoin
+        fields = ['status']
+
+    def validate(self, attrs):
+        from api.exceptions import AlreadyProcessedError
+
+        if self.instance.status == 'selesai':
+            raise AlreadyProcessedError('Penukaran poin sudah diproses.')
+
+        new_status = attrs.get('status', self.instance.status)
+        if new_status != 'selesai':
+            raise serializers.ValidationError(
+                {'status': ['Status hanya dapat diubah menjadi selesai.']}
+            )
+
+        from .services.redemptions import validate_approve_redemption
+        validate_approve_redemption(self.instance.nasabah, self.instance.reward)
+        return attrs
+
+
+class PenukaranPoinSerializer(serializers.ModelSerializer):
+    reward_nama = serializers.CharField(source='reward.nama', read_only=True)
+    poin_dibutuhkan = serializers.IntegerField(
+        source='reward.poin_dibutuhkan', read_only=True,
+    )
+    nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+
+    class Meta:
+        model = PenukaranPoin
+        fields = [
+            'id', 'nasabah', 'nasabah_nama', 'reward', 'reward_nama',
+            'poin_dibutuhkan', 'status', 'tanggal',
+        ]
+        read_only_fields = fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if instance.status == 'selesai':
+            instance.nasabah.refresh_from_db()
+            instance.reward.refresh_from_db()
+            data['poin_nasabah_baru'] = instance.nasabah.poin
+            data['stok_reward_baru'] = instance.reward.stok
+        return data
 
 
 class MitraPengepulSerializer(serializers.ModelSerializer):
     class Meta:
         model = MitraPengepul
-        fields = '__all__'
+        fields = ['id', 'nama', 'kontak']
+
+    def validate_nama(self, value):
+        qs = MitraPengepul.objects.filter(nama__iexact=value)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError('Nama mitra sudah digunakan.')
+        return value
+
+
+class PenjualanMitraCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PenjualanMitra
+        fields = ['mitra', 'kategori', 'berat_jual_kg', 'harga_jual_per_kg']
+
+    def validate_berat_jual_kg(self, value):
+        from .services.partner_sales import validate_berat_jual
+        return validate_berat_jual(value)
+
+    def validate_harga_jual_per_kg(self, value):
+        from .services.partner_sales import validate_harga_jual
+        return validate_harga_jual(value)
+
+    def validate(self, attrs):
+        from .services.partner_sales import validate_stok_cukup
+        validate_stok_cukup(attrs['kategori'], attrs['berat_jual_kg'])
+        return attrs
+
+    def create(self, validated_data):
+        from .services.partner_sales import create_partner_sale_with_side_effects
+        return create_partner_sale_with_side_effects(validated_data)
 
 
 class PenjualanMitraSerializer(serializers.ModelSerializer):
+    mitra_nama = serializers.CharField(source='mitra.nama', read_only=True)
+    kategori_nama = serializers.CharField(source='kategori.nama', read_only=True)
+
     class Meta:
         model = PenjualanMitra
-        fields = '__all__'
+        fields = [
+            'id', 'mitra', 'mitra_nama', 'kategori', 'kategori_nama',
+            'berat_jual_kg', 'harga_jual_per_kg', 'total_penjualan', 'tanggal',
+        ]
+        read_only_fields = fields
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        instance.kategori.refresh_from_db()
+        data['stok_kategori_baru'] = str(instance.kategori.stok_terkini_kg)
+        return data
+
+
+class PengaduanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pengaduan
+        fields = ['jenis_pengaduan', 'keluhan']
+
+    def validate_jenis_pengaduan(self, value):
+        from .services.complaints import validate_jenis_pengaduan
+        return validate_jenis_pengaduan(value)
+
+    def validate_keluhan(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Keluhan wajib diisi.')
+        return value
+
+    def create(self, validated_data):
+        validated_data['nasabah'] = self.context['request'].user
+        validated_data['status'] = 'terbuka'
+        return Pengaduan.objects.create(**validated_data)
+
+
+class PengaduanUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pengaduan
+        fields = ['tindak_lanjut', 'status']
+
+    def validate(self, attrs):
+        tindak_lanjut = attrs.get('tindak_lanjut', self.instance.tindak_lanjut)
+        status = attrs.get('status', self.instance.status)
+        from .services.complaints import validate_admin_close
+        validate_admin_close(tindak_lanjut, status)
+        return attrs
 
 
 class PengaduanSerializer(serializers.ModelSerializer):
+    nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+
     class Meta:
         model = Pengaduan
-        fields = '__all__'
+        fields = [
+            'id', 'nasabah', 'nasabah_nama', 'jenis_pengaduan', 'keluhan',
+            'tindak_lanjut', 'status', 'tanggal',
+        ]
+        read_only_fields = fields

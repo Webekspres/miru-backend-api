@@ -61,6 +61,16 @@ class EnvelopeAPITestCase(APITestCase):
             alamat='Timika',
         )
 
+    def create_pemerintah(self, username='pemerintah_test', password='secret12'):
+        return User.objects.create_user(
+            username=username,
+            password=password,
+            nama_lengkap='Pemerintah Test',
+            role='pemerintah',
+            no_hp='08123456783',
+            alamat='Timika',
+        )
+
     def auth_as(self, user, password='secret12'):
         login = self.client.post('/api/auth/login/', {
             'username': user.username,

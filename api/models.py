@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('petugas', 'Petugas'),
         ('admin', 'Admin Aplikasi'),
         ('koordinator', 'Koordinator'),
+        ('pemerintah', 'Pemerintah Distrik'),
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
     nama_lengkap = models.CharField(max_length=255)
@@ -85,8 +86,19 @@ class PenjualanMitra(models.Model):
     tanggal = models.DateTimeField(auto_now_add=True)
 
 class Pengaduan(models.Model):
+    JENIS_CHOICES = (
+        ('saldo_belum_masuk', 'Saldo Belum Masuk'),
+        ('penjemputan_terlambat', 'Penjemputan Terlambat'),
+        ('berat_tidak_sesuai', 'Berat Tidak Sesuai'),
+        ('harga_tidak_sesuai', 'Harga Tidak Sesuai'),
+        ('petugas_tidak_datang', 'Petugas Tidak Datang'),
+        ('kesalahan_data', 'Kesalahan Data'),
+        ('bukti_tidak_muncul', 'Bukti Tidak Muncul'),
+    )
     STATUS_CHOICES = (('terbuka', 'Terbuka'), ('ditutup', 'Ditutup'))
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE)
+    jenis_pengaduan = models.CharField(max_length=30, choices=JENIS_CHOICES)
     keluhan = models.TextField()
+    tindak_lanjut = models.TextField(blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='terbuka')
     tanggal = models.DateTimeField(auto_now_add=True)

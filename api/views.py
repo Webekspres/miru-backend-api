@@ -4,7 +4,11 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .filters import TransaksiSetoranFilter
 from .models import *
-from .services import debit_nasabah_poin, debit_nasabah_saldo, decrease_kategori_stok
+from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staff_only
+from .services import (
+    complete_penukaran_poin,
+    debit_nasabah_saldo,
+)
 from .openapi import (
     complaint_schema,
     deposit_schema,
@@ -22,8 +26,10 @@ from .permissions import (
     IsAdminOrKoordinator,
     IsNasabah,
     IsOwnerOrAdmin,
+    IsPemerintahReadOnly,
     IsPetugasOrAdmin,
     IsPickupManager,
+    IsMonitorReadOnly,
     IsUserOwnerOrAdmin,
 )
 from .serializers import *
@@ -165,15 +171,11 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            return [IsAuthenticated(), IsPetugasOrAdmin()]
-        return [IsAuthenticated(), IsOwnerOrAdmin()]
+            return [IsAuthenticated(), IsPetugasOrAdmin(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        user = self.request.user
-        if user.role == 'nasabah':
-            return qs.filter(nasabah=user)
-        return qs
+        return filter_nasabah_owned(super().get_queryset(), self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -212,19 +214,13 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action == 'create':
-            return [IsAuthenticated(), IsNasabah()]
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
         if self.action in ('partial_update', 'update'):
-            return [IsAuthenticated(), IsPickupManager()]
-        return [IsAuthenticated(), IsOwnerOrAdmin()]
+            return [IsAuthenticated(), IsPickupManager(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        user = self.request.user
-        if user.role == 'nasabah':
-            return qs.filter(nasabah=user)
-        if user.role == 'petugas':
-            return qs.filter(petugas=user)
-        return qs
+        return filter_pickup_queryset(super().get_queryset(), self.request.user)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -264,17 +260,70 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
 
 @withdrawal_schema
 class PenarikanSaldoViewSet(viewsets.ModelViewSet):
-    queryset = PenarikanSaldo.objects.all()
-    serializer_class = PenarikanSaldoSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    queryset = PenarikanSaldo.objects.select_related('nasabah')
     filterset_fields = ['nasabah', 'status']
     ordering_fields = ['tanggal', 'nominal']
     ordering = ['-tanggal']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PenarikanSaldoCreateSerializer
+        if self.action in ('partial_update', 'update'):
+            return PenarikanSaldoUpdateSerializer
+        return PenarikanSaldoSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
+        if self.action in ('partial_update', 'update'):
+            return [IsAuthenticated(), IsAdminOrKoordinator(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
+
+    def get_queryset(self):
+        return filter_nasabah_owned(super().get_queryset(), self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        output = PenarikanSaldoSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penarikan saldo berhasil diajukan.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PenarikanSaldoSerializer(instance, context={'request': request})
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
     @transaction.atomic
-    def perform_update(self, serializer):
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_status = instance.status
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
         instance = serializer.save()
-        if instance.status == 'selesai':
+
+        if old_status != 'selesai' and instance.status == 'selesai':
             debit_nasabah_saldo(instance.nasabah, instance.nominal)
+
+        output = PenarikanSaldoSerializer(instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penarikan saldo berhasil disetujui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 @reward_schema
 class RewardViewSet(viewsets.ModelViewSet):
@@ -290,45 +339,217 @@ class RewardViewSet(viewsets.ModelViewSet):
 
 @redemption_schema
 class PenukaranPoinViewSet(viewsets.ModelViewSet):
-    queryset = PenukaranPoin.objects.all()
-    serializer_class = PenukaranPoinSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    queryset = PenukaranPoin.objects.select_related('nasabah', 'reward')
     filterset_fields = ['nasabah', 'status']
     ordering_fields = ['tanggal']
     ordering = ['-tanggal']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PenukaranPoinCreateSerializer
+        if self.action in ('partial_update', 'update'):
+            return PenukaranPoinUpdateSerializer
+        return PenukaranPoinSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
+        if self.action in ('partial_update', 'update'):
+            return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
+
+    def get_queryset(self):
+        return filter_nasabah_owned(super().get_queryset(), self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        output = PenukaranPoinSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penukaran poin berhasil diajukan.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PenukaranPoinSerializer(instance, context={'request': request})
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
     @transaction.atomic
-    def perform_update(self, serializer):
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        old_status = instance.status
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
         instance = serializer.save()
-        if instance.status == 'selesai':
-            debit_nasabah_poin(instance.nasabah, instance.reward.poin_dibutuhkan)
+
+        if old_status != 'selesai' and instance.status == 'selesai':
+            complete_penukaran_poin(instance.nasabah, instance.reward)
+
+        output = PenukaranPoinSerializer(instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penukaran poin berhasil disetujui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 @partner_schema
 class MitraPengepulViewSet(viewsets.ModelViewSet):
     queryset = MitraPengepul.objects.all()
     serializer_class = MitraPengepulSerializer
-    permission_classes = [IsAdminOrKoordinator]
     search_fields = ['nama', 'kontak']
     ordering_fields = ['nama']
     ordering = ['nama']
 
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [IsAuthenticated(), IsMonitorReadOnly()]
+        return [IsAuthenticated(), IsAdminOrKoordinator(), IsPemerintahReadOnly()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Mitra pengepul berhasil dibuat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Mitra pengepul berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
 @partner_sale_schema
 class PenjualanMitraViewSet(viewsets.ModelViewSet):
-    queryset = PenjualanMitra.objects.all()
-    serializer_class = PenjualanMitraSerializer
-    permission_classes = [IsAdminOrKoordinator]
+    queryset = PenjualanMitra.objects.select_related('mitra', 'kategori')
     filterset_fields = ['mitra', 'kategori']
     ordering_fields = ['tanggal', 'total_penjualan']
     ordering = ['-tanggal']
-    @transaction.atomic
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        decrease_kategori_stok(instance.kategori, instance.berat_jual_kg)
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PenjualanMitraCreateSerializer
+        return PenjualanMitraSerializer
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [IsAuthenticated(), IsMonitorReadOnly()]
+        return [IsAuthenticated(), IsAdminOrKoordinator(), IsPemerintahReadOnly()]
+
+    def get_queryset(self):
+        return filter_staff_only(super().get_queryset(), self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        output = PenjualanMitraSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penjualan ke mitra berhasil dicatat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PenjualanMitraSerializer(instance, context={'request': request})
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
 
 @complaint_schema
 class PengaduanViewSet(viewsets.ModelViewSet):
-    queryset = Pengaduan.objects.all()
-    serializer_class = PengaduanSerializer
-    permission_classes = [IsOwnerOrAdmin]
-    filterset_fields = ['nasabah', 'status']
+    queryset = Pengaduan.objects.select_related('nasabah')
+    filterset_fields = ['nasabah', 'status', 'jenis_pengaduan']
     ordering_fields = ['tanggal']
     ordering = ['-tanggal']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PengaduanCreateSerializer
+        if self.action in ('partial_update', 'update'):
+            return PengaduanUpdateSerializer
+        return PengaduanSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
+        if self.action in ('partial_update', 'update'):
+            return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
+
+    def get_queryset(self):
+        return filter_nasabah_owned(super().get_queryset(), self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        output = PengaduanSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Pengaduan berhasil dibuat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PengaduanSerializer(instance, context={'request': request})
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        output = PengaduanSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Pengaduan berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

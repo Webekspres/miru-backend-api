@@ -193,43 +193,43 @@
 - [x] Filter: `?status=`, `?nasabah=`, `?petugas=`
 
 ### 2.4 Penarikan Saldo (Modul 10)
-- [ ] Validasi create: nominal >= **Rp50.000**
-- [ ] Validasi create: saldo nasabah >= nominal
-- [ ] Validasi create: tidak ada penarikan `menunggu` lain untuk nasabah yang sama
-- [ ] Side effect: kurangi saldo saat status → `selesai` (sudah ada, perbaiki dengan atomic)
-- [ ] Prevent double processing: tolak update jika sudah `selesai`
-- [ ] Permission approve: admin/koordinator only
-- [ ] Filter: `?status=`, `?nasabah=`
+- [x] Validasi create: nominal >= **Rp50.000**
+- [x] Validasi create: saldo nasabah >= nominal
+- [x] Validasi create: tidak ada penarikan `menunggu` lain untuk nasabah yang sama
+- [x] Side effect: kurangi saldo saat status → `selesai` (sudah ada, perbaiki dengan atomic)
+- [x] Prevent double processing: tolak update jika sudah `selesai`
+- [x] Permission approve: admin/koordinator only
+- [x] Filter: `?status=`, `?nasabah=`
 
 ### 2.5 Penukaran Poin (Modul 11)
-- [ ] Validasi create: poin nasabah >= `reward.poin_dibutuhkan`
-- [ ] Validasi create: `reward.stok > 0`
-- [ ] Side effect atomik saat `selesai`: kurangi poin nasabah, kurangi stok reward
-- [ ] Prevent double processing
-- [ ] Permission approve: admin only
+- [x] Validasi create: poin nasabah >= `reward.poin_dibutuhkan`
+- [x] Validasi create: `reward.stok > 0`
+- [x] Side effect atomik saat `selesai`: kurangi poin nasabah, kurangi stok reward
+- [x] Prevent double processing
+- [x] Permission approve: admin only
 
 ### 2.6 Penjualan Mitra & Stok (Modul 12–13)
-- [ ] Validasi: `stok_terkini_kg >= berat_jual_kg`
-- [ ] Auto-hitung `total_penjualan = berat_jual_kg × harga_jual_per_kg`
-- [ ] Side effect atomik: kurangi stok kategori
-- [ ] CRUD mitra pengepul — admin/koordinator
-- [ ] Mitra tidak punya akun login (hanya data referensi)
+- [x] Validasi: `stok_terkini_kg >= berat_jual_kg`
+- [x] Auto-hitung `total_penjualan = berat_jual_kg × harga_jual_per_kg`
+- [x] Side effect atomik: kurangi stok kategori
+- [x] CRUD mitra pengepul — admin/koordinator
+- [x] Mitra tidak punya akun login (hanya data referensi)
 
 ### 2.7 Pengaduan (Modul 14)
-- [ ] Tambah field `tindak_lanjut` (TextField, blank) ke model — migration
-- [ ] Tambah field `jenis_pengaduan` (choices, 7 jenis dari SOP) — migration
-- [ ] Nasabah create pengaduan → status `terbuka`
-- [ ] Admin update `tindak_lanjut` + status `ditutup`
-- [ ] Nasabah hanya lihat pengaduan sendiri
-- [ ] Filter: `?status=`, `?jenis_pengaduan=`
+- [x] Tambah field `tindak_lanjut` (TextField, blank) ke model — migration
+- [x] Tambah field `jenis_pengaduan` (choices, 7 jenis dari SOP) — migration
+- [x] Nasabah create pengaduan → status `terbuka`
+- [x] Admin update `tindak_lanjut` + status `ditutup`
+- [x] Nasabah hanya lihat pengaduan sendiri
+- [x] Filter: `?status=`, `?jenis_pengaduan=`
 
 ### 2.8 Permission & Queryset per Role
-- [ ] Nasabah: queryset difilter ke data milik sendiri (transaksi, penjemputan, saldo, pengaduan)
-- [ ] Petugas: bisa input setoran, update penjemputan yang ditugaskan
-- [ ] Admin: full access operasional
-- [ ] Koordinator: read-all + approve tertentu
-- [ ] Tambah role `pemerintah` — read-only dashboard & laporan
-- [ ] Tambah permission class `IsPemerintahReadOnly`
+- [x] Nasabah: queryset difilter ke data milik sendiri (transaksi, penjemputan, saldo, pengaduan)
+- [x] Petugas: bisa input setoran, update penjemputan yang ditugaskan
+- [x] Admin: full access operasional
+- [x] Koordinator: read-all + approve tertentu
+- [x] Tambah role `pemerintah` — read-only dashboard & laporan
+- [x] Tambah permission class `IsPemerintahReadOnly`
 
 ---
 

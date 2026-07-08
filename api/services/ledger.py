@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
-from api.models import DetailSetoran, KategoriSampah, TransaksiSetoran, User
+from api.models import DetailSetoran, KategoriSampah, Reward, TransaksiSetoran, User
 
 
 class InsufficientSaldoError(ValidationError):
@@ -44,6 +44,37 @@ def _ensure_non_negative_poin(poin: int) -> None:
 def _ensure_non_negative_stok(stok: Decimal) -> None:
     if stok < 0:
         raise InsufficientStokError('Stok tidak boleh negatif.')
+
+
+def _lock_reward(reward_id: int) -> Reward:
+    return Reward.objects.select_for_update().get(pk=reward_id)
+
+
+def _ensure_non_negative_reward_stok(stok: int) -> None:
+    if stok < 0:
+        raise InsufficientStokError('Stok reward tidak boleh negatif.')
+
+
+@transaction.atomic
+def decrease_reward_stok(reward: Reward, jumlah: int = 1) -> Reward:
+    """Decrease reward stock; raises if result would be negative."""
+    locked = _lock_reward(reward.pk)
+    if locked.stok < jumlah:
+        raise InsufficientStokError(
+            f'Stok reward tidak mencukupi. Tersedia: {locked.stok}, dibutuhkan: {jumlah}.'
+        )
+    locked.stok -= jumlah
+    _ensure_non_negative_reward_stok(locked.stok)
+    locked.save(update_fields=['stok'])
+    return locked
+
+
+@transaction.atomic
+def complete_penukaran_poin(nasabah: User, reward: Reward) -> tuple[User, Reward]:
+    """Atomically debit poin and decrease reward stock on redemption approval."""
+    user = debit_nasabah_poin(nasabah, reward.poin_dibutuhkan)
+    reward_locked = decrease_reward_stok(reward, 1)
+    return user, reward_locked
 
 
 @transaction.atomic

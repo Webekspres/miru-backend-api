@@ -48,9 +48,40 @@ class IsPickupManager(permissions.BasePermission):
 
 class IsOwnerOrAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.role in ['admin', 'koordinator', 'petugas']:
+        user = request.user
+        if user.role == 'pemerintah':
+            return request.method in permissions.SAFE_METHODS
+        if user.role in ['admin', 'koordinator', 'petugas']:
             return True
-        return hasattr(obj, 'nasabah') and obj.nasabah == request.user
+        return hasattr(obj, 'nasabah') and obj.nasabah == user
+
+
+class IsPemerintahReadOnly(permissions.BasePermission):
+    """Pemerintah distrik: hanya boleh akses read (GET/HEAD/OPTIONS)."""
+
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.role == 'pemerintah':
+            return request.method in permissions.SAFE_METHODS
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.role == 'pemerintah':
+            return request.method in permissions.SAFE_METHODS
+        return True
+
+
+class IsMonitorReadOnly(permissions.BasePermission):
+    """Admin, koordinator, pemerintah — akses read untuk monitoring."""
+
+    def has_permission(self, request, view):
+        from api.querysets import READ_ALL_ROLES
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in READ_ALL_ROLES
+        )
 
 
 class IsUserOwnerOrAdmin(permissions.BasePermission):
