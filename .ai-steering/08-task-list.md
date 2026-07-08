@@ -164,33 +164,33 @@
 - [x] Tambah validasi stok tidak boleh negatif setelah penjualan
 
 ### 2.2 Transaksi Setoran (Modul 6, 8, 9)
-- [ ] Validasi: minimal **1 kg** per detail setoran
-- [ ] Validasi: nasabah exists, `is_active=True`, role=`nasabah`
-- [ ] Validasi: petugas role=`petugas` atau `admin`
-- [ ] Auto-hitung `harga_saat_itu` dari `KategoriSampah.harga_beli_per_kg` (jangan andalkan client)
-- [ ] Auto-hitung `subtotal = berat_kg × harga_saat_itu`
-- [ ] Auto-hitung `total_nilai` dari sum details
-- [ ] Side effect atomik: +saldo, +poin (`floor(total/1000)`), +stok per kategori
-- [ ] Permission create: `IsPetugasOrAdmin` (bukan nasabah)
-- [ ] Serializer read: return nested `details` pada GET (saat ini write_only)
-- [ ] Filter: `?nasabah=`, `?tanggal_after=`, `?tanggal_before=`
-- [ ] Ordering: `?ordering=-tanggal`
+- [x] Validasi: minimal **1 kg** per detail setoran
+- [x] Validasi: nasabah exists, `is_active=True`, role=`nasabah`
+- [x] Validasi: petugas role=`petugas` atau `admin`
+- [x] Auto-hitung `harga_saat_itu` dari `KategoriSampah.harga_beli_per_kg` (jangan andalkan client)
+- [x] Auto-hitung `subtotal = berat_kg × harga_saat_itu`
+- [x] Auto-hitung `total_nilai` dari sum details
+- [x] Side effect atomik: +saldo, +poin (`floor(total/1000)`), +stok per kategori
+- [x] Permission create: `IsPetugasOrAdmin` (bukan nasabah)
+- [x] Serializer read: return nested `details` pada GET (saat ini write_only)
+- [x] Filter: `?nasabah=`, `?tanggal_after=`, `?tanggal_before=`
+- [x] Ordering: `?ordering=-tanggal`
 
 ### 2.3 Penjemputan Workflow (Modul 7)
-- [ ] Tambah status `dalam_perjalanan` ke model (migration)
-- [ ] Validasi create: estimasi_berat >= **5 kg**
-- [ ] Validasi create: jadwal minimal **H+1** (tidak boleh hari ini atau masa lalu)
-- [ ] Validasi create: nasabah hanya bisa ajukan untuk diri sendiri
-- [ ] Implementasi state machine transisi status:
+- [x] Tambah status `dalam_perjalanan` ke model (migration)
+- [x] Validasi create: estimasi_berat >= **5 kg**
+- [x] Validasi create: jadwal minimal **H+1** (tidak boleh hari ini atau masa lalu)
+- [x] Validasi create: nasabah hanya bisa ajukan untuk diri sendiri
+- [x] Implementasi state machine transisi status:
   - `menunggu` → `disetujui` | `ditolak` (admin)
   - `disetujui` → `dijadwalkan` (admin, assign petugas)
   - `dijadwalkan` → `dalam_perjalanan` (petugas)
   - `dalam_perjalanan` → `dijemput` (petugas)
   - `dijemput` → `selesai` (petugas, setelah input setoran)
-- [ ] Tolak transisi status yang tidak valid (return 409 Conflict)
-- [ ] Hanya admin yang assign `petugas` dan approve/reject
-- [ ] Petugas hanya update status penjemputan yang ditugaskan kepadanya
-- [ ] Filter: `?status=`, `?nasabah=`, `?petugas=`
+- [x] Tolak transisi status yang tidak valid (return 409 Conflict)
+- [x] Hanya admin yang assign `petugas` dan approve/reject
+- [x] Petugas hanya update status penjemputan yang ditugaskan kepadanya
+- [x] Filter: `?status=`, `?nasabah=`, `?petugas=`
 
 ### 2.4 Penarikan Saldo (Modul 10)
 - [ ] Validasi create: nominal >= **Rp50.000**

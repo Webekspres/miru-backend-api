@@ -2,6 +2,12 @@ from rest_framework import serializers
 
 from .models import *
 from .services import create_setoran_with_side_effects
+from .services.deposits import (
+    MIN_BERAT_KG,
+    prepare_details_data,
+    validate_nasabah_for_setoran,
+    validate_petugas_for_setoran,
+)
 
 PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_superuser')
 
@@ -153,6 +159,28 @@ class KategoriSampahSerializer(serializers.ModelSerializer):
         return value
 
 
+class DetailSetoranWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DetailSetoran
+        fields = ['kategori', 'berat_kg']
+
+    def validate_berat_kg(self, value):
+        if value < MIN_BERAT_KG:
+            raise serializers.ValidationError('Minimal 1 kg per jenis sampah.')
+        return value
+
+
+class DetailSetoranReadSerializer(serializers.ModelSerializer):
+    kategori_nama = serializers.CharField(source='kategori.nama', read_only=True)
+
+    class Meta:
+        model = DetailSetoran
+        fields = [
+            'id', 'kategori', 'kategori_nama', 'berat_kg',
+            'harga_saat_itu', 'subtotal',
+        ]
+
+
 class DetailSetoranSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetailSetoran
@@ -161,21 +189,127 @@ class DetailSetoranSerializer(serializers.ModelSerializer):
 
 
 class TransaksiSetoranSerializer(serializers.ModelSerializer):
-    details = DetailSetoranSerializer(many=True, write_only=True)
+    details = DetailSetoranWriteSerializer(many=True)
 
     class Meta:
         model = TransaksiSetoran
-        fields = '__all__'
+        fields = [
+            'id', 'nasabah', 'petugas', 'tanggal', 'total_nilai',
+            'status', 'details',
+        ]
+        read_only_fields = [
+            'id', 'petugas', 'tanggal', 'total_nilai', 'status',
+        ]
+
+    def validate_nasabah(self, value):
+        return validate_nasabah_for_setoran(value)
+
+    def validate(self, attrs):
+        request = self.context.get('request')
+        if request and self.instance is None:
+            validate_petugas_for_setoran(request.user)
+        return attrs
+
+    def validate_details(self, value):
+        if not value:
+            raise serializers.ValidationError('Minimal satu detail setoran diperlukan.')
+        return value
 
     def create(self, validated_data):
-        details_data = validated_data.pop('details', [])
+        details_input = validated_data.pop('details')
+        details_data = prepare_details_data(details_input)
+
+        validated_data['petugas'] = self.context['request'].user
+        validated_data['status'] = 'selesai'
+
         return create_setoran_with_side_effects(validated_data, details_data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['details'] = DetailSetoranReadSerializer(
+            instance.details.all(), many=True,
+        ).data
+        data['poin_didapat'] = int(instance.total_nilai / 1000)
+        instance.nasabah.refresh_from_db()
+        data['saldo_nasabah_baru'] = str(instance.nasabah.saldo)
+        return data
+
+
+class PenjemputanCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Penjemputan
+        fields = ['estimasi_berat', 'alamat_jemput', 'jadwal']
+
+    def validate_estimasi_berat(self, value):
+        from .services.pickups import validate_estimasi_berat
+        return validate_estimasi_berat(value)
+
+    def validate_jadwal(self, value):
+        from .services.pickups import validate_jadwal_h_plus_one
+        validate_jadwal_h_plus_one(value)
+        return value
+
+    def validate(self, attrs):
+        request = self.context['request']
+        from .services.pickups import validate_nasabah_owner
+        validate_nasabah_owner(request.user)
+        return attrs
+
+    def create(self, validated_data):
+        validated_data['nasabah'] = self.context['request'].user
+        validated_data['status'] = 'menunggu'
+        return Penjemputan.objects.create(**validated_data)
+
+
+class PenjemputanUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Penjemputan
+        fields = ['status', 'petugas', 'jadwal']
+
+    def validate_petugas(self, value):
+        if value is not None:
+            from .services.pickups import validate_petugas_user
+            validate_petugas_user(value)
+        return value
+
+    def validate(self, attrs):
+        instance = self.instance
+        request = self.context['request']
+        new_status = attrs.get('status', instance.status)
+        new_petugas = attrs.get('petugas', instance.petugas)
+
+        if request.user.role not in ('admin', 'petugas'):
+            raise serializers.ValidationError(
+                'Anda tidak memiliki izin untuk memperbarui penjemputan.'
+            )
+
+        if 'petugas' in attrs and request.user.role != 'admin':
+            raise serializers.ValidationError(
+                {'petugas': ['Hanya admin yang dapat menugaskan petugas.']}
+            )
+
+        if 'status' in attrs or 'petugas' in attrs:
+            from .services.pickups import validate_status_transition
+            validate_status_transition(
+                instance, new_status, request.user, petugas=new_petugas,
+            )
+
+        return attrs
 
 
 class PenjemputanSerializer(serializers.ModelSerializer):
+    nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+    petugas_nama = serializers.CharField(
+        source='petugas.nama_lengkap', read_only=True, default=None,
+    )
+
     class Meta:
         model = Penjemputan
-        fields = '__all__'
+        fields = [
+            'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
+            'estimasi_berat', 'alamat_jemput', 'jadwal', 'status',
+        ]
+        read_only_fields = fields
 
 
 class PenarikanSaldoSerializer(serializers.ModelSerializer):

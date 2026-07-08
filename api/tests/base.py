@@ -51,6 +51,16 @@ class EnvelopeAPITestCase(APITestCase):
             alamat='Timika',
         )
 
+    def create_petugas(self, username='petugas_test', password='secret12'):
+        return User.objects.create_user(
+            username=username,
+            password=password,
+            nama_lengkap='Petugas Test',
+            role='petugas',
+            no_hp='08123456782',
+            alamat='Timika',
+        )
+
     def auth_as(self, user, password='secret12'):
         login = self.client.post('/api/auth/login/', {
             'username': user.username,

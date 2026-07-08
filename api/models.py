@@ -40,6 +40,7 @@ class Penjemputan(models.Model):
         ('menunggu', 'Menunggu'),
         ('disetujui', 'Disetujui'),
         ('dijadwalkan', 'Dijadwalkan'),
+        ('dalam_perjalanan', 'Dalam Perjalanan'),
         ('dijemput', 'Dijemput'),
         ('selesai', 'Selesai'),
         ('ditolak', 'Ditolak'),

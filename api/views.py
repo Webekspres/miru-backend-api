@@ -1,7 +1,8 @@
 from django.db import transaction
 from rest_framework import status, viewsets
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
+from .filters import TransaksiSetoranFilter
 from .models import *
 from .services import debit_nasabah_poin, debit_nasabah_saldo, decrease_kategori_stok
 from .openapi import (
@@ -16,7 +17,15 @@ from .openapi import (
     waste_category_schema,
     withdrawal_schema,
 )
-from .permissions import IsAdmin, IsAdminOrKoordinator, IsOwnerOrAdmin, IsUserOwnerOrAdmin
+from .permissions import (
+    IsAdmin,
+    IsAdminOrKoordinator,
+    IsNasabah,
+    IsOwnerOrAdmin,
+    IsPetugasOrAdmin,
+    IsPickupManager,
+    IsUserOwnerOrAdmin,
+)
 from .serializers import *
 from .utils.response import success_response
 
@@ -146,21 +155,112 @@ class KategoriSampahViewSet(viewsets.ModelViewSet):
 
 @deposit_schema
 class TransaksiSetoranViewSet(viewsets.ModelViewSet):
-    queryset = TransaksiSetoran.objects.all()
+    queryset = TransaksiSetoran.objects.select_related(
+        'nasabah', 'petugas',
+    ).prefetch_related('details__kategori')
     serializer_class = TransaksiSetoranSerializer
-    permission_classes = [IsOwnerOrAdmin]
-    filterset_fields = ['nasabah', 'status']
+    filterset_class = TransaksiSetoranFilter
     ordering_fields = ['tanggal', 'total_nilai']
     ordering = ['-tanggal']
 
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsPetugasOrAdmin()]
+        return [IsAuthenticated(), IsOwnerOrAdmin()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.role == 'nasabah':
+            return qs.filter(nasabah=user)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Transaksi setoran berhasil dicatat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
 @pickup_schema
 class PenjemputanViewSet(viewsets.ModelViewSet):
-    queryset = Penjemputan.objects.all()
-    serializer_class = PenjemputanSerializer
-    permission_classes = [IsOwnerOrAdmin]
+    queryset = Penjemputan.objects.select_related('nasabah', 'petugas')
     filterset_fields = ['nasabah', 'status', 'petugas']
     ordering_fields = ['jadwal']
     ordering = ['-jadwal']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return PenjemputanCreateSerializer
+        if self.action in ('partial_update', 'update'):
+            return PenjemputanUpdateSerializer
+        return PenjemputanSerializer
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [IsAuthenticated(), IsNasabah()]
+        if self.action in ('partial_update', 'update'):
+            return [IsAuthenticated(), IsPickupManager()]
+        return [IsAuthenticated(), IsOwnerOrAdmin()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        user = self.request.user
+        if user.role == 'nasabah':
+            return qs.filter(nasabah=user)
+        if user.role == 'petugas':
+            return qs.filter(petugas=user)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        output = PenjemputanSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penjemputan berhasil diajukan.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = PenjemputanSerializer(instance, context={'request': request})
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        output = PenjemputanSerializer(serializer.instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penjemputan berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 @withdrawal_schema
 class PenarikanSaldoViewSet(viewsets.ModelViewSet):

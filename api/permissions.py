@@ -24,7 +24,25 @@ class IsPetugasOrAdmin(permissions.BasePermission):
         return bool(
             request.user
             and request.user.is_authenticated
-            and request.user.role in ['petugas', 'admin', 'koordinator']
+            and request.user.role in ['petugas', 'admin']
+        )
+
+
+class IsNasabah(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role == 'nasabah'
+        )
+
+
+class IsPickupManager(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in ('admin', 'petugas')
         )
 
 

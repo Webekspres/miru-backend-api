@@ -29,6 +29,10 @@ def _get_error_code(exc, status_code: int) -> str:
         if code and str(code).upper() not in ('INVALID',):
             return str(code).upper()
         return 'VALIDATION_ERROR'
+    if isinstance(exc, APIException):
+        code = getattr(exc, 'default_code', None)
+        if code and str(code).lower() not in ('error', 'invalid'):
+            return str(code).upper()
     mapping = {
         400: 'VALIDATION_ERROR',
         401: 'AUTHENTICATION_FAILED',
