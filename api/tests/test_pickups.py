@@ -189,3 +189,84 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class PickupActionTests(EnvelopeAPITestCase):
+    """SOP B.2 — action endpoints approve/reject/assign/update-status."""
+
+    def setUp(self):
+        self.nasabah = self.create_nasabah(username='nasabah_action')
+        self.petugas = self.create_petugas(username='petugas_action')
+        self.admin = self.create_admin(username='admin_action')
+        self.pickup = Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            estimasi_berat=Decimal('10.00'),
+            alamat_jemput='Timika',
+            jadwal=timezone.now() + timedelta(days=3),
+            status='menunggu',
+        )
+
+    def test_approve_action(self):
+        self.auth_as(self.admin)
+        response = self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'disetujui')
+
+    def test_reject_action(self):
+        self.auth_as(self.admin)
+        response = self.client.post(f'/api/pickups/{self.pickup.id}/reject/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'ditolak')
+
+    def test_assign_action(self):
+        self.pickup.status = 'disetujui'
+        self.pickup.save()
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/assign/',
+            {'petugas_id': self.petugas.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'dijadwalkan')
+        self.assertEqual(response.data['data']['petugas'], self.petugas.id)
+
+    def test_update_status_action(self):
+        self.pickup.status = 'dijadwalkan'
+        self.pickup.petugas = self.petugas
+        self.pickup.save()
+        self.auth_as(self.petugas)
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/update-status/',
+            {'status': 'dalam_perjalanan'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'dalam_perjalanan')
+
+    def test_petugas_cannot_approve_action(self):
+        self.auth_as(self.petugas)
+        response = self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_e2e_full_flow_via_actions(self):
+        self.auth_as(self.admin)
+        self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
+        self.client.post(
+            f'/api/pickups/{self.pickup.id}/assign/',
+            {'petugas_id': self.petugas.id},
+            format='json',
+        )
+
+        self.auth_as(self.petugas)
+        for next_status in ('dalam_perjalanan', 'dijemput', 'selesai'):
+            response = self.client.post(
+                f'/api/pickups/{self.pickup.id}/update-status/',
+                {'status': next_status},
+                format='json',
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, next_status)
+            self.assertEqual(response.data['data']['status'], next_status)
+
+        self.pickup.refresh_from_db()
+        self.assertEqual(self.pickup.status, 'selesai')

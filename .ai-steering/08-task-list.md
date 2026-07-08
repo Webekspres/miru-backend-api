@@ -243,11 +243,11 @@
 - [x] Endpoint `GET /api/deposits/{id}/` — detail lengkap untuk bukti
 
 ### 3.2 Alur Penjemputan (SOP B.2)
-- [ ] Nasabah ajukan → admin approve → assign petugas → petugas update status → selesai
-- [ ] Endpoint action: `POST /api/pickups/{id}/approve/`
-- [ ] Endpoint action: `POST /api/pickups/{id}/reject/`
-- [ ] Endpoint action: `POST /api/pickups/{id}/assign/` (body: `petugas_id`)
-- [ ] Endpoint action: `POST /api/pickups/{id}/update-status/` (body: `status`)
+- [x] Nasabah ajukan → admin approve → assign petugas → petugas update status → selesai
+- [x] Endpoint action: `POST /api/pickups/{id}/approve/`
+- [x] Endpoint action: `POST /api/pickups/{id}/reject/`
+- [x] Endpoint action: `POST /api/pickups/{id}/assign/` (body: `petugas_id`)
+- [x] Endpoint action: `POST /api/pickups/{id}/update-status/` (body: `status`)
 
 ### 3.3 Alur Penarikan (SOP A.3)
 - [ ] Nasabah ajukan → admin approve manual → status selesai → saldo berkurang

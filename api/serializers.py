@@ -330,6 +330,23 @@ class PenjemputanUpdateSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class PickupAssignSerializer(serializers.Serializer):
+    petugas_id = serializers.IntegerField()
+
+    def validate_petugas_id(self, value):
+        from .services.pickups import validate_petugas_user
+        try:
+            petugas = User.objects.get(pk=value)
+        except User.DoesNotExist as exc:
+            raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
+        validate_petugas_user(petugas)
+        return value
+
+
+class PickupStatusActionSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=Penjemputan.STATUS_CHOICES)
+
+
 class PenjemputanSerializer(serializers.ModelSerializer):
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
     petugas_nama = serializers.CharField(

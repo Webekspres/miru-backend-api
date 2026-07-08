@@ -114,3 +114,38 @@ def validate_status_transition(
     raise InvalidStatusTransitionError(
         f"Tidak dapat mengubah status dari '{current_status}' ke '{new_status}'."
     )
+
+
+def approve_pickup(instance: Penjemputan, user: User) -> Penjemputan:
+    validate_status_transition(instance, 'disetujui', user)
+    instance.status = 'disetujui'
+    instance.save(update_fields=['status'])
+    return instance
+
+
+def reject_pickup(instance: Penjemputan, user: User) -> Penjemputan:
+    validate_status_transition(instance, 'ditolak', user)
+    instance.status = 'ditolak'
+    instance.save(update_fields=['status'])
+    return instance
+
+
+def assign_pickup(instance: Penjemputan, user: User, petugas_id: int) -> Penjemputan:
+    try:
+        petugas = User.objects.get(pk=petugas_id)
+    except User.DoesNotExist as exc:
+        raise ValidationError({'petugas_id': ['Petugas tidak ditemukan.']}) from exc
+
+    validate_petugas_user(petugas)
+    validate_status_transition(instance, 'dijadwalkan', user, petugas=petugas)
+    instance.petugas = petugas
+    instance.status = 'dijadwalkan'
+    instance.save(update_fields=['petugas', 'status'])
+    return instance
+
+
+def update_pickup_status(instance: Penjemputan, user: User, new_status: str) -> Penjemputan:
+    validate_status_transition(instance, new_status, user)
+    instance.status = new_status
+    instance.save(update_fields=['status'])
+    return instance

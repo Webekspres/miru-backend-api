@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import status, viewsets
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .filters import TransaksiSetoranFilter
@@ -8,6 +9,12 @@ from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staf
 from .services import (
     complete_penukaran_poin,
     debit_nasabah_saldo,
+)
+from .services.pickups import (
+    approve_pickup,
+    assign_pickup,
+    reject_pickup,
+    update_pickup_status,
 )
 from .openapi import (
     complaint_schema,
@@ -240,8 +247,10 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update'):
+        if self.action in ('partial_update', 'update', 'update_status'):
             return [IsAuthenticated(), IsPickupManager(), IsPemerintahReadOnly()]
+        if self.action in ('approve', 'reject', 'assign'):
+            return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
@@ -282,6 +291,48 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+    def _pickup_response(self, instance, message, request):
+        output = PenjemputanSerializer(instance, context={'request': request})
+        return success_response(data=output.data, message=message, request=request)
+
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        instance = self.get_object()
+        approve_pickup(instance, request.user)
+        return self._pickup_response(
+            instance, 'Penjemputan berhasil disetujui.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        instance = self.get_object()
+        reject_pickup(instance, request.user)
+        return self._pickup_response(
+            instance, 'Penjemputan berhasil ditolak.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='assign')
+    def assign(self, request, pk=None):
+        instance = self.get_object()
+        serializer = PickupAssignSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        assign_pickup(instance, request.user, serializer.validated_data['petugas_id'])
+        return self._pickup_response(
+            instance, 'Petugas berhasil ditugaskan.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='update-status')
+    def update_status(self, request, pk=None):
+        instance = self.get_object()
+        serializer = PickupStatusActionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        update_pickup_status(
+            instance, request.user, serializer.validated_data['status'],
+        )
+        return self._pickup_response(
+            instance, 'Status penjemputan berhasil diperbarui.', request,
+        )
 
 @withdrawal_schema
 class PenarikanSaldoViewSet(viewsets.ModelViewSet):
