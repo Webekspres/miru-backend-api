@@ -25,7 +25,9 @@ COMPLAINTS_TAG = 'Complaints'
 ACTIVITY_TAG = 'Activity'
 DASHBOARD_TAG = 'Dashboard'
 REPORTS_TAG = 'Reports'
+AUDIT_LOG_TAG = 'Audit Log'
 INVENTORY_TAG = 'Inventory'
+SETTINGS_TAG = 'Settings'
 
 
 def _query_param(name, schema_type='string', required=False, description=''):
@@ -198,6 +200,7 @@ user_viewset_schema = extend_schema_view(
                     'nama_lengkap': 'Budi Santoso',
                     'no_hp': '08123456789',
                     'alamat': 'Jl. Cendrawasih, Timika',
+                    'setuju_kebijakan_data': True,
                 },
                 request_only=True,
             ),
@@ -237,9 +240,16 @@ deposit_schema = extend_schema_view(
             ),
         ],
     ),
-    partial_update=extend_schema(summary='Perbarui setoran', tags=[DEPOSITS_TAG]),
-    update=extend_schema(summary='Perbarui setoran', tags=[DEPOSITS_TAG]),
-    destroy=extend_schema(summary='Hapus setoran', tags=[DEPOSITS_TAG]),
+    partial_update=extend_schema(
+        summary='Koreksi data setoran (admin only)',
+        description=(
+            'Admin dapat mengoreksi total_nilai transaksi. '
+            'Perubahan saldo/poin nasabah disesuaikan otomatis dan tercatat di audit log.'
+        ),
+        tags=[DEPOSITS_TAG],
+    ),
+    update=extend_schema(summary='Koreksi data setoran (admin only)', tags=[DEPOSITS_TAG]),
+    destroy=extend_schema(exclude=True),
 )
 
 pickup_schema = extend_schema_view(
@@ -365,4 +375,18 @@ complaint_schema = extend_schema_view(
     partial_update=extend_schema(summary='Perbarui pengaduan', tags=[COMPLAINTS_TAG]),
     update=extend_schema(summary='Perbarui pengaduan', tags=[COMPLAINTS_TAG]),
     destroy=extend_schema(summary='Hapus pengaduan', tags=[COMPLAINTS_TAG]),
+)
+
+settings_schema = extend_schema_view(
+    get=extend_schema(
+        tags=[SETTINGS_TAG],
+        summary='Pengaturan institusi (public)',
+        description='Profil institusi untuk tampilan mobile dan web.',
+    ),
+)
+
+pengumuman_list_schema = extend_schema(
+    tags=[SETTINGS_TAG],
+    summary='Daftar pengumuman aktif (public)',
+    description='Pengumuman yang ditampilkan di aplikasi mobile nasabah.',
 )

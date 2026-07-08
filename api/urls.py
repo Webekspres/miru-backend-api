@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView
 from .monitoring_views import (
     DashboardDepositChartView,
     DashboardOverviewView,
@@ -28,6 +29,10 @@ router.register(r'complaints', PengaduanViewSet, basename='complaint')
 
 urlpatterns = [
     path('activity/', ActivityListView.as_view(), name='activity'),
+    path('audit-log/', AuditLogListView.as_view(), name='audit-log'),
+    path('settings/', InstitutionSettingsView.as_view(), name='settings'),
+    path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
+    path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
     path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
     path('dashboard/deposit-chart/', DashboardDepositChartView.as_view(), name='dashboard-deposit-chart'),
     path('dashboard/recent-activity/', DashboardRecentActivityView.as_view(), name='dashboard-recent-activity'),

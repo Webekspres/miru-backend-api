@@ -54,6 +54,16 @@
       "norm_label": "appconfig"
     },
     {
+      "label": ".ready()",
+      "file_type": "code",
+      "source_file": "api/apps.py",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "api_apps_apiconfig_ready",
+      "community": 4,
+      "norm_label": ".ready()"
+    },
+    {
       "label": "auth_views.py",
       "file_type": "code",
       "source_file": "api/auth_views.py",
@@ -190,7 +200,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "apiview",
-      "community": 26,
+      "community": 2,
       "norm_label": "apiview"
     },
     {
@@ -450,7 +460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "commands_seed_data",
-      "community": 38,
+      "community": 72,
       "norm_label": "seed_data.py"
     },
     {
@@ -644,10 +654,40 @@
       "norm_label": "middleware.py"
     },
     {
+      "label": "get_current_request()",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "api_middleware_get_current_request",
+      "community": 28,
+      "norm_label": "get_current_request()"
+    },
+    {
+      "label": "get_current_user()",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "api_middleware_get_current_user",
+      "community": 28,
+      "norm_label": "get_current_user()"
+    },
+    {
+      "label": "get_client_ip()",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "api_middleware_get_client_ip",
+      "community": 28,
+      "norm_label": "get_client_ip()"
+    },
+    {
       "label": "RequestIdMiddleware",
       "file_type": "code",
       "source_file": "api/middleware.py",
-      "source_location": "L4",
+      "source_location": "L28",
       "_origin": "ast",
       "id": "api_middleware_requestidmiddleware",
       "community": 28,
@@ -657,7 +697,7 @@
       "label": ".__init__()",
       "file_type": "code",
       "source_file": "api/middleware.py",
-      "source_location": "L5",
+      "source_location": "L29",
       "_origin": "ast",
       "id": "api_middleware_requestidmiddleware_init",
       "community": 28,
@@ -667,11 +707,81 @@
       "label": ".__call__()",
       "file_type": "code",
       "source_file": "api/middleware.py",
-      "source_location": "L8",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "api_middleware_requestidmiddleware_call",
       "community": 28,
       "norm_label": ".__call__()"
+    },
+    {
+      "label": "CurrentRequestMiddleware",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "api_middleware_currentrequestmiddleware",
+      "community": 28,
+      "norm_label": "currentrequestmiddleware"
+    },
+    {
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L45",
+      "_origin": "ast",
+      "id": "api_middleware_currentrequestmiddleware_init",
+      "community": 28,
+      "norm_label": ".__init__()"
+    },
+    {
+      "label": ".__call__()",
+      "file_type": "code",
+      "source_file": "api/middleware.py",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "api_middleware_currentrequestmiddleware_call",
+      "community": 28,
+      "norm_label": ".__call__()"
+    },
+    {
+      "label": "Access the current request from thread-local storage (for signals etc.).",
+      "file_type": "rationale",
+      "source_file": "api/middleware.py",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "api_middleware_rationale_8",
+      "community": 28,
+      "norm_label": "access the current request from thread-local storage (for signals etc.)."
+    },
+    {
+      "label": "Get the current user from thread-local storage.",
+      "file_type": "rationale",
+      "source_file": "api/middleware.py",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "api_middleware_rationale_13",
+      "community": 28,
+      "norm_label": "get the current user from thread-local storage."
+    },
+    {
+      "label": "Extract client IP from request headers.",
+      "file_type": "rationale",
+      "source_file": "api/middleware.py",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "api_middleware_rationale_21",
+      "community": 28,
+      "norm_label": "extract client ip from request headers."
+    },
+    {
+      "label": "Store the current request in thread-local storage.",
+      "file_type": "rationale",
+      "source_file": "api/middleware.py",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "api_middleware_rationale_43",
+      "community": 28,
+      "norm_label": "store the current request in thread-local storage."
     },
     {
       "label": "0001_initial.py",
@@ -774,6 +884,26 @@
       "norm_label": "migration"
     },
     {
+      "label": "0006_auditlog.py",
+      "file_type": "code",
+      "source_file": "api/migrations/0006_auditlog.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "migrations_0006_auditlog",
+      "community": 86,
+      "norm_label": "0006_auditlog.py"
+    },
+    {
+      "label": "Migration",
+      "file_type": "code",
+      "source_file": "api/migrations/0006_auditlog.py",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "migrations_0006_auditlog_migration",
+      "community": 86,
+      "norm_label": "migration"
+    },
+    {
       "label": "__init__.py",
       "file_type": "code",
       "source_file": "api/migrations/__init__.py",
@@ -790,7 +920,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "api_models",
-      "community": 38,
+      "community": 72,
       "norm_label": "models.py"
     },
     {
@@ -820,7 +950,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "api_models_kategorisampah",
-      "community": 14,
+      "community": 72,
       "norm_label": "kategorisampah"
     },
     {
@@ -860,7 +990,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "api_models_penarikansaldo",
-      "community": 38,
+      "community": 32,
       "norm_label": "penarikansaldo"
     },
     {
@@ -870,7 +1000,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "api_models_reward",
-      "community": 38,
+      "community": 68,
       "norm_label": "reward"
     },
     {
@@ -900,14 +1030,44 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "api_models_penjualanmitra",
-      "community": 14,
+      "community": 72,
       "norm_label": "penjualanmitra"
+    },
+    {
+      "label": "AuditLog",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "api_models_auditlog",
+      "community": 34,
+      "norm_label": "auditlog"
+    },
+    {
+      "label": "Meta",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L104",
+      "_origin": "ast",
+      "id": "api_models_meta",
+      "community": 72,
+      "norm_label": "meta"
+    },
+    {
+      "label": ".__str__()",
+      "file_type": "code",
+      "source_file": "api/models.py",
+      "source_location": "L112",
+      "_origin": "ast",
+      "id": "api_models_auditlog_str",
+      "community": 34,
+      "norm_label": ".__str__()"
     },
     {
       "label": "Pengaduan",
       "file_type": "code",
       "source_file": "api/models.py",
-      "source_location": "L92",
+      "source_location": "L116",
       "_origin": "ast",
       "id": "api_models_pengaduan",
       "community": 38,
@@ -1167,7 +1327,7 @@
       "label": "_query_param()",
       "file_type": "code",
       "source_file": "api/openapi.py",
-      "source_location": "L31",
+      "source_location": "L32",
       "_origin": "ast",
       "id": "api_openapi_query_param",
       "community": 42,
@@ -1600,7 +1760,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "api_serializers_userregistrationserializer",
-      "community": 87,
+      "community": 67,
       "norm_label": "userregistrationserializer"
     },
     {
@@ -1610,7 +1770,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "api_serializers_userregistrationserializer_validate_username",
-      "community": 87,
+      "community": 67,
       "norm_label": ".validate_username()"
     },
     {
@@ -1620,7 +1780,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "api_serializers_userregistrationserializer_validate_password",
-      "community": 87,
+      "community": 67,
       "norm_label": ".validate_password()"
     },
     {
@@ -1630,7 +1790,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "api_serializers_userregistrationserializer_create",
-      "community": 87,
+      "community": 67,
       "norm_label": ".create()"
     },
     {
@@ -1860,7 +2020,7 @@
       "source_location": "L237",
       "_origin": "ast",
       "id": "api_serializers_transaksisetorancreateserializer_create",
-      "community": 14,
+      "community": 17,
       "norm_label": ".create()"
     },
     {
@@ -1900,54 +2060,94 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "api_serializers_transaksisetoranreadserializer_get_bukti_digital",
-      "community": 24,
+      "community": 17,
       "norm_label": ".get_bukti_digital()"
+    },
+    {
+      "label": "TransaksiSetoranCorrectionSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L276",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetorancorrectionserializer",
+      "community": 82,
+      "norm_label": "transaksisetorancorrectionserializer"
+    },
+    {
+      "label": ".validate_total_nilai()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L283",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetorancorrectionserializer_validate_total_nilai",
+      "community": 82,
+      "norm_label": ".validate_total_nilai()"
+    },
+    {
+      "label": ".validate()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L288",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetorancorrectionserializer_validate",
+      "community": 82,
+      "norm_label": ".validate()"
+    },
+    {
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L305",
+      "_origin": "ast",
+      "id": "api_serializers_transaksisetorancorrectionserializer_update",
+      "community": 82,
+      "norm_label": ".update()"
     },
     {
       "label": "PenjemputanCreateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L280",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "api_serializers_penjemputancreateserializer",
-      "community": 39,
+      "community": 54,
       "norm_label": "penjemputancreateserializer"
     },
     {
       "label": ".validate_estimasi_berat()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L285",
+      "source_location": "L326",
       "_origin": "ast",
       "id": "api_serializers_penjemputancreateserializer_validate_estimasi_berat",
-      "community": 39,
+      "community": 54,
       "norm_label": ".validate_estimasi_berat()"
     },
     {
       "label": ".validate_jadwal()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L289",
+      "source_location": "L330",
       "_origin": "ast",
       "id": "api_serializers_penjemputancreateserializer_validate_jadwal",
-      "community": 39,
+      "community": 54,
       "norm_label": ".validate_jadwal()"
     },
     {
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L294",
+      "source_location": "L335",
       "_origin": "ast",
       "id": "api_serializers_penjemputancreateserializer_validate",
-      "community": 39,
+      "community": 54,
       "norm_label": ".validate()"
     },
     {
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L300",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "api_serializers_penjemputancreateserializer_create",
       "community": 54,
@@ -1957,7 +2157,7 @@
       "label": "PenjemputanUpdateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L306",
+      "source_location": "L347",
       "_origin": "ast",
       "id": "api_serializers_penjemputanupdateserializer",
       "community": 30,
@@ -1967,7 +2167,7 @@
       "label": ".validate_petugas()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L311",
+      "source_location": "L352",
       "_origin": "ast",
       "id": "api_serializers_penjemputanupdateserializer_validate_petugas",
       "community": 30,
@@ -1977,7 +2177,7 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L317",
+      "source_location": "L358",
       "_origin": "ast",
       "id": "api_serializers_penjemputanupdateserializer_validate",
       "community": 30,
@@ -1987,37 +2187,37 @@
       "label": "PickupAssignSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L342",
+      "source_location": "L383",
       "_origin": "ast",
       "id": "api_serializers_pickupassignserializer",
-      "community": 30,
+      "community": 74,
       "norm_label": "pickupassignserializer"
     },
     {
       "label": ".validate_petugas_id()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L345",
+      "source_location": "L386",
       "_origin": "ast",
       "id": "api_serializers_pickupassignserializer_validate_petugas_id",
-      "community": 30,
+      "community": 74,
       "norm_label": ".validate_petugas_id()"
     },
     {
       "label": "PickupStatusActionSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L355",
+      "source_location": "L396",
       "_origin": "ast",
       "id": "api_serializers_pickupstatusactionserializer",
-      "community": 24,
+      "community": 74,
       "norm_label": "pickupstatusactionserializer"
     },
     {
       "label": "PenjemputanSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L359",
+      "source_location": "L400",
       "_origin": "ast",
       "id": "api_serializers_penjemputanserializer",
       "community": 2,
@@ -2027,7 +2227,7 @@
       "label": "PenarikanSaldoCreateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L374",
+      "source_location": "L415",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldocreateserializer",
       "community": 54,
@@ -2037,7 +2237,7 @@
       "label": ".validate_nominal()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L379",
+      "source_location": "L420",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldocreateserializer_validate_nominal",
       "community": 54,
@@ -2047,7 +2247,7 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L383",
+      "source_location": "L424",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldocreateserializer_validate",
       "community": 54,
@@ -2057,7 +2257,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L393",
+      "source_location": "L434",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldocreateserializer_create",
       "community": 54,
@@ -2067,7 +2267,7 @@
       "label": "PenarikanSaldoUpdateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L399",
+      "source_location": "L440",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldoupdateserializer",
       "community": 24,
@@ -2077,7 +2277,7 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L404",
+      "source_location": "L445",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldoupdateserializer_validate",
       "community": 24,
@@ -2087,7 +2287,7 @@
       "label": "PenarikanSaldoSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L421",
+      "source_location": "L462",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldoserializer",
       "community": 2,
@@ -2097,7 +2297,7 @@
       "label": ".to_representation()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L432",
+      "source_location": "L473",
       "_origin": "ast",
       "id": "api_serializers_penarikansaldoserializer_to_representation",
       "community": 67,
@@ -2107,7 +2307,7 @@
       "label": "RewardSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L440",
+      "source_location": "L481",
       "_origin": "ast",
       "id": "api_serializers_rewardserializer",
       "community": 24,
@@ -2117,7 +2317,7 @@
       "label": ".validate_poin_dibutuhkan()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L445",
+      "source_location": "L486",
       "_origin": "ast",
       "id": "api_serializers_rewardserializer_validate_poin_dibutuhkan",
       "community": 24,
@@ -2127,7 +2327,7 @@
       "label": ".validate_stok()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L450",
+      "source_location": "L491",
       "_origin": "ast",
       "id": "api_serializers_rewardserializer_validate_stok",
       "community": 24,
@@ -2137,7 +2337,7 @@
       "label": "PenukaranPoinCreateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L456",
+      "source_location": "L497",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoincreateserializer",
       "community": 54,
@@ -2147,7 +2347,7 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L461",
+      "source_location": "L502",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoincreateserializer_validate",
       "community": 54,
@@ -2157,7 +2357,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L471",
+      "source_location": "L512",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoincreateserializer_create",
       "community": 54,
@@ -2167,7 +2367,7 @@
       "label": "PenukaranPoinUpdateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L477",
+      "source_location": "L518",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoinupdateserializer",
       "community": 24,
@@ -2177,7 +2377,7 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L482",
+      "source_location": "L523",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoinupdateserializer_validate",
       "community": 24,
@@ -2187,7 +2387,7 @@
       "label": "PenukaranPoinSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L499",
+      "source_location": "L540",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoinserializer",
       "community": 2,
@@ -2197,7 +2397,7 @@
       "label": ".to_representation()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L514",
+      "source_location": "L555",
       "_origin": "ast",
       "id": "api_serializers_penukaranpoinserializer_to_representation",
       "community": 67,
@@ -2207,7 +2407,7 @@
       "label": "MitraPengepulSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L524",
+      "source_location": "L565",
       "_origin": "ast",
       "id": "api_serializers_mitrapengepulserializer",
       "community": 24,
@@ -2217,7 +2417,7 @@
       "label": ".validate_nama()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L529",
+      "source_location": "L570",
       "_origin": "ast",
       "id": "api_serializers_mitrapengepulserializer_validate_nama",
       "community": 24,
@@ -2227,57 +2427,57 @@
       "label": "PenjualanMitraCreateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L538",
+      "source_location": "L579",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitracreateserializer",
-      "community": 14,
+      "community": 40,
       "norm_label": "penjualanmitracreateserializer"
     },
     {
       "label": ".validate_berat_jual_kg()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L543",
+      "source_location": "L584",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitracreateserializer_validate_berat_jual_kg",
-      "community": 14,
+      "community": 40,
       "norm_label": ".validate_berat_jual_kg()"
     },
     {
       "label": ".validate_harga_jual_per_kg()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L547",
+      "source_location": "L588",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitracreateserializer_validate_harga_jual_per_kg",
-      "community": 14,
+      "community": 40,
       "norm_label": ".validate_harga_jual_per_kg()"
     },
     {
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L551",
+      "source_location": "L592",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitracreateserializer_validate",
-      "community": 14,
+      "community": 40,
       "norm_label": ".validate()"
     },
     {
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L556",
+      "source_location": "L597",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitracreateserializer_create",
-      "community": 14,
+      "community": 40,
       "norm_label": ".create()"
     },
     {
       "label": "PenjualanMitraSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L561",
+      "source_location": "L602",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitraserializer",
       "community": 2,
@@ -2287,7 +2487,7 @@
       "label": ".to_representation()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L573",
+      "source_location": "L614",
       "_origin": "ast",
       "id": "api_serializers_penjualanmitraserializer_to_representation",
       "community": 67,
@@ -2297,7 +2497,7 @@
       "label": "PengaduanCreateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L580",
+      "source_location": "L621",
       "_origin": "ast",
       "id": "api_serializers_pengaduancreateserializer",
       "community": 54,
@@ -2307,7 +2507,7 @@
       "label": ".validate_jenis_pengaduan()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L585",
+      "source_location": "L626",
       "_origin": "ast",
       "id": "api_serializers_pengaduancreateserializer_validate_jenis_pengaduan",
       "community": 54,
@@ -2317,7 +2517,7 @@
       "label": ".validate_keluhan()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L589",
+      "source_location": "L630",
       "_origin": "ast",
       "id": "api_serializers_pengaduancreateserializer_validate_keluhan",
       "community": 54,
@@ -2327,7 +2527,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L594",
+      "source_location": "L635",
       "_origin": "ast",
       "id": "api_serializers_pengaduancreateserializer_create",
       "community": 54,
@@ -2337,7 +2537,7 @@
       "label": "PengaduanUpdateSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L600",
+      "source_location": "L641",
       "_origin": "ast",
       "id": "api_serializers_pengaduanupdateserializer",
       "community": 24,
@@ -2347,17 +2547,27 @@
       "label": ".validate()",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L605",
+      "source_location": "L646",
       "_origin": "ast",
       "id": "api_serializers_pengaduanupdateserializer_validate",
       "community": 24,
       "norm_label": ".validate()"
     },
     {
+      "label": "AuditLogSerializer",
+      "file_type": "code",
+      "source_file": "api/serializers.py",
+      "source_location": "L654",
+      "_origin": "ast",
+      "id": "api_serializers_auditlogserializer",
+      "community": 24,
+      "norm_label": "auditlogserializer"
+    },
+    {
       "label": "PengaduanSerializer",
       "file_type": "code",
       "source_file": "api/serializers.py",
-      "source_location": "L613",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "api_serializers_pengaduanserializer",
       "community": 2,
@@ -2382,6 +2592,16 @@
       "id": "api_serializers_rationale_147",
       "community": 24,
       "norm_label": "backward-compatible alias used by admin views."
+    },
+    {
+      "label": "Admin-only: koreksi data transaksi setoran.",
+      "file_type": "rationale",
+      "source_file": "api/serializers.py",
+      "source_location": "L277",
+      "_origin": "ast",
+      "id": "api_serializers_rationale_277",
+      "community": 82,
+      "norm_label": "admin-only: koreksi data transaksi setoran."
     },
     {
       "label": "__init__.py",
@@ -2430,7 +2650,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "api_services_activity_py_user",
-      "community": 38,
+      "community": 37,
       "norm_label": "user"
     },
     {
@@ -2710,7 +2930,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "services_deposits",
-      "community": 14,
+      "community": 17,
       "norm_label": "deposits.py"
     },
     {
@@ -2720,7 +2940,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "services_deposits_validate_nasabah_for_setoran",
-      "community": 14,
+      "community": 17,
       "norm_label": "validate_nasabah_for_setoran()"
     },
     {
@@ -2730,7 +2950,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "api_services_deposits_py_user",
-      "community": 14,
+      "community": 17,
       "norm_label": "user"
     },
     {
@@ -2740,7 +2960,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "services_deposits_validate_petugas_for_setoran",
-      "community": 14,
+      "community": 17,
       "norm_label": "validate_petugas_for_setoran()"
     },
     {
@@ -2750,7 +2970,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "services_deposits_build_detail_data",
-      "community": 14,
+      "community": 17,
       "norm_label": "build_detail_data()"
     },
     {
@@ -2760,7 +2980,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "api_services_deposits_py_kategorisampah",
-      "community": 14,
+      "community": 17,
       "norm_label": "kategorisampah"
     },
     {
@@ -2770,7 +2990,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "api_services_deposits_py_decimal",
-      "community": 14,
+      "community": 17,
       "norm_label": "decimal"
     },
     {
@@ -2780,7 +3000,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "services_deposits_prepare_details_data",
-      "community": 14,
+      "community": 17,
       "norm_label": "prepare_details_data()"
     },
     {
@@ -2790,7 +3010,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "services_deposits_build_bukti_digital",
-      "community": 24,
+      "community": 17,
       "norm_label": "build_bukti_digital()"
     },
     {
@@ -2800,7 +3020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "services_deposits_rationale_1",
-      "community": 14,
+      "community": 17,
       "norm_label": "business rules and price calculation for deposit transactions."
     },
     {
@@ -2810,7 +3030,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "services_deposits_rationale_50",
-      "community": 24,
+      "community": 17,
       "norm_label": "struktur bukti digital untuk nasabah (sop b.1)."
     },
     {
@@ -2910,7 +3130,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "validationerror",
-      "community": 14,
+      "community": 30,
       "norm_label": "validationerror"
     },
     {
@@ -3074,10 +3294,20 @@
       "norm_label": "credit_nasabah_setoran()"
     },
     {
-      "label": "debit_nasabah_saldo()",
+      "label": "adjust_setoran_correction()",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
       "source_location": "L93",
+      "_origin": "ast",
+      "id": "services_ledger_adjust_setoran_correction",
+      "community": 14,
+      "norm_label": "adjust_setoran_correction()"
+    },
+    {
+      "label": "debit_nasabah_saldo()",
+      "file_type": "code",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L112",
       "_origin": "ast",
       "id": "services_ledger_debit_nasabah_saldo",
       "community": 14,
@@ -3087,7 +3317,7 @@
       "label": "debit_nasabah_poin()",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
-      "source_location": "L107",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "services_ledger_debit_nasabah_poin",
       "community": 14,
@@ -3097,7 +3327,7 @@
       "label": "increase_kategori_stok()",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
-      "source_location": "L121",
+      "source_location": "L140",
       "_origin": "ast",
       "id": "services_ledger_increase_kategori_stok",
       "community": 14,
@@ -3107,7 +3337,7 @@
       "label": "decrease_kategori_stok()",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
-      "source_location": "L131",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "services_ledger_decrease_kategori_stok",
       "community": 14,
@@ -3117,7 +3347,7 @@
       "label": "create_setoran_with_side_effects()",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
-      "source_location": "L146",
+      "source_location": "L165",
       "_origin": "ast",
       "id": "services_ledger_create_setoran_with_side_effects",
       "community": 14,
@@ -3127,7 +3357,7 @@
       "label": "TransaksiSetoran",
       "file_type": "code",
       "source_file": "api/services/ledger.py",
-      "source_location": "L146",
+      "source_location": "L165",
       "_origin": "ast",
       "id": "transaksisetoran",
       "community": 14,
@@ -3174,12 +3404,22 @@
       "norm_label": "credit saldo and poin from a deposit; locks nasabah row."
     },
     {
+      "label": "Adjust nasabah saldo/poin when admin corrects a deposit total.",
+      "file_type": "rationale",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L96",
+      "_origin": "ast",
+      "id": "services_ledger_rationale_96",
+      "community": 14,
+      "norm_label": "adjust nasabah saldo/poin when admin corrects a deposit total."
+    },
+    {
       "label": "Debit nasabah saldo; raises if result would be negative.",
       "file_type": "rationale",
       "source_file": "api/services/ledger.py",
-      "source_location": "L94",
+      "source_location": "L113",
       "_origin": "ast",
-      "id": "services_ledger_rationale_94",
+      "id": "services_ledger_rationale_113",
       "community": 14,
       "norm_label": "debit nasabah saldo; raises if result would be negative."
     },
@@ -3187,9 +3427,9 @@
       "label": "Debit nasabah poin; raises if result would be negative.",
       "file_type": "rationale",
       "source_file": "api/services/ledger.py",
-      "source_location": "L108",
+      "source_location": "L127",
       "_origin": "ast",
-      "id": "services_ledger_rationale_108",
+      "id": "services_ledger_rationale_127",
       "community": 14,
       "norm_label": "debit nasabah poin; raises if result would be negative."
     },
@@ -3197,9 +3437,9 @@
       "label": "Increase waste category stock; locks kategori row.",
       "file_type": "rationale",
       "source_file": "api/services/ledger.py",
-      "source_location": "L122",
+      "source_location": "L141",
       "_origin": "ast",
-      "id": "services_ledger_rationale_122",
+      "id": "services_ledger_rationale_141",
       "community": 14,
       "norm_label": "increase waste category stock; locks kategori row."
     },
@@ -3207,9 +3447,9 @@
       "label": "Decrease waste category stock; raises if result would be negative.",
       "file_type": "rationale",
       "source_file": "api/services/ledger.py",
-      "source_location": "L132",
+      "source_location": "L151",
       "_origin": "ast",
-      "id": "services_ledger_rationale_132",
+      "id": "services_ledger_rationale_151",
       "community": 14,
       "norm_label": "decrease waste category stock; raises if result would be negative."
     },
@@ -3217,9 +3457,9 @@
       "label": "Create deposit transaction and apply all side effects atomically.",
       "file_type": "rationale",
       "source_file": "api/services/ledger.py",
-      "source_location": "L150",
+      "source_location": "L169",
       "_origin": "ast",
-      "id": "services_ledger_rationale_150",
+      "id": "services_ledger_rationale_169",
       "community": 14,
       "norm_label": "create deposit transaction and apply all side effects atomically."
     },
@@ -3230,7 +3470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "services_partner_sales",
-      "community": 14,
+      "community": 40,
       "norm_label": "partner_sales.py"
     },
     {
@@ -3240,7 +3480,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "services_partner_sales_validate_berat_jual",
-      "community": 14,
+      "community": 40,
       "norm_label": "validate_berat_jual()"
     },
     {
@@ -3250,7 +3490,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "api_services_partner_sales_py_decimal",
-      "community": 14,
+      "community": 40,
       "norm_label": "decimal"
     },
     {
@@ -3260,7 +3500,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "services_partner_sales_validate_harga_jual",
-      "community": 14,
+      "community": 40,
       "norm_label": "validate_harga_jual()"
     },
     {
@@ -3270,7 +3510,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "services_partner_sales_validate_stok_cukup",
-      "community": 14,
+      "community": 40,
       "norm_label": "validate_stok_cukup()"
     },
     {
@@ -3280,7 +3520,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "api_services_partner_sales_py_kategorisampah",
-      "community": 14,
+      "community": 40,
       "norm_label": "kategorisampah"
     },
     {
@@ -3290,7 +3530,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "services_partner_sales_build_sale_data",
-      "community": 14,
+      "community": 40,
       "norm_label": "build_sale_data()"
     },
     {
@@ -3300,7 +3540,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "mitrapengepul",
-      "community": 14,
+      "community": 72,
       "norm_label": "mitrapengepul"
     },
     {
@@ -3310,7 +3550,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "services_partner_sales_create_partner_sale_with_side_effects",
-      "community": 14,
+      "community": 40,
       "norm_label": "create_partner_sale_with_side_effects()"
     },
     {
@@ -3320,7 +3560,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "penjualanmitra",
-      "community": 14,
+      "community": 72,
       "norm_label": "penjualanmitra"
     },
     {
@@ -3330,7 +3570,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "services_partner_sales_rationale_1",
-      "community": 14,
+      "community": 40,
       "norm_label": "business rules and orchestration for partner waste sales."
     },
     {
@@ -3340,7 +3580,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "services_partner_sales_rationale_54",
-      "community": 14,
+      "community": 40,
       "norm_label": "create partner sale record and decrease category stock atomically."
     },
     {
@@ -3420,7 +3660,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "datetime",
-      "community": 26,
+      "community": 53,
       "norm_label": "datetime"
     },
     {
@@ -3510,7 +3750,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "services_pickups_validate_jadwal_h_plus_one",
-      "community": 39,
+      "community": 30,
       "norm_label": "validate_jadwal_h_plus_one()"
     },
     {
@@ -3944,6 +4184,206 @@
       "norm_label": "tolak pengajuan \u2014 saldo tidak pernah didebit saat create, jadi tidak perlu refun"
     },
     {
+      "label": "signals.py",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_signals",
+      "community": 32,
+      "norm_label": "signals.py"
+    },
+    {
+      "label": "_get_changed_fields()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "api_signals_get_changed_fields",
+      "community": 28,
+      "norm_label": "_get_changed_fields()"
+    },
+    {
+      "label": "_serialize_value()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L58",
+      "_origin": "ast",
+      "id": "api_signals_serialize_value",
+      "community": 28,
+      "norm_label": "_serialize_value()"
+    },
+    {
+      "label": "_is_significant()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "api_signals_is_significant",
+      "community": 28,
+      "norm_label": "_is_significant()"
+    },
+    {
+      "label": "_create_audit_entry()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "api_signals_create_audit_entry",
+      "community": 28,
+      "norm_label": "_create_audit_entry()"
+    },
+    {
+      "label": "_capture_pre_save()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "api_signals_capture_pre_save",
+      "community": 28,
+      "norm_label": "_capture_pre_save()"
+    },
+    {
+      "label": "_get_pre_save_state()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L131",
+      "_origin": "ast",
+      "id": "api_signals_get_pre_save_state",
+      "community": 28,
+      "norm_label": "_get_pre_save_state()"
+    },
+    {
+      "label": "audit_pre_save()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L149",
+      "_origin": "ast",
+      "id": "api_signals_audit_pre_save",
+      "community": 28,
+      "norm_label": "audit_pre_save()"
+    },
+    {
+      "label": "audit_post_save()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L166",
+      "_origin": "ast",
+      "id": "api_signals_audit_post_save",
+      "community": 28,
+      "norm_label": "audit_post_save()"
+    },
+    {
+      "label": "audit_post_delete()",
+      "file_type": "code",
+      "source_file": "api/signals.py",
+      "source_location": "L198",
+      "_origin": "ast",
+      "id": "api_signals_audit_post_delete",
+      "community": 28,
+      "norm_label": "audit_post_delete()"
+    },
+    {
+      "label": "Signal handlers for automatic AuditLog recording.  Uses pre_save to capture old",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_signals_rationale_1",
+      "community": 32,
+      "norm_label": "signal handlers for automatic auditlog recording.  uses pre_save to capture old"
+    },
+    {
+      "label": "Compare instance with its old state and return {field: (old, new)}.      Only re",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "api_signals_rationale_31",
+      "community": 28,
+      "norm_label": "compare instance with its old state and return {field: (old, new)}.      only re"
+    },
+    {
+      "label": "Convert field values to JSON-serializable types.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L59",
+      "_origin": "ast",
+      "id": "api_signals_rationale_59",
+      "community": 28,
+      "norm_label": "convert field values to json-serializable types."
+    },
+    {
+      "label": "Check if a value is significant enough to log.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "api_signals_rationale_72",
+      "community": 28,
+      "norm_label": "check if a value is significant enough to log."
+    },
+    {
+      "label": "Create an AuditLog entry from the current request context.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L87",
+      "_origin": "ast",
+      "id": "api_signals_rationale_87",
+      "community": 28,
+      "norm_label": "create an auditlog entry from the current request context."
+    },
+    {
+      "label": "Store field values from DB before save (instance may already be mutated in memor",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L110",
+      "_origin": "ast",
+      "id": "api_signals_rationale_110",
+      "community": 28,
+      "norm_label": "store field values from db before save (instance may already be mutated in memor"
+    },
+    {
+      "label": "Retrieve and clear the pre-save state for an instance.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L132",
+      "_origin": "ast",
+      "id": "api_signals_rationale_132",
+      "community": 28,
+      "norm_label": "retrieve and clear the pre-save state for an instance."
+    },
+    {
+      "label": "Capture the old state before save.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L150",
+      "_origin": "ast",
+      "id": "api_signals_rationale_150",
+      "community": 28,
+      "norm_label": "capture the old state before save."
+    },
+    {
+      "label": "Log create or update to AuditLog.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L167",
+      "_origin": "ast",
+      "id": "api_signals_rationale_167",
+      "community": 28,
+      "norm_label": "log create or update to auditlog."
+    },
+    {
+      "label": "Log delete to AuditLog with the last known values.",
+      "file_type": "rationale",
+      "source_file": "api/signals.py",
+      "source_location": "L199",
+      "_origin": "ast",
+      "id": "api_signals_rationale_199",
+      "community": 28,
+      "norm_label": "log delete to auditlog with the last known values."
+    },
+    {
       "label": "__init__.py",
       "file_type": "code",
       "source_file": "api/tests/__init__.py",
@@ -3960,7 +4400,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_base",
-      "community": 38,
+      "community": 33,
       "norm_label": "base.py"
     },
     {
@@ -3970,7 +4410,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase",
-      "community": 34,
+      "community": 33,
       "norm_label": "envelopeapitestcase"
     },
     {
@@ -3980,7 +4420,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "apitestcase",
-      "community": 34,
+      "community": 33,
       "norm_label": "apitestcase"
     },
     {
@@ -3990,7 +4430,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_assert_envelope_success",
-      "community": 34,
+      "community": 33,
       "norm_label": ".assert_envelope_success()"
     },
     {
@@ -4000,7 +4440,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_assert_envelope_error",
-      "community": 34,
+      "community": 33,
       "norm_label": ".assert_envelope_error()"
     },
     {
@@ -4010,7 +4450,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_create_nasabah",
-      "community": 34,
+      "community": 33,
       "norm_label": ".create_nasabah()"
     },
     {
@@ -4020,7 +4460,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_create_admin",
-      "community": 34,
+      "community": 33,
       "norm_label": ".create_admin()"
     },
     {
@@ -4030,7 +4470,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_create_koordinator",
-      "community": 34,
+      "community": 33,
       "norm_label": ".create_koordinator()"
     },
     {
@@ -4040,7 +4480,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_create_petugas",
-      "community": 34,
+      "community": 33,
       "norm_label": ".create_petugas()"
     },
     {
@@ -4050,7 +4490,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_create_pemerintah",
-      "community": 34,
+      "community": 33,
       "norm_label": ".create_pemerintah()"
     },
     {
@@ -4060,7 +4500,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "tests_base_envelopeapitestcase_auth_as",
-      "community": 34,
+      "community": 33,
       "norm_label": ".auth_as()"
     },
     {
@@ -4070,7 +4510,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "tests_base_rationale_8",
-      "community": 34,
+      "community": 33,
       "norm_label": "base test case with envelope helpers and user factories."
     },
     {
@@ -4080,7 +4520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_activity",
-      "community": 38,
+      "community": 32,
       "norm_label": "test_activity.py"
     },
     {
@@ -4212,6 +4652,226 @@
       "id": "tests_test_activity_activitylisttests_test_admin_can_filter_by_nasabah",
       "community": 73,
       "norm_label": ".test_admin_can_filter_by_nasabah()"
+    },
+    {
+      "label": "test_audit_log.py",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_test_audit_log",
+      "community": 34,
+      "norm_label": "test_audit_log.py"
+    },
+    {
+      "label": "AuditLogSignalTests",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditlogsignaltests",
+      "community": 34,
+      "norm_label": "auditlogsignaltests"
+    },
+    {
+      "label": ".setUp()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditlogsignaltests_setup",
+      "community": 34,
+      "norm_label": ".setup()"
+    },
+    {
+      "label": ".test_create_kategori_logged()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditlogsignaltests_test_create_kategori_logged",
+      "community": 34,
+      "norm_label": ".test_create_kategori_logged()"
+    },
+    {
+      "label": ".test_update_kategori_logged()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditlogsignaltests_test_update_kategori_logged",
+      "community": 34,
+      "norm_label": ".test_update_kategori_logged()"
+    },
+    {
+      "label": ".test_create_pengaduan_logged()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditlogsignaltests_test_create_pengaduan_logged",
+      "community": 34,
+      "norm_label": ".test_create_pengaduan_logged()"
+    },
+    {
+      "label": "AuditLogListTests",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L72",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests",
+      "community": 34,
+      "norm_label": "auditloglisttests"
+    },
+    {
+      "label": ".setUp()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_setup",
+      "community": 34,
+      "norm_label": ".setup()"
+    },
+    {
+      "label": ".test_admin_can_list_audit_log()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L95",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_admin_can_list_audit_log",
+      "community": 34,
+      "norm_label": ".test_admin_can_list_audit_log()"
+    },
+    {
+      "label": ".test_koordinator_cannot_access_audit_log()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L103",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_koordinator_cannot_access_audit_log",
+      "community": 34,
+      "norm_label": ".test_koordinator_cannot_access_audit_log()"
+    },
+    {
+      "label": ".test_petugas_cannot_access_audit_log()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L108",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_petugas_cannot_access_audit_log",
+      "community": 34,
+      "norm_label": ".test_petugas_cannot_access_audit_log()"
+    },
+    {
+      "label": ".test_filter_by_model()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L113",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_filter_by_model",
+      "community": 34,
+      "norm_label": ".test_filter_by_model()"
+    },
+    {
+      "label": ".test_filter_by_user()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L120",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_filter_by_user",
+      "community": 34,
+      "norm_label": ".test_filter_by_user()"
+    },
+    {
+      "label": ".test_filter_by_date_after()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L126",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_auditloglisttests_test_filter_by_date_after",
+      "community": 34,
+      "norm_label": ".test_filter_by_date_after()"
+    },
+    {
+      "label": "DepositCorrectionTests",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L136",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests",
+      "community": 34,
+      "norm_label": "depositcorrectiontests"
+    },
+    {
+      "label": ".setUp()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L137",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_setup",
+      "community": 34,
+      "norm_label": ".setup()"
+    },
+    {
+      "label": ".test_admin_can_correct_deposit()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L162",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_test_admin_can_correct_deposit",
+      "community": 34,
+      "norm_label": ".test_admin_can_correct_deposit()"
+    },
+    {
+      "label": ".test_correction_creates_audit_log()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L176",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_test_correction_creates_audit_log",
+      "community": 34,
+      "norm_label": ".test_correction_creates_audit_log()"
+    },
+    {
+      "label": ".test_petugas_cannot_correct_deposit()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L194",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_test_petugas_cannot_correct_deposit",
+      "community": 34,
+      "norm_label": ".test_petugas_cannot_correct_deposit()"
+    },
+    {
+      "label": ".test_koordinator_cannot_correct_deposit()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L203",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_test_koordinator_cannot_correct_deposit",
+      "community": 34,
+      "norm_label": ".test_koordinator_cannot_correct_deposit()"
+    },
+    {
+      "label": ".test_correction_rejected_if_saldo_insufficient()",
+      "file_type": "code",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L212",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_depositcorrectiontests_test_correction_rejected_if_saldo_insufficient",
+      "community": 34,
+      "norm_label": ".test_correction_rejected_if_saldo_insufficient()"
+    },
+    {
+      "label": "Verify automatic audit log recording via Django signals.",
+      "file_type": "rationale",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "tests_test_audit_log_rationale_12",
+      "community": 34,
+      "norm_label": "verify automatic audit log recording via django signals."
     },
     {
       "label": "test_auth.py",
@@ -4350,7 +5010,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests",
-      "community": 33,
+      "community": 79,
       "norm_label": "meendpointtests"
     },
     {
@@ -4360,7 +5020,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests_setup",
-      "community": 33,
+      "community": 79,
       "norm_label": ".setup()"
     },
     {
@@ -4370,7 +5030,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests_test_me_get_authenticated",
-      "community": 33,
+      "community": 79,
       "norm_label": ".test_me_get_authenticated()"
     },
     {
@@ -4380,7 +5040,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests_test_me_get_unauthenticated",
-      "community": 33,
+      "community": 79,
       "norm_label": ".test_me_get_unauthenticated()"
     },
     {
@@ -4390,7 +5050,7 @@
       "source_location": "L143",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests_test_me_patch_profile",
-      "community": 33,
+      "community": 79,
       "norm_label": ".test_me_patch_profile()"
     },
     {
@@ -4400,7 +5060,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_auth_meendpointtests_test_me_patch_cannot_change_role",
-      "community": 33,
+      "community": 79,
       "norm_label": ".test_me_patch_cannot_change_role()"
     },
     {
@@ -4410,7 +5070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_complaints",
-      "community": 38,
+      "community": 33,
       "norm_label": "test_complaints.py"
     },
     {
@@ -4580,7 +5240,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardtestmixin_build_data",
-      "community": 81,
+      "community": 38,
       "norm_label": "._build_data()"
     },
     {
@@ -4590,7 +5250,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests",
-      "community": 81,
+      "community": 38,
       "norm_label": "dashboardoverviewtests"
     },
     {
@@ -4600,7 +5260,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_setup",
-      "community": 81,
+      "community": 38,
       "norm_label": ".setup()"
     },
     {
@@ -4610,7 +5270,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_test_overview_returns_aggregates",
-      "community": 81,
+      "community": 38,
       "norm_label": ".test_overview_returns_aggregates()"
     },
     {
@@ -4620,7 +5280,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_test_pemerintah_can_read",
-      "community": 81,
+      "community": 38,
       "norm_label": ".test_pemerintah_can_read()"
     },
     {
@@ -4630,7 +5290,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_test_nasabah_forbidden",
-      "community": 81,
+      "community": 38,
       "norm_label": ".test_nasabah_forbidden()"
     },
     {
@@ -4640,7 +5300,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_test_petugas_forbidden",
-      "community": 81,
+      "community": 38,
       "norm_label": ".test_petugas_forbidden()"
     },
     {
@@ -4650,7 +5310,7 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardoverviewtests_test_unauthenticated_401",
-      "community": 81,
+      "community": 38,
       "norm_label": ".test_unauthenticated_401()"
     },
     {
@@ -4670,7 +5330,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboarddepositcharttests_setup",
-      "community": 81,
+      "community": 38,
       "norm_label": ".setup()"
     },
     {
@@ -4710,7 +5370,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "tests_test_dashboard_dashboardrecentactivitytests_setup",
-      "community": 81,
+      "community": 38,
       "norm_label": ".setup()"
     },
     {
@@ -5320,7 +5980,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_pickups",
-      "community": 38,
+      "community": 53,
       "norm_label": "test_pickups.py"
     },
     {
@@ -5520,7 +6180,7 @@
       "source_location": "L194",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests",
-      "community": 47,
+      "community": 39,
       "norm_label": "pickupactiontests"
     },
     {
@@ -5530,7 +6190,7 @@
       "source_location": "L197",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_setup",
-      "community": 47,
+      "community": 39,
       "norm_label": ".setup()"
     },
     {
@@ -5540,7 +6200,7 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_approve_action",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_approve_action()"
     },
     {
@@ -5550,7 +6210,7 @@
       "source_location": "L215",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_reject_action",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_reject_action()"
     },
     {
@@ -5560,7 +6220,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_assign_action",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_assign_action()"
     },
     {
@@ -5570,7 +6230,7 @@
       "source_location": "L234",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_update_status_action",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_update_status_action()"
     },
     {
@@ -5580,7 +6240,7 @@
       "source_location": "L247",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_petugas_cannot_approve_action",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_petugas_cannot_approve_action()"
     },
     {
@@ -5590,7 +6250,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "tests_test_pickups_pickupactiontests_test_e2e_full_flow_via_actions",
-      "community": 47,
+      "community": 39,
       "norm_label": ".test_e2e_full_flow_via_actions()"
     },
     {
@@ -5600,7 +6260,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "tests_test_pickups_rationale_195",
-      "community": 47,
+      "community": 39,
       "norm_label": "sop b.2 \u2014 action endpoints approve/reject/assign/update-status."
     },
     {
@@ -5610,7 +6270,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_redemptions",
-      "community": 38,
+      "community": 68,
       "norm_label": "test_redemptions.py"
     },
     {
@@ -5620,7 +6280,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests",
-      "community": 90,
+      "community": 68,
       "norm_label": "redemptioncreatetests"
     },
     {
@@ -5630,7 +6290,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests_setup",
-      "community": 90,
+      "community": 68,
       "norm_label": ".setup()"
     },
     {
@@ -5640,7 +6300,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests_test_nasabah_create_success",
-      "community": 90,
+      "community": 68,
       "norm_label": ".test_nasabah_create_success()"
     },
     {
@@ -5650,7 +6310,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests_test_reject_insufficient_poin",
-      "community": 90,
+      "community": 68,
       "norm_label": ".test_reject_insufficient_poin()"
     },
     {
@@ -5660,7 +6320,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests_test_reject_empty_reward_stok",
-      "community": 90,
+      "community": 68,
       "norm_label": ".test_reject_empty_reward_stok()"
     },
     {
@@ -5670,7 +6330,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptioncreatetests_test_admin_cannot_create",
-      "community": 90,
+      "community": 68,
       "norm_label": ".test_admin_cannot_create()"
     },
     {
@@ -5770,7 +6430,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests",
-      "community": 82,
+      "community": 68,
       "norm_label": "redemptionactiontests"
     },
     {
@@ -5780,7 +6440,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests_setup",
-      "community": 82,
+      "community": 68,
       "norm_label": ".setup()"
     },
     {
@@ -5790,7 +6450,7 @@
       "source_location": "L192",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests_test_approve_action_debits_poin_and_stok",
-      "community": 82,
+      "community": 68,
       "norm_label": ".test_approve_action_debits_poin_and_stok()"
     },
     {
@@ -5800,7 +6460,7 @@
       "source_location": "L206",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests_test_koordinator_cannot_approve_action",
-      "community": 82,
+      "community": 68,
       "norm_label": ".test_koordinator_cannot_approve_action()"
     },
     {
@@ -5810,7 +6470,7 @@
       "source_location": "L213",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests_test_double_approve_returns_409",
-      "community": 82,
+      "community": 68,
       "norm_label": ".test_double_approve_returns_409()"
     },
     {
@@ -5820,7 +6480,7 @@
       "source_location": "L221",
       "_origin": "ast",
       "id": "tests_test_redemptions_redemptionactiontests_test_e2e_create_approve_flow",
-      "community": 82,
+      "community": 68,
       "norm_label": ".test_e2e_create_approve_flow()"
     },
     {
@@ -5830,7 +6490,7 @@
       "source_location": "L175",
       "_origin": "ast",
       "id": "tests_test_redemptions_rationale_175",
-      "community": 82,
+      "community": 68,
       "norm_label": "sop a.4 \u2014 action endpoint approve."
     },
     {
@@ -5860,7 +6520,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "tests_test_reports_reporttestmixin_aware",
-      "community": 32,
+      "community": 53,
       "norm_label": "._aware()"
     },
     {
@@ -6100,7 +6760,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_rewards",
-      "community": 38,
+      "community": 68,
       "norm_label": "test_rewards.py"
     },
     {
@@ -6110,7 +6770,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "tests_test_rewards_rewardpubliclisttests",
-      "community": 93,
+      "community": 68,
       "norm_label": "rewardpubliclisttests"
     },
     {
@@ -6120,7 +6780,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tests_test_rewards_rewardpubliclisttests_setup",
-      "community": 93,
+      "community": 68,
       "norm_label": ".setup()"
     },
     {
@@ -6130,7 +6790,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "tests_test_rewards_rewardpubliclisttests_test_list_public_without_auth",
-      "community": 93,
+      "community": 68,
       "norm_label": ".test_list_public_without_auth()"
     },
     {
@@ -6140,7 +6800,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "tests_test_rewards_rewardpubliclisttests_test_retrieve_public_without_auth",
-      "community": 93,
+      "community": 68,
       "norm_label": ".test_retrieve_public_without_auth()"
     },
     {
@@ -6430,7 +7090,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_seed_data",
-      "community": 14,
+      "community": 68,
       "norm_label": "test_seed_data.py"
     },
     {
@@ -6440,7 +7100,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "tests_test_seed_data_seeddataminimaltests",
-      "community": 14,
+      "community": 68,
       "norm_label": "seeddataminimaltests"
     },
     {
@@ -6450,7 +7110,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "testcase",
-      "community": 14,
+      "community": 68,
       "norm_label": "testcase"
     },
     {
@@ -6460,7 +7120,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_seed_data_seeddataminimaltests_test_minimal_seed_creates_core_data",
-      "community": 14,
+      "community": 68,
       "norm_label": ".test_minimal_seed_creates_core_data()"
     },
     {
@@ -6470,7 +7130,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "tests_test_seed_data_seeddataminimaltests_test_minimal_seed_is_idempotent",
-      "community": 14,
+      "community": 68,
       "norm_label": ".test_minimal_seed_is_idempotent()"
     },
     {
@@ -6480,7 +7140,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "tests_test_seed_data_seeddatafulltests",
-      "community": 14,
+      "community": 68,
       "norm_label": "seeddatafulltests"
     },
     {
@@ -6490,7 +7150,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "tests_test_seed_data_seeddatafulltests_test_full_seed_creates_200_plus_records",
-      "community": 14,
+      "community": 68,
       "norm_label": ".test_full_seed_creates_200_plus_records()"
     },
     {
@@ -6680,7 +7340,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_users",
-      "community": 47,
+      "community": 33,
       "norm_label": "test_users.py"
     },
     {
@@ -6760,7 +7420,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests",
-      "community": 47,
+      "community": 81,
       "norm_label": "userpatchpermissiontests"
     },
     {
@@ -6770,7 +7430,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests_setup",
-      "community": 47,
+      "community": 81,
       "norm_label": ".setup()"
     },
     {
@@ -6780,7 +7440,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests_test_nasabah_patch_own_profile",
-      "community": 47,
+      "community": 81,
       "norm_label": ".test_nasabah_patch_own_profile()"
     },
     {
@@ -6790,7 +7450,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests_test_nasabah_cannot_patch_other_user",
-      "community": 47,
+      "community": 81,
       "norm_label": ".test_nasabah_cannot_patch_other_user()"
     },
     {
@@ -6800,7 +7460,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests_test_nasabah_cannot_change_role_saldo_poin",
-      "community": 47,
+      "community": 81,
       "norm_label": ".test_nasabah_cannot_change_role_saldo_poin()"
     },
     {
@@ -6810,7 +7470,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "tests_test_users_userpatchpermissiontests_test_admin_can_patch_other_user",
-      "community": 47,
+      "community": 81,
       "norm_label": ".test_admin_can_patch_other_user()"
     },
     {
@@ -6820,7 +7480,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests",
-      "community": 47,
+      "community": 80,
       "norm_label": "admincreatestafftests"
     },
     {
@@ -6830,7 +7490,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests_setup",
-      "community": 47,
+      "community": 80,
       "norm_label": ".setup()"
     },
     {
@@ -6840,7 +7500,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests_test_admin_create_petugas",
-      "community": 47,
+      "community": 80,
       "norm_label": ".test_admin_create_petugas()"
     },
     {
@@ -6850,7 +7510,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests_test_admin_create_koordinator",
-      "community": 47,
+      "community": 80,
       "norm_label": ".test_admin_create_koordinator()"
     },
     {
@@ -6860,7 +7520,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests_test_admin_cannot_create_nasabah_via_staff_endpoint",
-      "community": 47,
+      "community": 80,
       "norm_label": ".test_admin_cannot_create_nasabah_via_staff_endpoint()"
     },
     {
@@ -6870,7 +7530,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "tests_test_users_admincreatestafftests_test_public_registration_still_nasabah_only",
-      "community": 47,
+      "community": 80,
       "norm_label": ".test_public_registration_still_nasabah_only()"
     },
     {
@@ -6880,7 +7540,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "tests_test_users_userresponsesecuritytests",
-      "community": 47,
+      "community": 33,
       "norm_label": "userresponsesecuritytests"
     },
     {
@@ -6890,7 +7550,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "tests_test_users_userresponsesecuritytests_setup",
-      "community": 47,
+      "community": 33,
       "norm_label": ".setup()"
     },
     {
@@ -6900,7 +7560,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "tests_test_users_userresponsesecuritytests_test_password_not_in_list_response",
-      "community": 47,
+      "community": 33,
       "norm_label": ".test_password_not_in_list_response()"
     },
     {
@@ -6910,7 +7570,7 @@
       "source_location": "L184",
       "_origin": "ast",
       "id": "tests_test_users_userresponsesecuritytests_test_password_not_in_detail_response",
-      "community": 47,
+      "community": 33,
       "norm_label": ".test_password_not_in_detail_response()"
     },
     {
@@ -6920,7 +7580,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_waste_categories",
-      "community": 34,
+      "community": 72,
       "norm_label": "test_waste_categories.py"
     },
     {
@@ -6930,7 +7590,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_test_waste_categories_wastecategorypublicreadtests",
-      "community": 34,
+      "community": 72,
       "norm_label": "wastecategorypublicreadtests"
     },
     {
@@ -6940,7 +7600,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_test_waste_categories_wastecategorypublicreadtests_setup",
-      "community": 34,
+      "community": 72,
       "norm_label": ".setup()"
     },
     {
@@ -6950,7 +7610,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_waste_categories_wastecategorypublicreadtests_test_list_public_without_auth",
-      "community": 34,
+      "community": 72,
       "norm_label": ".test_list_public_without_auth()"
     },
     {
@@ -6960,7 +7620,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "tests_test_waste_categories_wastecategorypublicreadtests_test_retrieve_public_without_auth",
-      "community": 34,
+      "community": 72,
       "norm_label": ".test_retrieve_public_without_auth()"
     },
     {
@@ -7070,7 +7730,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_withdrawals",
-      "community": 38,
+      "community": 33,
       "norm_label": "test_withdrawals.py"
     },
     {
@@ -7080,7 +7740,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests",
-      "community": 47,
+      "community": 41,
       "norm_label": "withdrawalcreatetests"
     },
     {
@@ -7090,7 +7750,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_setup",
-      "community": 47,
+      "community": 41,
       "norm_label": ".setup()"
     },
     {
@@ -7100,7 +7760,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_payload",
-      "community": 47,
+      "community": 41,
       "norm_label": "._payload()"
     },
     {
@@ -7110,7 +7770,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_test_nasabah_create_success",
-      "community": 47,
+      "community": 41,
       "norm_label": ".test_nasabah_create_success()"
     },
     {
@@ -7120,7 +7780,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_test_reject_nominal_below_minimum",
-      "community": 47,
+      "community": 41,
       "norm_label": ".test_reject_nominal_below_minimum()"
     },
     {
@@ -7130,7 +7790,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_test_reject_insufficient_saldo",
-      "community": 47,
+      "community": 41,
       "norm_label": ".test_reject_insufficient_saldo()"
     },
     {
@@ -7140,7 +7800,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_test_reject_duplicate_pending",
-      "community": 47,
+      "community": 41,
       "norm_label": ".test_reject_duplicate_pending()"
     },
     {
@@ -7150,7 +7810,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "tests_test_withdrawals_withdrawalcreatetests_test_admin_cannot_create",
-      "community": 47,
+      "community": 41,
       "norm_label": ".test_admin_cannot_create()"
     },
     {
@@ -7594,10 +8254,30 @@
       "norm_label": "views.py"
     },
     {
-      "label": "UserViewSet",
+      "label": "AuditLogListView",
       "file_type": "code",
       "source_file": "api/views.py",
       "source_location": "L57",
+      "_origin": "ast",
+      "id": "api_views_auditloglistview",
+      "community": 2,
+      "norm_label": "auditloglistview"
+    },
+    {
+      "label": ".get()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L105",
+      "_origin": "ast",
+      "id": "api_views_auditloglistview_get",
+      "community": 42,
+      "norm_label": ".get()"
+    },
+    {
+      "label": "UserViewSet",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "api_views_userviewset",
       "community": 2,
@@ -7607,7 +8287,7 @@
       "label": "._is_staff_manager()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L65",
+      "source_location": "L143",
       "_origin": "ast",
       "id": "api_views_userviewset_is_staff_manager",
       "community": 2,
@@ -7617,7 +8297,7 @@
       "label": "._is_petugas_lookup()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L69",
+      "source_location": "L147",
       "_origin": "ast",
       "id": "api_views_userviewset_is_petugas_lookup",
       "community": 2,
@@ -7627,7 +8307,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L73",
+      "source_location": "L151",
       "_origin": "ast",
       "id": "api_views_userviewset_get_serializer_class",
       "community": 2,
@@ -7637,7 +8317,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L88",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "api_views_userviewset_get_permissions",
       "community": 2,
@@ -7647,7 +8327,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L99",
+      "source_location": "L177",
       "_origin": "ast",
       "id": "api_views_userviewset_get_queryset",
       "community": 2,
@@ -7657,7 +8337,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L105",
+      "source_location": "L183",
       "_origin": "ast",
       "id": "api_views_userviewset_create",
       "community": 2,
@@ -7667,7 +8347,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L121",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "api_views_userviewset_retrieve",
       "community": 2,
@@ -7677,7 +8357,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L130",
+      "source_location": "L208",
       "_origin": "ast",
       "id": "api_views_userviewset_partial_update",
       "community": 2,
@@ -7687,7 +8367,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L141",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "api_views_userviewset_update",
       "community": 2,
@@ -7697,7 +8377,7 @@
       "label": "KategoriSampahViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L146",
+      "source_location": "L224",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset",
       "community": 2,
@@ -7707,7 +8387,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L152",
+      "source_location": "L230",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset_get_permissions",
       "community": 2,
@@ -7717,7 +8397,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L159",
+      "source_location": "L237",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset_create",
       "community": 2,
@@ -7727,7 +8407,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L170",
+      "source_location": "L248",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset_retrieve",
       "community": 2,
@@ -7737,7 +8417,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L179",
+      "source_location": "L257",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset_partial_update",
       "community": 2,
@@ -7747,7 +8427,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L190",
+      "source_location": "L268",
       "_origin": "ast",
       "id": "api_views_kategorisampahviewset_update",
       "community": 2,
@@ -7757,7 +8437,7 @@
       "label": "TransaksiSetoranViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L194",
+      "source_location": "L272",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset",
       "community": 2,
@@ -7767,7 +8447,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L203",
+      "source_location": "L281",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset_get_serializer_class",
       "community": 2,
@@ -7777,7 +8457,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L208",
+      "source_location": "L288",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset_get_permissions",
       "community": 2,
@@ -7787,7 +8467,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L213",
+      "source_location": "L295",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset_get_queryset",
       "community": 37,
@@ -7797,7 +8477,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L216",
+      "source_location": "L298",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset_create",
       "community": 2,
@@ -7807,17 +8487,37 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L230",
+      "source_location": "L312",
       "_origin": "ast",
       "id": "api_views_transaksisetoranviewset_retrieve",
       "community": 2,
       "norm_label": ".retrieve()"
     },
     {
+      "label": ".partial_update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L323",
+      "_origin": "ast",
+      "id": "api_views_transaksisetoranviewset_partial_update",
+      "community": 2,
+      "norm_label": ".partial_update()"
+    },
+    {
+      "label": ".update()",
+      "file_type": "code",
+      "source_file": "api/views.py",
+      "source_location": "L337",
+      "_origin": "ast",
+      "id": "api_views_transaksisetoranviewset_update",
+      "community": 2,
+      "norm_label": ".update()"
+    },
+    {
       "label": "PenjemputanViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L242",
+      "source_location": "L341",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset",
       "community": 2,
@@ -7827,7 +8527,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L249",
+      "source_location": "L348",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_get_serializer_class",
       "community": 2,
@@ -7837,7 +8537,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L256",
+      "source_location": "L355",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_get_permissions",
       "community": 2,
@@ -7847,7 +8547,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L265",
+      "source_location": "L364",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_get_queryset",
       "community": 37,
@@ -7857,7 +8557,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L268",
+      "source_location": "L367",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_create",
       "community": 2,
@@ -7867,7 +8567,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L280",
+      "source_location": "L379",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_retrieve",
       "community": 2,
@@ -7877,7 +8577,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L289",
+      "source_location": "L388",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_partial_update",
       "community": 2,
@@ -7887,7 +8587,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L301",
+      "source_location": "L400",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_update",
       "community": 2,
@@ -7897,57 +8597,57 @@
       "label": "._pickup_response()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L304",
+      "source_location": "L403",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_pickup_response",
-      "community": 2,
+      "community": 74,
       "norm_label": "._pickup_response()"
     },
     {
       "label": ".approve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L309",
+      "source_location": "L408",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_approve",
-      "community": 2,
+      "community": 74,
       "norm_label": ".approve()"
     },
     {
       "label": ".reject()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L317",
+      "source_location": "L416",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_reject",
-      "community": 2,
+      "community": 74,
       "norm_label": ".reject()"
     },
     {
       "label": ".assign()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L325",
+      "source_location": "L424",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_assign",
-      "community": 30,
+      "community": 74,
       "norm_label": ".assign()"
     },
     {
       "label": ".update_status()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L335",
+      "source_location": "L434",
       "_origin": "ast",
       "id": "api_views_penjemputanviewset_update_status",
-      "community": 24,
+      "community": 74,
       "norm_label": ".update_status()"
     },
     {
       "label": "PenarikanSaldoViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L347",
+      "source_location": "L446",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset",
       "community": 2,
@@ -7957,7 +8657,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L354",
+      "source_location": "L453",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_get_serializer_class",
       "community": 2,
@@ -7967,7 +8667,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L361",
+      "source_location": "L460",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_get_permissions",
       "community": 2,
@@ -7977,7 +8677,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L368",
+      "source_location": "L467",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_get_queryset",
       "community": 37,
@@ -7987,7 +8687,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L371",
+      "source_location": "L470",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_create",
       "community": 2,
@@ -7997,7 +8697,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L383",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_retrieve",
       "community": 2,
@@ -8007,7 +8707,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L393",
+      "source_location": "L492",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_partial_update",
       "community": 2,
@@ -8017,7 +8717,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L410",
+      "source_location": "L509",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_update",
       "community": 2,
@@ -8027,37 +8727,37 @@
       "label": "._withdrawal_response()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L413",
+      "source_location": "L512",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_withdrawal_response",
-      "community": 61,
+      "community": 2,
       "norm_label": "._withdrawal_response()"
     },
     {
       "label": ".approve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L419",
+      "source_location": "L518",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_approve",
-      "community": 61,
+      "community": 2,
       "norm_label": ".approve()"
     },
     {
       "label": ".reject()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L428",
+      "source_location": "L527",
       "_origin": "ast",
       "id": "api_views_penarikansaldoviewset_reject",
-      "community": 61,
+      "community": 2,
       "norm_label": ".reject()"
     },
     {
       "label": "RewardViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L436",
+      "source_location": "L535",
       "_origin": "ast",
       "id": "api_views_rewardviewset",
       "community": 2,
@@ -8067,7 +8767,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L442",
+      "source_location": "L541",
       "_origin": "ast",
       "id": "api_views_rewardviewset_get_permissions",
       "community": 2,
@@ -8077,7 +8777,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L447",
+      "source_location": "L546",
       "_origin": "ast",
       "id": "api_views_rewardviewset_create",
       "community": 2,
@@ -8087,7 +8787,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L458",
+      "source_location": "L557",
       "_origin": "ast",
       "id": "api_views_rewardviewset_retrieve",
       "community": 2,
@@ -8097,7 +8797,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L467",
+      "source_location": "L566",
       "_origin": "ast",
       "id": "api_views_rewardviewset_partial_update",
       "community": 2,
@@ -8107,7 +8807,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L478",
+      "source_location": "L577",
       "_origin": "ast",
       "id": "api_views_rewardviewset_update",
       "community": 2,
@@ -8117,7 +8817,7 @@
       "label": "PenukaranPoinViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L482",
+      "source_location": "L581",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset",
       "community": 2,
@@ -8127,7 +8827,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L489",
+      "source_location": "L588",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_get_serializer_class",
       "community": 2,
@@ -8137,7 +8837,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L496",
+      "source_location": "L595",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_get_permissions",
       "community": 2,
@@ -8147,7 +8847,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L503",
+      "source_location": "L602",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_get_queryset",
       "community": 37,
@@ -8157,7 +8857,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L506",
+      "source_location": "L605",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_create",
       "community": 2,
@@ -8167,7 +8867,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L518",
+      "source_location": "L617",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_retrieve",
       "community": 2,
@@ -8177,7 +8877,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L528",
+      "source_location": "L627",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_partial_update",
       "community": 2,
@@ -8187,7 +8887,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L545",
+      "source_location": "L644",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_update",
       "community": 2,
@@ -8197,7 +8897,7 @@
       "label": ".approve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L550",
+      "source_location": "L649",
       "_origin": "ast",
       "id": "api_views_penukaranpoinviewset_approve",
       "community": 2,
@@ -8207,7 +8907,7 @@
       "label": "MitraPengepulViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L562",
+      "source_location": "L661",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset",
       "community": 2,
@@ -8217,7 +8917,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L569",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset_get_permissions",
       "community": 2,
@@ -8227,7 +8927,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L574",
+      "source_location": "L673",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset_create",
       "community": 2,
@@ -8237,7 +8937,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L585",
+      "source_location": "L684",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset_retrieve",
       "community": 2,
@@ -8247,7 +8947,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L594",
+      "source_location": "L693",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset_partial_update",
       "community": 2,
@@ -8257,7 +8957,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L605",
+      "source_location": "L704",
       "_origin": "ast",
       "id": "api_views_mitrapengepulviewset_update",
       "community": 2,
@@ -8267,7 +8967,7 @@
       "label": "PenjualanMitraViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L609",
+      "source_location": "L708",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset",
       "community": 2,
@@ -8277,7 +8977,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L616",
+      "source_location": "L715",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset_get_serializer_class",
       "community": 2,
@@ -8287,7 +8987,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L621",
+      "source_location": "L720",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset_get_permissions",
       "community": 2,
@@ -8297,7 +8997,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L626",
+      "source_location": "L725",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset_get_queryset",
       "community": 37,
@@ -8307,7 +9007,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L629",
+      "source_location": "L728",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset_create",
       "community": 2,
@@ -8317,7 +9017,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L641",
+      "source_location": "L740",
       "_origin": "ast",
       "id": "api_views_penjualanmitraviewset_retrieve",
       "community": 2,
@@ -8327,7 +9027,7 @@
       "label": "PengaduanViewSet",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L651",
+      "source_location": "L750",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset",
       "community": 2,
@@ -8337,7 +9037,7 @@
       "label": ".get_serializer_class()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L658",
+      "source_location": "L757",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_get_serializer_class",
       "community": 2,
@@ -8347,7 +9047,7 @@
       "label": ".get_permissions()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L665",
+      "source_location": "L764",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_get_permissions",
       "community": 2,
@@ -8357,7 +9057,7 @@
       "label": ".get_queryset()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L672",
+      "source_location": "L771",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_get_queryset",
       "community": 37,
@@ -8367,7 +9067,7 @@
       "label": ".create()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L675",
+      "source_location": "L774",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_create",
       "community": 2,
@@ -8377,7 +9077,7 @@
       "label": ".retrieve()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L687",
+      "source_location": "L786",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_retrieve",
       "community": 2,
@@ -8387,7 +9087,7 @@
       "label": ".partial_update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L696",
+      "source_location": "L795",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_partial_update",
       "community": 2,
@@ -8397,7 +9097,7 @@
       "label": ".update()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L708",
+      "source_location": "L807",
       "_origin": "ast",
       "id": "api_views_pengaduanviewset_update",
       "community": 2,
@@ -8407,7 +9107,7 @@
       "label": "ActivityListView",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L737",
+      "source_location": "L836",
       "_origin": "ast",
       "id": "api_views_activitylistview",
       "community": 2,
@@ -8417,7 +9117,7 @@
       "label": ".get()",
       "file_type": "code",
       "source_file": "api/views.py",
-      "source_location": "L740",
+      "source_location": "L839",
       "_origin": "ast",
       "id": "api_views_activitylistview_get",
       "community": 42,
@@ -8460,7 +9160,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "core_settings",
-      "community": 26,
+      "community": 53,
       "norm_label": "settings.py"
     },
     {
@@ -11526,6 +12226,16 @@
       "target": "api_apps_apiconfig"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/apps.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "api_apps_apiconfig",
+      "target": "api_apps_apiconfig_ready",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "api/apps.py",
@@ -11972,6 +12682,16 @@
       "target": "apiview"
     },
     {
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "api_views_auditloglistview",
+      "target": "apiview",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -12161,6 +12881,16 @@
       "confidence_score": 1.0,
       "source": "api_serializers",
       "target": "api_exceptions_alreadyprocessederror"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/serializers.py",
+      "source_location": "L524",
+      "weight": 0.8,
+      "source": "api_serializers_auditlogserializer",
+      "target": "api_exceptions_alreadyprocessederror",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -12428,6 +13158,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/serializers.py",
+      "source_location": "L524",
+      "weight": 0.8,
+      "source": "api_serializers_transaksisetorancorrectionserializer",
+      "target": "api_exceptions_alreadyprocessederror",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/serializers.py",
       "source_location": "L447",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -12671,6 +13411,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_filters_transaksisetoranfilter"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L9",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_filters_transaksisetoranfilter",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -13637,11 +14387,169 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "api/middleware.py",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "api_middleware",
+      "target": "api_middleware_currentrequestmiddleware",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "api_middleware",
+      "target": "api_middleware_get_client_ip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "api_middleware",
+      "target": "api_middleware_get_current_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "api_middleware",
+      "target": "api_middleware_get_current_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
       "source_location": "L4",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_middleware",
       "target": "api_middleware_requestidmiddleware"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_middleware",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "api_middleware_get_current_user",
+      "target": "api_middleware_get_current_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "api_middleware_rationale_8",
+      "target": "api_middleware_get_current_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_middleware_get_current_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "api_signals_create_audit_entry",
+      "target": "api_middleware_get_current_request",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "api_middleware_rationale_13",
+      "target": "api_middleware_get_current_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_middleware_get_current_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L88",
+      "weight": 1.0,
+      "source": "api_signals_create_audit_entry",
+      "target": "api_middleware_get_current_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "api_middleware_rationale_21",
+      "target": "api_middleware_get_client_ip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_middleware_get_client_ip",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "api_signals_create_audit_entry",
+      "target": "api_middleware_get_client_ip",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -13662,6 +14570,36 @@
       "confidence_score": 1.0,
       "source": "api_middleware_requestidmiddleware",
       "target": "api_middleware_requestidmiddleware_init"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L48",
+      "weight": 1.0,
+      "source": "api_middleware_currentrequestmiddleware",
+      "target": "api_middleware_currentrequestmiddleware_call",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "source": "api_middleware_currentrequestmiddleware",
+      "target": "api_middleware_currentrequestmiddleware_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/middleware.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "api_middleware_rationale_43",
+      "target": "api_middleware_currentrequestmiddleware",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13716,6 +14654,26 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "api/migrations/0006_auditlog.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "migrations_0006_auditlog",
+      "target": "migrations_0006_auditlog_migration",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_auditlog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "api/models.py",
       "source_location": "L31",
       "weight": 1.0,
@@ -13732,6 +14690,16 @@
       "confidence_score": 1.0,
       "source": "api_models",
       "target": "api_models_kategorisampah"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L104",
+      "weight": 1.0,
+      "source": "api_models",
+      "target": "api_models_meta",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13833,6 +14801,17 @@
       "confidence_score": 1.0,
       "source": "api_serializers",
       "target": "api_models"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -13976,6 +14955,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_activity",
       "target": "api_models"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "api_models",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -14293,6 +15283,17 @@
       "target": "api_models_user"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_user",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/services/withdrawals.py",
@@ -14541,6 +15542,17 @@
       "target": "api_models_kategorisampah"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/services/partner_sales.py",
@@ -14670,6 +15682,47 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "api_models_kategorisampah",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "api/tests/test_dashboard.py",
       "source_location": "L6",
       "weight": 1.0,
@@ -14775,9 +15828,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "api_models_kategorisampah",
-      "confidence_score": 0.5
+      "target": "api_models_kategorisampah"
     },
     {
       "relation": "uses",
@@ -15099,6 +16152,17 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "api/services/activity.py",
       "source_location": "L5",
       "weight": 1.0,
@@ -15205,6 +16269,47 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "api_models_transaksisetoran",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "api/tests/test_dashboard.py",
       "source_location": "L6",
       "weight": 1.0,
@@ -15300,9 +16405,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory",
-      "target": "api_models_transaksisetoran",
-      "confidence_score": 1.0
+      "target": "api_models_transaksisetoran"
     },
     {
       "relation": "uses",
@@ -15310,9 +16415,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "api_models_transaksisetoran",
-      "confidence_score": 0.5
+      "target": "api_models_transaksisetoran"
     },
     {
       "relation": "uses",
@@ -15320,9 +16425,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventorytests",
-      "target": "api_models_transaksisetoran",
-      "confidence_score": 0.5
+      "target": "api_models_transaksisetoran"
     },
     {
       "relation": "imports",
@@ -15525,9 +16630,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "api_models_detailsetoran",
-      "confidence_score": 1.0
+      "target": "api_models_detailsetoran"
     },
     {
       "relation": "imports",
@@ -15804,6 +16909,17 @@
       "confidence_score": 0.5,
       "source": "api_services_withdrawals_py_user",
       "target": "api_models_penarikansaldo"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_penarikansaldo",
+      "confidence_score": 1.0
     },
     {
       "relation": "uses",
@@ -16800,9 +17916,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory",
-      "target": "api_models_mitrapengepul",
-      "confidence_score": 1.0
+      "target": "api_models_mitrapengepul"
     },
     {
       "relation": "uses",
@@ -16810,9 +17926,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "api_models_mitrapengepul",
-      "confidence_score": 0.5
+      "target": "api_models_mitrapengepul"
     },
     {
       "relation": "uses",
@@ -16820,9 +17936,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventorytests",
-      "target": "api_models_mitrapengepul",
-      "confidence_score": 0.5
+      "target": "api_models_mitrapengepul"
     },
     {
       "relation": "imports",
@@ -16984,9 +18100,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "api_models_penjualanmitra",
-      "confidence_score": 1.0
+      "target": "api_models_penjualanmitra"
     },
     {
       "relation": "imports",
@@ -17006,9 +18122,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory",
-      "target": "api_models_penjualanmitra",
-      "confidence_score": 1.0
+      "target": "api_models_penjualanmitra"
     },
     {
       "relation": "uses",
@@ -17016,9 +18132,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "api_models_penjualanmitra",
-      "confidence_score": 0.5
+      "target": "api_models_penjualanmitra"
     },
     {
       "relation": "uses",
@@ -17026,9 +18142,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L6",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventorytests",
-      "target": "api_models_penjualanmitra",
-      "confidence_score": 0.5
+      "target": "api_models_penjualanmitra"
     },
     {
       "relation": "imports",
@@ -17093,6 +18209,79 @@
       "target": "api_models_penjualanmitra"
     },
     {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/models.py",
+      "source_location": "L112",
+      "weight": 1.0,
+      "source": "api_models_auditlog",
+      "target": "api_models_auditlog_str",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_auditlog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "api_models_auditlog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "api_models_auditlog",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "api_models_auditlog",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "api_models_auditlog",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_models_pengaduan",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -17102,6 +18291,47 @@
       "confidence_score": 1.0,
       "source": "services_dashboard",
       "target": "api_models_pengaduan"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "api_models_pengaduan",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "api_models_pengaduan",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "api_models_pengaduan",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L6",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "api_models_pengaduan",
+      "confidence_score": 0.5
     },
     {
       "relation": "imports",
@@ -17272,9 +18502,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views",
-      "target": "api_monitoring_views_inventoryhistoryview",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview"
     },
     {
       "relation": "contains",
@@ -17441,9 +18671,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views",
-      "target": "services_inventory_get_inventory_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_get_inventory_history"
     },
     {
       "relation": "imports",
@@ -17601,9 +18831,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_inventoryhistoryview",
-      "target": "api_monitoring_views_monitorview",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_monitorview"
     },
     {
       "relation": "inherits",
@@ -17631,9 +18861,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_rationale_32",
-      "target": "api_monitoring_views_monitorview",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_monitorview"
     },
     {
       "relation": "inherits",
@@ -17776,9 +19006,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_dashboarddepositchartview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -17851,9 +19081,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_dashboardrecentactivityview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -17926,9 +19156,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_reportdailyview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -18001,9 +19231,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_reportweeklyview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -18076,9 +19306,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_reportmonthlyview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -18151,9 +19381,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_reportwasteview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -18226,9 +19456,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_reportevaluationview_get",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "calls",
@@ -18322,9 +19552,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L150",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_monitoring_views_inventoryhistoryview",
-      "target": "api_monitoring_views_inventoryhistoryview_get",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview_get"
     },
     {
       "relation": "uses",
@@ -18332,9 +19562,9 @@
       "source_file": "api/monitoring_views.py",
       "source_location": "L18",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "api_monitoring_views_inventoryhistoryview",
-      "target": "api_permissions_ismonitorreadonly",
-      "confidence_score": 0.5
+      "target": "api_permissions_ismonitorreadonly"
     },
     {
       "relation": "imports",
@@ -18343,9 +19573,9 @@
       "source_file": "api/urls.py",
       "source_location": "L4",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "api_urls",
-      "target": "api_monitoring_views_inventoryhistoryview",
-      "confidence_score": 1.0
+      "target": "api_monitoring_views_inventoryhistoryview"
     },
     {
       "relation": "calls",
@@ -18578,6 +19808,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isadminorkoordinator",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L17",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -18775,6 +20015,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isadmin",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L17",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -18917,6 +20167,17 @@
       "target": "api_permissions_isadmin"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
+      "source_location": "L292",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset_get_permissions",
+      "target": "api_permissions_isadmin"
+    },
+    {
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
@@ -18956,6 +20217,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_permissions_ispetugasoradmin"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_ispetugasoradmin",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -19113,6 +20384,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isstaffmanagerorpetugas",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L24",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -19250,6 +20531,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_permissions_isnasabah"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isnasabah",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -19430,6 +20721,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_ispickupmanager",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L20",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -19567,6 +20868,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_permissions_isowneroradmin"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isowneroradmin",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -19784,6 +21095,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_permissions_ispemerintahreadonly"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_ispemerintahreadonly",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -20018,6 +21339,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_ismonitorreadonly",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L24",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -20181,6 +21512,16 @@
       "relation": "uses",
       "confidence": "INFERRED",
       "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isactivityreader",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
       "source_location": "L38",
       "weight": 0.8,
       "confidence_score": 0.5,
@@ -20337,6 +21678,16 @@
       "confidence_score": 0.5,
       "source": "api_views_activitylistview",
       "target": "api_permissions_isuserowneroradmin"
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/views.py",
+      "source_location": "L39",
+      "weight": 0.8,
+      "source": "api_views_auditloglistview",
+      "target": "api_permissions_isuserowneroradmin",
+      "confidence_score": 0.5
     },
     {
       "relation": "uses",
@@ -20656,6 +22007,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "api/serializers.py",
+      "source_location": "L654",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_auditlogserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
       "source_location": "L173",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -20896,6 +22257,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "api/serializers.py",
+      "source_location": "L276",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "api_serializers_transaksisetorancorrectionserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
       "source_location": "L201",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -21028,6 +22399,17 @@
       "confidence_score": 1.0,
       "source": "api_serializers",
       "target": "services_deposits_validate_petugas_for_setoran"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L306",
+      "weight": 1.0,
+      "source": "api_serializers",
+      "target": "services_ledger_adjust_setoran_correction",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -21561,6 +22943,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "api/views.py",
+      "source_location": "L328",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset_partial_update",
+      "target": "api_serializers_transaksisetoranreadserializer"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
       "source_location": "L216",
       "weight": 1.0,
       "source": "api_views_transaksisetoranviewset_retrieve",
@@ -21576,6 +22969,57 @@
       "weight": 1.0,
       "source": "api_serializers_transaksisetoranreadserializer_get_bukti_digital",
       "target": "services_deposits_build_bukti_digital"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L277",
+      "weight": 1.0,
+      "source": "api_serializers_rationale_277",
+      "target": "api_serializers_transaksisetorancorrectionserializer",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L305",
+      "weight": 1.0,
+      "source": "api_serializers_transaksisetorancorrectionserializer",
+      "target": "api_serializers_transaksisetorancorrectionserializer_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L288",
+      "weight": 1.0,
+      "source": "api_serializers_transaksisetorancorrectionserializer",
+      "target": "api_serializers_transaksisetorancorrectionserializer_validate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/serializers.py",
+      "source_location": "L283",
+      "weight": 1.0,
+      "source": "api_serializers_transaksisetorancorrectionserializer",
+      "target": "api_serializers_transaksisetorancorrectionserializer_validate_total_nilai",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/serializers.py",
+      "source_location": "L311",
+      "weight": 1.0,
+      "source": "api_serializers_transaksisetorancorrectionserializer_update",
+      "target": "services_ledger_adjust_setoran_correction"
     },
     {
       "relation": "method",
@@ -22281,6 +23725,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "api/views.py",
+      "source_location": "L130",
+      "weight": 1.0,
+      "source": "api_views_auditloglistview_get",
+      "target": "api_serializers_auditlogserializer"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
       "source_location": "L525",
       "weight": 1.0,
       "source": "api_views_pengaduanviewset_create",
@@ -22894,9 +24349,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_get_inventory_history",
-      "target": "services_aggregates_fmt",
-      "confidence_score": 1.0
+      "target": "services_aggregates_fmt"
     },
     {
       "relation": "calls",
@@ -22916,9 +24371,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L65",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_penjualan_history",
-      "target": "services_aggregates_fmt",
-      "confidence_score": 1.0
+      "target": "services_aggregates_fmt"
     },
     {
       "relation": "calls",
@@ -22927,9 +24382,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L45",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_setoran_history",
-      "target": "services_aggregates_fmt",
-      "confidence_score": 1.0
+      "target": "services_aggregates_fmt"
     },
     {
       "relation": "imports",
@@ -23645,9 +25100,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L73",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "services_inventory_get_inventory_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_get_inventory_history"
     },
     {
       "relation": "contains",
@@ -23665,9 +25120,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "services_inventory_penjualan_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_penjualan_history"
     },
     {
       "relation": "contains",
@@ -23675,9 +25130,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "services_inventory_setoran_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_setoran_history"
     },
     {
       "relation": "imports_from",
@@ -23686,9 +25141,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "services_periods",
-      "confidence_score": 1.0
+      "target": "services_periods"
     },
     {
       "relation": "imports",
@@ -23697,9 +25152,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L10",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory",
-      "target": "services_periods_parse_int",
-      "confidence_score": 1.0
+      "target": "services_periods_parse_int"
     },
     {
       "relation": "rationale_for",
@@ -23718,9 +25173,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_get_inventory_history",
-      "target": "services_inventory_setoran_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_setoran_history"
     },
     {
       "relation": "calls",
@@ -23729,9 +25184,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_get_inventory_history",
-      "target": "services_inventory_penjualan_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_penjualan_history"
     },
     {
       "relation": "calls",
@@ -23740,9 +25195,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_get_inventory_history",
-      "target": "services_periods_parse_int",
-      "confidence_score": 1.0
+      "target": "services_periods_parse_int"
     },
     {
       "relation": "rationale_for",
@@ -23750,9 +25205,9 @@
       "source_file": "api/services/inventory.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "services_inventory_rationale_74",
-      "target": "services_inventory_get_inventory_history",
-      "confidence_score": 1.0
+      "target": "services_inventory_get_inventory_history"
     },
     {
       "relation": "imports_from",
@@ -23764,6 +25219,16 @@
       "confidence_score": 1.0,
       "source": "services_ledger",
       "target": "api_services_ledger_py_decimal"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "services_ledger",
+      "target": "services_ledger_adjust_setoran_correction",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -24431,6 +25896,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
+      "source_location": "L102",
+      "weight": 1.0,
+      "source": "services_ledger_adjust_setoran_correction",
+      "target": "services_ledger_lock_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
       "source_location": "L52",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -24469,6 +25945,17 @@
       "confidence_score": 1.0,
       "source": "services_ledger_lock_user",
       "target": "api_services_ledger_py_user"
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "services_ledger_adjust_setoran_correction",
+      "target": "api_services_ledger_py_user",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -24574,6 +26061,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "services_ledger_adjust_setoran_correction",
+      "target": "services_ledger_ensure_non_negative_saldo",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
       "source_location": "L55",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -24601,6 +26099,17 @@
       "confidence_score": 1.0,
       "source": "services_ledger_ensure_non_negative_saldo",
       "target": "api_services_ledger_py_decimal"
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "source": "services_ledger_adjust_setoran_correction",
+      "target": "api_services_ledger_py_decimal",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24667,6 +26176,17 @@
       "confidence_score": 1.0,
       "source": "services_ledger_increase_kategori_stok",
       "target": "api_services_ledger_py_decimal"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "source": "services_ledger_adjust_setoran_correction",
+      "target": "services_ledger_ensure_non_negative_poin",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -24886,6 +26406,16 @@
       "target": "services_ledger_credit_nasabah_setoran"
     },
     {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/services/ledger.py",
+      "source_location": "L96",
+      "weight": 1.0,
+      "source": "services_ledger_rationale_96",
+      "target": "services_ledger_adjust_setoran_correction",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -24922,11 +26452,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
-      "source_location": "L94",
+      "source_location": "L113",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_ledger_rationale_94",
-      "target": "services_ledger_debit_nasabah_saldo"
+      "source": "services_ledger_rationale_113",
+      "target": "services_ledger_debit_nasabah_saldo",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -24976,11 +26506,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
-      "source_location": "L108",
+      "source_location": "L127",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_ledger_rationale_108",
-      "target": "services_ledger_debit_nasabah_poin"
+      "source": "services_ledger_rationale_127",
+      "target": "services_ledger_debit_nasabah_poin",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -25019,11 +26549,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
-      "source_location": "L122",
+      "source_location": "L141",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_ledger_rationale_122",
-      "target": "services_ledger_increase_kategori_stok"
+      "source": "services_ledger_rationale_141",
+      "target": "services_ledger_increase_kategori_stok",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -25062,11 +26592,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
-      "source_location": "L132",
+      "source_location": "L151",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_ledger_rationale_132",
-      "target": "services_ledger_decrease_kategori_stok"
+      "source": "services_ledger_rationale_151",
+      "target": "services_ledger_decrease_kategori_stok",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -25138,11 +26668,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "api/services/ledger.py",
-      "source_location": "L150",
+      "source_location": "L169",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "services_ledger_rationale_150",
-      "target": "services_ledger_create_setoran_with_side_effects"
+      "source": "services_ledger_rationale_169",
+      "target": "services_ledger_create_setoran_with_side_effects",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -27033,6 +28563,317 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_audit_post_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L166",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_audit_post_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_audit_pre_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_capture_pre_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L82",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_create_audit_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_get_changed_fields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_get_pre_save_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_is_significant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "api_signals",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_signals_rationale_1",
+      "target": "api_signals",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L169",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_save",
+      "target": "api_signals_get_changed_fields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "api_signals_get_changed_fields",
+      "target": "api_signals_is_significant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "api_signals_get_changed_fields",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "api_signals_rationale_31",
+      "target": "api_signals_get_changed_fields",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L205",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_delete",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L181",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_save",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "api_signals_capture_pre_save",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "api_signals_rationale_59",
+      "target": "api_signals_serialize_value",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L206",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_delete",
+      "target": "api_signals_is_significant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "api_signals_rationale_72",
+      "target": "api_signals_is_significant",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L208",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_delete",
+      "target": "api_signals_create_audit_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L171",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_save",
+      "target": "api_signals_create_audit_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "api_signals_rationale_87",
+      "target": "api_signals_create_audit_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "api_signals_audit_pre_save",
+      "target": "api_signals_capture_pre_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "source": "api_signals_rationale_110",
+      "target": "api_signals_capture_pre_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L173",
+      "weight": 1.0,
+      "source": "api_signals_audit_post_save",
+      "target": "api_signals_get_pre_save_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "api_signals_rationale_132",
+      "target": "api_signals_get_pre_save_state",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "api_signals_rationale_150",
+      "target": "api_signals_audit_pre_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L167",
+      "weight": 1.0,
+      "source": "api_signals_rationale_167",
+      "target": "api_signals_audit_post_save",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/signals.py",
+      "source_location": "L199",
+      "weight": 1.0,
+      "source": "api_signals_rationale_199",
+      "target": "api_signals_audit_post_delete",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "api/tests/base.py",
       "source_location": "L7",
       "weight": 1.0,
@@ -27050,6 +28891,17 @@
       "confidence_score": 1.0,
       "source": "tests_test_activity",
       "target": "tests_base"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "tests_base",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
@@ -27330,6 +29182,47 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "tests_base_envelopeapitestcase",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_base_envelopeapitestcase",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "tests_base_envelopeapitestcase",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "uses",
+      "confidence": "INFERRED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L8",
+      "weight": 0.8,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_base_envelopeapitestcase",
+      "confidence_score": 0.5
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "api/tests/test_auth.py",
       "source_location": "L4",
       "weight": 1.0,
@@ -27517,9 +29410,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L13",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_base_envelopeapitestcase",
-      "confidence_score": 0.5
+      "target": "tests_base_envelopeapitestcase"
     },
     {
       "relation": "uses",
@@ -28049,6 +29942,216 @@
       "confidence_score": 1.0,
       "source": "tests_test_activity_activitylisttests",
       "target": "tests_test_activity_activitylisttests_test_petugas_cannot_access"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "tests_test_audit_log_auditloglisttests",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "tests_test_audit_log_auditlogsignaltests",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L136",
+      "weight": 1.0,
+      "source": "tests_test_audit_log",
+      "target": "tests_test_audit_log_depositcorrectiontests",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "tests_test_audit_log_auditlogsignaltests_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "tests_test_audit_log_auditlogsignaltests_test_create_kategori_logged",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L54",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "tests_test_audit_log_auditlogsignaltests_test_create_pengaduan_logged",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditlogsignaltests",
+      "target": "tests_test_audit_log_auditlogsignaltests_test_update_kategori_logged",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_rationale_12",
+      "target": "tests_test_audit_log_auditlogsignaltests",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L95",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_admin_can_list_audit_log",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_filter_by_date_after",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_filter_by_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L120",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_filter_by_user",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_koordinator_cannot_access_audit_log",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_auditloglisttests",
+      "target": "tests_test_audit_log_auditloglisttests_test_petugas_cannot_access_audit_log",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L137",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L162",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_test_admin_can_correct_deposit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L176",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_test_correction_creates_audit_log",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L212",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_test_correction_rejected_if_saldo_insufficient",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L203",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_test_koordinator_cannot_correct_deposit",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/tests/test_audit_log.py",
+      "source_location": "L194",
+      "weight": 1.0,
+      "source": "tests_test_audit_log_depositcorrectiontests",
+      "target": "tests_test_audit_log_depositcorrectiontests_test_petugas_cannot_correct_deposit",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -29001,9 +31104,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L50",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory",
-      "target": "tests_test_inventory_inventoryhistorytests",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests"
     },
     {
       "relation": "contains",
@@ -29061,9 +31164,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L51",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_setup",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_setup"
     },
     {
       "relation": "method",
@@ -29071,9 +31174,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_history_empty",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_history_empty"
     },
     {
       "relation": "method",
@@ -29081,9 +31184,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_history_limit_param",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_history_limit_param"
     },
     {
       "relation": "method",
@@ -29091,9 +31194,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_history_merges_masuk_and_keluar",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_history_merges_masuk_and_keluar"
     },
     {
       "relation": "method",
@@ -29101,9 +31204,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_history_unknown_kategori_404",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_history_unknown_kategori_404"
     },
     {
       "relation": "method",
@@ -29111,9 +31214,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L131",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_nasabah_forbidden_history",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_nasabah_forbidden_history"
     },
     {
       "relation": "method",
@@ -29121,9 +31224,9 @@
       "source_file": "api/tests/test_inventory.py",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_inventory_inventoryhistorytests",
-      "target": "tests_test_inventory_inventoryhistorytests_test_pemerintah_can_read_history",
-      "confidence_score": 1.0
+      "target": "tests_test_inventory_inventoryhistorytests_test_pemerintah_can_read_history"
     },
     {
       "relation": "contains",
@@ -31754,6 +33857,17 @@
       "target": "utils_pagination_mirupagination"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
+      "source_location": "L128",
+      "weight": 1.0,
+      "source": "api_views_auditloglistview_get",
+      "target": "utils_pagination_mirupagination"
+    },
+    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "api/utils/pagination.py",
@@ -32339,6 +34453,17 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "api/views.py",
+      "source_location": "L331",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset_partial_update",
+      "target": "utils_response_success_response"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/views.py",
       "source_location": "L196",
       "weight": 1.0,
       "source": "api_views_transaksisetoranviewset_retrieve",
@@ -32418,6 +34543,16 @@
       "confidence_score": 1.0,
       "source": "api_views",
       "target": "api_views_activitylistview"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L57",
+      "weight": 1.0,
+      "source": "api_views",
+      "target": "api_views_auditloglistview",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -32518,6 +34653,27 @@
       "confidence_score": 1.0,
       "source": "api_views",
       "target": "api_views_userviewset"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L105",
+      "weight": 1.0,
+      "source": "api_views_auditloglistview",
+      "target": "api_views_auditloglistview_get",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "api_views_auditloglistview_get",
+      "target": "api_views_activitylistview_get",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -32901,11 +35057,31 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "api/views.py",
+      "source_location": "L323",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset",
+      "target": "api_views_transaksisetoranviewset_partial_update",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
       "source_location": "L189",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "api_views_transaksisetoranviewset",
       "target": "api_views_transaksisetoranviewset_retrieve"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L337",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset",
+      "target": "api_views_transaksisetoranviewset_update",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -32939,6 +35115,17 @@
       "confidence_score": 1.0,
       "source": "api_views_transaksisetoranviewset_get_queryset",
       "target": "api_views_penukaranpoinviewset_get_queryset"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/views.py",
+      "source_location": "L338",
+      "weight": 1.0,
+      "source": "api_views_transaksisetoranviewset_update",
+      "target": "api_views_pengaduanviewset_partial_update",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -36584,5 +38771,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "65ae81311c646140e897e8c48fc5e46b931a76cf"
+  "built_at_commit": "fdbcbe8f71a913a95c70f207215831cee060ba8e"
 }

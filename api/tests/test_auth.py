@@ -7,14 +7,22 @@ User = get_user_model()
 
 
 class RegistrationTests(EnvelopeAPITestCase):
-    def test_register_nasabah_success(self):
-        response = self.client.post('/api/users/', {
+    def _register_payload(self, **overrides):
+        payload = {
             'username': 'budi_baru',
             'password': 'rahasia123',
             'nama_lengkap': 'Budi Baru',
             'no_hp': '08111111111',
             'alamat': 'Timika',
-        }, format='json')
+            'setuju_kebijakan_data': True,
+        }
+        payload.update(overrides)
+        return payload
+
+    def test_register_nasabah_success(self):
+        response = self.client.post(
+            '/api/users/', self._register_payload(), format='json',
+        )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assert_envelope_success(response, 201)
@@ -26,14 +34,14 @@ class RegistrationTests(EnvelopeAPITestCase):
 
         user = User.objects.get(username='budi_baru')
         self.assertEqual(user.role, 'nasabah')
+        self.assertTrue(user.setuju_kebijakan_data)
+        self.assertIsNotNone(user.tanggal_persetujuan_kebijakan)
 
     def test_register_duplicate_username(self):
         self.create_nasabah(username='duplikat')
-        response = self.client.post('/api/users/', {
-            'username': 'duplikat',
-            'password': 'rahasia123',
-            'nama_lengkap': 'Duplikat',
-        }, format='json')
+        response = self.client.post('/api/users/', self._register_payload(
+            username='duplikat', nama_lengkap='Duplikat',
+        ), format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assert_envelope_error(response, 400)
@@ -41,15 +49,43 @@ class RegistrationTests(EnvelopeAPITestCase):
         self.assertIn('username', response.data['errors'])
 
     def test_register_password_too_short(self):
-        response = self.client.post('/api/users/', {
-            'username': 'pendek',
-            'password': '12345',
-            'nama_lengkap': 'Password Pendek',
-        }, format='json')
+        response = self.client.post('/api/users/', self._register_payload(
+            username='pendek', password='12345', nama_lengkap='Password Pendek',
+        ), format='json')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assert_envelope_error(response, 400)
         self.assertIn('password', response.data['errors'])
+
+    def test_register_requires_privacy_consent(self):
+        response = self.client.post('/api/users/', {
+            'username': 'tanpa_consent',
+            'password': 'rahasia123',
+            'nama_lengkap': 'Tanpa Consent',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('setuju_kebijakan_data', response.data['errors'])
+
+    def test_register_rejects_false_consent(self):
+        response = self.client.post('/api/users/', self._register_payload(
+            username='false_consent',
+            setuju_kebijakan_data=False,
+        ), format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('setuju_kebijakan_data', response.data['errors'])
+
+
+class PrivacyPolicyTests(EnvelopeAPITestCase):
+    def test_get_privacy_policy_public(self):
+        response = self.client.get('/api/privacy-policy/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_envelope_success(response)
+        data = response.data['data']
+        self.assertEqual(data['versi'], '1.0')
+        self.assertEqual(data['retensi']['masa_tahun'], 5)
+        self.assertIn('data_yang_disimpan', data)
+        self.assertIn('keamanan_data_sensitif', data)
+        self.assertIn('evaluasi_post_mvp', data['keamanan_data_sensitif']['nik'])
 
 
 class LoginTests(EnvelopeAPITestCase):

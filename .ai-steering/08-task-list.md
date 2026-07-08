@@ -51,7 +51,7 @@
 | Item | Kondisi Saat Ini | Target |
 |------|------------------|--------|
 | Auth URL | `/api/auth/login/` | Standarkan & dokumentasikan (bukan `/api/token/`) |
-| Role `pemerintah` | Belum ada di model User | Tambah role read-only untuk Pemerintah Distrik |
+| Role `pemerintah` | ✅ Ada di model + permission read-only | Dashboard, laporan, inventory read-only |
 | Status `dalam_perjalanan` | Belum ada di model Penjemputan | Tambah ke STATUS_CHOICES |
 | Field `tindak_lanjut` | Belum ada di model Pengaduan | Tambah field TextField |
 | Field `jenis_pengaduan` | Belum ada | Tambah choices (7 jenis dari SOP) |
@@ -314,31 +314,31 @@
 > **Tujuan:** Memenuhi persyaratan transparansi, audit, dan pengaturan institusi.
 
 ### 5.1 Audit Log (Modul 17)
-- [ ] Buat model `AuditLog`: user, action, model_name, object_id, changes (JSON), timestamp, ip_address
-- [ ] Catat otomatis via Django signals untuk: User, TransaksiSetoran, PenarikanSaldo, KategoriSampah, Pengaduan
-- [ ] `GET /api/audit-log/` — admin only, filter `?user=`, `?model=`, `?date_after=`
-- [ ] Koreksi data transaksi: hanya admin, wajib tercatat di audit log
+- [x] Buat model `AuditLog`: user, action, model_name, object_id, changes (JSON), timestamp, ip_address
+- [x] Catat otomatis via Django signals untuk: User, TransaksiSetoran, PenarikanSaldo, KategoriSampah, Pengaduan
+- [x] `GET /api/audit-log/` — admin only, filter `?user=`, `?model=`, `?date_after=`
+- [x] Koreksi data transaksi: hanya admin, wajib tercatat di audit log
 
 ### 5.2 Pengaturan Institusi (Modul 17)
-- [ ] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
-- [ ] `GET /api/settings/` — public (untuk tampilan mobile)
-- [ ] `PATCH /api/settings/` — admin only
-- [ ] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
+- [x] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
+- [x] `GET /api/settings/` — public (untuk tampilan mobile)
+- [x] `PATCH /api/settings/` — admin only
+- [x] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
 
 ### 5.3 Riwayat Harga (Modul 5 — opsional MVP)
-- [ ] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
-- [ ] Auto-catat saat admin ubah `harga_beli_per_kg`
-- [ ] `GET /api/waste-categories/{id}/price-history/`
+- [x] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
+- [x] Auto-catat saat admin ubah `harga_beli_per_kg`
+- [x] `GET /api/waste-categories/{id}/price-history/`
 
 ### 5.4 Role Pemerintah Distrik
-- [ ] Tambah role `pemerintah` ke User.ROLE_CHOICES
-- [ ] Permission read-only untuk dashboard & laporan
-- [ ] Tidak bisa create/update/delete data operasional
+- [x] Tambah role `pemerintah` ke User.ROLE_CHOICES
+- [x] Permission read-only untuk dashboard & laporan
+- [x] Tidak bisa create/update/delete data operasional
 
 ### 5.5 Kebijakan Data Pribadi (UU PDP)
-- [ ] Endpoint consent saat registrasi: field `setuju_kebijakan_data: true` (required)
-- [ ] Dokumentasikan data yang disimpan dan retensi (5 tahun)
-- [ ] Enkripsi data sensitif (NIK) — evaluasi field-level encryption post-MVP
+- [x] Endpoint consent saat registrasi: field `setuju_kebijakan_data: true` (required)
+- [x] Dokumentasikan data yang disimpan dan retensi (5 tahun)
+- [x] Enkripsi data sensitif (NIK) — evaluasi field-level encryption post-MVP
 
 ---
 

@@ -163,6 +163,7 @@ class AdminCreateStaffTests(EnvelopeAPITestCase):
             'username': 'nasabah_publik',
             'password': 'secret12',
             'nama_lengkap': 'Nasabah Publik',
+            'setuju_kebijakan_data': True,
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

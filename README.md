@@ -99,6 +99,24 @@ python manage.py seed_data --flush
 docker-compose exec web python manage.py test api.tests --verbosity=2
 ```
 
+### 6. Mobile — HP Fisik (Windows + Docker Desktop)
+
+Docker Desktop di Windows sering hanya mem-publish port ke `127.0.0.1`, sehingga HP di Wi‑Fi tidak bisa akses `http://<IP-PC>:8000`.
+
+**Jalankan LAN proxy** (terminal terpisah, setelah `docker compose up`):
+
+```powershell
+python scripts/lan_proxy.py --listen-host 0.0.0.0
+```
+
+Lalu tes dari browser HP: `http://<IP-PC-WiFi>:8000/health/`
+
+Pastikan `ALLOWED_HOSTS` di `.env` mencakup IP Wi‑Fi PC. Di mobile (`mirumobileapp/lib/config/constants.dart`):
+
+```dart
+static const String apiBaseUrl = 'http://192.168.0.228:8000/api';
+```
+
 ## API Access & Documentation
 
 | Resource | URL | Kegunaan |
