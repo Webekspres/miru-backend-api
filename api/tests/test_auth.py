@@ -128,6 +128,12 @@ class MeEndpointTests(EnvelopeAPITestCase):
         self.assertEqual(data['username'], 'me_user')
         self.assertEqual(data['role'], 'nasabah')
         self.assertNotIn('password', data)
+        self.assertIn('qr', data)
+        self.assertEqual(data['qr'], {
+            'id': self.user.id,
+            'nama_lengkap': self.user.nama_lengkap,
+            'no_hp': self.user.no_hp,
+        })
 
     def test_me_get_unauthenticated(self):
         response = self.client.get('/api/auth/me/')
@@ -147,6 +153,8 @@ class MeEndpointTests(EnvelopeAPITestCase):
 
         self.user.refresh_from_db()
         self.assertEqual(self.user.nama_lengkap, 'Nama Diperbarui')
+        self.assertEqual(response.data['data']['qr']['nama_lengkap'], 'Nama Diperbarui')
+        self.assertEqual(response.data['data']['qr']['no_hp'], '08999999999')
 
     def test_me_patch_cannot_change_role(self):
         self.client.credentials(HTTP_AUTHORIZATION=f'Bearer {self.access}')
@@ -158,3 +166,5 @@ class MeEndpointTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.user.refresh_from_db()
         self.assertEqual(self.user.role, 'nasabah')
+        self.assertEqual(self.user.saldo, 0)
+        self.assertEqual(self.user.poin, 0)

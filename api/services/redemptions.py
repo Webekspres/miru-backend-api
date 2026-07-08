@@ -2,7 +2,8 @@
 
 from rest_framework.exceptions import ValidationError
 
-from api.models import Reward, User
+from api.exceptions import AlreadyProcessedError
+from api.models import PenukaranPoin, Reward, User
 
 
 def validate_poin_cukup(nasabah: User, reward: Reward) -> None:
@@ -27,3 +28,16 @@ def validate_create_redemption(nasabah: User, reward: Reward) -> None:
 
 def validate_approve_redemption(nasabah: User, reward: Reward) -> None:
     validate_create_redemption(nasabah, reward)
+
+
+def _ensure_pending(instance: PenukaranPoin) -> None:
+    if instance.status != 'menunggu':
+        raise AlreadyProcessedError('Penukaran poin sudah diproses.')
+
+
+def approve_redemption(instance: PenukaranPoin) -> PenukaranPoin:
+    _ensure_pending(instance)
+    validate_approve_redemption(instance.nasabah, instance.reward)
+    instance.status = 'selesai'
+    instance.save(update_fields=['status'])
+    return instance

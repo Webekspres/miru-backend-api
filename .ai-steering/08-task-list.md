@@ -250,27 +250,27 @@
 - [x] Endpoint action: `POST /api/pickups/{id}/update-status/` (body: `status`)
 
 ### 3.3 Alur Penarikan (SOP A.3)
-- [ ] Nasabah ajukan → admin approve manual → status selesai → saldo berkurang
-- [ ] Endpoint action: `POST /api/withdrawals/{id}/approve/`
-- [ ] Endpoint action: `POST /api/withdrawals/{id}/reject/` (opsional, kembalikan jika perlu)
+- [x] Nasabah ajukan → admin approve manual → status selesai → saldo berkurang
+- [x] Endpoint action: `POST /api/withdrawals/{id}/approve/`
+- [x] Endpoint action: `POST /api/withdrawals/{id}/reject/` (opsional, kembalikan jika perlu)
 
 ### 3.4 Alur Penukaran Poin (SOP A.4)
-- [ ] Nasabah pilih reward → admin verifikasi → serahkan reward → approve
-- [ ] Endpoint action: `POST /api/reward-redemptions/{id}/approve/`
+- [x] Nasabah pilih reward → admin verifikasi → serahkan reward → approve
+- [x] Endpoint action: `POST /api/reward-redemptions/{id}/approve/`
 
 ### 3.5 Riwayat Transaksi Gabungan (Modul 9)
-- [ ] `GET /api/activity/` — gabungan setoran + penarikan + penukaran untuk nasabah login
-- [ ] Query param: `?jenis=setoran|penarikan|poin`, `?page=`, `?ordering=-tanggal`
-- [ ] Response format standar dengan `type` field per item
+- [x] `GET /api/activity/` — gabungan setoran + penarikan + penukaran untuk nasabah login
+- [x] Query param: `?jenis=setoran|penarikan|poin`, `?page=`, `?ordering=-tanggal`
+- [x] Response format standar dengan `type` field per item
 
 ### 3.6 Profil & Kartu Digital (Modul 3)
-- [ ] `GET /api/auth/me/` include data QR: `{ id, nama_lengkap, no_hp }`
-- [ ] `PATCH /api/auth/me/` — update profil tanpa ubah saldo/poin/role
+- [x] `GET /api/auth/me/` include data QR: `{ id, nama_lengkap, no_hp }`
+- [x] `PATCH /api/auth/me/` — update profil tanpa ubah saldo/poin/role
 
 ### 3.7 Reward Katalog (Modul 11)
-- [ ] `GET /api/rewards/` — public list
-- [ ] Admin CRUD reward
-- [ ] Response include `stok` dan `poin_dibutuhkan`
+- [x] `GET /api/rewards/` — public list
+- [x] Admin CRUD reward
+- [x] Response include `stok` dan `poin_dibutuhkan`
 
 ---
 

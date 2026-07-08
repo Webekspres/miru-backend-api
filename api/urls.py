@@ -15,5 +15,6 @@ router.register(r'partner-sales', PenjualanMitraViewSet, basename='partner-sale'
 router.register(r'complaints', PengaduanViewSet, basename='complaint')
 
 urlpatterns = [
+    path('activity/', ActivityListView.as_view(), name='activity'),
     path('', include(router.urls)),
 ]

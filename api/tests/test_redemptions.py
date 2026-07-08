@@ -169,3 +169,70 @@ class RedemptionApproveTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['data']), 1)
         self.assertEqual(response.data['data'][0]['nasabah'], self.nasabah.id)
+
+
+class RedemptionActionTests(EnvelopeAPITestCase):
+    """SOP A.4 — action endpoint approve."""
+
+    def setUp(self):
+        self.nasabah = self.create_nasabah(username='nasabah_rdm3')
+        self.nasabah.poin = 150
+        self.nasabah.save()
+        self.admin = self.create_admin(username='admin_rdm3')
+        self.koordinator = self.create_koordinator(username='koord_rdm3')
+        self.reward = Reward.objects.create(
+            nama='Sembako', poin_dibutuhkan=80, stok=4,
+        )
+        self.redemption = PenukaranPoin.objects.create(
+            nasabah=self.nasabah,
+            reward=self.reward,
+            status='menunggu',
+        )
+
+    def test_approve_action_debits_poin_and_stok(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'selesai')
+        self.assertEqual(response.data['data']['poin_nasabah_baru'], 70)
+        self.assertEqual(response.data['data']['stok_reward_baru'], 3)
+        self.nasabah.refresh_from_db()
+        self.reward.refresh_from_db()
+        self.assertEqual(self.nasabah.poin, 70)
+        self.assertEqual(self.reward.stok, 3)
+
+    def test_koordinator_cannot_approve_action(self):
+        self.auth_as(self.koordinator)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_double_approve_returns_409(self):
+        self.auth_as(self.admin)
+        self.client.post(f'/api/reward-redemptions/{self.redemption.id}/approve/')
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_e2e_create_approve_flow(self):
+        fresh = self.create_nasabah(username='nasabah_rdm_e2e')
+        fresh.poin = 200
+        fresh.save()
+        self.auth_as(fresh)
+        create = self.client.post(
+            '/api/reward-redemptions/',
+            {'reward': self.reward.id},
+            format='json',
+        )
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        rdm_id = create.data['data']['id']
+
+        self.auth_as(self.admin)
+        approve = self.client.post(f'/api/reward-redemptions/{rdm_id}/approve/')
+        self.assertEqual(approve.status_code, status.HTTP_200_OK)
+        fresh.refresh_from_db()
+        self.assertEqual(fresh.poin, 120)

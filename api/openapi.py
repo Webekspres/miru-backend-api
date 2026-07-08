@@ -22,6 +22,7 @@ REDEMPTIONS_TAG = 'Reward Redemptions'
 PARTNERS_TAG = 'Partners'
 PARTNER_SALES_TAG = 'Partner Sales'
 COMPLAINTS_TAG = 'Complaints'
+ACTIVITY_TAG = 'Activity'
 
 auth_login_schema = extend_schema(
     tags=[AUTH_TAG],
@@ -44,7 +45,11 @@ auth_refresh_schema = extend_schema(
 auth_me_get_schema = extend_schema(
     tags=[AUTH_TAG],
     summary='Profil user yang sedang login',
-    description='Ambil profil lengkap user dari JWT. Nasabah tidak bisa ubah role/saldo/poin.',
+    description=(
+        'Ambil profil lengkap user dari JWT. Termasuk field `qr` '
+        '({ id, nama_lengkap, no_hp }) untuk kartu digital. '
+        'Nasabah tidak bisa ubah role/saldo/poin via PATCH.'
+    ),
     responses={200: UserProfileSerializer},
 )
 

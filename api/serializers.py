@@ -14,15 +14,24 @@ PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_s
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    qr = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
-            'saldo', 'poin', 'is_active', 'date_joined',
+            'saldo', 'poin', 'is_active', 'date_joined', 'qr',
         ]
         read_only_fields = [
-            'id', 'username', 'role', 'saldo', 'poin', 'is_active', 'date_joined',
+            'id', 'username', 'role', 'saldo', 'poin', 'is_active', 'date_joined', 'qr',
         ]
+
+    def get_qr(self, obj) -> dict:
+        return {
+            'id': obj.id,
+            'nama_lengkap': obj.nama_lengkap,
+            'no_hp': obj.no_hp,
+        }
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -395,7 +404,7 @@ class PenarikanSaldoUpdateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         from api.exceptions import AlreadyProcessedError
 
-        if self.instance.status == 'selesai':
+        if self.instance.status in ('selesai', 'ditolak'):
             raise AlreadyProcessedError('Penarikan saldo sudah diproses.')
 
         new_status = attrs.get('status', self.instance.status)
@@ -431,7 +440,17 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
 class RewardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reward
-        fields = '__all__'
+        fields = ['id', 'nama', 'poin_dibutuhkan', 'stok']
+
+    def validate_poin_dibutuhkan(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Poin dibutuhkan harus lebih dari 0.')
+        return value
+
+    def validate_stok(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Stok tidak boleh negatif.')
+        return value
 
 
 class PenukaranPoinCreateSerializer(serializers.ModelSerializer):

@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from rest_framework.exceptions import ValidationError
 
+from api.exceptions import AlreadyProcessedError
 from api.models import PenarikanSaldo, User
 
 MIN_NOMINAL = Decimal('50000')
@@ -43,3 +44,24 @@ def validate_create_withdrawal(nasabah: User, nominal: Decimal) -> None:
 
 def validate_approve_withdrawal(instance: PenarikanSaldo) -> None:
     validate_saldo_cukup(instance.nasabah, instance.nominal)
+
+
+def _ensure_pending(instance: PenarikanSaldo) -> None:
+    if instance.status != 'menunggu':
+        raise AlreadyProcessedError('Penarikan saldo sudah diproses.')
+
+
+def approve_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
+    _ensure_pending(instance)
+    validate_approve_withdrawal(instance)
+    instance.status = 'selesai'
+    instance.save(update_fields=['status'])
+    return instance
+
+
+def reject_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
+    """Tolak pengajuan — saldo tidak pernah didebit saat create, jadi tidak perlu refund."""
+    _ensure_pending(instance)
+    instance.status = 'ditolak'
+    instance.save(update_fields=['status'])
+    return instance

@@ -2,6 +2,9 @@ from django.db import transaction
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.views import APIView
+
+from drf_spectacular.utils import extend_schema
 
 from .filters import TransaksiSetoranFilter
 from .models import *
@@ -16,7 +19,11 @@ from .services.pickups import (
     reject_pickup,
     update_pickup_status,
 )
+from .services.withdrawals import approve_withdrawal, reject_withdrawal
+from .services.redemptions import approve_redemption
+from .services.activity import get_activity_items
 from .openapi import (
+    ACTIVITY_TAG,
     complaint_schema,
     deposit_schema,
     partner_sale_schema,
@@ -29,6 +36,7 @@ from .openapi import (
     withdrawal_schema,
 )
 from .permissions import (
+    IsActivityReader,
     IsAdmin,
     IsAdminOrKoordinator,
     IsNasabah,
@@ -41,6 +49,7 @@ from .permissions import (
     IsUserOwnerOrAdmin,
 )
 from .serializers import *
+from .utils.pagination import MiruPagination
 from .utils.response import success_response
 
 
@@ -352,7 +361,7 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update'):
+        if self.action in ('partial_update', 'update', 'approve', 'reject'):
             return [IsAuthenticated(), IsAdminOrKoordinator(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
@@ -401,17 +410,73 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    def _withdrawal_response(self, instance, message, request):
+        output = PenarikanSaldoSerializer(instance, context={'request': request})
+        return success_response(data=output.data, message=message, request=request)
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        instance = self.get_object()
+        approve_withdrawal(instance)
+        debit_nasabah_saldo(instance.nasabah, instance.nominal)
+        return self._withdrawal_response(
+            instance, 'Penarikan saldo berhasil disetujui.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        instance = self.get_object()
+        reject_withdrawal(instance)
+        return self._withdrawal_response(
+            instance, 'Penarikan saldo berhasil ditolak.', request,
+        )
+
 @reward_schema
 class RewardViewSet(viewsets.ModelViewSet):
     queryset = Reward.objects.all()
     serializer_class = RewardSerializer
-    ordering_fields = ['nama', 'poin_dibutuhkan']
+    ordering_fields = ['nama', 'poin_dibutuhkan', 'stok']
     ordering = ['nama']
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve']:
+        if self.action in ('list', 'retrieve'):
             return [AllowAny()]
-        return [IsAdminOrKoordinator()]
+        return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Reward berhasil dibuat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Reward berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 @redemption_schema
 class PenukaranPoinViewSet(viewsets.ModelViewSet):
@@ -431,7 +496,7 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update'):
+        if self.action in ('partial_update', 'update', 'approve'):
             return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
@@ -479,6 +544,19 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+    @transaction.atomic
+    @action(detail=True, methods=['post'], url_path='approve')
+    def approve(self, request, pk=None):
+        instance = self.get_object()
+        approve_redemption(instance)
+        complete_penukaran_poin(instance.nasabah, instance.reward)
+        output = PenukaranPoinSerializer(instance, context={'request': request})
+        return success_response(
+            data=output.data,
+            message='Penukaran poin berhasil disetujui.',
+            request=request,
+        )
 
 @partner_schema
 class MitraPengepulViewSet(viewsets.ModelViewSet):
@@ -629,3 +707,43 @@ class PengaduanViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+@extend_schema(
+    tags=[ACTIVITY_TAG],
+    summary='Riwayat transaksi gabungan (setoran, penarikan, penukaran poin)',
+    parameters=[
+        {
+            'name': 'jenis',
+            'in': 'query',
+            'required': False,
+            'schema': {'type': 'string', 'enum': ['setoran', 'penarikan', 'poin']},
+        },
+        {
+            'name': 'ordering',
+            'in': 'query',
+            'required': False,
+            'schema': {'type': 'string', 'enum': ['tanggal', '-tanggal']},
+        },
+        {
+            'name': 'nasabah',
+            'in': 'query',
+            'required': False,
+            'schema': {'type': 'integer'},
+            'description': 'Filter nasabah (staff only)',
+        },
+    ],
+)
+class ActivityListView(APIView):
+    permission_classes = [IsAuthenticated, IsActivityReader, IsPemerintahReadOnly]
+
+    def get(self, request):
+        items = get_activity_items(
+            request.user,
+            jenis=request.query_params.get('jenis'),
+            nasabah_id=request.query_params.get('nasabah'),
+            ordering=request.query_params.get('ordering', '-tanggal'),
+        )
+        paginator = MiruPagination()
+        page = paginator.paginate_queryset(items, request)
+        return paginator.get_paginated_response(page)

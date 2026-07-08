@@ -148,3 +148,81 @@ class WithdrawalApproveTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['data']), 1)
         self.assertEqual(response.data['data'][0]['nasabah'], self.nasabah.id)
+
+
+class WithdrawalActionTests(EnvelopeAPITestCase):
+    """SOP A.3 — action endpoints approve/reject."""
+
+    def setUp(self):
+        self.nasabah = self.create_nasabah(username='nasabah_wd3')
+        self.nasabah.saldo = Decimal('200000.00')
+        self.nasabah.save()
+        self.admin = self.create_admin(username='admin_wd3')
+        self.koordinator = self.create_koordinator(username='koord_wd3')
+        self.withdrawal = PenarikanSaldo.objects.create(
+            nasabah=self.nasabah,
+            nominal=Decimal('100000.00'),
+            metode='tunai',
+            status='menunggu',
+        )
+
+    def test_approve_action_debits_saldo(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'selesai')
+        self.assertEqual(response.data['data']['saldo_nasabah_baru'], '100000.00')
+        self.nasabah.refresh_from_db()
+        self.assertEqual(self.nasabah.saldo, Decimal('100000.00'))
+
+    def test_koordinator_can_approve_action(self):
+        self.auth_as(self.koordinator)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_reject_action_no_saldo_change(self):
+        saldo_before = self.nasabah.saldo
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/reject/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'ditolak')
+        self.nasabah.refresh_from_db()
+        self.assertEqual(self.nasabah.saldo, saldo_before)
+
+    def test_nasabah_cannot_approve_action(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_double_approve_returns_409(self):
+        self.auth_as(self.admin)
+        self.client.post(f'/api/withdrawals/{self.withdrawal.id}/approve/')
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_e2e_create_approve_flow(self):
+        fresh = self.create_nasabah(username='nasabah_wd_e2e')
+        fresh.saldo = Decimal('200000.00')
+        fresh.save()
+        self.auth_as(fresh)
+        create = self.client.post('/api/withdrawals/', {
+            'nominal': '75000.00', 'metode': 'transfer',
+        }, format='json')
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        wd_id = create.data['data']['id']
+
+        self.auth_as(self.admin)
+        approve = self.client.post(f'/api/withdrawals/{wd_id}/approve/')
+        self.assertEqual(approve.status_code, status.HTTP_200_OK)
+        fresh.refresh_from_db()
+        self.assertEqual(fresh.saldo, Decimal('125000.00'))

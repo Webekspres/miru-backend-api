@@ -54,7 +54,11 @@ class Penjemputan(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
 
 class PenarikanSaldo(models.Model):
-    STATUS_CHOICES = (('menunggu', 'Menunggu'), ('selesai', 'Selesai'))
+    STATUS_CHOICES = (
+        ('menunggu', 'Menunggu'),
+        ('selesai', 'Selesai'),
+        ('ditolak', 'Ditolak'),
+    )
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE)
     nominal = models.DecimalField(max_digits=12, decimal_places=2)
     metode = models.CharField(max_length=50)

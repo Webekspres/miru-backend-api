@@ -95,6 +95,18 @@ class IsMonitorReadOnly(permissions.BasePermission):
         )
 
 
+class IsActivityReader(permissions.BasePermission):
+    """Nasabah (milik sendiri) atau staff read-all untuk riwayat gabungan."""
+
+    def has_permission(self, request, view):
+        from api.querysets import READ_ALL_ROLES
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in ('nasabah', *READ_ALL_ROLES)
+        )
+
+
 class IsUserOwnerOrAdmin(permissions.BasePermission):
     """Object-level permission for the User model (/api/users/{id}/)."""
 
