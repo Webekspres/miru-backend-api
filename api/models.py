@@ -19,10 +19,21 @@ class User(AbstractUser):
     setuju_kebijakan_data = models.BooleanField(default=False)
     tanggal_persetujuan_kebijakan = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['role']),
+        ]
+
 class KategoriSampah(models.Model):
     nama = models.CharField(max_length=100)
     harga_beli_per_kg = models.DecimalField(max_digits=10, decimal_places=2)
     stok_terkini_kg = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+    class Meta:
+        verbose_name_plural = 'Kategori Sampah'
+        indexes = [
+            models.Index(fields=['nama']),
+        ]
 
 class RiwayatHarga(models.Model):
     kategori = models.ForeignKey(
@@ -49,6 +60,13 @@ class TransaksiSetoran(models.Model):
     total_nilai = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     status = models.CharField(max_length=20, default='selesai') # SOP says direct setor is verified and added immediately
 
+    class Meta:
+        verbose_name_plural = 'Transaksi Setoran'
+        indexes = [
+            models.Index(fields=['tanggal']),
+            models.Index(fields=['nasabah']),
+        ]
+
 class DetailSetoran(models.Model):
     transaksi = models.ForeignKey(TransaksiSetoran, on_delete=models.CASCADE, related_name='details')
     kategori = models.ForeignKey(KategoriSampah, on_delete=models.RESTRICT)
@@ -73,6 +91,13 @@ class Penjemputan(models.Model):
     jadwal = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['nasabah']),
+            models.Index(fields=['petugas']),
+        ]
+
 class PenarikanSaldo(models.Model):
     STATUS_CHOICES = (
         ('menunggu', 'Menunggu'),
@@ -84,6 +109,14 @@ class PenarikanSaldo(models.Model):
     metode = models.CharField(max_length=50)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
     tanggal = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Penarikan Saldo'
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['nasabah']),
+            models.Index(fields=['tanggal']),
+        ]
 
 class Reward(models.Model):
     nama = models.CharField(max_length=100)
@@ -205,3 +238,10 @@ class Pengaduan(models.Model):
     tindak_lanjut = models.TextField(blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='terbuka')
     tanggal = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = 'Pengaduan'
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['nasabah']),
+        ]

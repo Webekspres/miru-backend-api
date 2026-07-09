@@ -10,9 +10,10 @@
 
 ## Graphify Knowledge Graph
 
-This project has a graphify knowledge graph at `graphify-out/`.
+This project has its **own** graphify knowledge graph at `graphify-out/` (scoped to this backend repo — not the monorepo root). Run `graphify` commands from `miru-backend/`.
 
 **MANDATORY: Before using Read, Grep, Glob, or Bash to explore the codebase, you MUST run graphify first:**
+
 - `graphify query "<question>"` — scoped subgraph for any codebase or architecture question
 - `graphify path "<A>" "<B>"` — dependency path between two symbols
 - `graphify explain "<concept>"` — all nodes related to a concept

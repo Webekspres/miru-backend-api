@@ -1,353 +1,298 @@
-# Graph Report - backend  (2026-07-08)
+# Graph Report - .  (2026-07-09)
 
 ## Corpus Check
-- 104 files · ~48,110 words
-- Verdict: corpus is large enough that graph structure adds value.
+- Corpus is ~48,110 words - fits in a single context window. You may not need a graph.
 
 ## Summary
-- 1321 nodes · 2764 edges · 97 communities (59 shown, 38 thin omitted)
-- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 569 edges (avg confidence: 0.51)
+- 1053 nodes · 2438 edges · 95 communities (45 shown, 50 thin omitted)
+- Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 512 edges (avg confidence: 0.53)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- [[_COMMUNITY_Community 0|Community 0]]
-- [[_COMMUNITY_Community 1|Community 1]]
-- [[_COMMUNITY_Community 2|Community 2]]
-- [[_COMMUNITY_Community 3|Community 3]]
-- [[_COMMUNITY_Community 4|Community 4]]
-- [[_COMMUNITY_Community 5|Community 5]]
-- [[_COMMUNITY_Community 6|Community 6]]
-- [[_COMMUNITY_Community 8|Community 8]]
-- [[_COMMUNITY_Community 10|Community 10]]
-- [[_COMMUNITY_Community 11|Community 11]]
-- [[_COMMUNITY_Community 12|Community 12]]
-- [[_COMMUNITY_Community 13|Community 13]]
-- [[_COMMUNITY_Community 14|Community 14]]
-- [[_COMMUNITY_Community 15|Community 15]]
-- [[_COMMUNITY_Community 16|Community 16]]
-- [[_COMMUNITY_Community 17|Community 17]]
-- [[_COMMUNITY_Community 18|Community 18]]
-- [[_COMMUNITY_Community 19|Community 19]]
-- [[_COMMUNITY_Community 20|Community 20]]
-- [[_COMMUNITY_Community 21|Community 21]]
-- [[_COMMUNITY_Community 22|Community 22]]
-- [[_COMMUNITY_Community 23|Community 23]]
-- [[_COMMUNITY_Community 24|Community 24]]
-- [[_COMMUNITY_Community 25|Community 25]]
-- [[_COMMUNITY_Community 26|Community 26]]
-- [[_COMMUNITY_Community 28|Community 28]]
-- [[_COMMUNITY_Community 30|Community 30]]
-- [[_COMMUNITY_Community 31|Community 31]]
-- [[_COMMUNITY_Community 32|Community 32]]
-- [[_COMMUNITY_Community 33|Community 33]]
-- [[_COMMUNITY_Community 34|Community 34]]
-- [[_COMMUNITY_Community 35|Community 35]]
-- [[_COMMUNITY_Community 36|Community 36]]
-- [[_COMMUNITY_Community 37|Community 37]]
-- [[_COMMUNITY_Community 38|Community 38]]
-- [[_COMMUNITY_Community 39|Community 39]]
-- [[_COMMUNITY_Community 40|Community 40]]
-- [[_COMMUNITY_Community 41|Community 41]]
-- [[_COMMUNITY_Community 42|Community 42]]
-- [[_COMMUNITY_Community 43|Community 43]]
-- [[_COMMUNITY_Community 44|Community 44]]
-- [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
-- [[_COMMUNITY_Community 47|Community 47]]
-- [[_COMMUNITY_Community 51|Community 51]]
-- [[_COMMUNITY_Community 52|Community 52]]
-- [[_COMMUNITY_Community 53|Community 53]]
-- [[_COMMUNITY_Community 54|Community 54]]
-- [[_COMMUNITY_Community 55|Community 55]]
-- [[_COMMUNITY_Community 56|Community 56]]
-- [[_COMMUNITY_Community 57|Community 57]]
-- [[_COMMUNITY_Community 58|Community 58]]
-- [[_COMMUNITY_Community 59|Community 59]]
-- [[_COMMUNITY_Community 60|Community 60]]
-- [[_COMMUNITY_Community 61|Community 61]]
-- [[_COMMUNITY_Community 62|Community 62]]
-- [[_COMMUNITY_Community 63|Community 63]]
-- [[_COMMUNITY_Community 64|Community 64]]
-- [[_COMMUNITY_Community 65|Community 65]]
-- [[_COMMUNITY_Community 66|Community 66]]
-- [[_COMMUNITY_Community 67|Community 67]]
-- [[_COMMUNITY_Community 68|Community 68]]
-- [[_COMMUNITY_Community 70|Community 70]]
-- [[_COMMUNITY_Community 71|Community 71]]
-- [[_COMMUNITY_Community 72|Community 72]]
-- [[_COMMUNITY_Community 73|Community 73]]
-- [[_COMMUNITY_Community 74|Community 74]]
-- [[_COMMUNITY_Community 75|Community 75]]
-- [[_COMMUNITY_Community 76|Community 76]]
-- [[_COMMUNITY_Community 77|Community 77]]
-- [[_COMMUNITY_Community 78|Community 78]]
-- [[_COMMUNITY_Community 79|Community 79]]
-- [[_COMMUNITY_Community 80|Community 80]]
-- [[_COMMUNITY_Community 81|Community 81]]
-- [[_COMMUNITY_Community 82|Community 82]]
-- [[_COMMUNITY_Community 83|Community 83]]
-- [[_COMMUNITY_Community 84|Community 84]]
-- [[_COMMUNITY_Community 85|Community 85]]
-- [[_COMMUNITY_Community 86|Community 86]]
-- [[_COMMUNITY_Community 87|Community 87]]
-- [[_COMMUNITY_Community 88|Community 88]]
-- [[_COMMUNITY_Community 89|Community 89]]
-- [[_COMMUNITY_Community 90|Community 90]]
-- [[_COMMUNITY_Community 91|Community 91]]
-- [[_COMMUNITY_Community 92|Community 92]]
-- [[_COMMUNITY_Community 93|Community 93]]
-- [[_COMMUNITY_Community 94|Community 94]]
+- Services
+- Services 1
+- Backend
+- Backend 3
+- Tests
+- Docs
+- Tests 6
+- Backend 7
+- Tests 8
+- Backend 9
+- Backend 10
+- Tests 11
+- Tests 12
+- Tests 13
+- Backend 14
+- Services 15
+- Backend 16
+- Backend 17
+- Backend 18
+- Tests 19
+- Services 20
+- Backend 21
+- Services 22
+- Tests 23
+- Tests 24
+- Backend 25
+- Tests 26
+- Tests 27
+- Services 28
+- Backend 29
+- Backend 30
+- Backend 31
+- Backend 32
+- Backend 33
+- Tests 34
+- Tests 35
+- Tests 36
+- Tests 37
+- Tests 38
+- Tests 39
+- Backend 40
+- Backend 41
+- Services 42
+- Tests 43
+- Tests 44
+- Tests 45
+- Tests 46
+- Tests 47
+- Services 48
+- Backend 49
+- Backend 50
+- Tests 51
+- Tests 52
+- Tests 53
+- Tests 54
+- Tests 55
+- Tests 56
+- Backend 57
+- Services 58
+- Tests 59
+- Misc
+- Docs 61
+- Backend 62
+- Backend 63
+- Tests 64
+- Docs 65
+- Backend 66
+- Misc 67
+- Docs 68
+- Docs 69
+- Docs 70
+- Docs 71
+- Docs 72
+- Backend 73
+- Backend 74
+- Backend 75
+- Backend 76
+- Backend 77
+- Backend 78
+- Backend 79
+- Backend 80
+- Backend 81
+- Misc 82
+- Misc 83
+- Docs 84
+- Docs 85
 
 ## God Nodes (most connected - your core abstractions)
-1. `EnvelopeAPITestCase` - 75 edges
-2. `KategoriSampah` - 73 edges
-3. `success_response()` - 52 edges
-4. `TransaksiSetoran` - 51 edges
-5. `AlreadyProcessedError` - 47 edges
-6. `User` - 40 edges
+1. `EnvelopeAPITestCase` - 80 edges
+2. `KategoriSampah` - 65 edges
+3. `success_response()` - 56 edges
+4. `TransaksiSetoran` - 46 edges
+5. `User` - 45 edges
+6. `AlreadyProcessedError` - 44 edges
 7. `PenarikanSaldo` - 38 edges
-8. `Reward` - 38 edges
+8. `Reward` - 37 edges
 9. `Command` - 33 edges
 10. `IsMonitorReadOnly` - 30 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Meta` --uses--> `TransaksiSetoran`  [INFERRED]
   api/filters.py → api/models.py
-- `PengaturanInstitusi` --uses--> `PengaturanInstitusi`  [INFERRED]
-  api/services/settings.py → api/models.py
-- `Command` --uses--> `DetailSetoran`  [INFERRED]
-  api/management/commands/seed_data.py → api/models.py
-- `Command` --uses--> `KategoriSampah`  [INFERRED]
-  api/management/commands/seed_data.py → api/models.py
-- `Command` --uses--> `MitraPengepul`  [INFERRED]
-  api/management/commands/seed_data.py → api/models.py
+- `graphify Knowledge Graph` --conceptually_related_to--> `MIRU Bank Sampah (Miru-G)`  [INFERRED]
+  AGENTS.md → .ai-steering/01-project-overview.md
+- `Docker Compose Django Web Service` --implements--> `Django REST API Backend`  [INFERRED]
+  docker-compose.yml → .ai-steering/02-architecture-and-stack.md
+- `GET/POST /api/deposits/` --references--> `API /api/deposits/`  [EXTRACTED]
+  README.md → .ai-steering/04-api-contracts-and-standards.md
+- `GET/POST /api/pickups/` --references--> `API /api/pickups/`  [EXTRACTED]
+  README.md → .ai-steering/04-api-contracts-and-standards.md
 
 ## Import Cycles
-- 1-file cycle: `api/services/periods.py -> api/services/periods.py`
-- 1-file cycle: `api/services/price_history.py -> api/services/price_history.py`
-- 1-file cycle: `api/services/deposits.py -> api/services/deposits.py`
-- 1-file cycle: `api/services/ledger.py -> api/services/ledger.py`
-- 1-file cycle: `api/services/partner_sales.py -> api/services/partner_sales.py`
-- 1-file cycle: `api/services/pickups.py -> api/services/pickups.py`
-- 1-file cycle: `api/services/withdrawals.py -> api/services/withdrawals.py`
+- None detected.
 
-## Communities (97 total, 38 thin omitted)
+## Hyperedges (group relationships)
+- **Deposit Transaction Flow (setoran → saldo + poin + stok)** — _ai_steering_04_api_contracts_and_standards_api_deposits, _ai_steering_03_database_schema_erd_transaksisetoran, _ai_steering_03_database_schema_erd_detailsetoran, _ai_steering_03_database_schema_erd_nasabah_saldo_ledger, _ai_steering_03_database_schema_erd_nasabah_poin_ledger, _ai_steering_03_database_schema_erd_kategorisampah [EXTRACTED 1.00]
+- **Pickup Status Workflow (menunggu → selesai / ditolak)** — _ai_steering_04_api_contracts_and_standards_api_pickups, _ai_steering_03_database_schema_erd_penjemputan, _ai_steering_05_business_rules_sops_pickup_status_flow, _ai_steering_06_system_constraints_no_gps_tracking [EXTRACTED 1.00]
+- **MIRU Six User Roles** — _ai_steering_01_project_overview_role_nasabah, _ai_steering_01_project_overview_role_petugas, _ai_steering_01_project_overview_role_admin, _ai_steering_01_project_overview_role_koordinator, _ai_steering_01_project_overview_role_pemerintah, _ai_steering_01_project_overview_role_mitra [EXTRACTED 1.00]
 
-### Community 1 - "Community 1"
+## Communities (95 total, 50 thin omitted)
+
+### Community 0 - "Services"
 Cohesion: 0.08
-Nodes (24): 05 — Business Rules & SOPs, A.1 Konversi Setoran ke Saldo, A.2 Konversi Saldo ke Poin Reward, A.3 Penarikan Saldo, A.4 Penukaran Poin, A. Aturan Keuangan, B.1 Setor Langsung (di Kantor), B.2 Penjemputan (via Aplikasi) (+16 more)
+Nodes (43): PenjualanMitra, PenjualanMitraCreateSerializer, adjust_setoran_correction(), complete_penukaran_poin(), create_setoran_with_side_effects(), credit_nasabah_setoran(), debit_nasabah_poin(), debit_nasabah_saldo() (+35 more)
 
-### Community 2 - "Community 2"
-Cohesion: 0.05
-Nodes (37): Meta, TransaksiSetoranFilter, IsActivityReader, IsAdmin, IsAdminOrKoordinator, IsMonitorReadOnly, IsNasabah, IsOwnerOrAdmin (+29 more)
-
-### Community 3 - "Community 3"
-Cohesion: 0.22
-Nodes (9): Post-Launch — Fase 8, Sprint 1 (Minggu 1) — Fase 1, Sprint 2 (Minggu 2) — Fase 2.1–2.2, Sprint 3 (Minggu 3) — Fase 2.3–2.5, Sprint 4 (Minggu 4) — Fase 2.6–3, Sprint 5 (Minggu 5) — Fase 4, Sprint 6 (Minggu 6) — Fase 5–6, Sprint 7 (Minggu 7) — Fase 7 (+1 more)
-
-### Community 6 - "Community 6"
-Cohesion: 0.19
-Nodes (7): PengaturanInstitusiAdmin, PengumumanAdmin, RiwayatHargaAdmin, PengaturanInstitusi, Pengumuman, Singleton — profil institusi bank sampah (pk selalu 1)., RiwayatHarga
-
-### Community 8 - "Community 8"
-Cohesion: 0.14
-Nodes (13): 1. Extend `EnvelopeAPITestCase`, 2. Assert JSON Envelope (required), 3. File Organization, 4. What to Test per Feature, 5. Use English Routes, 6. Seed Data for Manual / Integration Tests, Do Not, MIRU Backend Feature Testing (+5 more)
-
-### Community 10 - "Community 10"
-Cohesion: 0.33
-Nodes (5): graphify, Hook-Based Usage, Installation Verification, Meta Commands (always use rtk directly), RTK - Rust Token Killer
-
-### Community 11 - "Community 11"
-Cohesion: 0.40
-Nodes (4): Graphify Knowledge Graph, MIRU Backend API — Agent Rules, Stack, Token Savers (WAJIB)
-
-### Community 12 - "Community 12"
-Cohesion: 0.40
-Nodes (4): ⚠️ AI Steering — baca on-demand (jangan semua sekaligus), Aturan Keras, graphify, MIRU Bank Sampah — Backend API (Django)
-
-### Community 13 - "Community 13"
-Cohesion: 0.04
-Nodes (48): 04 — API Contracts & Standards, 10. Mapping Role → Endpoint Access, 11. Catatan Implementasi, 1.1 Route Naming (English, kebab-case), 1. Prinsip Desain API, 2.1 Login, 2.2 Refresh Token, 2.3 Profil User Login (+40 more)
-
-### Community 14 - "Community 14"
-Cohesion: 0.07
-Nodes (50): AbstractUser, DetailSetoran, User, PenjualanMitraCreateSerializer, Decimal, KategoriSampah, User, Decimal (+42 more)
-
-### Community 15 - "Community 15"
-Cohesion: 0.11
-Nodes (17): 1. Environment Variables, 1. Setup Environment, 2. Build and Run, 2. Run Migrations & Server, 3. Run Migrations in Docker, 4. Seed Demo Data, 5. Run Tests, 6. Mobile — HP Fisik (Windows + Docker Desktop) (+9 more)
-
-### Community 16 - "Community 16"
-Cohesion: 0.22
-Nodes (9): 2.1 Integritas Data Transaksional, 2.2 Transaksi Setoran (Modul 6, 8, 9), 2.3 Penjemputan Workflow (Modul 7), 2.4 Penarikan Saldo (Modul 10), 2.5 Penukaran Poin (Modul 11), 2.6 Penjualan Mitra & Stok (Modul 12–13), 2.7 Pengaduan (Modul 14), 2.8 Permission & Queryset per Role (+1 more)
-
-### Community 17 - "Community 17"
-Cohesion: 0.15
-Nodes (11): TransaksiSetoranCreateSerializer, Decimal, KategoriSampah, User, build_bukti_digital(), build_detail_data(), prepare_details_data(), Business rules and price calculation for deposit transactions. (+3 more)
-
-### Community 18 - "Community 18"
-Cohesion: 0.10
-Nodes (19): 07 — Modules & Features (Backend), 17 Modul Sistem — Peran Backend, Detail Endpoint Backend per Modul, Modul 10: Penarikan Saldo, Modul 11: Poin & Reward, Modul 12: Stok Gudang, Modul 13: Penjualan ke Mitra, Modul 14: Pengaduan (+11 more)
-
-### Community 19 - "Community 19"
-Cohesion: 0.25
-Nodes (8): 3.1 Alur Setor Langsung (SOP B.1), 3.2 Alur Penjemputan (SOP B.2), 3.3 Alur Penarikan (SOP A.3), 3.4 Alur Penukaran Poin (SOP A.4), 3.5 Riwayat Transaksi Gabungan (Modul 9), 3.6 Profil & Kartu Digital (Modul 3), 3.7 Reward Katalog (Modul 11), Fase 3: MVP — Operasional Harian (End-to-End)
-
-### Community 20 - "Community 20"
-Cohesion: 0.29
-Nodes (7): 1.1 Konfigurasi & Keamanan Dasar ✅, 1.2 Standar API Response — JSON Envelope ✅, 1.3 Autentikasi & Registrasi (Modul 2) ✅, 1.4 Manajemen Pengguna (Modul 1) ✅, 1.5 Seed Data (Modul 4–5) ✅, 1.6 Kategori Sampah (Modul 4–5) ✅, Fase 1: MVP — Infrastruktur & Auth
-
-### Community 21 - "Community 21"
-Cohesion: 0.33
-Nodes (6): 7.1 Keamanan, 7.2 Deployment, 7.3 Backup & Recovery, 7.4 Monitoring & Logging, 7.5 Performance, Fase 7: Production Ready
-
-### Community 24 - "Community 24"
-Cohesion: 0.11
-Nodes (20): AlreadyProcessedError, AuditLogSerializer, DetailSetoranReadSerializer, DetailSetoranSerializer, DetailSetoranWriteSerializer, Meta, MitraPengepulSerializer, NasabahLookupSerializer (+12 more)
-
-### Community 26 - "Community 26"
-Cohesion: 0.08
-Nodes (53): DashboardDepositChartView, DashboardOverviewView, DashboardRecentActivityView, InventoryHistoryView, InventoryView, MonitorView, Monitoring endpoints: dashboard (Modul 15), laporan (Modul 16), inventory (Modul, Base view for admin/koordinator/pemerintah read-only monitoring. (+45 more)
-
-### Community 28 - "Community 28"
-Cohesion: 0.07
-Nodes (27): CurrentRequestMiddleware, get_client_ip(), get_current_request(), get_current_user(), Get the current user from thread-local storage., Extract client IP from request headers., Store the current request in thread-local storage., Access the current request from thread-local storage (for signals etc.). (+19 more)
-
-### Community 30 - "Community 30"
-Cohesion: 0.19
-Nodes (18): InvalidStatusTransitionError, PenjemputanUpdateSerializer, PickupAssignSerializer, Decimal, User, APIException, Penjemputan, approve_pickup() (+10 more)
-
-### Community 32 - "Community 32"
-Cohesion: 0.10
-Nodes (7): datetime, DailyReportTests, EvaluationReportTests, MonthlyReportTests, ReportTestMixin, WasteReportTests, WeeklyReportTests
-
-### Community 33 - "Community 33"
-Cohesion: 0.05
-Nodes (11): EnvelopeAPITestCase, AuditLogSignalTests, Verify automatic audit log recording via Django signals., LoginTests, MeEndpointTests, PrivacyPolicyTests, RefreshTokenTests, AdminCreateStaffTests (+3 more)
-
-### Community 35 - "Community 35"
-Cohesion: 0.33
-Nodes (5): 08 — Task List: Backend Development Roadmap, Cakupan 17 Modul Backend, Definisi "Selesai" per Tahap, Gap Kode vs Dokumen (perlu ditangani), Ringkasan Fase
-
-### Community 36 - "Community 36"
-Cohesion: 0.33
-Nodes (6): 5.1 Audit Log (Modul 17), 5.2 Pengaturan Institusi (Modul 17), 5.3 Riwayat Harga (Modul 5 — opsional MVP), 5.4 Role Pemerintah Distrik, 5.5 Kebijakan Data Pribadi (UU PDP), Fase 5: MVP Lengkap — Governance
-
-### Community 37 - "Community 37"
-Cohesion: 0.16
-Nodes (14): filter_nasabah_owned(), filter_pickup_queryset(), filter_staff_only(), Reusable queryset filters per role., Admin/koordinator/pemerintah read; others denied., Nasabah sees own data; staff roles see all., User, get_activity_items() (+6 more)
-
-### Community 38 - "Community 38"
-Cohesion: 0.11
-Nodes (17): AuditLog, Meta, PenarikanSaldo, Pengaduan, Penjemputan, PenukaranPoin, Reward, TransaksiSetoran (+9 more)
-
-### Community 40 - "Community 40"
-Cohesion: 0.11
-Nodes (5): APITestCase, EnvelopeAPITestCase, Base test case with envelope helpers and user factories., RewardPublicListTests, WasteCategoryPublicReadTests
-
-### Community 42 - "Community 42"
-Cohesion: 0.06
-Nodes (34): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), _envelope(), get_demo_user(), get_nav_groups() (+26 more)
-
-### Community 43 - "Community 43"
-Cohesion: 0.50
-Nodes (4): 0.1 Project Setup ✅, 0.2 Database Models ✅, 0.3 Core API Setup ✅, Fase 0: Foundation ✅ Selesai
-
-### Community 44 - "Community 44"
-Cohesion: 0.50
-Nodes (4): 4.1 Dashboard API (Modul 15), 4.2 Laporan API (Modul 16), 4.3 Stok Gudang (Modul 12), Fase 4: MVP — Monitoring & Laporan
-
-### Community 45 - "Community 45"
-Cohesion: 0.50
-Nodes (4): 6.1 Unit & Integration Tests, 6.2 API Documentation (OpenAPI), 6.3 Error Handling, Fase 6: Kualitas & Dokumentasi
-
-### Community 46 - "Community 46"
-Cohesion: 0.50
-Nodes (4): 8.1 Fitur Tambahan, 8.2 Optimasi & Skalabilitas, 8.3 Yang TIDAK BOLEH Diimplementasikan (System Constraints), Fase 8: Post-MVP & Peningkatan
-
-### Community 47 - "Community 47"
-Cohesion: 0.27
-Nodes (7): PengaturanInstitusiSerializer, PengumumanSerializer, InstitutionSettingsView, PengumumanListView, PrivacyPolicyView, GET public — profil institusi. PATCH admin only., APIView
-
-### Community 52 - "Community 52"
-Cohesion: 0.08
-Nodes (23): 09 — Data Dictionary & Reference Values (Backend), A.1 Daftar Jenis Sampah yang Diterima, A.2 Ketentuan Kategori, A. KATEGORI & HARGA SAMPAH (Seed Data), B. KATALOG REWARD (Seed Data), C.1 Konversi Setoran, C.2 Contoh Perhitungan (dari SOP), C.3 Aturan Keuangan Ringkas (+15 more)
-
-### Community 53 - "Community 53"
-Cohesion: 0.13
-Nodes (3): DepositFlowTests, DepositReadFilterTests, SOP B.1 — petugas scan/cari nasabah → input setoran → bukti digital.
-
-### Community 54 - "Community 54"
-Cohesion: 0.16
-Nodes (3): PenarikanSaldoCreateSerializer, PengaduanCreateSerializer, PenjemputanCreateSerializer
-
-### Community 56 - "Community 56"
-Cohesion: 0.12
-Nodes (15): 03 — Database Schema & ERD (Backend Django), 10. PenjualanMitra, 11. Pengaduan, 1. User (extends AbstractUser), 2. KategoriSampah, 3. TransaksiSetoran, 4. DetailSetoran, 5. Penjemputan (+7 more)
-
-### Community 57 - "Community 57"
-Cohesion: 0.13
-Nodes (14): 06 — System Constraints (Batasan Sistem), 10. Publikasi Aplikasi, 11. Batasan Role, 12. Batasan Teknis Backend, 1. TIDAK ADA Integrasi Payment Gateway Otomatis, 2. TIDAK ADA GPS Live Tracking, 3. TIDAK ADA Integrasi Hardware Fisik, 4. TIDAK ADA Integrasi Dukcapil (+6 more)
-
-### Community 58 - "Community 58"
-Cohesion: 0.14
-Nodes (13): 00 — System Prompt & Clean Code Rules, 10. Documentation, 1. Struktur & Organisasi, 2. Models (Django ORM), 3. Serializers, 4. Views & ViewSets, 5. Permissions, 6. Error Handling (+5 more)
-
-### Community 59 - "Community 59"
-Cohesion: 0.15
-Nodes (12): 01 — Project Overview: MIRU Bank Sampah (Miru-G), 3 Repositori Sistem, 6 Role Pengguna, Indikator Keberhasilan Program, Informasi Aplikasi, Informasi Kontak & Organisasi, Jam Layanan Operasional, Latar Belakang (+4 more)
-
-### Community 61 - "Community 61"
-Cohesion: 0.28
-Nodes (13): Decimal, User, PenarikanSaldo, approve_withdrawal(), _ensure_pending(), Business rules for saldo withdrawal requests., Tolak pengajuan — saldo tidak pernah didebit saat create, jadi tidak perlu refun, reject_withdrawal() (+5 more)
-
-### Community 62 - "Community 62"
-Cohesion: 0.33
-Nodes (10): Reward, User, PenukaranPoin, approve_redemption(), _ensure_pending(), Business rules for reward point redemptions., validate_approve_redemption(), validate_create_redemption() (+2 more)
-
-### Community 65 - "Community 65"
-Cohesion: 0.25
-Nodes (7): 02 — Architecture & Tech Stack (Backend), API Documentation, Arsitektur, CORS Configuration, Environment Variables (`.env`), Struktur Folder, Tech Stack
-
-### Community 72 - "Community 72"
+### Community 1 - "Services 1"
 Cohesion: 0.09
-Nodes (11): KategoriSampah, MitraPengepul, PenjualanMitra, MitraPengepul, PenjualanMitra, TestCase, InventoryHistoryTests, InventoryTests (+3 more)
+Nodes (49): DashboardDepositChartView, DashboardOverviewView, DashboardRecentActivityView, InventoryHistoryView, InventoryView, MonitorView, Monitoring endpoints: dashboard (Modul 15), laporan (Modul 16), inventory (Modul, Base view for admin/koordinator/pemerintah read-only monitoring. (+41 more)
 
-### Community 74 - "Community 74"
-Cohesion: 0.18
-Nodes (10): RiwayatHargaSerializer, Decimal, KategoriSampah, User, RiwayatHarga, get_price_history(), Price change history for waste categories., Record a price change when harga_beli_per_kg is updated. (+2 more)
+### Community 2 - "Backend"
+Cohesion: 0.07
+Nodes (32): MeView, MiruTokenObtainPairSerializer, MiruTokenObtainPairView, MiruTokenRefreshView, user_auth_payload(), _envelope(), get_demo_user(), get_nav_groups() (+24 more)
 
-### Community 82 - "Community 82"
+### Community 3 - "Backend 3"
+Cohesion: 0.06
+Nodes (11): PengaturanInstitusiAdmin, PengumumanAdmin, RiwayatHargaAdmin, Command, PengaturanInstitusi, Pengumuman, Singleton — profil institusi bank sampah (pk selalu 1)., RiwayatHarga (+3 more)
+
+### Community 4 - "Tests"
+Cohesion: 0.12
+Nodes (12): PenarikanSaldo, Pengaduan, Penjemputan, PenukaranPoin, Reward, DashboardDepositChartTests, DashboardOverviewTests, DashboardRecentActivityTests (+4 more)
+
+### Community 5 - "Docs"
+Cohesion: 0.06
+Nodes (35): Role: Admin Aplikasi, Role: Mitra/Pengepul, Role: Nasabah, Role: Pemerintah Distrik, Role: Petugas Bank Sampah, DetailSetoran Model, KategoriSampah Model, MitraPengepul Model (+27 more)
+
+### Community 6 - "Tests 6"
+Cohesion: 0.11
+Nodes (8): TransaksiSetoran, DailyReportTests, EvaluationReportTests, MonthlyReportTests, ReportTestMixin, WasteReportTests, WeeklyReportTests, datetime
+
+### Community 7 - "Backend 7"
+Cohesion: 0.13
+Nodes (25): get_client_ip(), get_current_request(), get_current_user(), Get the current user from thread-local storage., Extract client IP from request headers., Access the current request from thread-local storage (for signals etc.)., audit_post_delete(), audit_post_save() (+17 more)
+
+### Community 8 - "Tests 8"
+Cohesion: 0.15
+Nodes (5): Meta, MitraPengepul, EnvelopeAPITestCase, Base test case with envelope helpers and user factories., APITestCase
+
+### Community 9 - "Backend 9"
+Cohesion: 0.12
+Nodes (15): AlreadyProcessedError, DetailSetoranReadSerializer, DetailSetoranSerializer, DetailSetoranWriteSerializer, Meta, MitraPengepulSerializer, NasabahLookupSerializer, PenarikanSaldoCreateSerializer (+7 more)
+
+### Community 10 - "Backend 10"
+Cohesion: 0.15
+Nodes (8): IsAdmin, IsNasabah, IsOwnerOrAdmin, IsPemerintahReadOnly, IsPickupManager, Pemerintah distrik: hanya boleh akses read (GET/HEAD/OPTIONS)., PengaduanViewSet, RewardViewSet
+
+### Community 11 - "Tests 11"
+Cohesion: 0.10
+Nodes (5): LoginTests, MeEndpointTests, PrivacyPolicyTests, RefreshTokenTests, RegistrationTests
+
+### Community 12 - "Tests 12"
+Cohesion: 0.08
+Nodes (4): AdminCreateStaffTests, UserListFilterTests, UserPatchPermissionTests, UserResponseSecurityTests
+
+### Community 13 - "Tests 13"
+Cohesion: 0.09
+Nodes (5): AuditLog, AuditLogListTests, AuditLogSignalTests, DepositCorrectionTests, Verify automatic audit log recording via Django signals.
+
+### Community 14 - "Backend 14"
+Cohesion: 0.16
+Nodes (12): PengaturanInstitusiSerializer, PengumumanSerializer, get_privacy_policy(), Kebijakan data pribadi (UU PDP) — konten untuk API publik., get_institution_settings(), Institution settings singleton helpers., Return the singleton institution settings row (creates defaults if missing)., InstitutionSettingsView (+4 more)
+
+### Community 15 - "Services 15"
+Cohesion: 0.16
+Nodes (14): InvalidStatusTransitionError, PickupAssignSerializer, approve_pickup(), assign_pickup(), Decimal, Pickup request validation and status state machine., reject_pickup(), update_pickup_status() (+6 more)
+
+### Community 16 - "Backend 16"
+Cohesion: 0.15
+Nodes (4): PenukaranPoinSerializer, success_response(), KategoriSampahViewSet, PenukaranPoinViewSet
+
+### Community 17 - "Backend 17"
+Cohesion: 0.21
+Nodes (10): Meta, TransaksiSetoranFilter, IsActivityReader, IsStaffManagerOrPetugas, IsUserOwnerOrAdmin, Object-level permission for the User model (/api/users/{id}/)., Admin, koordinator, atau petugas — untuk lookup nasabah., Nasabah (milik sendiri) atau staff read-all untuk riwayat gabungan. (+2 more)
+
+### Community 18 - "Backend 18"
+Cohesion: 0.14
+Nodes (3): PenjualanMitraSerializer, UserAdminSerializer, PenjualanMitraViewSet
+
+### Community 20 - "Services 20"
+Cohesion: 0.17
+Nodes (9): TransaksiSetoranCreateSerializer, build_bukti_digital(), build_detail_data(), prepare_details_data(), Decimal, Business rules and price calculation for deposit transactions., Struktur bukti digital untuk nasabah (SOP B.1)., validate_nasabah_for_setoran() (+1 more)
+
+### Community 21 - "Backend 21"
 Cohesion: 0.22
+Nodes (6): filter_nasabah_owned(), filter_pickup_queryset(), filter_staff_only(), Reusable queryset filters per role., Admin/koordinator/pemerintah read; others denied., Nasabah sees own data; staff roles see all.
+
+### Community 22 - "Services 22"
+Cohesion: 0.28
+Nodes (11): approve_withdrawal(), _ensure_pending(), Decimal, Business rules for saldo withdrawal requests., Tolak pengajuan — saldo tidak pernah didebit saat create, jadi tidak perlu refun, reject_withdrawal(), validate_approve_withdrawal(), validate_create_withdrawal() (+3 more)
+
+### Community 24 - "Tests 24"
+Cohesion: 0.21
+Nodes (5): KategoriSampah, SeedDataFullTests, SeedDataMinimalTests, WasteCategoryPublicReadTests, TestCase
+
+### Community 25 - "Backend 25"
+Cohesion: 0.21
+Nodes (4): IsAdminOrKoordinator, IsMonitorReadOnly, Admin, koordinator, pemerintah — akses read untuk monitoring., MitraPengepulViewSet
+
+### Community 28 - "Services 28"
+Cohesion: 0.36
+Nodes (9): AbstractUser, User, get_activity_items(), _penarikan_items(), _penukaran_items(), Merged transaction history for nasabah activity feed., _resolve_nasabah_filter(), _setoran_items() (+1 more)
+
+### Community 29 - "Backend 29"
+Cohesion: 0.27
+Nodes (3): IsPetugasOrAdmin, TransaksiSetoranReadSerializer, TransaksiSetoranViewSet
+
+### Community 30 - "Backend 30"
+Cohesion: 0.22
+Nodes (6): AuditLogSerializer, RiwayatHargaSerializer, get_price_history(), Return price history queryset for a category., MiruPagination, PageNumberPagination
+
+### Community 31 - "Backend 31"
+Cohesion: 0.20
 Nodes (3): KategoriSampahSerializer, Admin-only: koreksi data transaksi setoran., TransaksiSetoranCorrectionSerializer
 
-### Community 89 - "Community 89"
-Cohesion: 0.40
-Nodes (4): PengaturanInstitusi, get_institution_settings(), Institution settings singleton helpers., Return the singleton institution settings row (creates defaults if missing).
+### Community 33 - "Backend 33"
+Cohesion: 0.20
+Nodes (5): PengaduanSerializer, PengaduanUpdateSerializer, Business rules for nasabah complaints., validate_admin_close(), validate_jenis_pengaduan()
 
-### Community 90 - "Community 90"
-Cohesion: 0.70
+### Community 41 - "Backend 41"
+Cohesion: 0.25
+Nodes (3): PenjemputanCreateSerializer, PenjemputanUpdateSerializer, validate_jadwal_h_plus_one()
+
+### Community 42 - "Services 42"
+Cohesion: 0.43
+Nodes (7): approve_redemption(), _ensure_pending(), Business rules for reward point redemptions., validate_approve_redemption(), validate_create_redemption(), validate_poin_cukup(), validate_reward_stok()
+
+### Community 48 - "Services 48"
+Cohesion: 0.43
+Nodes (5): DetailSetoran, Shared aggregation helpers for dashboard and report endpoints., stok_per_kategori(), get_overview(), Aggregated data for the monitoring dashboard (Modul 15).
+
+### Community 58 - "Services 58"
+Cohesion: 0.50
+Nodes (4): Decimal, Price change history for waste categories., Record a price change when harga_beli_per_kg is updated., record_price_change()
+
+### Community 60 - "Misc"
+Cohesion: 0.90
 Nodes (4): handle(), main(), pipe(), socket
 
+### Community 61 - "Docs 61"
+Cohesion: 0.50
+Nodes (4): MIRU Bank Sampah (Miru-G), Django REST API Backend, graphify Knowledge Graph, Docker Compose Django Web Service
+
+### Community 65 - "Docs 65"
+Cohesion: 0.67
+Nodes (3): JWT Auth (djangorestframework-simplejwt), API /api/auth/login/, djangorestframework-simplejwt Dependency
+
 ## Knowledge Gaps
-- **247 isolated node(s):** `Cakupan 17 Modul Backend`, `Gap Kode vs Dokumen (perlu ditangani)`, `0.1 Project Setup ✅`, `0.2 Database Models ✅`, `0.3 Core API Setup ✅` (+242 more)
+- **37 isolated node(s):** `Migration`, `Migration`, `Migration`, `Migration`, `Migration` (+32 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **38 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **50 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `EnvelopeAPITestCase` connect `Community 40` to `Community 31`, `Community 32`, `Community 33`, `Community 34`, `Community 38`, `Community 39`, `Community 41`, `Community 51`, `Community 53`, `Community 60`, `Community 63`, `Community 64`, `Community 66`, `Community 68`, `Community 70`, `Community 71`, `Community 72`, `Community 73`, `Community 75`, `Community 78`, `Community 79`, `Community 81`, `Community 84`, `Community 85`, `Community 87`?**
-  _High betweenness centrality (0.085) - this node is a cross-community bridge._
-- **Why does `TransaksiSetoran` connect `Community 38` to `Community 0`, `Community 33`, `Community 2`, `Community 34`, `Community 66`, `Community 37`, `Community 32`, `Community 72`, `Community 73`, `Community 14`, `Community 79`, `Community 81`, `Community 53`, `Community 85`, `Community 26`?**
-  _High betweenness centrality (0.060) - this node is a cross-community bridge._
-- **Why does `KategoriSampah` connect `Community 72` to `Community 0`, `Community 14`, `Community 17`, `Community 26`, `Community 31`, `Community 32`, `Community 33`, `Community 34`, `Community 38`, `Community 40`, `Community 53`, `Community 66`, `Community 73`, `Community 74`, `Community 75`, `Community 79`, `Community 80`, `Community 81`, `Community 85`?**
-  _High betweenness centrality (0.055) - this node is a cross-community bridge._
-- **Are the 48 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `ActivityListTests` and `AuditLogListTests`) actually correct?**
-  _`EnvelopeAPITestCase` has 48 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 52 inferred relationships involving `KategoriSampah` (e.g. with `Decimal` and `KategoriSampah`) actually correct?**
-  _`KategoriSampah` has 52 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 35 inferred relationships involving `TransaksiSetoran` (e.g. with `Meta` and `TransaksiSetoranFilter`) actually correct?**
-  _`TransaksiSetoran` has 35 INFERRED edges - model-reasoned connections that need verification._
-- **Are the 38 inferred relationships involving `AlreadyProcessedError` (e.g. with `AuditLogSerializer` and `DetailSetoranReadSerializer`) actually correct?**
-  _`AlreadyProcessedError` has 38 INFERRED edges - model-reasoned connections that need verification._
+- **Why does `EnvelopeAPITestCase` connect `Tests 8` to `Backend 3`, `Tests`, `Tests 6`, `Tests 11`, `Tests 12`, `Tests 13`, `Tests 19`, `Tests 23`, `Tests 24`, `Tests 26`, `Tests 27`, `Tests 34`, `Tests 35`, `Tests 36`, `Tests 37`, `Tests 38`, `Tests 39`, `Tests 43`, `Tests 44`, `Tests 45`, `Tests 46`, `Tests 47`, `Tests 51`, `Tests 52`, `Tests 53`, `Tests 54`, `Tests 55`, `Tests 56`, `Tests 59`, `Tests 64`?**
+  _High betweenness centrality (0.177) - this node is a cross-community bridge._
+- **Why does `KategoriSampah` connect `Tests 24` to `Services`, `Services 1`, `Backend 3`, `Tests`, `Tests 6`, `Backend 7`, `Tests 8`, `Tests 13`, `Tests 19`, `Services 20`, `Tests 23`, `Tests 26`, `Tests 34`, `Tests 35`, `Tests 44`, `Services 48`, `Tests 51`, `Tests 52`, `Tests 55`, `Services 58`, `Tests 59`?**
+  _High betweenness centrality (0.100) - this node is a cross-community bridge._
+- **Why does `TransaksiSetoran` connect `Tests 6` to `Services`, `Services 1`, `Backend 3`, `Tests`, `Backend 7`, `Tests 8`, `Tests 44`, `Tests 13`, `Services 48`, `Backend 17`, `Tests 51`, `Tests 52`, `Tests 19`, `Tests 23`, `Tests 26`, `Tests 59`, `Services 28`?**
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Are the 51 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `ActivityListTests` and `AuditLogListTests`) actually correct?**
+  _`EnvelopeAPITestCase` has 51 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 37 inferred relationships involving `KategoriSampah` (e.g. with `Command` and `get_inventory_history()`) actually correct?**
+  _`KategoriSampah` has 37 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 29 inferred relationships involving `TransaksiSetoran` (e.g. with `Meta` and `TransaksiSetoranFilter`) actually correct?**
+  _`TransaksiSetoran` has 29 INFERRED edges - model-reasoned connections that need verification._
+- **Are the 7 inferred relationships involving `User` (e.g. with `Command` and `InsufficientPoinError`) actually correct?**
+  _`User` has 7 INFERRED edges - model-reasoned connections that need verification._
