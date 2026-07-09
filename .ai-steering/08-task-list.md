@@ -430,7 +430,7 @@
 - [ ] Field upload foto KTP (FileField + storage)
 - [ ] Bukti transaksi digital PDF (weasyprint atau reportlab)
 - [ ] Kedaluwarsa poin otomatis (1 tahun) — scheduled task
-- [ ] Transfer bank / e-wallet metadata pada penarikan (tanpa payment gateway)
+- [x] Transfer bank / e-wallet metadata pada penarikan (tanpa payment gateway)
 
 ### 8.2 Optimasi & Skalabilitas
 - [ ] Redis cache untuk dashboard overview

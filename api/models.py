@@ -107,6 +107,9 @@ class PenarikanSaldo(models.Model):
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE)
     nominal = models.DecimalField(max_digits=12, decimal_places=2)
     metode = models.CharField(max_length=50)
+    nama_bank = models.CharField(max_length=100, blank=True, default='')
+    no_rekening = models.CharField(max_length=30, blank=True, default='')
+    nama_pemilik_rekening = models.CharField(max_length=255, blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
     tanggal = models.DateTimeField(auto_now_add=True)
 

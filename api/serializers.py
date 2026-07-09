@@ -452,7 +452,7 @@ class PenjemputanSerializer(serializers.ModelSerializer):
 class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenarikanSaldo
-        fields = ['nominal', 'metode']
+        fields = ['nominal', 'metode', 'nama_bank', 'no_rekening', 'nama_pemilik_rekening']
 
     def validate_nominal(self, value):
         from .services.withdrawals import validate_nominal
@@ -503,6 +503,7 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         model = PenarikanSaldo
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
+            'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
             'status', 'tanggal',
         ]
         read_only_fields = fields
