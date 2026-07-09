@@ -30,9 +30,9 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "api/models.py": {
-    "mtime": 1783577139.8731496,
-    "ast_hash": "4a13716d4407ea2490dc039d82e627be",
-    "semantic_hash": "4a13716d4407ea2490dc039d82e627be"
+    "mtime": 1783580592.918526,
+    "ast_hash": "26e8e81cea8090d38dc3844360eac1b4",
+    "semantic_hash": ""
   },
   "api/permissions.py": {
     "mtime": 1783577139.876161,
@@ -130,9 +130,9 @@
     "semantic_hash": "58db253dd4ea9d8d7b4287fc48402924"
   },
   ".ai-steering/08-task-list.md": {
-    "mtime": 1783577139.84015,
-    "ast_hash": "8973aab7c1cef0bbc6c26a7ac562b527",
-    "semantic_hash": "8973aab7c1cef0bbc6c26a7ac562b527"
+    "mtime": 1783580746.4856186,
+    "ast_hash": "fa5a914ce37cd6465bb29f06bc437c1c",
+    "semantic_hash": ""
   },
   ".ai-steering/09-data-dictionary.md": {
     "mtime": 1783577139.8411503,
@@ -145,9 +145,9 @@
     "semantic_hash": "658edfdf7d1e43e719066058d7f72a6b"
   },
   "AGENTS.md": {
-    "mtime": 1783577139.852152,
-    "ast_hash": "0aa31745959a44c29919e25060178a25",
-    "semantic_hash": "0aa31745959a44c29919e25060178a25"
+    "mtime": 1783579001.8986847,
+    "ast_hash": "6b35db06b07c64b3977beb6e23ea8a41",
+    "semantic_hash": ""
   },
   "README.md": {
     "mtime": 1783577139.8541503,
@@ -175,9 +175,9 @@
     "semantic_hash": "0713206029a2301dabb6331b2b4a3691"
   },
   "api/health_views.py": {
-    "mtime": 1783577139.8621502,
-    "ast_hash": "a7d6332d96b231e60923fd611f02b45e",
-    "semantic_hash": "a7d6332d96b231e60923fd611f02b45e"
+    "mtime": 1783580626.851051,
+    "ast_hash": "3694ba3a0f92bfb6e725787a9ecda1ba",
+    "semantic_hash": ""
   },
   "api/middleware.py": {
     "mtime": 1783577139.8651514,
@@ -533,5 +533,45 @@
     "mtime": 1783577139.9611514,
     "ast_hash": "7ec21e394057f7628f2915300d46d070",
     "semantic_hash": "7ec21e394057f7628f2915300d46d070"
+  },
+  "api/migrations/0010_alter_kategorisampah_options_and_more.py": {
+    "mtime": 1783580603.061662,
+    "ast_hash": "8bd7d71307c856a22d8caed3b9fcd9cd",
+    "semantic_hash": ""
+  },
+  ".ai-steering/Jawaban_Persyaratan_MIRU_Bank_Sampah.md": {
+    "mtime": 1783398647.0,
+    "ast_hash": "1683cc048328fa86ee113f2d65600455",
+    "semantic_hash": ""
+  },
+  ".ai-steering/Persyaratan yang harus disiapkan oleh klien.md": {
+    "mtime": 1783059450.0,
+    "ast_hash": "be7e8c2a1ab6e32ac6b3ed354629a64a",
+    "semantic_hash": ""
+  },
+  ".ai-steering/Proposal Bank sampah - Untuk Klien Pak Arfan.md": {
+    "mtime": 1783059436.0,
+    "ast_hash": "7c2f3611e4ae9772b44447b178b40d04",
+    "semantic_hash": ""
+  },
+  ".ai-steering/README.md": {
+    "mtime": 1783409984.0,
+    "ast_hash": "ab0003f7acd95c0dd8c23b1709a1e3d9",
+    "semantic_hash": ""
+  },
+  ".ai-steering/SOP_Aplikasib ank_Sampah_Distrik_Mimika_Baru.md": {
+    "mtime": 1783059424.0,
+    "ast_hash": "84c3f5cb761b4a659f913511e6b2109c",
+    "semantic_hash": ""
+  },
+  ".ai-steering/Timeline Proyek Pengembangan MIRU Bank Sampah - Distrik Mimika Baru.md": {
+    "mtime": 1783406343.0,
+    "ast_hash": "ecb474ba8ff47fda8e7c5963b185a61a",
+    "semantic_hash": ""
+  },
+  ".ai-steering/Timeline Proyek Pengembangan Sistem Aplikasi Manajemen Peternakan-Klien Agung.md": {
+    "mtime": 1783405272.0,
+    "ast_hash": "23cb9913c45220cc41109a2c5fb0eae9",
+    "semantic_hash": ""
   }
 }
