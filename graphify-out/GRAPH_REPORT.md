@@ -1,18 +1,13 @@
 # Graph Report - backend  (2026-07-08)
 
 ## Corpus Check
-- 103 files · ~47,999 words
+- 104 files · ~48,110 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1320 nodes · 2764 edges · 96 communities (58 shown, 38 thin omitted)
+- 1321 nodes · 2764 edges · 97 communities (59 shown, 38 thin omitted)
 - Extraction: 79% EXTRACTED · 21% INFERRED · 0% AMBIGUOUS · INFERRED: 569 edges (avg confidence: 0.51)
 - Token cost: 0 input · 0 output
-
-## Graph Freshness
-- Built from commit: `174f88e1`
-- Run `git rev-parse HEAD` and compare to check if the graph is stale.
-- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Community 0|Community 0]]
@@ -136,7 +131,7 @@
 - 1-file cycle: `api/services/pickups.py -> api/services/pickups.py`
 - 1-file cycle: `api/services/withdrawals.py -> api/services/withdrawals.py`
 
-## Communities (96 total, 38 thin omitted)
+## Communities (97 total, 38 thin omitted)
 
 ### Community 1 - "Community 1"
 Cohesion: 0.08
@@ -343,11 +338,11 @@ Nodes (4): handle(), main(), pipe(), socket
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `EnvelopeAPITestCase` connect `Community 40` to `Community 31`, `Community 32`, `Community 33`, `Community 34`, `Community 38`, `Community 39`, `Community 41`, `Community 51`, `Community 53`, `Community 60`, `Community 63`, `Community 64`, `Community 66`, `Community 68`, `Community 70`, `Community 71`, `Community 72`, `Community 73`, `Community 75`, `Community 78`, `Community 79`, `Community 81`, `Community 84`, `Community 85`, `Community 87`?**
-  _High betweenness centrality (0.077) - this node is a cross-community bridge._
+  _High betweenness centrality (0.085) - this node is a cross-community bridge._
 - **Why does `TransaksiSetoran` connect `Community 38` to `Community 0`, `Community 33`, `Community 2`, `Community 34`, `Community 66`, `Community 37`, `Community 32`, `Community 72`, `Community 73`, `Community 14`, `Community 79`, `Community 81`, `Community 53`, `Community 85`, `Community 26`?**
-  _High betweenness centrality (0.058) - this node is a cross-community bridge._
+  _High betweenness centrality (0.060) - this node is a cross-community bridge._
 - **Why does `KategoriSampah` connect `Community 72` to `Community 0`, `Community 14`, `Community 17`, `Community 26`, `Community 31`, `Community 32`, `Community 33`, `Community 34`, `Community 38`, `Community 40`, `Community 53`, `Community 66`, `Community 73`, `Community 74`, `Community 75`, `Community 79`, `Community 80`, `Community 81`, `Community 85`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+  _High betweenness centrality (0.055) - this node is a cross-community bridge._
 - **Are the 48 inferred relationships involving `EnvelopeAPITestCase` (e.g. with `ActivityListTests` and `AuditLogListTests`) actually correct?**
   _`EnvelopeAPITestCase` has 48 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 52 inferred relationships involving `KategoriSampah` (e.g. with `Decimal` and `KategoriSampah`) actually correct?**
