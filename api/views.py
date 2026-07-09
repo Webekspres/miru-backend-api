@@ -24,6 +24,8 @@ from .services.redemptions import approve_redemption
 from .services.activity import get_activity_items
 from .openapi import (
     ACTIVITY_TAG,
+    AUDIT_LOG_TAG,
+    CATEGORIES_TAG,
     complaint_schema,
     deposit_schema,
     partner_sale_schema,
@@ -51,6 +53,83 @@ from .permissions import (
 from .serializers import *
 from .utils.pagination import MiruPagination
 from .utils.response import success_response
+
+
+class AuditLogListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    @extend_schema(
+        tags=['Audit Log'],
+        summary='Daftar audit log (admin only)',
+        description=(
+            'Riwayat perubahan data untuk keperluan audit. '
+            'Filter berdasarkan user, model, atau tanggal.'
+        ),
+        parameters=[
+            {
+                'name': 'user',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'integer'},
+                'description': 'Filter by user ID',
+            },
+            {
+                'name': 'model',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'string'},
+                'description': 'Filter by model name (e.g. TransaksiSetoran, User)',
+            },
+            {
+                'name': 'action',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'string', 'enum': ['create', 'update', 'delete']},
+                'description': 'Filter by action type',
+            },
+            {
+                'name': 'date_after',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'string', 'format': 'date'},
+                'description': 'Filter: entri setelah tanggal ini (YYYY-MM-DD)',
+            },
+            {
+                'name': 'date_before',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'string', 'format': 'date'},
+                'description': 'Filter: entri sebelum tanggal ini (YYYY-MM-DD)',
+            },
+        ],
+    )
+    def get(self, request):
+        qs = AuditLog.objects.select_related('user').all()
+
+        user_id = request.query_params.get('user')
+        if user_id:
+            qs = qs.filter(user_id=user_id)
+
+        model_name = request.query_params.get('model')
+        if model_name:
+            qs = qs.filter(model_name__iexact=model_name)
+
+        action = request.query_params.get('action')
+        if action:
+            qs = qs.filter(action=action)
+
+        date_after = request.query_params.get('date_after')
+        if date_after:
+            qs = qs.filter(timestamp__date__gte=date_after)
+
+        date_before = request.query_params.get('date_before')
+        if date_before:
+            qs = qs.filter(timestamp__date__lte=date_before)
+
+        paginator = MiruPagination()
+        page = paginator.paginate_queryset(qs, request)
+        serializer = AuditLogSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
 
 @user_viewset_schema
@@ -150,11 +229,11 @@ class KategoriSampahViewSet(viewsets.ModelViewSet):
     ordering = ['nama']
 
     def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'price_history'):
             return [AllowAny()]
         if self.action == 'destroy':
-            return [IsAdmin()]
-        return [IsAdminOrKoordinator()]
+            return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+        return [IsAuthenticated(), IsAdminOrKoordinator(), IsPemerintahReadOnly()]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -190,6 +269,21 @@ class KategoriSampahViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    @extend_schema(
+        tags=[CATEGORIES_TAG],
+        summary='Riwayat perubahan harga kategori',
+        description='Daftar perubahan harga_beli_per_kg untuk kategori ini.',
+    )
+    @action(detail=True, methods=['get'], url_path='price-history')
+    def price_history(self, request, pk=None):
+        kategori = self.get_object()
+        from .services.price_history import get_price_history
+        qs = get_price_history(kategori.pk)
+        paginator = MiruPagination()
+        page = paginator.paginate_queryset(qs, request)
+        serializer = RiwayatHargaSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
+
 @deposit_schema
 class TransaksiSetoranViewSet(viewsets.ModelViewSet):
     queryset = TransaksiSetoran.objects.select_related(
@@ -198,16 +292,20 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
     filterset_class = TransaksiSetoranFilter
     ordering_fields = ['tanggal', 'total_nilai']
     ordering = ['-tanggal']
-    http_method_names = ['get', 'post', 'head', 'options']
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
 
     def get_serializer_class(self):
         if self.action == 'create':
             return TransaksiSetoranCreateSerializer
+        if self.action in ('partial_update', 'update'):
+            return TransaksiSetoranCorrectionSerializer
         return TransaksiSetoranReadSerializer
 
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsPetugasOrAdmin(), IsPemerintahReadOnly()]
+        if self.action in ('partial_update', 'update'):
+            return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
@@ -237,6 +335,23 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
             message='Bukti setoran berhasil diambil.',
             request=request,
         )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        output = TransaksiSetoranReadSerializer(
+            serializer.instance, context={'request': request},
+        )
+        return success_response(
+            data=output.data,
+            message='Data setoran berhasil dikoreksi.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 @pickup_schema
 class PenjemputanViewSet(viewsets.ModelViewSet):

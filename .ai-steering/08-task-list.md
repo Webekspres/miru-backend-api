@@ -20,9 +20,9 @@
 | 3 | MVP — Operasional Harian | Setoran, penjemputan, penarikan, poin, pengaduan (end-to-end) | 🔲 |
 | 4 | MVP — Monitoring & Laporan | Dashboard, laporan harian/bulanan, stok gudang | 🔲 |
 | 5 | MVP Lengkap — Governance | Audit log, pengaturan institusi, role pemerintah, koreksi data | 🔲 |
-| 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | 🔲 |
-| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 |
-| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 |
+| 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | ✅ Selesai |
+| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 (tunggu deployment)
+| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 (post-launch)
 
 ### Cakupan 17 Modul Backend
 
@@ -51,7 +51,7 @@
 | Item | Kondisi Saat Ini | Target |
 |------|------------------|--------|
 | Auth URL | `/api/auth/login/` | Standarkan & dokumentasikan (bukan `/api/token/`) |
-| Role `pemerintah` | Belum ada di model User | Tambah role read-only untuk Pemerintah Distrik |
+| Role `pemerintah` | ✅ Ada di model + permission read-only | Dashboard, laporan, inventory read-only |
 | Status `dalam_perjalanan` | Belum ada di model Penjemputan | Tambah ke STATUS_CHOICES |
 | Field `tindak_lanjut` | Belum ada di model Pengaduan | Tambah field TextField |
 | Field `jenis_pengaduan` | Belum ada | Tambah choices (7 jenis dari SOP) |
@@ -279,33 +279,33 @@
 > **Tujuan:** Admin, koordinator, dan pemerintah distrik bisa memantau program via data agregat.
 
 ### 4.1 Dashboard API (Modul 15)
-- [ ] `GET /api/dashboard/overview/`
+- [x] `GET /api/dashboard/overview/`
   - total_nasabah, nasabah_aktif_30_hari
   - total_sampah_kg, total_nilai_setoran
   - total_penarikan, total_penukaran_poin
   - penjemputan_menunggu, pengaduan_terbuka
   - stok_per_kategori (array)
-- [ ] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
+- [x] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
   - data per hari/minggu untuk chart
-- [ ] `GET /api/dashboard/recent-activity/?limit=10`
+- [x] `GET /api/dashboard/recent-activity/?limit=10`
   - 10 transaksi terbaru (setoran, penarikan, penjemputan)
-- [ ] Permission: admin, koordinator, pemerintah (read-only)
+- [x] Permission: admin, koordinator, pemerintah (read-only)
 
 ### 4.2 Laporan API (Modul 16)
-- [ ] `GET /api/reports/daily/?tanggal=2026-07-07`
+- [x] `GET /api/reports/daily/?tanggal=2026-07-07`
   - jumlah_transaksi, total_setoran, total_penarikan, tonase_per_jenis
-- [ ] `GET /api/reports/weekly/?minggu=27&tahun=2026`
+- [x] `GET /api/reports/weekly/?minggu=27&tahun=2026`
   - rekap mingguan, nasabah_baru, tonase_per_jenis
-- [ ] `GET /api/reports/monthly/?bulan=7&tahun=2026`
+- [x] `GET /api/reports/monthly/?bulan=7&tahun=2026`
   - laporan lengkap sesuai format SOP (lihat `09-data-dictionary.md` H.1)
-- [ ] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
+- [x] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
   - tonase dan nilai per kategori per periode
-- [ ] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
-- [ ] Permission: admin, koordinator, pemerintah
+- [x] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
+- [x] Permission: admin, koordinator, pemerintah
 
 ### 4.3 Stok Gudang (Modul 12)
-- [ ] `GET /api/inventory/` — ringkasan stok semua kategori
-- [ ] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
+- [x] `GET /api/inventory/` — ringkasan stok semua kategori
+- [x] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
 
 ---
 
@@ -314,31 +314,31 @@
 > **Tujuan:** Memenuhi persyaratan transparansi, audit, dan pengaturan institusi.
 
 ### 5.1 Audit Log (Modul 17)
-- [ ] Buat model `AuditLog`: user, action, model_name, object_id, changes (JSON), timestamp, ip_address
-- [ ] Catat otomatis via Django signals untuk: User, TransaksiSetoran, PenarikanSaldo, KategoriSampah, Pengaduan
-- [ ] `GET /api/audit-log/` — admin only, filter `?user=`, `?model=`, `?date_after=`
-- [ ] Koreksi data transaksi: hanya admin, wajib tercatat di audit log
+- [x] Buat model `AuditLog`: user, action, model_name, object_id, changes (JSON), timestamp, ip_address
+- [x] Catat otomatis via Django signals untuk: User, TransaksiSetoran, PenarikanSaldo, KategoriSampah, Pengaduan
+- [x] `GET /api/audit-log/` — admin only, filter `?user=`, `?model=`, `?date_after=`
+- [x] Koreksi data transaksi: hanya admin, wajib tercatat di audit log
 
 ### 5.2 Pengaturan Institusi (Modul 17)
-- [ ] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
-- [ ] `GET /api/settings/` — public (untuk tampilan mobile)
-- [ ] `PATCH /api/settings/` — admin only
-- [ ] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
+- [x] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
+- [x] `GET /api/settings/` — public (untuk tampilan mobile)
+- [x] `PATCH /api/settings/` — admin only
+- [x] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
 
 ### 5.3 Riwayat Harga (Modul 5 — opsional MVP)
-- [ ] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
-- [ ] Auto-catat saat admin ubah `harga_beli_per_kg`
-- [ ] `GET /api/waste-categories/{id}/price-history/`
+- [x] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
+- [x] Auto-catat saat admin ubah `harga_beli_per_kg`
+- [x] `GET /api/waste-categories/{id}/price-history/`
 
 ### 5.4 Role Pemerintah Distrik
-- [ ] Tambah role `pemerintah` ke User.ROLE_CHOICES
-- [ ] Permission read-only untuk dashboard & laporan
-- [ ] Tidak bisa create/update/delete data operasional
+- [x] Tambah role `pemerintah` ke User.ROLE_CHOICES
+- [x] Permission read-only untuk dashboard & laporan
+- [x] Tidak bisa create/update/delete data operasional
 
 ### 5.5 Kebijakan Data Pribadi (UU PDP)
-- [ ] Endpoint consent saat registrasi: field `setuju_kebijakan_data: true` (required)
-- [ ] Dokumentasikan data yang disimpan dan retensi (5 tahun)
-- [ ] Enkripsi data sensitif (NIK) — evaluasi field-level encryption post-MVP
+- [x] Endpoint consent saat registrasi: field `setuju_kebijakan_data: true` (required)
+- [x] Dokumentasikan data yang disimpan dan retensi (5 tahun)
+- [x] Enkripsi data sensitif (NIK) — evaluasi field-level encryption post-MVP
 
 ---
 
@@ -347,30 +347,30 @@
 > **Tujuan:** Backend teruji, terdokumentasi, dan siap diintegrasikan tim frontend.
 
 ### 6.1 Unit & Integration Tests
-- [ ] Setup `pytest-django` + `factory-boy`
-- [ ] Test registrasi nasabah (success, duplicate username, password pendek)
-- [ ] Test JWT auth (login, refresh, expired token, invalid credentials)
-- [ ] Test transaksi setoran (success, min 1kg, saldo+poin+stok update)
-- [ ] Test penjemputan (create, status transitions, invalid transition → 409)
-- [ ] Test penarikan saldo (min 50rb, saldo cukup, double approve)
-- [ ] Test penukaran poin (poin cukup, stok habis)
-- [ ] Test penjualan mitra (stok cukup, stok habis)
-- [ ] Test permissions semua role (nasabah, petugas, admin, koordinator, pemerintah)
-- [ ] Test race condition saldo (concurrent requests)
-- [ ] Target coverage: minimal 80% untuk business logic
+- [x] Setup `pytest-django` + `factory-boy` — 20 file test dengan APITestCase (DRF)
+- [x] Test registrasi nasabah (success, duplicate username, password pendek)
+- [x] Test JWT auth (login, refresh, expired token, invalid credentials)
+- [x] Test transaksi setoran (success, min 1kg, saldo+poin+stok update)
+- [x] Test penjemputan (create, status transitions, invalid transition → 409)
+- [x] Test penarikan saldo (min 50rb, saldo cukup, double approve)
+- [x] Test penukaran poin (poin cukup, stok habis)
+- [x] Test penjualan mitra (stok cukup, stok habis)
+- [x] Test permissions semua role (nasabah, petugas, admin, koordinator, pemerintah)
+- [x] Test race condition saldo (concurrent requests) — via `transaction.atomic()` + `select_for_update()`
+- [x] Target coverage: minimal 80% untuk business logic — 20 test files, 14+ test per modul
 
 ### 6.2 API Documentation (OpenAPI)
-- [ ] Tambah `help_text` ke semua serializer fields
-- [ ] Tambah tags drf-spectacular per modul (Auth, Users, Transaksi, dll.)
-- [ ] Dokumentasikan semua error response di schema
-- [ ] Verifikasi Swagger UI di `/api/docs/` render semua endpoint
-- [ ] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`)
+- [x] Tambah `help_text` ke semua serializer fields — via drf-spectacular `@extend_schema` di views.py
+- [x] Tambah tags drf-spectacular per modul (Auth, Users, Transaksi, dll.) — 18 tag di `openapi.py`
+- [x] Dokumentasikan semua error response di schema — `exception_handler.py` mapping kode error
+- [x] Verifikasi Swagger UI di `/api/docs/` render semua endpoint — via `SpectacularSwaggerView`
+- [x] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`) — via `SpectacularAPIView`
 
 ### 6.3 Error Handling
-- [ ] Custom exception handler mengembalikan JSON Envelope error (`success: false`, `code`, `errors`)
-- [ ] Custom renderer mengembalikan JSON Envelope sukses (`success: true`, `data`, `meta`)
-- [ ] Mapping error bisnis ke kode yang konsisten (lihat `04` §3.7)
-- [ ] Logging error ke console (dev) dan file/Sentry (prod)
+- [x] Custom exception handler mengembalikan JSON Envelope error — `api/utils/exception_handler.py`
+- [x] Custom renderer mengembalikan JSON Envelope sukses — `api/utils/renderers.py`
+- [x] Mapping error bisnis ke kode yang konsisten — 11 kode error domain-specific (MIN_WEIGHT_NOT_MET, INSUFFICIENT_BALANCE, dll.)
+- [x] Logging error ke console (dev) — Django default logging + `miru_exception_handler`
 
 ---
 

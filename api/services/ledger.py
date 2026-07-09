@@ -90,6 +90,25 @@ def credit_nasabah_setoran(nasabah: User, total_nilai: Decimal) -> User:
 
 
 @transaction.atomic
+def adjust_setoran_correction(
+    nasabah: User, old_total: Decimal, new_total: Decimal,
+) -> User:
+    """Adjust nasabah saldo/poin when admin corrects a deposit total."""
+    delta_saldo = new_total - old_total
+    delta_poin = int(new_total / 1000) - int(old_total / 1000)
+    if delta_saldo == 0 and delta_poin == 0:
+        return nasabah
+
+    locked = _lock_user(nasabah.pk)
+    locked.saldo += delta_saldo
+    locked.poin += delta_poin
+    _ensure_non_negative_saldo(locked.saldo)
+    _ensure_non_negative_poin(locked.poin)
+    locked.save(update_fields=['saldo', 'poin'])
+    return locked
+
+
+@transaction.atomic
 def debit_nasabah_saldo(nasabah: User, nominal: Decimal) -> User:
     """Debit nasabah saldo; raises if result would be negative."""
     locked = _lock_user(nasabah.pk)

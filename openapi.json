@@ -7,6 +7,18 @@ info:
     `meta`). Panduan alur per role: `/api/guide/`. Akun demo (setelah `seed_data`):
     `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`, `koordinator/koordinator123`.'
 paths:
+  /api/activity/:
+    get:
+      operationId: activity_retrieve
+      summary: Riwayat transaksi gabungan (setoran, penarikan, penukaran poin)
+      tags:
+      - Activity
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
   /api/auth/login/:
     post:
       operationId: auth_login_create
@@ -39,7 +51,9 @@ paths:
   /api/auth/me/:
     get:
       operationId: auth_me_retrieve
-      description: Ambil profil lengkap user dari JWT. Nasabah tidak bisa ubah role/saldo/poin.
+      description: Ambil profil lengkap user dari JWT. Termasuk field `qr` ({ id,
+        nama_lengkap, no_hp }) untuk kartu digital. Nasabah tidak bisa ubah role/saldo/poin
+        via PATCH.
       summary: Profil user yang sedang login
       tags:
       - Auth
@@ -112,6 +126,26 @@ paths:
       summary: Daftar pengaduan
       parameters:
       - in: query
+        name: jenis_pengaduan
+        schema:
+          type: string
+          enum:
+          - berat_tidak_sesuai
+          - bukti_tidak_muncul
+          - harga_tidak_sesuai
+          - kesalahan_data
+          - penjemputan_terlambat
+          - petugas_tidak_datang
+          - saldo_belum_masuk
+        description: |-
+          * `saldo_belum_masuk` - Saldo Belum Masuk
+          * `penjemputan_terlambat` - Penjemputan Terlambat
+          * `berat_tidak_sesuai` - Berat Tidak Sesuai
+          * `harga_tidak_sesuai` - Harga Tidak Sesuai
+          * `petugas_tidak_datang` - Petugas Tidak Datang
+          * `kesalahan_data` - Kesalahan Data
+          * `bukti_tidak_muncul` - Bukti Tidak Muncul
+      - in: query
         name: nasabah
         schema:
           type: integer
@@ -170,7 +204,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PengaduanRequest'
+              $ref: '#/components/schemas/PengaduanCreateRequest'
             examples:
               PengaduanSaldo:
                 value:
@@ -179,10 +213,10 @@ paths:
                 summary: Pengaduan saldo
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PengaduanRequest'
+              $ref: '#/components/schemas/PengaduanCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PengaduanRequest'
+              $ref: '#/components/schemas/PengaduanCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -192,7 +226,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pengaduan'
+                $ref: '#/components/schemas/PengaduanCreate'
           description: ''
   /api/complaints/{id}/:
     get:
@@ -207,40 +241,6 @@ paths:
         required: true
       tags:
       - Complaints
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pengaduan'
-          description: ''
-    put:
-      operationId: complaints_update
-      summary: Perbarui pengaduan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this pengaduan.
-        required: true
-      tags:
-      - Complaints
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PengaduanRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PengaduanRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PengaduanRequest'
-        required: true
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -267,13 +267,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPengaduanRequest'
+              $ref: '#/components/schemas/PatchedPengaduanUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPengaduanRequest'
+              $ref: '#/components/schemas/PatchedPengaduanUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPengaduanRequest'
+              $ref: '#/components/schemas/PatchedPengaduanUpdateRequest'
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -282,25 +282,48 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pengaduan'
+                $ref: '#/components/schemas/PengaduanUpdate'
           description: ''
-    delete:
-      operationId: complaints_destroy
-      summary: Hapus pengaduan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this pengaduan.
-        required: true
+  /api/dashboard/deposit-chart/:
+    get:
+      operationId: dashboard_deposit_chart_retrieve
+      description: Total nilai, berat, dan jumlah transaksi per hari untuk satu bulan.
+      summary: Data setoran harian untuk chart
       tags:
-      - Complaints
+      - Dashboard
       security:
       - jwtAuth: []
       - BearerAuth: []
       responses:
-        '204':
+        '200':
+          description: No response body
+  /api/dashboard/overview/:
+    get:
+      operationId: dashboard_overview_retrieve
+      description: 'Data agregat untuk dashboard: total nasabah, nasabah aktif 30
+        hari, total sampah & nilai setoran, penarikan, penukaran poin, penjemputan
+        menunggu, pengaduan terbuka, dan stok per kategori.'
+      summary: Ringkasan monitoring program (admin/koordinator/pemerintah)
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/dashboard/recent-activity/:
+    get:
+      operationId: dashboard_recent_activity_retrieve
+      description: Gabungan setoran, penarikan, dan penjemputan terbaru, urut waktu.
+      summary: Aktivitas transaksi terbaru
+      tags:
+      - Dashboard
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
           description: No response body
   /api/deposits/:
     get:
@@ -339,6 +362,16 @@ paths:
         name: status
         schema:
           type: string
+      - in: query
+        name: tanggal_after
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: tanggal_before
+        schema:
+          type: string
+          format: date
       tags:
       - Deposits
       security:
@@ -349,7 +382,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedTransaksiSetoranList'
+                $ref: '#/components/schemas/PaginatedTransaksiSetoranReadList'
           description: ''
     post:
       operationId: deposits_create
@@ -360,7 +393,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
+              $ref: '#/components/schemas/TransaksiSetoranCreateRequest'
             examples:
               SetoranNasabah:
                 value:
@@ -373,10 +406,10 @@ paths:
                 summary: Setoran nasabah
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
+              $ref: '#/components/schemas/TransaksiSetoranCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
+              $ref: '#/components/schemas/TransaksiSetoranCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -386,12 +419,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransaksiSetoran'
+                $ref: '#/components/schemas/TransaksiSetoranCreate'
           description: ''
   /api/deposits/{id}/:
     get:
       operationId: deposits_retrieve
-      summary: Detail setoran
+      summary: Bukti digital setoran
       parameters:
       - in: path
         name: id
@@ -409,92 +442,40 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransaksiSetoran'
+                $ref: '#/components/schemas/TransaksiSetoranRead'
           description: ''
-    put:
-      operationId: deposits_update
-      summary: Perbarui setoran
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this transaksi setoran.
-        required: true
+  /api/inventory/:
+    get:
+      operationId: inventory_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Ringkasan stok gudang semua kategori
       tags:
-      - Deposits
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/TransaksiSetoranRequest'
-        required: true
+      - Inventory
       security:
       - jwtAuth: []
       - BearerAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TransaksiSetoran'
-          description: ''
-    patch:
-      operationId: deposits_partial_update
-      summary: Perbarui setoran
+          description: No response body
+  /api/inventory/{kategori_id}/history/:
+    get:
+      operationId: inventory_history_retrieve
+      description: Gabungan pergerakan stok dari setoran (masuk) dan penjualan ke
+        mitra (keluar), diurutkan terbaru dulu.
+      summary: Riwayat perubahan stok per kategori
       parameters:
       - in: path
-        name: id
+        name: kategori_id
         schema:
           type: integer
-        description: A unique integer value identifying this transaksi setoran.
         required: true
       tags:
-      - Deposits
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedTransaksiSetoranRequest'
+      - Inventory
       security:
       - jwtAuth: []
       - BearerAuth: []
       responses:
         '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TransaksiSetoran'
-          description: ''
-    delete:
-      operationId: deposits_destroy
-      summary: Hapus setoran
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this transaksi setoran.
-        required: true
-      tags:
-      - Deposits
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '204':
           description: No response body
   /api/partner-sales/:
     get:
@@ -554,7 +535,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
+              $ref: '#/components/schemas/PenjualanMitraCreateRequest'
             examples:
               JualStokPET:
                 value:
@@ -565,10 +546,10 @@ paths:
                 summary: Jual stok PET
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
+              $ref: '#/components/schemas/PenjualanMitraCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
+              $ref: '#/components/schemas/PenjualanMitraCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -578,7 +559,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PenjualanMitra'
+                $ref: '#/components/schemas/PenjualanMitraCreate'
           description: ''
   /api/partner-sales/{id}/:
     get:
@@ -603,91 +584,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/PenjualanMitra'
           description: ''
-    put:
-      operationId: partner_sales_update
-      summary: Perbarui penjualan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penjualan mitra.
-        required: true
-      tags:
-      - Partner Sales
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PenjualanMitraRequest'
-        required: true
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PenjualanMitra'
-          description: ''
-    patch:
-      operationId: partner_sales_partial_update
-      summary: Perbarui penjualan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penjualan mitra.
-        required: true
-      tags:
-      - Partner Sales
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedPenjualanMitraRequest'
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PenjualanMitra'
-          description: ''
-    delete:
-      operationId: partner_sales_destroy
-      summary: Hapus penjualan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penjualan mitra.
-        required: true
-      tags:
-      - Partner Sales
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '204':
-          description: No response body
   /api/partners/:
     get:
       operationId: partners_list
@@ -906,6 +802,7 @@ paths:
         schema:
           type: string
           enum:
+          - dalam_perjalanan
           - dijadwalkan
           - dijemput
           - disetujui
@@ -916,6 +813,7 @@ paths:
           * `menunggu` - Menunggu
           * `disetujui` - Disetujui
           * `dijadwalkan` - Dijadwalkan
+          * `dalam_perjalanan` - Dalam Perjalanan
           * `dijemput` - Dijemput
           * `selesai` - Selesai
           * `ditolak` - Ditolak
@@ -940,7 +838,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
+              $ref: '#/components/schemas/PenjemputanCreateRequest'
             examples:
               AjuanPenjemputan:
                 value:
@@ -951,10 +849,10 @@ paths:
                 summary: Ajuan penjemputan
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
+              $ref: '#/components/schemas/PenjemputanCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
+              $ref: '#/components/schemas/PenjemputanCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -964,7 +862,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Penjemputan'
+                $ref: '#/components/schemas/PenjemputanCreate'
           description: ''
   /api/pickups/{id}/:
     get:
@@ -979,40 +877,6 @@ paths:
         required: true
       tags:
       - Pickups
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Penjemputan'
-          description: ''
-    put:
-      operationId: pickups_update
-      summary: Perbarui penjemputan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penjemputan.
-        required: true
-      tags:
-      - Pickups
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PenjemputanRequest'
-        required: true
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -1039,13 +903,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+              $ref: '#/components/schemas/PatchedPenjemputanUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+              $ref: '#/components/schemas/PatchedPenjemputanUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPenjemputanRequest'
+              $ref: '#/components/schemas/PatchedPenjemputanUpdateRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenjemputanUpdate'
+          description: ''
+  /api/pickups/{id}/approve/:
+    post:
+      operationId: pickups_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - pickups
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -1056,9 +942,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/Penjemputan'
           description: ''
-    delete:
-      operationId: pickups_destroy
-      summary: Hapus penjemputan
+  /api/pickups/{id}/assign/:
+    post:
+      operationId: pickups_assign_create
       parameters:
       - in: path
         name: id
@@ -1067,12 +953,125 @@ paths:
         description: A unique integer value identifying this penjemputan.
         required: true
       tags:
-      - Pickups
+      - pickups
       security:
       - jwtAuth: []
       - BearerAuth: []
       responses:
-        '204':
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+  /api/pickups/{id}/reject/:
+    post:
+      operationId: pickups_reject_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - pickups
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+  /api/pickups/{id}/update-status/:
+    post:
+      operationId: pickups_update_status_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penjemputan.
+        required: true
+      tags:
+      - pickups
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Penjemputan'
+          description: ''
+  /api/reports/daily/:
+    get:
+      operationId: reports_daily_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Laporan harian
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/reports/evaluation/:
+    get:
+      operationId: reports_evaluation_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Data agregat evaluasi program
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/reports/monthly/:
+    get:
+      operationId: reports_monthly_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Laporan bulanan lengkap (format SOP)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/reports/waste/:
+    get:
+      operationId: reports_waste_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Laporan tonase & nilai sampah per kategori
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/reports/weekly/:
+    get:
+      operationId: reports_weekly_retrieve
+      description: Base view for admin/koordinator/pemerintah read-only monitoring.
+      summary: Laporan mingguan (nomor minggu ISO)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
           description: No response body
   /api/reward-redemptions/:
     get:
@@ -1138,7 +1137,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
+              $ref: '#/components/schemas/PenukaranPoinCreateRequest'
             examples:
               PenukaranPulsa:
                 value:
@@ -1146,10 +1145,10 @@ paths:
                 summary: Penukaran pulsa
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
+              $ref: '#/components/schemas/PenukaranPoinCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
+              $ref: '#/components/schemas/PenukaranPoinCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1159,7 +1158,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PenukaranPoin'
+                $ref: '#/components/schemas/PenukaranPoinCreate'
           description: ''
   /api/reward-redemptions/{id}/:
     get:
@@ -1174,40 +1173,6 @@ paths:
         required: true
       tags:
       - Reward Redemptions
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PenukaranPoin'
-          description: ''
-    put:
-      operationId: reward_redemptions_update
-      summary: Ubah penukaran
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penukaran poin.
-        required: true
-      tags:
-      - Reward Redemptions
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PenukaranPoinRequest'
-        required: true
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -1234,13 +1199,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+              $ref: '#/components/schemas/PatchedPenukaranPoinUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+              $ref: '#/components/schemas/PatchedPenukaranPoinUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPenukaranPoinRequest'
+              $ref: '#/components/schemas/PatchedPenukaranPoinUpdateRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenukaranPoinUpdate'
+          description: ''
+  /api/reward-redemptions/{id}/approve/:
+    post:
+      operationId: reward_redemptions_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penukaran poin.
+        required: true
+      tags:
+      - reward-redemptions
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -1251,24 +1238,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/PenukaranPoin'
           description: ''
-    delete:
-      operationId: reward_redemptions_destroy
-      summary: Hapus penukaran
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penukaran poin.
-        required: true
-      tags:
-      - Reward Redemptions
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '204':
-          description: No response body
   /api/rewards/:
     get:
       operationId: rewards_list
@@ -1482,12 +1451,14 @@ paths:
           - admin
           - koordinator
           - nasabah
+          - pemerintah
           - petugas
         description: |-
           * `nasabah` - Nasabah
           * `petugas` - Petugas
           * `admin` - Admin Aplikasi
           * `koordinator` - Koordinator
+          * `pemerintah` - Pemerintah Distrik
       - name: search
         required: false
         in: query
@@ -1867,11 +1838,13 @@ paths:
         schema:
           type: string
           enum:
+          - ditolak
           - menunggu
           - selesai
         description: |-
           * `menunggu` - Menunggu
           * `selesai` - Selesai
+          * `ditolak` - Ditolak
       tags:
       - Withdrawals
       security:
@@ -1893,7 +1866,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
+              $ref: '#/components/schemas/PenarikanSaldoCreateRequest'
             examples:
               PenarikanTunai:
                 value:
@@ -1902,10 +1875,10 @@ paths:
                 summary: Penarikan tunai
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
+              $ref: '#/components/schemas/PenarikanSaldoCreateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
+              $ref: '#/components/schemas/PenarikanSaldoCreateRequest'
         required: true
       security:
       - jwtAuth: []
@@ -1915,7 +1888,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PenarikanSaldo'
+                $ref: '#/components/schemas/PenarikanSaldoCreate'
           description: ''
   /api/withdrawals/{id}/:
     get:
@@ -1930,40 +1903,6 @@ paths:
         required: true
       tags:
       - Withdrawals
-      security:
-      - jwtAuth: []
-      - BearerAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PenarikanSaldo'
-          description: ''
-    put:
-      operationId: withdrawals_update
-      summary: Ubah penarikan
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        description: A unique integer value identifying this penarikan saldo.
-        required: true
-      tags:
-      - Withdrawals
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PenarikanSaldoRequest'
-        required: true
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -1990,13 +1929,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+              $ref: '#/components/schemas/PatchedPenarikanSaldoUpdateRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+              $ref: '#/components/schemas/PatchedPenarikanSaldoUpdateRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatchedPenarikanSaldoRequest'
+              $ref: '#/components/schemas/PatchedPenarikanSaldoUpdateRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldoUpdate'
+          description: ''
+  /api/withdrawals/{id}/approve/:
+    post:
+      operationId: withdrawals_approve_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this penarikan saldo.
+        required: true
+      tags:
+      - withdrawals
       security:
       - jwtAuth: []
       - BearerAuth: []
@@ -2007,9 +1968,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/PenarikanSaldo'
           description: ''
-    delete:
-      operationId: withdrawals_destroy
-      summary: Hapus penarikan
+  /api/withdrawals/{id}/reject/:
+    post:
+      operationId: withdrawals_reject_create
       parameters:
       - in: path
         name: id
@@ -2018,13 +1979,17 @@ paths:
         description: A unique integer value identifying this penarikan saldo.
         required: true
       tags:
-      - Withdrawals
+      - withdrawals
       security:
       - jwtAuth: []
       - BearerAuth: []
       responses:
-        '204':
-          description: No response body
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenarikanSaldo'
+          description: ''
   /health/:
     get:
       operationId: health_retrieve
@@ -2057,12 +2022,17 @@ paths:
           description: ''
 components:
   schemas:
-    DetailSetoran:
+    DetailSetoranRead:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        kategori:
+          type: integer
+        kategori_nama:
+          type: string
+          readOnly: true
         berat_kg:
           type: string
           format: decimal
@@ -2075,40 +2045,55 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        transaksi:
-          type: integer
-          readOnly: true
-        kategori:
-          type: integer
       required:
       - berat_kg
       - harga_saat_itu
       - id
       - kategori
+      - kategori_nama
       - subtotal
-      - transaksi
-    DetailSetoranRequest:
+    DetailSetoranWrite:
       type: object
       properties:
+        kategori:
+          type: integer
         berat_kg:
           type: string
           format: decimal
           pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-        harga_saat_itu:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        subtotal:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        kategori:
-          type: integer
       required:
       - berat_kg
-      - harga_saat_itu
       - kategori
-      - subtotal
+    DetailSetoranWriteRequest:
+      type: object
+      properties:
+        kategori:
+          type: integer
+        berat_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+      required:
+      - berat_kg
+      - kategori
+    JenisPengaduanEnum:
+      enum:
+      - saldo_belum_masuk
+      - penjemputan_terlambat
+      - berat_tidak_sesuai
+      - harga_tidak_sesuai
+      - petugas_tidak_datang
+      - kesalahan_data
+      - bukti_tidak_muncul
+      type: string
+      description: |-
+        * `saldo_belum_masuk` - Saldo Belum Masuk
+        * `penjemputan_terlambat` - Penjemputan Terlambat
+        * `berat_tidak_sesuai` - Berat Tidak Sesuai
+        * `harga_tidak_sesuai` - Harga Tidak Sesuai
+        * `petugas_tidak_datang` - Petugas Tidak Datang
+        * `kesalahan_data` - Kesalahan Data
+        * `bukti_tidak_muncul` - Bukti Tidak Muncul
     KategoriSampah:
       type: object
       properties:
@@ -2126,10 +2111,12 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
       required:
       - harga_beli_per_kg
       - id
       - nama
+      - stok_terkini_kg
     KategoriSampahRequest:
       type: object
       properties:
@@ -2138,10 +2125,6 @@ components:
           minLength: 1
           maxLength: 100
         harga_beli_per_kg:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        stok_terkini_kg:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
@@ -2376,7 +2359,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Reward'
-    PaginatedTransaksiSetoranList:
+    PaginatedTransaksiSetoranReadList:
       type: object
       required:
       - count
@@ -2398,7 +2381,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/TransaksiSetoran'
+            $ref: '#/components/schemas/TransaksiSetoranRead'
     PaginatedUserAdminList:
       type: object
       required:
@@ -2433,10 +2416,6 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        stok_terkini_kg:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
     PatchedMitraPengepulRequest:
       type: object
       properties:
@@ -2448,79 +2427,34 @@ components:
           type: string
           minLength: 1
           maxLength: 50
-    PatchedPenarikanSaldoRequest:
+    PatchedPenarikanSaldoUpdateRequest:
       type: object
       properties:
-        nominal:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        metode:
-          type: string
-          minLength: 1
-          maxLength: 50
         status:
-          $ref: '#/components/schemas/StatusA0bEnum'
-        nasabah:
-          type: integer
-    PatchedPengaduanRequest:
+          $ref: '#/components/schemas/Status730Enum'
+    PatchedPengaduanUpdateRequest:
       type: object
       properties:
-        keluhan:
+        tindak_lanjut:
           type: string
-          minLength: 1
         status:
-          $ref: '#/components/schemas/PengaduanStatusEnum'
-        nasabah:
-          type: integer
-    PatchedPenjemputanRequest:
+          $ref: '#/components/schemas/Status767Enum'
+    PatchedPenjemputanUpdateRequest:
       type: object
       properties:
-        estimasi_berat:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-        alamat_jemput:
-          type: string
-          minLength: 1
-        jadwal:
-          type: string
-          format: date-time
         status:
-          $ref: '#/components/schemas/PenjemputanStatusEnum'
-        nasabah:
-          type: integer
+          $ref: '#/components/schemas/Status626Enum'
         petugas:
           type: integer
           nullable: true
-    PatchedPenjualanMitraRequest:
-      type: object
-      properties:
-        berat_jual_kg:
+        jadwal:
           type: string
-          format: decimal
-          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
-        harga_jual_per_kg:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        total_penjualan:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        mitra:
-          type: integer
-        kategori:
-          type: integer
-    PatchedPenukaranPoinRequest:
+          format: date-time
+    PatchedPenukaranPoinUpdateRequest:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/StatusA0bEnum'
-        nasabah:
-          type: integer
-        reward:
-          type: integer
     PatchedRewardRequest:
       type: object
       properties:
@@ -2536,27 +2470,6 @@ components:
           type: integer
           maximum: 2147483647
           minimum: -2147483648
-    PatchedTransaksiSetoranRequest:
-      type: object
-      properties:
-        details:
-          type: array
-          items:
-            $ref: '#/components/schemas/DetailSetoranRequest'
-          writeOnly: true
-        total_nilai:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        status:
-          type: string
-          minLength: 1
-          maxLength: 20
-        nasabah:
-          type: integer
-        petugas:
-          type: integer
-          nullable: true
     PatchedUserAdminRequest:
       type: object
       properties:
@@ -2619,6 +2532,39 @@ components:
         id:
           type: integer
           readOnly: true
+        nasabah:
+          type: integer
+          readOnly: true
+        nasabah_nama:
+          type: string
+          readOnly: true
+        nominal:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        metode:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status730Enum'
+          readOnly: true
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - metode
+      - nasabah
+      - nasabah_nama
+      - nominal
+      - status
+      - tanggal
+    PenarikanSaldoCreate:
+      type: object
+      properties:
         nominal:
           type: string
           format: decimal
@@ -2626,21 +2572,10 @@ components:
         metode:
           type: string
           maxLength: 50
-        status:
-          $ref: '#/components/schemas/StatusA0bEnum'
-        tanggal:
-          type: string
-          format: date-time
-          readOnly: true
-        nasabah:
-          type: integer
       required:
-      - id
       - metode
-      - nasabah
       - nominal
-      - tanggal
-    PenarikanSaldoRequest:
+    PenarikanSaldoCreateRequest:
       type: object
       properties:
         nominal:
@@ -2651,62 +2586,129 @@ components:
           type: string
           minLength: 1
           maxLength: 50
-        status:
-          $ref: '#/components/schemas/StatusA0bEnum'
-        nasabah:
-          type: integer
       required:
       - metode
-      - nasabah
       - nominal
+    PenarikanSaldoUpdate:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status730Enum'
     Pengaduan:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        nasabah:
+          type: integer
+          readOnly: true
+        nasabah_nama:
+          type: string
+          readOnly: true
+        jenis_pengaduan:
+          allOf:
+          - $ref: '#/components/schemas/JenisPengaduanEnum'
+          readOnly: true
         keluhan:
           type: string
+          readOnly: true
+        tindak_lanjut:
+          type: string
+          readOnly: true
         status:
-          $ref: '#/components/schemas/PengaduanStatusEnum'
+          allOf:
+          - $ref: '#/components/schemas/Status767Enum'
+          readOnly: true
         tanggal:
           type: string
           format: date-time
           readOnly: true
-        nasabah:
-          type: integer
       required:
       - id
+      - jenis_pengaduan
       - keluhan
       - nasabah
+      - nasabah_nama
+      - status
       - tanggal
-    PengaduanRequest:
+      - tindak_lanjut
+    PengaduanCreate:
       type: object
       properties:
+        jenis_pengaduan:
+          $ref: '#/components/schemas/JenisPengaduanEnum'
+        keluhan:
+          type: string
+      required:
+      - jenis_pengaduan
+      - keluhan
+    PengaduanCreateRequest:
+      type: object
+      properties:
+        jenis_pengaduan:
+          $ref: '#/components/schemas/JenisPengaduanEnum'
         keluhan:
           type: string
           minLength: 1
-        status:
-          $ref: '#/components/schemas/PengaduanStatusEnum'
-        nasabah:
-          type: integer
       required:
+      - jenis_pengaduan
       - keluhan
-      - nasabah
-    PengaduanStatusEnum:
-      enum:
-      - terbuka
-      - ditutup
-      type: string
-      description: |-
-        * `terbuka` - Terbuka
-        * `ditutup` - Ditutup
+    PengaduanUpdate:
+      type: object
+      properties:
+        tindak_lanjut:
+          type: string
+        status:
+          $ref: '#/components/schemas/Status767Enum'
     Penjemputan:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        nasabah:
+          type: integer
+          readOnly: true
+        nasabah_nama:
+          type: string
+          readOnly: true
+        petugas:
+          type: integer
+          readOnly: true
+          nullable: true
+        petugas_nama:
+          type: string
+          readOnly: true
+        estimasi_berat:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
+        alamat_jemput:
+          type: string
+          readOnly: true
+        jadwal:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/Status626Enum'
+          readOnly: true
+      required:
+      - alamat_jemput
+      - estimasi_berat
+      - id
+      - jadwal
+      - nasabah
+      - nasabah_nama
+      - petugas
+      - petugas_nama
+      - status
+    PenjemputanCreate:
+      type: object
+      properties:
         estimasi_berat:
           type: string
           format: decimal
@@ -2716,20 +2718,11 @@ components:
         jadwal:
           type: string
           format: date-time
-        status:
-          $ref: '#/components/schemas/PenjemputanStatusEnum'
-        nasabah:
-          type: integer
-        petugas:
-          type: integer
-          nullable: true
       required:
       - alamat_jemput
       - estimasi_berat
-      - id
       - jadwal
-      - nasabah
-    PenjemputanRequest:
+    PenjemputanCreateRequest:
       type: object
       properties:
         estimasi_berat:
@@ -2742,71 +2735,77 @@ components:
         jadwal:
           type: string
           format: date-time
-        status:
-          $ref: '#/components/schemas/PenjemputanStatusEnum'
-        nasabah:
-          type: integer
-        petugas:
-          type: integer
-          nullable: true
       required:
       - alamat_jemput
       - estimasi_berat
       - jadwal
-      - nasabah
-    PenjemputanStatusEnum:
-      enum:
-      - menunggu
-      - disetujui
-      - dijadwalkan
-      - dijemput
-      - selesai
-      - ditolak
-      type: string
-      description: |-
-        * `menunggu` - Menunggu
-        * `disetujui` - Disetujui
-        * `dijadwalkan` - Dijadwalkan
-        * `dijemput` - Dijemput
-        * `selesai` - Selesai
-        * `ditolak` - Ditolak
+    PenjemputanUpdate:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/Status626Enum'
+        petugas:
+          type: integer
+          nullable: true
+        jadwal:
+          type: string
+          format: date-time
+      required:
+      - jadwal
     PenjualanMitra:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        mitra:
+          type: integer
+          readOnly: true
+        mitra_nama:
+          type: string
+          readOnly: true
+        kategori:
+          type: integer
+          readOnly: true
+        kategori_nama:
+          type: string
+          readOnly: true
         berat_jual_kg:
           type: string
           format: decimal
           pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+          readOnly: true
         harga_jual_per_kg:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
         total_penjualan:
           type: string
           format: decimal
           pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
         tanggal:
           type: string
           format: date-time
           readOnly: true
-        mitra:
-          type: integer
-        kategori:
-          type: integer
       required:
       - berat_jual_kg
       - harga_jual_per_kg
       - id
       - kategori
+      - kategori_nama
       - mitra
+      - mitra_nama
       - tanggal
       - total_penjualan
-    PenjualanMitraRequest:
+    PenjualanMitraCreate:
       type: object
       properties:
+        mitra:
+          type: integer
+        kategori:
+          type: integer
         berat_jual_kg:
           type: string
           format: decimal
@@ -2815,53 +2814,88 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
-        total_penjualan:
-          type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        mitra:
-          type: integer
-        kategori:
-          type: integer
       required:
       - berat_jual_kg
       - harga_jual_per_kg
       - kategori
       - mitra
-      - total_penjualan
+    PenjualanMitraCreateRequest:
+      type: object
+      properties:
+        mitra:
+          type: integer
+        kategori:
+          type: integer
+        berat_jual_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        harga_jual_per_kg:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - berat_jual_kg
+      - harga_jual_per_kg
+      - kategori
+      - mitra
     PenukaranPoin:
       type: object
       properties:
         id:
           type: integer
           readOnly: true
+        nasabah:
+          type: integer
+          readOnly: true
+        nasabah_nama:
+          type: string
+          readOnly: true
+        reward:
+          type: integer
+          readOnly: true
+        reward_nama:
+          type: string
+          readOnly: true
+        poin_dibutuhkan:
+          type: integer
+          readOnly: true
         status:
-          $ref: '#/components/schemas/StatusA0bEnum'
+          allOf:
+          - $ref: '#/components/schemas/StatusA0bEnum'
+          readOnly: true
         tanggal:
           type: string
           format: date-time
           readOnly: true
-        nasabah:
-          type: integer
-        reward:
-          type: integer
       required:
       - id
       - nasabah
+      - nasabah_nama
+      - poin_dibutuhkan
       - reward
+      - reward_nama
+      - status
       - tanggal
-    PenukaranPoinRequest:
+    PenukaranPoinCreate:
+      type: object
+      properties:
+        reward:
+          type: integer
+      required:
+      - reward
+    PenukaranPoinCreateRequest:
+      type: object
+      properties:
+        reward:
+          type: integer
+      required:
+      - reward
+    PenukaranPoinUpdate:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/StatusA0bEnum'
-        nasabah:
-          type: integer
-        reward:
-          type: integer
-      required:
-      - nasabah
-      - reward
     Reward:
       type: object
       properties:
@@ -2909,12 +2943,50 @@ components:
       - petugas
       - admin
       - koordinator
+      - pemerintah
       type: string
       description: |-
         * `nasabah` - Nasabah
         * `petugas` - Petugas
         * `admin` - Admin Aplikasi
         * `koordinator` - Koordinator
+        * `pemerintah` - Pemerintah Distrik
+    Status626Enum:
+      enum:
+      - menunggu
+      - disetujui
+      - dijadwalkan
+      - dalam_perjalanan
+      - dijemput
+      - selesai
+      - ditolak
+      type: string
+      description: |-
+        * `menunggu` - Menunggu
+        * `disetujui` - Disetujui
+        * `dijadwalkan` - Dijadwalkan
+        * `dalam_perjalanan` - Dalam Perjalanan
+        * `dijemput` - Dijemput
+        * `selesai` - Selesai
+        * `ditolak` - Ditolak
+    Status730Enum:
+      enum:
+      - menunggu
+      - selesai
+      - ditolak
+      type: string
+      description: |-
+        * `menunggu` - Menunggu
+        * `selesai` - Selesai
+        * `ditolak` - Ditolak
+    Status767Enum:
+      enum:
+      - terbuka
+      - ditutup
+      type: string
+      description: |-
+        * `terbuka` - Terbuka
+        * `ditutup` - Ditutup
     StatusA0bEnum:
       enum:
       - menunggu
@@ -2940,11 +3012,70 @@ components:
           minLength: 1
       required:
       - refresh
-    TransaksiSetoran:
+    TransaksiSetoranCreate:
       type: object
       properties:
         id:
           type: integer
+          readOnly: true
+        nasabah:
+          type: integer
+        petugas:
+          type: integer
+          readOnly: true
+          nullable: true
+        tanggal:
+          type: string
+          format: date-time
+          readOnly: true
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        status:
+          type: string
+          readOnly: true
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailSetoranWrite'
+      required:
+      - details
+      - id
+      - nasabah
+      - petugas
+      - status
+      - tanggal
+      - total_nilai
+    TransaksiSetoranCreateRequest:
+      type: object
+      properties:
+        nasabah:
+          type: integer
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetailSetoranWriteRequest'
+      required:
+      - details
+      - nasabah
+    TransaksiSetoranRead:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        nasabah:
+          type: integer
+        nasabah_nama:
+          type: string
+          readOnly: true
+        petugas:
+          type: integer
+          nullable: true
+        petugas_nama:
+          type: string
           readOnly: true
         tanggal:
           type: string
@@ -2957,39 +3088,30 @@ components:
         status:
           type: string
           maxLength: 20
-        nasabah:
-          type: integer
-        petugas:
-          type: integer
-          nullable: true
-      required:
-      - id
-      - nasabah
-      - tanggal
-    TransaksiSetoranRequest:
-      type: object
-      properties:
         details:
           type: array
           items:
-            $ref: '#/components/schemas/DetailSetoranRequest'
-          writeOnly: true
-        total_nilai:
+            $ref: '#/components/schemas/DetailSetoranRead'
+          readOnly: true
+        poin_didapat:
           type: string
-          format: decimal
-          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
-        status:
+          readOnly: true
+        saldo_nasabah_baru:
           type: string
-          minLength: 1
-          maxLength: 20
-        nasabah:
-          type: integer
-        petugas:
-          type: integer
-          nullable: true
+          readOnly: true
+        bukti_digital:
+          type: string
+          readOnly: true
       required:
+      - bukti_digital
       - details
+      - id
       - nasabah
+      - nasabah_nama
+      - petugas_nama
+      - poin_didapat
+      - saldo_nasabah_baru
+      - tanggal
     UserAdmin:
       type: object
       properties:
@@ -3121,12 +3243,17 @@ components:
           format: date-time
           readOnly: true
           title: Tanggal daftar
+        qr:
+          type: object
+          additionalProperties: {}
+          readOnly: true
       required:
       - date_joined
       - id
       - is_active
       - nama_lengkap
       - poin
+      - qr
       - role
       - saldo
       - username

@@ -105,8 +105,17 @@ class PemerintahReadOnlyTests(EnvelopeAPITestCase):
         self.pemerintah = self.create_pemerintah()
         self.admin = self.create_admin(username='admin_role')
         self.nasabah = self.create_nasabah(username='nasabah_role2')
+        self.kategori = KategoriSampah.objects.create(
+            nama='PET', harga_beli_per_kg=Decimal('3000.00'),
+        )
         TransaksiSetoran.objects.create(
             nasabah=self.nasabah, total_nilai=Decimal('5000.00'),
+        )
+        self.withdrawal = PenarikanSaldo.objects.create(
+            nasabah=self.nasabah,
+            nominal=Decimal('50000.00'),
+            metode='tunai',
+            status='menunggu',
         )
         MitraPengepul.objects.create(nama='Mitra X', kontak='08111')
 
@@ -121,6 +130,21 @@ class PemerintahReadOnlyTests(EnvelopeAPITestCase):
         response = self.client.get('/api/partners/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_pemerintah_can_read_dashboard(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.get('/api/dashboard/overview/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_pemerintah_can_read_reports(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.get('/api/reports/daily/?tanggal=2026-07-07')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_pemerintah_can_read_inventory(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.get('/api/inventory/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_pemerintah_cannot_create_partner(self):
         self.auth_as(self.pemerintah)
         response = self.client.post('/api/partners/', {
@@ -133,6 +157,61 @@ class PemerintahReadOnlyTests(EnvelopeAPITestCase):
         response = self.client.post('/api/deposits/', {
             'nasabah': self.nasabah.id,
             'details': [],
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_patch_deposit(self):
+        deposit = TransaksiSetoran.objects.get(nasabah=self.nasabah)
+        self.auth_as(self.pemerintah)
+        response = self.client.patch(
+            f'/api/deposits/{deposit.id}/',
+            {'total_nilai': '9999.00'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_patch_category(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.patch(
+            f'/api/waste-categories/{self.kategori.id}/',
+            {'harga_beli_per_kg': '5000.00'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_approve_withdrawal(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.patch(
+            f'/api/withdrawals/{self.withdrawal.id}/',
+            {'status': 'selesai'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_patch_settings(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.patch(
+            '/api/settings/',
+            {'nama_institusi': 'Hack'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_access_audit_log(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.get('/api/audit-log/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_list_users(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.get('/api/users/')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_pemerintah_cannot_create_complaint(self):
+        self.auth_as(self.pemerintah)
+        response = self.client.post('/api/complaints/', {
+            'jenis_pengaduan': 'kesalahan_data',
+            'keluhan': 'Test',
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

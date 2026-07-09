@@ -12,6 +12,8 @@ from api.models import (
     PenarikanSaldo,
     Penjemputan,
     Pengaduan,
+    PengaturanInstitusi,
+    Pengumuman,
     PenjualanMitra,
     PenukaranPoin,
     Reward,
@@ -45,6 +47,7 @@ EXTRA_STAFF_USERS = [
     ('petugas1', 'petugas123', 'petugas', 'Petugas Satu'),
     ('petugas2', 'petugas123', 'petugas', 'Petugas Dua'),
     ('petugas3', 'petugas123', 'petugas', 'Petugas Tiga'),
+    ('pemerintah', 'pemerintah123', 'pemerintah', 'Pemerintah Distrik MIRU'),
 ]
 
 
@@ -82,6 +85,8 @@ class Command(BaseCommand):
         counts['categories'] = self._seed_categories()
         counts['rewards'] = self._seed_rewards()
         counts['admin'] = self._seed_admin()
+        counts['settings'] = self._seed_institution_settings()
+        counts['pengumuman'] = self._seed_pengumuman()
 
         if minimal:
             total = sum(counts.values())
@@ -138,6 +143,7 @@ class Command(BaseCommand):
                 '  admin / admin123\n'
                 '  koordinator / koordinator123\n'
                 '  petugas1 / petugas123\n'
+                '  pemerintah / pemerintah123\n'
                 '  nasabah001 / nasabah123'
             ))
 
@@ -176,6 +182,34 @@ class Command(BaseCommand):
             alamat='Jl. Cendrawasih Poros SP.II, Timika',
         )
         return 1
+
+    def _seed_institution_settings(self):
+        PengaturanInstitusi.load()
+        return 1
+
+    def _seed_pengumuman(self):
+        samples = [
+            (
+                'Selamat Datang di MIRU Bank Sampah',
+                'Bank Sampah MIRU Distrik Mimika Baru siap melayani '
+                'pemilahan dan setoran sampah Anda. Bawa sampah terpilah '
+                'minimal 1 kg per jenis.',
+            ),
+            (
+                'Jam Operasional Libur Nasional',
+                'Bank sampah tutup pada tanggal merah nasional. '
+                'Silakan setor sampah di hari kerja berikutnya.',
+            ),
+        ]
+        created = 0
+        for judul, isi in samples:
+            _, was_created = Pengumuman.objects.get_or_create(
+                judul=judul,
+                defaults={'isi': isi, 'aktif': True},
+            )
+            if was_created:
+                created += 1
+        return created or len(samples)
 
     def _seed_extra_staff(self):
         created = 0

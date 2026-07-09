@@ -23,6 +23,110 @@ PARTNERS_TAG = 'Partners'
 PARTNER_SALES_TAG = 'Partner Sales'
 COMPLAINTS_TAG = 'Complaints'
 ACTIVITY_TAG = 'Activity'
+DASHBOARD_TAG = 'Dashboard'
+REPORTS_TAG = 'Reports'
+AUDIT_LOG_TAG = 'Audit Log'
+INVENTORY_TAG = 'Inventory'
+SETTINGS_TAG = 'Settings'
+
+
+def _query_param(name, schema_type='string', required=False, description=''):
+    return {
+        'name': name,
+        'in': 'query',
+        'required': required,
+        'schema': {'type': schema_type},
+        'description': description,
+    }
+
+
+dashboard_overview_schema = extend_schema(
+    tags=[DASHBOARD_TAG],
+    summary='Ringkasan monitoring program (admin/koordinator/pemerintah)',
+    description=(
+        'Data agregat untuk dashboard: total nasabah, nasabah aktif 30 hari, '
+        'total sampah & nilai setoran, penarikan, penukaran poin, penjemputan '
+        'menunggu, pengaduan terbuka, dan stok per kategori.'
+    ),
+)
+
+dashboard_deposit_chart_schema = extend_schema(
+    tags=[DASHBOARD_TAG],
+    summary='Data setoran harian untuk chart',
+    description='Total nilai, berat, dan jumlah transaksi per hari untuk satu bulan.',
+    parameters=[
+        _query_param('bulan', 'integer', description='Bulan 1-12 (default: bulan berjalan)'),
+        _query_param('tahun', 'integer', description='Tahun (default: tahun berjalan)'),
+    ],
+)
+
+dashboard_recent_activity_schema = extend_schema(
+    tags=[DASHBOARD_TAG],
+    summary='Aktivitas transaksi terbaru',
+    description='Gabungan setoran, penarikan, dan penjemputan terbaru, urut waktu.',
+    parameters=[
+        _query_param('limit', 'integer', description='Jumlah item (1-50, default 10)'),
+    ],
+)
+
+report_daily_schema = extend_schema(
+    tags=[REPORTS_TAG],
+    summary='Laporan harian',
+    parameters=[_query_param('tanggal', 'string', required=True, description='Format YYYY-MM-DD')],
+)
+
+report_weekly_schema = extend_schema(
+    tags=[REPORTS_TAG],
+    summary='Laporan mingguan (nomor minggu ISO)',
+    parameters=[
+        _query_param('minggu', 'integer', description='Nomor minggu ISO 1-53 (default: minggu berjalan)'),
+        _query_param('tahun', 'integer', description='Tahun (default: tahun berjalan)'),
+    ],
+)
+
+report_monthly_schema = extend_schema(
+    tags=[REPORTS_TAG],
+    summary='Laporan bulanan lengkap (format SOP)',
+    parameters=[
+        _query_param('bulan', 'integer', description='Bulan 1-12 (default: bulan berjalan)'),
+        _query_param('tahun', 'integer', description='Tahun (default: tahun berjalan)'),
+    ],
+)
+
+report_waste_schema = extend_schema(
+    tags=[REPORTS_TAG],
+    summary='Laporan tonase & nilai sampah per kategori',
+    parameters=[
+        _query_param('start', 'string', required=True, description='Format YYYY-MM-DD'),
+        _query_param('end', 'string', required=True, description='Format YYYY-MM-DD'),
+    ],
+)
+
+report_evaluation_schema = extend_schema(
+    tags=[REPORTS_TAG],
+    summary='Data agregat evaluasi program',
+    parameters=[
+        _query_param('start', 'string', required=True, description='Format YYYY-MM-DD'),
+        _query_param('end', 'string', required=True, description='Format YYYY-MM-DD'),
+    ],
+)
+
+inventory_schema = extend_schema(
+    tags=[INVENTORY_TAG],
+    summary='Ringkasan stok gudang semua kategori',
+)
+
+inventory_history_schema = extend_schema(
+    tags=[INVENTORY_TAG],
+    summary='Riwayat perubahan stok per kategori',
+    description=(
+        'Gabungan pergerakan stok dari setoran (masuk) dan penjualan ke mitra (keluar), '
+        'diurutkan terbaru dulu.'
+    ),
+    parameters=[
+        _query_param('limit', 'integer', description='Jumlah item (1-100, default 50)'),
+    ],
+)
 
 auth_login_schema = extend_schema(
     tags=[AUTH_TAG],
@@ -96,6 +200,7 @@ user_viewset_schema = extend_schema_view(
                     'nama_lengkap': 'Budi Santoso',
                     'no_hp': '08123456789',
                     'alamat': 'Jl. Cendrawasih, Timika',
+                    'setuju_kebijakan_data': True,
                 },
                 request_only=True,
             ),
@@ -135,9 +240,16 @@ deposit_schema = extend_schema_view(
             ),
         ],
     ),
-    partial_update=extend_schema(summary='Perbarui setoran', tags=[DEPOSITS_TAG]),
-    update=extend_schema(summary='Perbarui setoran', tags=[DEPOSITS_TAG]),
-    destroy=extend_schema(summary='Hapus setoran', tags=[DEPOSITS_TAG]),
+    partial_update=extend_schema(
+        summary='Koreksi data setoran (admin only)',
+        description=(
+            'Admin dapat mengoreksi total_nilai transaksi. '
+            'Perubahan saldo/poin nasabah disesuaikan otomatis dan tercatat di audit log.'
+        ),
+        tags=[DEPOSITS_TAG],
+    ),
+    update=extend_schema(summary='Koreksi data setoran (admin only)', tags=[DEPOSITS_TAG]),
+    destroy=extend_schema(exclude=True),
 )
 
 pickup_schema = extend_schema_view(
@@ -263,4 +375,18 @@ complaint_schema = extend_schema_view(
     partial_update=extend_schema(summary='Perbarui pengaduan', tags=[COMPLAINTS_TAG]),
     update=extend_schema(summary='Perbarui pengaduan', tags=[COMPLAINTS_TAG]),
     destroy=extend_schema(summary='Hapus pengaduan', tags=[COMPLAINTS_TAG]),
+)
+
+settings_schema = extend_schema_view(
+    get=extend_schema(
+        tags=[SETTINGS_TAG],
+        summary='Pengaturan institusi (public)',
+        description='Profil institusi untuk tampilan mobile dan web.',
+    ),
+)
+
+pengumuman_list_schema = extend_schema(
+    tags=[SETTINGS_TAG],
+    summary='Daftar pengumuman aktif (public)',
+    description='Pengumuman yang ditampilkan di aplikasi mobile nasabah.',
 )

@@ -33,6 +33,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'api.middleware.RequestIdMiddleware',
+    'api.middleware.CurrentRequestMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -161,6 +162,8 @@ SPECTACULAR_SETTINGS = {
         {'name': 'Partners', 'description': 'Mitra pengepul sampah.'},
         {'name': 'Partner Sales', 'description': 'Penjualan stok ke mitra.'},
         {'name': 'Complaints', 'description': 'Pengaduan nasabah.'},
+        {'name': 'Audit Log', 'description': 'Riwayat perubahan data untuk audit (admin only).'},
+        {'name': 'Settings', 'description': 'Pengaturan institusi dan pengumuman.'},
     ],
     'APPEND_COMPONENTS': {
         'securitySchemes': {

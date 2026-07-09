@@ -36,12 +36,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
+    setuju_kebijakan_data = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
         fields = [
             'id', 'username', 'password', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
-            'role', 'saldo', 'poin', 'is_active',
+            'setuju_kebijakan_data', 'role', 'saldo', 'poin', 'is_active',
         ]
         read_only_fields = ['id', 'role', 'saldo', 'poin', 'is_active']
 
@@ -55,8 +56,17 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Password minimal 6 karakter.')
         return value
 
+    def validate_setuju_kebijakan_data(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                'Anda harus menyetujui kebijakan data pribadi.'
+            )
+        return value
+
     def create(self, validated_data):
-        return User.objects.create_user(
+        validated_data.pop('setuju_kebijakan_data')
+        from django.utils import timezone
+        user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             nama_lengkap=validated_data['nama_lengkap'],
@@ -67,6 +77,10 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             saldo=0,
             poin=0,
         )
+        user.setuju_kebijakan_data = True
+        user.tanggal_persetujuan_kebijakan = timezone.now()
+        user.save(update_fields=['setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan'])
+        return user
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
@@ -177,6 +191,29 @@ class KategoriSampahSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Harga harus lebih dari 0.')
         return value
 
+    def update(self, instance, validated_data):
+        old_harga = instance.harga_beli_per_kg
+        instance = super().update(instance, validated_data)
+        new_harga = instance.harga_beli_per_kg
+        if new_harga != old_harga:
+            from api.services.price_history import record_price_change
+            record_price_change(instance, old_harga, new_harga)
+        return instance
+
+
+class RiwayatHargaSerializer(serializers.ModelSerializer):
+    diubah_oleh_nama = serializers.CharField(
+        source='diubah_oleh.nama_lengkap', read_only=True, default=None,
+    )
+
+    class Meta:
+        model = RiwayatHarga
+        fields = [
+            'id', 'kategori', 'harga_lama', 'harga_baru',
+            'tanggal_berlaku', 'diubah_oleh', 'diubah_oleh_nama',
+        ]
+        read_only_fields = fields
+
 
 class DetailSetoranWriteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -271,6 +308,47 @@ class TransaksiSetoranReadSerializer(serializers.ModelSerializer):
 
     def get_bukti_digital(self, obj):
         return build_bukti_digital(obj)
+
+
+class TransaksiSetoranCorrectionSerializer(serializers.ModelSerializer):
+    """Admin-only: koreksi data transaksi setoran."""
+
+    class Meta:
+        model = TransaksiSetoran
+        fields = ['total_nilai']
+
+    def validate_total_nilai(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Nilai total tidak boleh negatif.')
+        return value
+
+    def validate(self, attrs):
+        new_total = attrs.get('total_nilai', self.instance.total_nilai)
+        old_total = self.instance.total_nilai
+        delta = new_total - old_total
+        if delta < 0:
+            nasabah = self.instance.nasabah
+            if nasabah.saldo + delta < 0:
+                raise serializers.ValidationError(
+                    'Koreksi tidak dapat dilakukan: saldo nasabah tidak mencukupi.'
+                )
+            poin_delta = int(new_total / 1000) - int(old_total / 1000)
+            if nasabah.poin + poin_delta < 0:
+                raise serializers.ValidationError(
+                    'Koreksi tidak dapat dilakukan: poin nasabah tidak mencukupi.'
+                )
+        return attrs
+
+    def update(self, instance, validated_data):
+        from api.services.ledger import adjust_setoran_correction
+
+        new_total = validated_data['total_nilai']
+        old_total = instance.total_nilai
+        if new_total != old_total:
+            adjust_setoran_correction(instance.nasabah, old_total, new_total)
+            instance.total_nilai = new_total
+            instance.save(update_fields=['total_nilai'])
+        return instance
 
 
 # Backward-compatible alias
@@ -608,6 +686,41 @@ class PengaduanUpdateSerializer(serializers.ModelSerializer):
         from .services.complaints import validate_admin_close
         validate_admin_close(tindak_lanjut, status)
         return attrs
+
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    user_nama = serializers.CharField(
+        source='user.nama_lengkap', read_only=True, default=None,
+    )
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id', 'user', 'user_nama', 'action', 'model_name', 'object_id',
+            'changes', 'timestamp', 'ip_address',
+        ]
+        read_only_fields = fields
+
+
+class PengaturanInstitusiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PengaturanInstitusi
+        fields = [
+            'nama_institusi', 'alamat', 'kontak', 'email',
+            'logo_url', 'jam_operasional', 'pengumuman',
+        ]
+
+    def validate_nama_institusi(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Nama institusi wajib diisi.')
+        return value
+
+
+class PengumumanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pengumuman
+        fields = ['id', 'judul', 'isi', 'aktif', 'tanggal']
+        read_only_fields = fields
 
 
 class PengaduanSerializer(serializers.ModelSerializer):
