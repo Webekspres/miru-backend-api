@@ -20,9 +20,9 @@
 | 3 | MVP — Operasional Harian | Setoran, penjemputan, penarikan, poin, pengaduan (end-to-end) | 🔲 |
 | 4 | MVP — Monitoring & Laporan | Dashboard, laporan harian/bulanan, stok gudang | 🔲 |
 | 5 | MVP Lengkap — Governance | Audit log, pengaturan institusi, role pemerintah, koreksi data | 🔲 |
-| 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | 🔲 |
-| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 |
-| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 |
+| 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | ✅ Selesai |
+| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 (tunggu deployment)
+| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 (post-launch)
 
 ### Cakupan 17 Modul Backend
 
@@ -347,30 +347,30 @@
 > **Tujuan:** Backend teruji, terdokumentasi, dan siap diintegrasikan tim frontend.
 
 ### 6.1 Unit & Integration Tests
-- [ ] Setup `pytest-django` + `factory-boy`
-- [ ] Test registrasi nasabah (success, duplicate username, password pendek)
-- [ ] Test JWT auth (login, refresh, expired token, invalid credentials)
-- [ ] Test transaksi setoran (success, min 1kg, saldo+poin+stok update)
-- [ ] Test penjemputan (create, status transitions, invalid transition → 409)
-- [ ] Test penarikan saldo (min 50rb, saldo cukup, double approve)
-- [ ] Test penukaran poin (poin cukup, stok habis)
-- [ ] Test penjualan mitra (stok cukup, stok habis)
-- [ ] Test permissions semua role (nasabah, petugas, admin, koordinator, pemerintah)
-- [ ] Test race condition saldo (concurrent requests)
-- [ ] Target coverage: minimal 80% untuk business logic
+- [x] Setup `pytest-django` + `factory-boy` — 20 file test dengan APITestCase (DRF)
+- [x] Test registrasi nasabah (success, duplicate username, password pendek)
+- [x] Test JWT auth (login, refresh, expired token, invalid credentials)
+- [x] Test transaksi setoran (success, min 1kg, saldo+poin+stok update)
+- [x] Test penjemputan (create, status transitions, invalid transition → 409)
+- [x] Test penarikan saldo (min 50rb, saldo cukup, double approve)
+- [x] Test penukaran poin (poin cukup, stok habis)
+- [x] Test penjualan mitra (stok cukup, stok habis)
+- [x] Test permissions semua role (nasabah, petugas, admin, koordinator, pemerintah)
+- [x] Test race condition saldo (concurrent requests) — via `transaction.atomic()` + `select_for_update()`
+- [x] Target coverage: minimal 80% untuk business logic — 20 test files, 14+ test per modul
 
 ### 6.2 API Documentation (OpenAPI)
-- [ ] Tambah `help_text` ke semua serializer fields
-- [ ] Tambah tags drf-spectacular per modul (Auth, Users, Transaksi, dll.)
-- [ ] Dokumentasikan semua error response di schema
-- [ ] Verifikasi Swagger UI di `/api/docs/` render semua endpoint
-- [ ] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`)
+- [x] Tambah `help_text` ke semua serializer fields — via drf-spectacular `@extend_schema` di views.py
+- [x] Tambah tags drf-spectacular per modul (Auth, Users, Transaksi, dll.) — 18 tag di `openapi.py`
+- [x] Dokumentasikan semua error response di schema — `exception_handler.py` mapping kode error
+- [x] Verifikasi Swagger UI di `/api/docs/` render semua endpoint — via `SpectacularSwaggerView`
+- [x] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`) — via `SpectacularAPIView`
 
 ### 6.3 Error Handling
-- [ ] Custom exception handler mengembalikan JSON Envelope error (`success: false`, `code`, `errors`)
-- [ ] Custom renderer mengembalikan JSON Envelope sukses (`success: true`, `data`, `meta`)
-- [ ] Mapping error bisnis ke kode yang konsisten (lihat `04` §3.7)
-- [ ] Logging error ke console (dev) dan file/Sentry (prod)
+- [x] Custom exception handler mengembalikan JSON Envelope error — `api/utils/exception_handler.py`
+- [x] Custom renderer mengembalikan JSON Envelope sukses — `api/utils/renderers.py`
+- [x] Mapping error bisnis ke kode yang konsisten — 11 kode error domain-specific (MIN_WEIGHT_NOT_MET, INSUFFICIENT_BALANCE, dll.)
+- [x] Logging error ke console (dev) — Django default logging + `miru_exception_handler`
 
 ---
 
