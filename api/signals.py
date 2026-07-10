@@ -13,6 +13,8 @@ from api.models import (
     KategoriSampah,
     Pengaduan,
     PenarikanSaldo,
+    Penjemputan,
+    PenukaranPoin,
     TransaksiSetoran,
     User,
 )
@@ -144,6 +146,8 @@ def _get_pre_save_state(instance):
 @receiver(pre_save, sender=User)
 @receiver(pre_save, sender=TransaksiSetoran)
 @receiver(pre_save, sender=PenarikanSaldo)
+@receiver(pre_save, sender=Penjemputan)
+@receiver(pre_save, sender=PenukaranPoin)
 @receiver(pre_save, sender=KategoriSampah)
 @receiver(pre_save, sender=Pengaduan)
 def audit_pre_save(sender, instance, **kwargs):
@@ -151,6 +155,10 @@ def audit_pre_save(sender, instance, **kwargs):
     if instance.pk is None:
         return  # New instance — no old state needed
     _capture_pre_save(instance)
+    # Save old status for notification signal handlers (not all models have 'status')
+    old = instance.__class__.objects.filter(pk=instance.pk).first()
+    if old is not None:
+        instance._old_status = getattr(old, 'status', None)
 
 
 # ──────────────────────────────────────────────

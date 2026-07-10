@@ -224,6 +224,41 @@ class Pengumuman(models.Model):
         return self.judul
 
 
+class Notifikasi(models.Model):
+    """In-app notification untuk user nasabah."""
+
+    KATEGORI_CHOICES = (
+        ('setoran', 'Setoran'),
+        ('penjemputan', 'Penjemputan'),
+        ('penarikan', 'Penarikan Saldo'),
+        ('penukaran', 'Penukaran Poin'),
+        ('pengaduan', 'Pengaduan'),
+        ('sistem', 'Sistem'),
+    )
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notifikasi',
+        help_text='Penerima notifikasi',
+    )
+    judul = models.CharField(max_length=200)
+    deskripsi = models.TextField()
+    kategori = models.CharField(max_length=20, choices=KATEGORI_CHOICES, default='sistem')
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Notifikasi'
+        verbose_name_plural = 'Notifikasi'
+        indexes = [
+            models.Index(fields=['user', 'is_read']),
+            models.Index(fields=['created_at']),
+        ]
+
+    def __str__(self):
+        return f'[{self.get_kategori_display()}] {self.judul} — {self.user.username}'
+
+
 class Pengaduan(models.Model):
     JENIS_CHOICES = (
         ('saldo_belum_masuk', 'Saldo Belum Masuk'),

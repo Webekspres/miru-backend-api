@@ -724,6 +724,13 @@ class PengumumanSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class NotifikasiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifikasi
+        fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'is_read', 'created_at']
+        read_only_fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'created_at']
+
+
 class PengaduanSerializer(serializers.ModelSerializer):
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
 

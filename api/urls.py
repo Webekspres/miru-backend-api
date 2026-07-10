@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .notifications_views import NotifikasiViewSet
 from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView
 from .monitoring_views import (
     DashboardDepositChartView,
@@ -26,6 +27,7 @@ router.register(r'reward-redemptions', PenukaranPoinViewSet, basename='reward-re
 router.register(r'partners', MitraPengepulViewSet, basename='partner')
 router.register(r'partner-sales', PenjualanMitraViewSet, basename='partner-sale')
 router.register(r'complaints', PengaduanViewSet, basename='complaint')
+router.register(r'notifications', NotifikasiViewSet, basename='notification')
 
 urlpatterns = [
     path('activity/', ActivityListView.as_view(), name='activity'),
