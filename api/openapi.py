@@ -2,7 +2,7 @@
 
 from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_view
 
-from .serializers import UserProfileSerializer
+from .serializers import NotifikasiSerializer, UserProfileSerializer
 
 DEMO_CREDENTIALS = OpenApiExample(
     'Akun demo (setelah seed_data)',
@@ -27,6 +27,7 @@ DASHBOARD_TAG = 'Dashboard'
 REPORTS_TAG = 'Reports'
 AUDIT_LOG_TAG = 'Audit Log'
 INVENTORY_TAG = 'Inventory'
+NOTIFICATIONS_TAG = 'Notifications'
 SETTINGS_TAG = 'Settings'
 
 
@@ -389,4 +390,46 @@ pengumuman_list_schema = extend_schema(
     tags=[SETTINGS_TAG],
     summary='Daftar pengumuman aktif (public)',
     description='Pengumuman yang ditampilkan di aplikasi mobile nasabah.',
+)
+
+
+notification_schema = extend_schema_view(
+    list=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Daftar notifikasi',
+        description='Notifikasi in-app untuk user. Nasabah hanya melihat milik sendiri.',
+        parameters=[
+            {
+                'name': 'user',
+                'in': 'query',
+                'required': False,
+                'schema': {'type': 'integer'},
+                'description': 'Filter by user ID (staff only)',
+            },
+        ],
+    ),
+    retrieve=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Detail notifikasi',
+        responses={200: NotifikasiSerializer},
+    ),
+    mark_read=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Tandai satu notifikasi sebagai sudah dibaca',
+        description='POST to /notifications/{id}/read/ untuk menandai sudah dibaca.',
+        responses={200: NotifikasiSerializer},
+    ),
+    mark_all_read=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Tandai semua notifikasi sebagai sudah dibaca',
+        description='POST to /notifications/mark-all-read/ untuk menandai semua sudah dibaca.',
+        responses={
+            200: {
+                'type': 'object',
+                'properties': {
+                    'updated_count': {'type': 'integer'},
+                },
+            },
+        },
+    ),
 )

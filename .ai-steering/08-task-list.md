@@ -15,14 +15,14 @@
 | Fase | Nama | Tujuan | Status |
 |------|------|--------|--------|
 | 0 | Foundation | Setup proyek, model, CRUD dasar | ✅ Selesai |
-| 1 | MVP — Infrastruktur & Auth | Konfigurasi aman, auth, seed data, perbaikan dasar API | 🔲 Berikutnya |
-| 2 | MVP — Logika Bisnis Inti | Validasi, workflow, transaksi atomik, permission per role | 🔲 |
-| 3 | MVP — Operasional Harian | Setoran, penjemputan, penarikan, poin, pengaduan (end-to-end) | 🔲 |
-| 4 | MVP — Monitoring & Laporan | Dashboard, laporan harian/bulanan, stok gudang | 🔲 |
-| 5 | MVP Lengkap — Governance | Audit log, pengaturan institusi, role pemerintah, koreksi data | 🔲 |
+| 1 | MVP — Infrastruktur & Auth | Konfigurasi aman, auth, seed data, perbaikan dasar API | ✅ Selesai |
+| 2 | MVP — Logika Bisnis Inti | Validasi, workflow, transaksi atomik, permission per role | ✅ Selesai |
+| 3 | MVP — Operasional Harian | Setoran, penjemputan, penarikan, poin, pengaduan (end-to-end) | ✅ Selesai |
+| 4 | MVP — Monitoring & Laporan | Dashboard, laporan harian/bulanan, stok gudang | ✅ Selesai |
+| 5 | MVP Lengkap — Governance | Audit log, pengaturan institusi, role pemerintah, koreksi data | ✅ Selesai |
 | 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | ✅ Selesai |
-| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 (tunggu deployment)
-| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 (post-launch)
+| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 (tunggu deployment) |
+| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 (post-launch) |
 
 ### Cakupan 17 Modul Backend
 
@@ -50,18 +50,18 @@
 
 | Item | Kondisi Saat Ini | Target |
 |------|------------------|--------|
-| Auth URL | `/api/auth/login/` | Standarkan & dokumentasikan (bukan `/api/token/`) |
+| Auth URL | ✅ `/api/auth/login/` sudah standar | Standarkan & dokumentasikan |
 | Role `pemerintah` | ✅ Ada di model + permission read-only | Dashboard, laporan, inventory read-only |
-| Status `dalam_perjalanan` | Belum ada di model Penjemputan | Tambah ke STATUS_CHOICES |
-| Field `tindak_lanjut` | Belum ada di model Pengaduan | Tambah field TextField |
-| Field `jenis_pengaduan` | Belum ada | Tambah choices (7 jenis dari SOP) |
-| Pagination | Belum dikonfigurasi global | PageNumberPagination 20/halaman |
-| Error format | Format DRF default | JSON Envelope error (lihat `04` §3) |
-| `transaction.atomic()` | Belum dipakai | Wajib untuk semua operasi saldo/stok/poin |
-| `SECRET_KEY` | Hardcoded | Dari environment variable |
-| `TIME_ZONE` | UTC | `Asia/Jayapura` (WIT) |
-| Seed data | Belum ada | Management command kategori & reward |
-| `views.py` | Import `permissions` hilang | Perbaiki bug |
+| Status `dalam_perjalanan` | ✅ Ada di model (`0002_penjemputan_dalam_perjalanan`) | Tambah ke STATUS_CHOICES |
+| Field `tindak_lanjut` | ✅ Ada di model (`0003_pengaduan_fields`) | Tambah field TextField |
+| Field `jenis_pengaduan` | ✅ Ada, 7 choices dari SOP | Tambah choices |
+| Pagination | ✅ `MiruPagination` global (20/page, max 100) | PageNumberPagination 20/halaman |
+| Error format | ✅ JSON Envelope (`exception_handler.py`) | JSON Envelope error |
+| `transaction.atomic()` | ✅ Dipakai di semua operasi saldo/stok/poin | Wajib untuk operasi atomik |
+| `SECRET_KEY` | ✅ Dari environment variable | Dari environment variable |
+| `TIME_ZONE` | ✅ `Asia/Jayapura` | `Asia/Jayapura` (WIT) |
+| Seed data | ✅ `seed_data` management command | Management command kategori & reward |
+| `views.py` | ✅ Import sudah benar | Perbaiki bug |
 
 ---
 
@@ -379,14 +379,14 @@
 > **Tujuan:** Backend siap deploy ke server Webekspres dengan keamanan dan reliabilitas production.
 
 ### 7.1 Keamanan
-- [ ] `DEBUG=False` di production
-- [ ] `SECRET_KEY` unik per environment
-- [ ] Rate limiting: `10/minute` pada `/api/auth/login/` (django-ratelimit atau DRF throttle)
-- [ ] Rate limiting: `100/hour` per user pada endpoint write
-- [ ] HTTPS wajib (SSL termination di Nginx)
-- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF` config production
-- [ ] CORS: whitelist domain production only
-- [ ] Validasi input: sanitasi, max length enforcement
+- [x] `DEBUG=False` di production — dari env var `DEBUG`, default `True` dev
+- [x] `SECRET_KEY` unik per environment — dari env var, fallback dev-only
+- [ ] Rate limiting: `10/minute` pada `/api/auth/login/` — saat deployment (django-ratelimit atau DRF throttle)
+- [ ] Rate limiting: `100/hour` per user pada endpoint write — saat deployment
+- [ ] HTTPS wajib (SSL termination di Nginx) — saat deployment
+- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF` config production — saat deployment
+- [ ] CORS: whitelist domain production only — saat deployment
+- [x] Validasi input: sanitasi, max length enforcement — via DRF serializers
 
 ### 7.2 Deployment
 - [ ] Ganti `runserver` dengan **Gunicorn** di Dockerfile production
@@ -404,16 +404,16 @@
 - [ ] Test restore minimal 1x sebelum go-live
 
 ### 7.4 Monitoring & Logging
-- [ ] Structured logging (JSON format)
-- [ ] Integrasi Sentry untuk error tracking
-- [ ] Health check endpoint dengan status DB: `GET /health/` → `{ status, database, version }`
-- [ ] Uptime monitoring (external ping ke `/health/`)
+- [ ] Structured logging (JSON format) — saat deployment
+- [ ] Integrasi Sentry untuk error tracking — saat deployment
+- [x] Health check endpoint dengan status DB: `GET /health/` → `{ status, database }`
+- [ ] Uptime monitoring (external ping ke `/health/`) — saat deployment
 
 ### 7.5 Performance
-- [ ] Database indexes: `User.role`, `TransaksiSetoran.tanggal`, `Penjemputan.status`, `Pengaduan.status`
-- [ ] `select_related` / `prefetch_related` pada queryset yang heavy
-- [ ] Connection pooling PostgreSQL (pgBouncer atau Django CONN_MAX_AGE)
-- [ ] Load test dasar: 50 concurrent users (locust atau k6)
+- [x] Database indexes: `User.role`, `TransaksiSetoran.tanggal`, `Penjemputan.status`, `Pengaduan.status`, `PenarikanSaldo.status` — migration `0010_performance_indexes`
+- [x] `select_related` / `prefetch_related` pada queryset yang heavy — sudah di semua ViewSets
+- [ ] Connection pooling PostgreSQL (pgBouncer atau Django CONN_MAX_AGE) — saat deployment
+- [ ] Load test dasar: 50 concurrent users (locust atau k6) — saat deployment
 
 ---
 
@@ -430,7 +430,7 @@
 - [ ] Field upload foto KTP (FileField + storage)
 - [ ] Bukti transaksi digital PDF (weasyprint atau reportlab)
 - [ ] Kedaluwarsa poin otomatis (1 tahun) — scheduled task
-- [ ] Transfer bank / e-wallet metadata pada penarikan (tanpa payment gateway)
+- [x] Transfer bank / e-wallet metadata pada penarikan (tanpa payment gateway)
 
 ### 8.2 Optimasi & Skalabilitas
 - [ ] Redis cache untuk dashboard overview

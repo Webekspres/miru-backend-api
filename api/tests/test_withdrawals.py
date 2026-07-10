@@ -16,7 +16,7 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
         self.koordinator = self.create_koordinator(username='koord_wd')
 
     def _payload(self, **overrides):
-        payload = {'nominal': '100000.00', 'metode': 'tunai'}
+        payload = {'nominal': '100000.00', 'metode': 'tunai', 'nama_bank': '', 'no_rekening': '', 'nama_pemilik_rekening': ''}
         payload.update(overrides)
         return payload
 

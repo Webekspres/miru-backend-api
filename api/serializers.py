@@ -452,7 +452,7 @@ class PenjemputanSerializer(serializers.ModelSerializer):
 class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenarikanSaldo
-        fields = ['nominal', 'metode']
+        fields = ['nominal', 'metode', 'nama_bank', 'no_rekening', 'nama_pemilik_rekening']
 
     def validate_nominal(self, value):
         from .services.withdrawals import validate_nominal
@@ -503,6 +503,7 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         model = PenarikanSaldo
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
+            'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
             'status', 'tanggal',
         ]
         read_only_fields = fields
@@ -721,6 +722,13 @@ class PengumumanSerializer(serializers.ModelSerializer):
         model = Pengumuman
         fields = ['id', 'judul', 'isi', 'aktif', 'tanggal']
         read_only_fields = fields
+
+
+class NotifikasiSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notifikasi
+        fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'is_read', 'created_at']
+        read_only_fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'created_at']
 
 
 class PengaduanSerializer(serializers.ModelSerializer):

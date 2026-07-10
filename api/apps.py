@@ -7,3 +7,7 @@ class ApiConfig(AppConfig):
 
     def ready(self):
         import api.signals  # noqa: F401 — wire up audit log signals
+
+        # Wire up notification signals
+        from api.notification_signals import connect_notification_signals
+        connect_notification_signals()
