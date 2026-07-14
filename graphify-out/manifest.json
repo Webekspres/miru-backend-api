@@ -90,8 +90,8 @@
     "semantic_hash": "70255df265d30db5f54c55d7592feec1"
   },
   ".ai-steering/00-system-prompt.md": {
-    "mtime": 1783062473.6878016,
-    "ast_hash": "31cf93c49776ebe15071a9669823758d",
+    "mtime": 1783998261.1125827,
+    "ast_hash": "2492aa74a81f86f6925bf8e7483c0b97",
     "semantic_hash": ""
   },
   ".ai-steering/01-project-overview.md": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   ".ai-steering/06-system-constraints.md": {
-    "mtime": 1783062529.4101908,
-    "ast_hash": "a4fb989dd99670269d4c8a439dbc637b",
+    "mtime": 1783998264.8858392,
+    "ast_hash": "659620c447f28588871bf2aa9ec5654e",
     "semantic_hash": ""
   },
   ".ai-steering/07-modules-and-features.md": {
@@ -130,8 +130,8 @@
     "semantic_hash": "58db253dd4ea9d8d7b4287fc48402924"
   },
   ".ai-steering/08-task-list.md": {
-    "mtime": 1783586846.2648673,
-    "ast_hash": "4219e431b268a7cb5642df8fa8f028cf",
+    "mtime": 1783998182.271601,
+    "ast_hash": "5edff404df1c2a5ed29f4dcc307ce10a",
     "semantic_hash": ""
   },
   ".ai-steering/09-data-dictionary.md": {
@@ -607,6 +607,11 @@
   "run_all_tests.py": {
     "mtime": 1783584437.4765387,
     "ast_hash": "0b00fb3fd4c5594bfdb1880036ad89df",
+    "semantic_hash": ""
+  },
+  ".ai-steering/10-security-and-privacy.md": {
+    "mtime": 1783998115.8826506,
+    "ast_hash": "c07eea1d4fe9325e2b9afcd5e1af7d3f",
     "semantic_hash": ""
   }
 }
