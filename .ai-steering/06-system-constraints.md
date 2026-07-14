@@ -61,3 +61,8 @@
 - Database PostgreSQL 15 — gunakan fitur yang didukung.
 - JWT token expire 24 jam — jangan implementasikan refresh token otomatis tanpa expiry.
 - Gunakan SQLite untuk development lokal (set `USE_POSTGRES=False`).
+
+### 13. Keamanan & Privasi (dokumen khusus)
+- Pedoman lengkap lintas ekosistem: **`11-security-and-privacy.md`**
+- Versi platform: `web-admin` & `mirumobileapp` → `.ai-steering/11-security-and-privacy.md`
+- Checklist implementasi: `08-task-list.md` Fase 7 (+ Fase 8.4 untuk data sensitif)

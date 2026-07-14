@@ -1,8 +1,6 @@
 # 08 — Task List: Backend Development Roadmap
 
 > **Dokumen ini** adalah roadmap pengembangan backend MIRU Bank Sampah.
-> Urutan: **yang belum selesai di atas**, arsip MVP yang sudah selesai di bawah.
->
 > Setiap item pengembangan lanjutan dicatat hanya jika tercantum di dokumen persyaratan
 > (Proposal, Jawaban Persyaratan, SOP, Business Rules, Modules, Constraints).
 >
@@ -11,6 +9,7 @@
 > - `05-business-rules-sops.md`
 > - `06-system-constraints.md`
 > - `07-modules-and-features.md`
+> - `11-security-and-privacy.md` — **pedoman keamanan & privasi (kanonik)**
 > - `Jawaban_Persyaratan_MIRU_Bank_Sampah.md`
 > - `Proposal Bank sampah - Untuk Klien Pak Arfan.md`
 
@@ -56,40 +55,56 @@
 ## Fase 7: Production Ready
 
 > **Tujuan:** Backend siap deploy ke server Webekspres.
-> **Sumber:** Jawaban Persyaratan §6.5; Constraints §7–8; Timeline go-live.
+> **Sumber:** Jawaban Persyaratan §6.5; Constraints §7–8; Timeline go-live;
+> **`11-security-and-privacy.md`** (checklist go-live §12).
 
-### 7.1 Keamanan
+### 7.1 Keamanan API & Konfigurasi
+> Detail aturan: `11-security-and-privacy.md` §3–5.
+
 - [x] `DEBUG=False` di production — dari env var `DEBUG`
 - [x] `SECRET_KEY` unik per environment — dari env var
 - [x] Validasi input: sanitasi, max length — via DRF serializers
+- [x] Password write_only; JWT auth; permission + queryset per role *(MVP)*
+- [x] Ledger atomic + `select_for_update` *(keamanan finansial — MVP)*
+- [x] Audit log perubahan kritis *(MVP)*
+- [x] Consent `setuju_kebijakan_data` saat registrasi *(MVP)*
 - [ ] Rate limiting: `10/minute` pada `/api/auth/login/`
 - [ ] Rate limiting: `100/hour` per user pada endpoint write
 - [ ] HTTPS wajib (SSL termination di Nginx)
-- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, CSRF config production
-- [ ] CORS: whitelist domain production only
+- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`
+- [ ] `SECURE_HSTS_SECONDS` setelah HTTPS stabil
+- [ ] `ALLOWED_HOSTS` production ketat dari env
+- [ ] CORS: whitelist origin web-admin + domain resmi saja (**bukan** `*`)
+- [ ] Pastikan tidak ada stack trace / secret di response production
+- [ ] Verifikasi test permission: nasabah tidak akses data milik orang lain
 
 ### 7.2 Deployment
 - [ ] Ganti `runserver` dengan **Gunicorn** di Dockerfile production
 - [ ] Tambah **Nginx** reverse proxy di docker-compose production
 - [ ] Static files config (upload logo/bukti/media)
-- [ ] Media files: storage lokal atau S3-compatible
+- [ ] Media files: storage lokal atau S3-compatible (**privasi** untuk KTP nanti)
 - [ ] Environment separation: `.env.development`, `.env.production`
-- [ ] CI/CD pipeline: lint → test → build → deploy (GitHub Actions)
+- [ ] `.env*` di gitignore; `.env.example` tanpa nilai rahasia
+- [ ] CI/CD pipeline: lint → test → build → deploy (GitHub Actions; secret di CI vault)
 
 ### 7.3 Backup & Recovery
-> **Sumber:** Jawaban §6.5.6; Constraints §7.
+> **Sumber:** Jawaban §6.5.6; Constraints §7; Security §9.
 
 - [ ] Script backup harian: `pg_dump` → file terenkripsi
 - [ ] Script backup mingguan: full backup + retensi minimal 30 hari
 - [ ] Backup disimpan terpisah dari server utama
-- [ ] Dokumentasi prosedur restore
+- [ ] Dokumentasi prosedur restore + siapa yang berwenang
 - [ ] Test restore minimal 1× sebelum go-live
 
 ### 7.4 Monitoring & Logging
+> **Sumber:** Security §8 — redact PII/token.
+
 - [x] Health check: `GET /health/` → `{ status, database }`
 - [ ] Structured logging (JSON format)
-- [ ] Integrasi Sentry untuk error tracking
+- [ ] Redact password, token, NIK dari log
+- [ ] Integrasi Sentry + scrub PII di `before_send`
 - [ ] Uptime monitoring (external ping ke `/health/`)
+- [ ] Pantau spike 401 / 429 / 5xx
 
 ### 7.5 Performance
 - [x] Database indexes (`User.role`, tanggal/status transaksi, dll.)
@@ -130,13 +145,16 @@
 - [ ] Agregat `wilayah_teraktif` di dashboard/evaluasi (kontrak API)
 
 ### 8.4 Modul 2 / 3 / 10 — Identitas, lupa password, bukti pencairan
-> **Sumber:** Proposal §4 modul 2–3, 10; Jawaban §6.2.7, §6.3.4, §6.3.6.
+> **Sumber:** Proposal §4 modul 2–3, 10; Jawaban §6.2.7, §6.3.4, §6.3.6;
+> **`11-security-and-privacy.md`** §2, §7, §12 (pasca-MVP).
 
-- [ ] Endpoint lupa password + reset token (email atau alur aman yang disepakati)
+- [ ] Endpoint lupa password + reset token berumur pendek (email atau alur aman yang disepakati)
 - [ ] (Opsional) verifikasi nomor HP/email — hanya jika disepakati klien (Proposal modul 2)
-- [ ] Upload foto KTP (`FileField` + storage) untuk verifikasi penarikan besar
-- [ ] Field-level encryption NIK / data KTP *(Jawaban §6.3.4 — sebelumnya hanya evaluasi)*
+- [ ] Upload foto KTP (`FileField` + storage privat) untuk verifikasi penarikan besar
+- [ ] Validasi tipe/ukuran file upload; larang executable
+- [ ] Field-level encryption NIK / data KTP at-rest *(Jawaban §6.3.4)*
 - [ ] Threshold “penarikan besar” + wajib lampiran KTP
+- [ ] Akses unduh KTP/PDF **role-gated** (bukan URL publik terbuka)
 - [ ] Generate PDF tanda terima / bukti setoran & penarikan (weasyprint atau reportlab)
 - [x] Metadata metode transfer bank / e-wallet pada penarikan (**tanpa** payment gateway)
 
@@ -148,21 +166,24 @@
 - [ ] Endpoint/info sisa masa berlaku poin untuk nasabah (opsional)
 
 ### 8.6 Modul 9 / 16 — Notifikasi & laporan lanjutan
-> **Sumber:** Jawaban §6.6.2 / §6.6.5; Proposal modul 9 & 16; Jawaban §6.3.9; Constraints §8.
+> **Sumber:** Jawaban §6.6.2 / §6.6.5; Proposal modul 9 & 16; Jawaban §6.3.9; Constraints §8;
+> Security §11 (payload tanpa NIK/KTP).
 
 - [x] Notifikasi in-app: model `Notifikasi` + endpoint list/mark-read
-- [ ] Trigger FCM (register device token + kirim event: jemput, penarikan, pengumuman, harga)
+- [ ] Trigger FCM (register device token milik user + kirim event: jemput, penarikan, pengumuman, harga)
+- [ ] Payload FCM/WA **tanpa** NIK, KTP, atau token
 - [ ] Integrasi WhatsApp Business API untuk konfirmasi setoran & penarikan *(Jawaban §6.6.2)*
 - [ ] Email transactional admin (penjemputan baru, ringkasan harian) *(Jawaban §6.5.5 / §6.6.5)*
+- [ ] Kredensial FCM / WA / SMTP hanya di env (bukan di repo)
 - [ ] Export laporan Excel server-side (`openpyxl`)
 - [ ] Laporan evaluasi: field kendala + rekomendasi tindak lanjut *(Proposal modul 16)*
 - [ ] Kebijakan retensi/arsip digital transaksi minimal 5 tahun *(Jawaban §6.3.9)*
 
 ### 8.7 Modul 7 — Integrasi peta sederhana
-> **Sumber:** Jawaban §6.6.1; Constraints §5 (static/sederhana; **bukan** live nav/geofence).
+> **Sumber:** Jawaban §6.6.1; Constraints §5; Security §11 (API key di-restrict).
 
 - [ ] Field koordinat opsional atau geocode alamat penjemputan
-- [ ] Konfigurasi Maps API key di environment (biaya kuota = tanggung jawab klien)
+- [ ] Konfigurasi Maps API key di environment; restrict key (IP/referrer/bundle)
 - [ ] Dokumentasikan batasan: tidak ada distance matrix / navigasi real-time
 
 ### 8.8 Operasional data & infrastruktur pendukung
@@ -398,8 +419,16 @@
 
 ## Urutan kerja disarankan (pasca-MVP)
 
-1. **Fase 7** — Production Ready (blocker go-live)
+1. **Fase 7** — Production Ready + checklist keamanan `11-security-and-privacy.md` §12 (blocker go-live)
 2. **8.5** Poin expire + **8.2** Harga H-3 (aturan bisnis yang sudah tertulis)
 3. **8.1** Edukasi konten + **8.3** Wilayah (melengkapi Modul 4 & 7)
-4. **8.4** KTP/PDF/lupa password + **8.6** FCM/WA/email
+4. **8.4** KTP/PDF/lupa password (keamanan data sensitif) + **8.6** FCM/WA/email
 5. **8.7–8.8** Maps sederhana + infrastruktur async
+
+## Indeks dokumen keamanan lintas repo
+
+| Repo | Dokumen |
+|------|---------|
+| Backend (kanonik) | `.ai-steering/11-security-and-privacy.md` |
+| Web Admin | `web-admin/.ai-steering/11-security-and-privacy.md` |
+| Mobile | `mirumobileapp/.ai-steering/11-security-and-privacy.md` |
