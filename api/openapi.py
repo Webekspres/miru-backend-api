@@ -413,6 +413,15 @@ notification_schema = extend_schema_view(
         summary='Detail notifikasi',
         responses={200: NotifikasiSerializer},
     ),
+    partial_update=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Perbarui notifikasi (partial)',
+        description=(
+            'Partial update notifikasi. Untuk menandai sudah dibaca, '
+            'utamakan POST /api/notifications/{id}/read/.'
+        ),
+        responses={200: NotifikasiSerializer},
+    ),
     mark_read=extend_schema(
         tags=[NOTIFICATIONS_TAG],
         summary='Tandai satu notifikasi sebagai sudah dibaca',

@@ -37,6 +37,8 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Monitoring: request logging JSON + spike detection (Fase 7.4)
+    'api.middleware.RequestLoggingMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -64,6 +66,8 @@ if os.environ.get('USE_POSTGRES') == 'True':
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
             'PORT': os.environ.get('DB_PORT', '5432'),
+            # Persistent connections — mengurangi overhead koneksi baru per request
+            'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', '300')),
         }
     }
 else:
@@ -71,6 +75,8 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
+            # SQLite: jangan cache koneksi (0) untuk hindari 'database is locked' di dev
+            'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', '0')),
         }
     }
 
@@ -101,10 +107,27 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'api.User'
 
-CORS_ALLOW_ALL_ORIGINS = os.environ.get('CORS_ALLOW_ALL_ORIGINS', 'True') == 'True'
+# ---------------------------------------------------------------------------
+# CORS — Production-hardened
+# ---------------------------------------------------------------------------
+# Default behaviour:
+#   DEBUG=True  → allow all origins (developer convenience)
+#   DEBUG=False → whitelist only; env *must* set CORS_ALLOWED_ORIGINS
+_cors_allow_all = os.environ.get('CORS_ALLOW_ALL_ORIGINS')
+if _cors_allow_all is not None:
+    CORS_ALLOW_ALL_ORIGINS = _cors_allow_all == 'True'
+else:
+    CORS_ALLOW_ALL_ORIGINS = bool(DEBUG)
+
 cors_origins = os.environ.get('CORS_ALLOWED_ORIGINS')
 if cors_origins:
     CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_origins.split(',') if o.strip()]
+elif not CORS_ALLOW_ALL_ORIGINS and not DEBUG:
+    # Production fallback — hard-coded whitelist prevents lockout
+    CORS_ALLOWED_ORIGINS = [
+        'https://admin.mirubanksampah.id',
+        'https://mirubanksampah.id',
+    ]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -126,6 +149,17 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'EXCEPTION_HANDLER': 'api.utils.exception_handler.miru_exception_handler',
     'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S%z',
+    # ------------------------------------------------------------------ #
+    # Rate limiting (Fase 7.1)
+    # ------------------------------------------------------------------ #
+    # Login endpoint dilindungi oleh LoginAnonRateThrottle secara terpisah
+    'DEFAULT_THROTTLE_CLASSES': [
+        'api.throttles.WriteUserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'login': '10/minute',   # AnonRateThrottle untuk /api/auth/login/
+        'write': '100/hour',    # UserRateThrottle untuk semua write operation
+    },
 }
 
 SIMPLE_JWT = {
@@ -136,14 +170,132 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+# ---------------------------------------------------------------------------
+# Logging — structured JSON + PII redaction (Fase 7.4)
+# ---------------------------------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'pii_redact': {
+            '()': 'api.logging_filters.PIIRedactFilter',
+        },
+    },
+    'formatters': {
+        'json': {
+            '()': 'api.logging_filters.JSONFormatter',
+        },
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        },
+    },
+    'handlers': {
+        'console_json': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'json',
+            'filters': ['pii_redact'],
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard',
+            'filters': ['pii_redact'],
+        },
+    },
+    'loggers': {
+        # Request logger — semua request HTTP dicatat oleh middleware
+        'miru.request': {
+            'handlers': ['console_json'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Django default logger
+        'django': {
+            'handlers': ['console_json'],
+            'level': 'INFO' if not DEBUG else 'DEBUG',
+            'propagate': False,
+        },
+        # Security-related events
+        'django.security': {
+            'handlers': ['console_json'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        # DRF
+        'rest_framework': {
+            'handlers': ['console_json'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+    # Root logger — fallback
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# Static & Media files (production)
+# ---------------------------------------------------------------------------
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = []
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# ---------------------------------------------------------------------------
+# Security settings — aktif hanya saat DEBUG=False (production)
+# ---------------------------------------------------------------------------
+if not DEBUG:
+    # HTTPS via Nginx reverse proxy
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+
+    # Cookie security
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+    # HSTS — mulai dengan durasi pendek, naikkan setelah stabil
+    SECURE_HSTS_SECONDS = 31536000  # 1 tahun
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+    # Mencegah jenis serangan content-type sniffing
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
+    # Mencegah clickjacking
+    X_FRAME_OPTIONS = 'DENY'
+
+
 SPECTACULAR_SETTINGS = {
     'TITLE': 'MIRU Bank Sampah API',
     'DESCRIPTION': (
-        'REST API untuk sistem MIRU Bank Sampah, Distrik Mimika Baru. '
-        'Semua response menggunakan JSON Envelope (`success`, `status_code`, `message`, `data`, `meta`). '
-        'Panduan alur per role: `/api/guide/`. '
-        'Akun demo (setelah `seed_data`): `admin/admin123`, `nasabah001/nasabah123`, '
-        '`petugas1/petugas123`, `koordinator/koordinator123`.'
+        'Selamat datang di dokumentasi REST API **MIRU Bank Sampah** (Distrik Mimika Baru).\n\n'
+        '## Cara memakai dokumentasi ini\n\n'
+        '1. **Authorize** — klik tombol **Authorize** di kanan atas. \n'
+        '2. **Login** — buka `POST /api/auth/login/`, isi username & password, **Execute**.\n'
+        '3. **Salin token** — dari response, ambil `data.access`.\n'
+        '4. **Tempel token** — di dialog Authorize isi `Bearer <access_token>` '
+        '(atau hanya token jika UI sudah menambah prefix `Bearer`).\n'
+        '5. **Uji endpoint** — pilih operasi, **Try it out** → **Execute**. '
+        'Endpoint terlindungi akan memakai token yang sudah disimpan.\n\n'
+        '## Format response\n\n'
+        'Semua JSON memakai envelope: '
+        '`success`, `status_code`, `message`, `data`, `meta`.\n\n'
+        '## Dokumen terkait\n\n'
+        '- Panduan alur per role (onboarding): [`/api/guide/`](/api/guide/)\n'
+        '- Schema OpenAPI mentah: [`/api/schema/`](/api/schema/)\n'
+        '- ReDoc: [`/api/redoc/`](/api/redoc/)\n\n'
+        '## Akun demo (setelah `python manage.py seed_data`)\n\n'
+        '| Role | Username | Password |\n'
+        '|---|---|---|\n'
+        '| admin | `admin` | `admin123` |\n'
+        '| koordinator | `koordinator` | `koordinator123` |\n'
+        '| petugas | `petugas1` | `petugas123` |\n'
+        '| pemerintah | `pemerintah` | `pemerintah123` |\n'
+        '| nasabah | `nasabah001` | `nasabah123` |\n'
     ),
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -162,6 +314,11 @@ SPECTACULAR_SETTINGS = {
         {'name': 'Partners', 'description': 'Mitra pengepul sampah.'},
         {'name': 'Partner Sales', 'description': 'Penjualan stok ke mitra.'},
         {'name': 'Complaints', 'description': 'Pengaduan nasabah.'},
+        {'name': 'Notifications', 'description': 'Notifikasi in-app.'},
+        {'name': 'Activity', 'description': 'Activity feed transaksi/poin.'},
+        {'name': 'Dashboard', 'description': 'Ringkasan monitoring.'},
+        {'name': 'Reports', 'description': 'Laporan periode.'},
+        {'name': 'Inventory', 'description': 'Stok gudang.'},
         {'name': 'Audit Log', 'description': 'Riwayat perubahan data untuk audit (admin only).'},
         {'name': 'Settings', 'description': 'Pengaturan institusi dan pengumuman.'},
     ],

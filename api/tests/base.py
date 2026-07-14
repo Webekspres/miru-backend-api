@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 User = get_user_model()
 
@@ -72,11 +73,13 @@ class EnvelopeAPITestCase(APITestCase):
         )
 
     def auth_as(self, user, password='secret12'):
-        login = self.client.post('/api/auth/login/', {
-            'username': user.username,
-            'password': password,
-        }, format='json')
+        """
+        Set credential JWT langsung (bukan via endpoint login) agar:
+        - Tidak kena throttle rate limiting di test
+        - Test lebih cepat (tidak perlu HTTP roundtrip)
+        """
+        token = AccessToken.for_user(user)
         self.client.credentials(
-            HTTP_AUTHORIZATION=f'Bearer {login.data["data"]["access"]}'
+            HTTP_AUTHORIZATION=f'Bearer {str(token)}'
         )
-        return login.data['data']['access']
+        return str(token)

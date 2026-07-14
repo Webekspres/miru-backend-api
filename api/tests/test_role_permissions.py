@@ -56,6 +56,84 @@ class NasabahDataIsolationTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['data']), 1)
 
+    def test_nasabah_cannot_access_other_deposit(self):
+        """Nasabah A cannot retrieve deposit milik nasabah B."""
+        deposit_b = TransaksiSetoran.objects.filter(nasabah=self.nasabah_b).first()
+        self.auth_as(self.nasabah_a)
+        response = self.client.get(f'/api/deposits/{deposit_b.id}/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_nasabah_cannot_access_other_pickup(self):
+        """Nasabah A cannot retrieve pickup milik nasabah B."""
+        # Only nasabah_b has a pickup, so filtering to nasabah_b should find one
+        pickup_b = Penjemputan.objects.filter(nasabah=self.nasabah_b).first()
+        if not pickup_b:
+            pickup_b = Penjemputan.objects.create(
+                nasabah=self.nasabah_b,
+                estimasi_berat=Decimal('10.00'),
+                alamat_jemput='B',
+                jadwal='2026-08-01T09:00:00+09:00',
+            )
+        self.auth_as(self.nasabah_a)
+        response = self.client.get(f'/api/pickups/{pickup_b.id}/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_nasabah_cannot_access_other_complaint(self):
+        """Nasabah A cannot retrieve complaint milik nasabah B."""
+        complaint_b = Pengaduan.objects.filter(nasabah=self.nasabah_b).first()
+        self.auth_as(self.nasabah_a)
+        response = self.client.get(f'/api/complaints/{complaint_b.id}/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_nasabah_sees_only_own_withdrawals(self):
+        """Nasabah hanya melihat withdrawal milik sendiri."""
+        PenarikanSaldo.objects.create(
+            nasabah=self.nasabah_a, nominal=Decimal('100000.00'),
+            metode='tunai', status='menunggu',
+        )
+        PenarikanSaldo.objects.create(
+            nasabah=self.nasabah_b, nominal=Decimal('200000.00'),
+            metode='tunai', status='menunggu',
+        )
+        self.auth_as(self.nasabah_a)
+        response = self.client.get('/api/withdrawals/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        for wd in data:
+            self.assertEqual(wd['nasabah'], self.nasabah_a.id)
+
+    def test_nasabah_sees_only_own_redemptions(self):
+        """Nasabah hanya melihat penukaran poin milik sendiri."""
+        reward = Reward.objects.create(nama='Bibit', poin_dibutuhkan=50, stok=10)
+        PenukaranPoin.objects.create(
+            nasabah=self.nasabah_a, reward=reward, status='menunggu',
+        )
+        PenukaranPoin.objects.create(
+            nasabah=self.nasabah_b, reward=reward, status='menunggu',
+        )
+        self.auth_as(self.nasabah_a)
+        response = self.client.get('/api/reward-redemptions/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        for r in data:
+            self.assertEqual(r['nasabah'], self.nasabah_a.id)
+
+    def test_nasabah_sees_only_own_notifications(self):
+        """Nasabah hanya melihat notifikasi milik sendiri."""
+        from api.models import Notifikasi
+        Notifikasi.objects.create(
+            user=self.nasabah_a, judul='Notif A', deskripsi='Test',
+        )
+        Notifikasi.objects.create(
+            user=self.nasabah_b, judul='Notif B', deskripsi='Test',
+        )
+        self.auth_as(self.nasabah_a)
+        response = self.client.get('/api/notifications/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        for n in data:
+            self.assertEqual(n['user'], self.nasabah_a.id)
+
 
 class KoordinatorAccessTests(EnvelopeAPITestCase):
     def setUp(self):

@@ -20,17 +20,43 @@ services:
   web:
     build: .
     restart: unless-stopped
-    command: python manage.py runserver 0.0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput --clear &&
+             gunicorn core.wsgi:application
+               --bind 0.0.0.0:8000
+               --workers ${GUNICORN_WORKERS:-4}
+               --timeout 120
+               --access-logfile -
+               --error-logfile -"
     volumes:
+      # ⚠️ Production: HAPUS baris berikut agar container pakai kode dari image, bukan dari host
       - .:/app
-    ports:
-      # Bind localhost only; LAN proxy (scripts/lan_proxy.py) exposes 0.0.0.0:8000
-      - "127.0.0.1:8001:8000"
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
+    # Healthcheck web tidak perlu — service `db` sudah di-healthcheck,
+    # dan `depends_on: condition: service_healthy` menjamin DB siap sebelum web start.
+    # Restart policy `unless-stopped` sudah cukup untuk production.
+
+  nginx:
+    image: nginx:1.25-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/media:ro
+    depends_on:
+      - web
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:

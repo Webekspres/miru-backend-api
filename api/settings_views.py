@@ -16,12 +16,9 @@ from .utils.response import success_response
 class InstitutionSettingsView(APIView):
     """GET public — profil institusi. PATCH admin only."""
 
-    def get_authenticators(self):
-        if self.request.method == 'GET':
-            return []
-        return super().get_authenticators()
-
     def get_permissions(self):
+        # Do not override get_authenticators based on self.request —
+        # schema generation calls it before request is bound (breaks /api/docs/).
         if self.request.method == 'GET':
             return [AllowAny()]
         return [IsAuthenticated(), IsAdmin()]

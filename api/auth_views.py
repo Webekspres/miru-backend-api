@@ -8,6 +8,8 @@ from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from rest_framework_simplejwt.exceptions import TokenError
 
+from .throttles import LoginAnonRateThrottle
+
 from .openapi import (
     auth_login_schema,
     auth_me_get_schema,
@@ -47,6 +49,7 @@ class MiruTokenObtainPairSerializer(TokenObtainPairSerializer):
 class MiruTokenObtainPairView(TokenObtainPairView):
     permission_classes = [AllowAny]
     serializer_class = MiruTokenObtainPairSerializer
+    throttle_classes = [LoginAnonRateThrottle]
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

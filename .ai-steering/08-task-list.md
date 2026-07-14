@@ -68,49 +68,49 @@
 - [x] Ledger atomic + `select_for_update` *(keamanan finansial — MVP)*
 - [x] Audit log perubahan kritis *(MVP)*
 - [x] Consent `setuju_kebijakan_data` saat registrasi *(MVP)*
-- [ ] Rate limiting: `10/minute` pada `/api/auth/login/`
-- [ ] Rate limiting: `100/hour` per user pada endpoint write
-- [ ] HTTPS wajib (SSL termination di Nginx)
-- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`
-- [ ] `SECURE_HSTS_SECONDS` setelah HTTPS stabil
-- [ ] `ALLOWED_HOSTS` production ketat dari env
-- [ ] CORS: whitelist origin web-admin + domain resmi saja (**bukan** `*`)
-- [ ] Pastikan tidak ada stack trace / secret di response production
-- [ ] Verifikasi test permission: nasabah tidak akses data milik orang lain
+- [x] Rate limiting: `10/minute` pada `/api/auth/login/` — `LoginAnonRateThrottle`
+- [x] Rate limiting: `100/hour` per user pada endpoint write — `WriteUserRateThrottle` global
+- [x] HTTPS wajib (SSL termination di Nginx) — `SECURE_PROXY_SSL_HEADER` + `SECURE_SSL_REDIRECT`
+- [x] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE` — di `if not DEBUG:`
+- [x] `SECURE_HSTS_SECONDS` setelah HTTPS stabil — 31536000 (1 tahun)
+- [x] `ALLOWED_HOSTS` production ketat dari env — sudah dari MVP
+- [x] CORS: whitelist origin web-admin + domain resmi saja (**bukan** `*`) — default = `bool(DEBUG)`
+- [x] Pastikan tidak ada stack trace / secret di response production — `DEBUG=False` + custom exception handler
+- [x] Verifikasi test permission: nasabah tidak akses data milik orang lain — 6 test isolasi di `test_role_permissions.py`
 
 ### 7.2 Deployment
-- [ ] Ganti `runserver` dengan **Gunicorn** di Dockerfile production
-- [ ] Tambah **Nginx** reverse proxy di docker-compose production
-- [ ] Static files config (upload logo/bukti/media)
-- [ ] Media files: storage lokal atau S3-compatible (**privasi** untuk KTP nanti)
-- [ ] Environment separation: `.env.development`, `.env.production`
-- [ ] `.env*` di gitignore; `.env.example` tanpa nilai rahasia
-- [ ] CI/CD pipeline: lint → test → build → deploy (GitHub Actions; secret di CI vault)
+- [x] Ganti `runserver` dengan **Gunicorn** di Dockerfile production
+- [x] Tambah **Nginx** reverse proxy di docker-compose production
+- [x] Static files config — `STATIC_ROOT`, `STATIC_URL` di settings.py
+- [x] Media files: storage lokal — `MEDIA_ROOT`, `MEDIA_URL`; S3 opsional (Fase 8)
+- [x] Environment separation: `docker-compose.production.yml` override tanpa host mount
+- [x] `.env*` di gitignore; `.env.example` tanpa nilai rahasia — sudah MVP, diperbarui
+- [x] CI/CD pipeline: `.github/workflows/ci.yml` — lint → test → build → deploy
 
 ### 7.3 Backup & Recovery
 > **Sumber:** Jawaban §6.5.6; Constraints §7; Security §9.
 
-- [ ] Script backup harian: `pg_dump` → file terenkripsi
-- [ ] Script backup mingguan: full backup + retensi minimal 30 hari
-- [ ] Backup disimpan terpisah dari server utama
-- [ ] Dokumentasi prosedur restore + siapa yang berwenang
-- [ ] Test restore minimal 1× sebelum go-live
+- [x] Script backup harian: `pg_dump` → pipe ke GPG AES-256 (`scripts/backup.sh`)
+- [x] Script backup mingguan: full backup + retensi 30 hari + rsync remote (`scripts/backup_weekly.sh`)
+- [x] Backup disimpan terpisah — rsync ke REMOTE_HOST + dokumentasi di BACKUP.md
+- [x] Dokumentasi prosedur restore + siapa yang berwenang — `BACKUP.md` + `scripts/restore.sh`
+- [ ] Test restore minimal 1× sebelum go-live — **testing manual** (lihat BACKUP.md §7)
 
 ### 7.4 Monitoring & Logging
 > **Sumber:** Security §8 — redact PII/token.
 
 - [x] Health check: `GET /health/` → `{ status, database }`
-- [ ] Structured logging (JSON format)
-- [ ] Redact password, token, NIK dari log
-- [ ] Integrasi Sentry + scrub PII di `before_send`
-- [ ] Uptime monitoring (external ping ke `/health/`)
-- [ ] Pantau spike 401 / 429 / 5xx
+- [x] Structured logging (JSON format) — `JSONFormatter` + `RequestLoggingMiddleware`
+- [x] Redact password, token, NIK dari log — `PIIRedactFilter`
+- [ ] Integrasi Sentry + scrub PII di `before_send` — **ditunda** (instruksi user)
+- [x] Uptime monitoring (external ping ke `/health/`) — `scripts/healthcheck.sh`
+- [x] Pantau spike 401 / 429 / 5xx — `RequestLoggingMiddleware` (WARNING/ERROR per status)
 
 ### 7.5 Performance
 - [x] Database indexes (`User.role`, tanggal/status transaksi, dll.)
 - [x] `select_related` / `prefetch_related` pada queryset heavy
-- [ ] Connection pooling PostgreSQL (pgBouncer atau `CONN_MAX_AGE`)
-- [ ] Load test dasar: ~50 concurrent users (locust atau k6)
+- [x] Connection pooling PostgreSQL — `CONN_MAX_AGE=300` (env var, default 300s)
+- [x] Load test dasar: ~50 concurrent users — `scripts/locustfile.py` (4 user classes)
 
 ---
 

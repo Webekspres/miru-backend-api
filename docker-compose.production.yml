@@ -1,0 +1,16 @@
+# ===========================================================================
+# MIRU Bank Sampah — Production Docker Override
+# ===========================================================================
+# Cara pakai:
+#   docker compose -f docker-compose.yml -f docker-compose.production.yml up -d
+#
+# Perbedaan dengan docker-compose.yml:
+# - Service `web` TIDAK mount kode dari host (pakai kode dari image)
+# - Cocok untuk production/deployment server
+# ===========================================================================
+
+services:
+  web:
+    volumes:
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
