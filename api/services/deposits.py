@@ -25,7 +25,9 @@ def validate_petugas_for_setoran(user: User) -> User:
 
 
 def build_detail_data(kategori: KategoriSampah, berat_kg: Decimal) -> dict:
-    harga_saat_itu = kategori.harga_beli_per_kg
+    # Auto-apply harga yang sudah efektif jika ada perubahan harga terjadwal
+    from api.services.price_history import get_active_price
+    harga_saat_itu, _ = get_active_price(kategori)
     subtotal = berat_kg * harga_saat_itu
 
     return {

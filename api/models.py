@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -12,8 +13,24 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
     nama_lengkap = models.CharField(max_length=255)
     nik = models.CharField(max_length=16, blank=True)
+    nik_encrypted = models.TextField(
+        blank=True, default='',
+        help_text='NIK terenkripsi at-rest (Fase 8.4)',
+    )
     no_hp = models.CharField(max_length=15, blank=True)
     alamat = models.TextField(blank=True)
+    foto_ktp = models.FileField(
+        upload_to='ktp/',
+        null=True, blank=True,
+        help_text='Foto KTP untuk verifikasi identitas (Fase 8.4)',
+    )
+    kelurahan = models.ForeignKey(
+        'WilayahLayanan', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='penduduk',
+        help_text='Kelurahan/kampung domisili (Fase 8.3)',
+    )
+    rt = models.CharField(max_length=10, blank=True, default='', help_text='RT (opsional)')
+    rw = models.CharField(max_length=10, blank=True, default='', help_text='RW (opsional)')
     saldo = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     poin = models.IntegerField(default=0)
     setuju_kebijakan_data = models.BooleanField(default=False)
@@ -23,6 +40,25 @@ class User(AbstractUser):
         indexes = [
             models.Index(fields=['role']),
         ]
+
+    def get_nik(self) -> str:
+        """
+        Decrypt and return NIK. Falls back to plaintext `nik` if not encrypted.
+        Call this whenever reading NIK for display.
+        """
+        if self.nik_encrypted:
+            from api.services.encryption import decrypt_value
+            try:
+                return decrypt_value(self.nik_encrypted)
+            except Exception:
+                pass
+        return self.nik
+
+    def encrypt_nik(self, plain_nik: str) -> None:
+        """Encrypt plaintext NIK and store in both nik and nik_encrypted fields."""
+        from api.services.encryption import encrypt_value
+        self.nik = plain_nik
+        self.nik_encrypted = encrypt_value(plain_nik)
 
 class KategoriSampah(models.Model):
     nama = models.CharField(max_length=100)
@@ -41,7 +77,10 @@ class RiwayatHarga(models.Model):
     )
     harga_lama = models.DecimalField(max_digits=10, decimal_places=2)
     harga_baru = models.DecimalField(max_digits=10, decimal_places=2)
-    tanggal_berlaku = models.DateTimeField(auto_now_add=True)
+    tanggal_berlaku = models.DateTimeField(
+        default=timezone.now,
+        help_text='Harga mulai berlaku pada tanggal ini (min H+3 dari penetapan)',
+    )
     diubah_oleh = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='riwayat_harga_diubah',
@@ -110,6 +149,11 @@ class PenarikanSaldo(models.Model):
     nama_bank = models.CharField(max_length=100, blank=True, default='')
     no_rekening = models.CharField(max_length=30, blank=True, default='')
     nama_pemilik_rekening = models.CharField(max_length=255, blank=True, default='')
+    lampiran_ktp = models.FileField(
+        upload_to='lampiran_ktp/',
+        null=True, blank=True,
+        help_text='Lampiran KTP untuk penarikan besar ≥ Rp1.000.000 (Fase 8.4)',
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
     tanggal = models.DateTimeField(auto_now_add=True)
 
@@ -233,6 +277,8 @@ class Notifikasi(models.Model):
         ('penarikan', 'Penarikan Saldo'),
         ('penukaran', 'Penukaran Poin'),
         ('pengaduan', 'Pengaduan'),
+        ('pengumuman', 'Pengumuman'),
+        ('harga', 'Perubahan Harga'),
         ('sistem', 'Sistem'),
     )
 
@@ -257,6 +303,162 @@ class Notifikasi(models.Model):
 
     def __str__(self):
         return f'[{self.get_kategori_display()}] {self.judul} — {self.user.username}'
+
+
+class DeviceToken(models.Model):
+    """FCM device token milik user (Fase 8.6)."""
+
+    PLATFORM_CHOICES = (
+        ('android', 'Android'),
+        ('ios', 'iOS'),
+        ('web', 'Web'),
+    )
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='device_tokens',
+    )
+    token = models.CharField(max_length=512, unique=True)
+    platform = models.CharField(
+        max_length=20, choices=PLATFORM_CHOICES, default='android',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Device Token'
+        verbose_name_plural = 'Device Tokens'
+        indexes = [
+            models.Index(fields=['user']),
+        ]
+
+    def __str__(self):
+        return f'{self.user_id}:{self.platform}:{self.token[:12]}…'
+
+
+class PasswordResetToken(models.Model):
+    """
+    Token reset password dengan masa berlaku 1 jam (Fase 8.4).
+    """
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='reset_tokens',
+    )
+    token = models.CharField(max_length=64, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Token Reset Password'
+        verbose_name_plural = 'Token Reset Password'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} — {self.created_at.isoformat()}'
+
+    @property
+    def is_expired(self) -> bool:
+        from datetime import timedelta
+        from django.utils import timezone
+        return timezone.now() > self.created_at + timedelta(hours=1)
+
+
+class PoinTransaksi(models.Model):
+    """
+    Riwayat perolehan poin dengan masa berlaku 1 tahun (Fase 8.5).
+    
+    Setiap kali nasabah mendapat poin (dari setoran), dibuat record di sini.
+    Poin hangus otomatis jika `tanggal_kedaluwarsa` terlewat.
+    """
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='poin_transaksi',
+        help_text='Nasabah pemilik poin',
+    )
+    SUMBER_CHOICES = (
+        ('setoran', 'Setoran'),
+        ('koreksi', 'Koreksi'),
+    )
+    sumber = models.CharField(
+        max_length=20, choices=SUMBER_CHOICES, default='setoran',
+    )
+    setoran = models.ForeignKey(
+        'TransaksiSetoran', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='poin_transaksi',
+        help_text='Transaksi setoran asal (jika dari setoran)',
+    )
+    jumlah = models.IntegerField(help_text='Jumlah poin (positif = diperoleh, negatif = hangus/dipakai)')
+    sisa = models.IntegerField(help_text='Sisa poin yang belum hangus/dipakai')
+    tanggal_dibuat = models.DateTimeField(auto_now_add=True)
+    tanggal_kedaluwarsa = models.DateTimeField(
+        help_text='Poin hangus jika melewati tanggal ini (1 tahun dari perolehan)',
+    )
+    is_expired = models.BooleanField(
+        default=False,
+        help_text='True jika poin sudah hangus oleh scheduled task',
+    )
+
+    class Meta:
+        verbose_name = 'Riwayat Poin'
+        verbose_name_plural = 'Riwayat Poin'
+        ordering = ['tanggal_dibuat']
+        indexes = [
+            models.Index(fields=['user', 'is_expired']),
+            models.Index(fields=['tanggal_kedaluwarsa']),
+        ]
+
+    def __str__(self):
+        return f'{self.user.username}: {self.jumlah} poin ({self.sumber})'
+
+
+class WilayahLayanan(models.Model):
+    """Referensi wilayah layanan — kelurahan/kampung di Distrik Mimika Baru."""
+
+    kelurahan = models.CharField(max_length=100, db_index=True)
+    rt = models.CharField(max_length=10, blank=True, default='', help_text='RT (opsional)')
+    rw = models.CharField(max_length=10, blank=True, default='', help_text='RW (opsional)')
+    aktif = models.BooleanField(default=True, help_text='Wilayah yang masih dilayani')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Wilayah Layanan'
+        verbose_name_plural = 'Wilayah Layanan'
+        ordering = ['kelurahan', 'rt', 'rw']
+        indexes = [
+            models.Index(fields=['kelurahan']),
+            models.Index(fields=['aktif']),
+        ]
+
+    def __str__(self):
+        parts = [self.kelurahan]
+        if self.rt:
+            parts.append(f'RT {self.rt}')
+        if self.rw:
+            parts.append(f'RW {self.rw}')
+        return ' '.join(parts)
+
+
+class KontenEdukasi(models.Model):
+    """Konten edukasi sampah — artikel/panduan untuk nasabah (Modul 4)."""
+
+    judul = models.CharField(max_length=200)
+    isi = models.TextField(help_text='Isi konten/panduan edukasi')
+    kategori_terkait = models.ForeignKey(
+        'KategoriSampah', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='konten_edukasi',
+        help_text='Kategori sampah terkait (opsional)',
+    )
+    aktif = models.BooleanField(default=True)
+    urutan = models.IntegerField(default=0, help_text='Urutan tampil (ascending)')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Konten Edukasi'
+        verbose_name_plural = 'Konten Edukasi'
+        ordering = ['urutan', 'created_at']
+
+    def __str__(self):
+        return self.judul
 
 
 class Pengaduan(models.Model):

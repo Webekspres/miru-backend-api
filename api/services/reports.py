@@ -1,6 +1,6 @@
 """Report aggregations (Modul 16) — harian, mingguan, bulanan, sampah, evaluasi."""
 
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.utils import timezone
 
 from api.models import PenukaranPoin, TransaksiSetoran, User
@@ -118,6 +118,61 @@ def waste_report(start, end) -> dict:
     }
 
 
+def _kendala_per_jenis(start_dt, end_dt) -> list[dict]:
+    """Aggregate complaints (kendala) grouped by jenis_pengaduan for a period."""
+    from api.models import Pengaduan
+    rows = (
+        Pengaduan.objects
+        .filter(tanggal__range=(start_dt, end_dt))
+        .values('jenis_pengaduan')
+        .annotate(jumlah=Count('id'))
+        .order_by('-jumlah')
+    )
+    JENIS_LABEL = dict(Pengaduan.JENIS_CHOICES)
+    return [
+        {
+            'jenis': row['jenis_pengaduan'],
+            'label': JENIS_LABEL.get(row['jenis_pengaduan'], row['jenis_pengaduan']),
+            'jumlah': row['jumlah'],
+        }
+        for row in rows
+    ]
+
+
+def _rekomendasi_dari_pengaduan(start_dt, end_dt) -> list[str]:
+    """Collect unique tindak_lanjut from closed complaints as recommendations."""
+    from api.models import Pengaduan
+    return list(
+        Pengaduan.objects
+        .filter(tanggal__range=(start_dt, end_dt), status='ditutup')
+        .exclude(tindak_lanjut='')
+        .values_list('tindak_lanjut', flat=True)
+        .distinct()
+    )[:10]  # max 10 recommendations
+
+
+def _wilayah_teraktif(start_dt, end_dt) -> list[dict]:
+    """Top 5 kelurahan with most active nasabah in the period."""
+    rows = (
+        User.objects
+        .filter(
+            role='nasabah',
+            kelurahan__isnull=False,
+            setoran_nasabah__tanggal__range=(start_dt, end_dt),
+        )
+        .values('kelurahan_id', 'kelurahan__kelurahan')
+        .annotate(jumlah_nasabah=Count('id', distinct=True))
+        .order_by('-jumlah_nasabah')[:5]
+    )
+    return [
+        {
+            'kelurahan': row['kelurahan__kelurahan'],
+            'jumlah_nasabah_aktif': row['jumlah_nasabah'],
+        }
+        for row in rows
+    ]
+
+
 def evaluation_report(start, end) -> dict:
     start_day = parse_date(start, 'start')
     end_day = parse_date(end, 'end')
@@ -138,6 +193,8 @@ def evaluation_report(start, end) -> dict:
         .aggregate(total=Sum('reward__poin_dibutuhkan'))['total']
     )
 
+    kendala_list = _kendala_per_jenis(start_dt, end_dt)
+
     return {
         'periode': {'mulai': start_day.isoformat(), 'selesai': end_day.isoformat()},
         'jumlah_nasabah_terdaftar': User.objects.filter(role='nasabah').count(),
@@ -149,5 +206,11 @@ def evaluation_report(start, end) -> dict:
         'total_penarikan': penarikan_total(start_dt, end_dt),
         'jumlah_reward_ditukar': reward_ditukar,
         'total_poin_ditukar': poin_ditukar or 0,
+        'wilayah_teraktif': _wilayah_teraktif(start_dt, end_dt),
+        'kendala': {
+            'total_pengaduan': sum(r['jumlah'] for r in kendala_list),
+            'per_jenis': kendala_list,
+        },
+        'rekomendasi': _rekomendasi_dari_pengaduan(start_dt, end_dt),
         'tonase_per_jenis': tonase_per_jenis(start_dt, end_dt),
     }

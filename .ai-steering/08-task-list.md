@@ -122,62 +122,62 @@
 ### 8.1 Modul 4 — Konten edukasi sampah
 > **Sumber:** Proposal §4 modul 4 (artikel edukasi); `07-modules` Web Admin “kelola konten (future)”.
 
-- [ ] Model konten edukasi (judul, isi/panduan, kategori terkait, aktif, urutan)
-- [ ] CRUD API — admin/koordinator
-- [ ] List/detail public (atau auth nasabah) untuk mobile
-- [ ] Seed konten awal dari panduan pemilahan (`09-data-dictionary`)
+- [x] Model konten edukasi (judul, isi/panduan, kategori terkait, aktif, urutan)
+- [x] CRUD API — admin/koordinator
+- [x] List/detail public (atau auth nasabah) untuk mobile
+- [x] Seed konten awal dari panduan pemilahan (`09-data-dictionary`)
 
 ### 8.2 Modul 5 — Kebijakan perubahan harga H-3
 > **Sumber:** Business Rules §G; Jawaban §6.2.4; Data dictionary catatan harga.
 
-- [ ] `tanggal_berlaku` wajib minimal H+3 dari saat penetapan
-- [ ] Tolak apply harga ke transaksi sebelum `tanggal_berlaku`
-- [ ] Auto-buat/hubungkan pengumuman perubahan harga ke nasabah
-- [ ] (Riwayat harga model sudah ada — perpanjang aturan bisnis)
+- [x] `tanggal_berlaku` wajib minimal H+3 dari saat penetapan
+- [x] Tolak apply harga ke transaksi sebelum `tanggal_berlaku`
+- [x] Auto-buat/hubungkan pengumuman perubahan harga ke nasabah
+- [x] (Riwayat harga model sudah ada — perpanjang aturan bisnis)
 
 ### 8.3 Modul 7 — Wilayah layanan & kuota penjemputan
 > **Sumber:** Business Rules §F/M; Jawaban §6.2.12–13; Data dictionary §K; Proposal modul 3/7.
 
-- [ ] Model/referensi wilayah layanan (kelurahan / RT-RW)
-- [ ] Validasi penjemputan hanya di wilayah terdaftar (tahap awal: sekitar kantor distrik)
-- [ ] Validasi frekuensi max **2× seminggu per wilayah** (selaras SOP final klien)
-- [ ] Field kelurahan/RT-RW pada User/nasabah (opsional di registrasi)
-- [ ] Agregat `wilayah_teraktif` di dashboard/evaluasi (kontrak API)
+- [x] Model/referensi wilayah layanan (kelurahan / RT-RW)
+- [x] Validasi penjemputan hanya di wilayah terdaftar (tahap awal: sekitar kantor distrik)
+- [x] Validasi frekuensi max **2× seminggu per wilayah** (selaras SOP final klien)
+- [x] Field kelurahan/RT-RW pada User/nasabah (opsional di registrasi)
+- [x] Agregat `wilayah_teraktif` di dashboard/evaluasi (kontrak API)
 
 ### 8.4 Modul 2 / 3 / 10 — Identitas, lupa password, bukti pencairan
 > **Sumber:** Proposal §4 modul 2–3, 10; Jawaban §6.2.7, §6.3.4, §6.3.6;
-> **`11-security-and-privacy.md`** §2, §7, §12 (pasca-MVP).
+> **`11-security-and-privacy.md`** §2, §7, §12 (pasca-MVP). 
 
-- [ ] Endpoint lupa password + reset token berumur pendek (email atau alur aman yang disepakati)
-- [ ] (Opsional) verifikasi nomor HP/email — hanya jika disepakati klien (Proposal modul 2)
-- [ ] Upload foto KTP (`FileField` + storage privat) untuk verifikasi penarikan besar
-- [ ] Validasi tipe/ukuran file upload; larang executable
-- [ ] Field-level encryption NIK / data KTP at-rest *(Jawaban §6.3.4)*
-- [ ] Threshold “penarikan besar” + wajib lampiran KTP
-- [ ] Akses unduh KTP/PDF **role-gated** (bukan URL publik terbuka)
-- [ ] Generate PDF tanda terima / bukti setoran & penarikan (weasyprint atau reportlab)
+- [x] Endpoint lupa password + reset token berumur pendek (email atau alur aman yang disepakati)
+- [x] (Opsional) verifikasi nomor HP/email — hanya jika disepakati klien (Proposal modul 2)
+- [x] Upload foto KTP (`FileField` + storage privat) untuk verifikasi penarikan besar
+- [x] Validasi tipe/ukuran file upload; larang executable
+- [x] Field-level encryption NIK / data KTP at-rest *(Jawaban §6.3.4)*
+- [x] Threshold “penarikan besar” + wajib lampiran KTP
+- [x] Akses unduh KTP/PDF **role-gated** (bukan URL publik terbuka)
+- [x] Generate PDF tanda terima / bukti setoran & penarikan (weasyprint atau reportlab)
 - [x] Metadata metode transfer bank / e-wallet pada penarikan (**tanpa** payment gateway)
 
 ### 8.5 Modul 11 — Masa berlaku poin 1 tahun
 > **Sumber:** Business Rules §A.4; Jawaban §6.2.10.
 
-- [ ] Scheduled task kedaluwarsa poin otomatis (1 tahun)
-- [ ] Catat di audit log dan/atau notifikasi saat poin hangus
-- [ ] Endpoint/info sisa masa berlaku poin untuk nasabah (opsional)
+- [x] Scheduled task kedaluwarsa poin otomatis (1 tahun)
+- [x] Catat di audit log dan/atau notifikasi saat poin hangus
+- [x] Endpoint/info sisa masa berlaku poin untuk nasabah (opsional)
 
 ### 8.6 Modul 9 / 16 — Notifikasi & laporan lanjutan
 > **Sumber:** Jawaban §6.6.2 / §6.6.5; Proposal modul 9 & 16; Jawaban §6.3.9; Constraints §8;
 > Security §11 (payload tanpa NIK/KTP).
 
 - [x] Notifikasi in-app: model `Notifikasi` + endpoint list/mark-read
-- [ ] Trigger FCM (register device token milik user + kirim event: jemput, penarikan, pengumuman, harga)
-- [ ] Payload FCM/WA **tanpa** NIK, KTP, atau token
+- [x] Trigger FCM (register device token milik user + kirim event: jemput, penarikan, pengumuman, harga)
+- [x] Payload FCM/WA **tanpa** NIK, KTP, atau token *(FCM done; WA pending)*
 - [ ] Integrasi WhatsApp Business API untuk konfirmasi setoran & penarikan *(Jawaban §6.6.2)*
-- [ ] Email transactional admin (penjemputan baru, ringkasan harian) *(Jawaban §6.5.5 / §6.6.5)*
-- [ ] Kredensial FCM / WA / SMTP hanya di env (bukan di repo)
-- [ ] Export laporan Excel server-side (`openpyxl`)
-- [ ] Laporan evaluasi: field kendala + rekomendasi tindak lanjut *(Proposal modul 16)*
-- [ ] Kebijakan retensi/arsip digital transaksi minimal 5 tahun *(Jawaban §6.3.9)*
+- [x] Email transactional admin (penjemputan baru, ringkasan harian) *(Jawaban §6.5.5 / §6.6.5)*
+- [x] Kredensial FCM / WA / SMTP hanya di env (bukan di repo)
+- [x] Export laporan Excel server-side (`openpyxl`)
+- [x] Laporan evaluasi: field kendala + rekomendasi tindak lanjut *(Proposal modul 16)*
+- [x] Kebijakan retensi/arsip digital transaksi minimal 5 tahun *(Jawaban §6.3.9)*
 
 ### 8.7 Modul 7 — Integrasi peta sederhana
 > **Sumber:** Jawaban §6.6.1; Constraints §5; Security §11 (API key di-restrict).

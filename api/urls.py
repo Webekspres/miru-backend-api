@@ -1,7 +1,22 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
+from .auth_views import ForgotPasswordView, PoinInfoView, ResetPasswordView
+from .download_views import (
+    DownloadDepositReceiptView,
+    DownloadKTPView,
+    DownloadLampiranKTPView,
+    DownloadWithdrawalReceiptView,
+)
+from .export_views import (
+    ExportDailyView,
+    ExportEvaluationView,
+    ExportMonthlyView,
+    ExportWasteView,
+    ExportWeeklyView,
+)
 from .notifications_views import NotifikasiViewSet
+from .device_token_views import DeviceTokenViewSet
 from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView
 from .monitoring_views import (
     DashboardDepositChartView,
@@ -27,7 +42,10 @@ router.register(r'reward-redemptions', PenukaranPoinViewSet, basename='reward-re
 router.register(r'partners', MitraPengepulViewSet, basename='partner')
 router.register(r'partner-sales', PenjualanMitraViewSet, basename='partner-sale')
 router.register(r'complaints', PengaduanViewSet, basename='complaint')
+router.register(r'edukasi', KontenEdukasiViewSet, basename='edukasi')
+router.register(r'wilayah', WilayahLayananViewSet, basename='wilayah')
 router.register(r'notifications', NotifikasiViewSet, basename='notification')
+router.register(r'device-tokens', DeviceTokenViewSet, basename='device-token')
 
 urlpatterns = [
     path('activity/', ActivityListView.as_view(), name='activity'),
@@ -35,6 +53,11 @@ urlpatterns = [
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
     path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
+    path(
+        'device-tokens/unregister/',
+        DeviceTokenViewSet.as_view({'delete': 'unregister'}),
+        name='device-token-unregister',
+    ),
     path('dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
     path('dashboard/deposit-chart/', DashboardDepositChartView.as_view(), name='dashboard-deposit-chart'),
     path('dashboard/recent-activity/', DashboardRecentActivityView.as_view(), name='dashboard-recent-activity'),
@@ -49,5 +72,43 @@ urlpatterns = [
         InventoryHistoryView.as_view(),
         name='inventory-history',
     ),
+    # Fase 8.4 — Password reset
+    path('auth/forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
+    path('auth/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
+
+    # Fase 8.5 — Info poin & masa berlaku
+    path('auth/poin-info/', PoinInfoView.as_view(), name='poin-info'),
+
+    # Fase 8.4 — PDF receipts (role-gated)
+    path(
+        'deposits/<int:deposit_id>/receipt/',
+        DownloadDepositReceiptView.as_view(),
+        name='deposit-receipt',
+    ),
+    path(
+        'withdrawals/<int:withdrawal_id>/receipt/',
+        DownloadWithdrawalReceiptView.as_view(),
+        name='withdrawal-receipt',
+    ),
+
+    # Fase 8.4 — KTP download (role-gated: admin/koordinator only)
+    path(
+        'users/<int:user_id>/ktp/',
+        DownloadKTPView.as_view(),
+        name='download-ktp',
+    ),
+    path(
+        'withdrawals/<int:withdrawal_id>/lampiran-ktp/',
+        DownloadLampiranKTPView.as_view(),
+        name='download-lampiran-ktp',
+    ),
+
+    # Fase 8.6 — Excel exports
+    path('reports/daily/export/', ExportDailyView.as_view(), name='export-daily'),
+    path('reports/weekly/export/', ExportWeeklyView.as_view(), name='export-weekly'),
+    path('reports/monthly/export/', ExportMonthlyView.as_view(), name='export-monthly'),
+    path('reports/waste/export/', ExportWasteView.as_view(), name='export-waste'),
+    path('reports/evaluation/export/', ExportEvaluationView.as_view(), name='export-evaluation'),
+
     path('', include(router.urls)),
 ]

@@ -21,6 +21,11 @@ db.sqlite3-journal
 media
 staticfiles
 
+# Firebase / secrets (jangan commit)
+secrets/
+*firebase*.json
+*-firebase-adminsdk-*.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

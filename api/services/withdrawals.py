@@ -9,6 +9,9 @@ from api.models import PenarikanSaldo, User
 
 MIN_NOMINAL = Decimal('50000')
 
+# Penarikan besar: ≥ Rp1.000.000 wajib lampiran KTP
+BESAR_NOMINAL = Decimal('1000000')
+
 
 def validate_nominal(nominal: Decimal) -> Decimal:
     if nominal < MIN_NOMINAL:
@@ -34,6 +37,11 @@ def validate_no_pending_withdrawal(nasabah: User, exclude_pk: int | None = None)
         raise ValidationError(
             'Masih ada penarikan saldo yang menunggu persetujuan.'
         )
+
+
+def is_besar(nominal: Decimal) -> bool:
+    """Penarikan besar jika nominal ≥ Rp1.000.000."""
+    return nominal >= BESAR_NOMINAL
 
 
 def validate_create_withdrawal(nasabah: User, nominal: Decimal) -> None:

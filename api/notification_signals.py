@@ -13,11 +13,21 @@ from django.db.models.signals import post_save
 from .models import (
     Pengaduan,
     PenarikanSaldo,
+    Pengumuman,
     Penjemputan,
     PenukaranPoin,
     TransaksiSetoran,
 )
-from .services.notifications import create_notification
+from .services.notifications import (
+    broadcast_notification,
+    create_notification,
+    trigger_email_new_pickup,
+)
+
+
+# ──────────────────────────────────────────────
+# Handlers
+# ──────────────────────────────────────────────
 
 
 # ──────────────────────────────────────────────
@@ -44,7 +54,9 @@ def _notif_setoran(instance, created, **kwargs):
 
 def _notif_penjemputan(instance, created, **kwargs):
     if created:
-        return  # Only status changes trigger notifications
+        # Kirim email ke admin untuk penjemputan baru
+        trigger_email_new_pickup(instance)
+        return  # In-app notif untuk penjemputan baru dibuat di blok update status
 
     old_status = getattr(instance, '_old_status', None)
     if old_status is None or old_status == instance.status:
@@ -205,6 +217,27 @@ def _notif_pengaduan(instance, created, **kwargs):
     )
 
 
+def _notif_pengumuman(instance, created, **kwargs):
+    """Broadcast FCM + in-app saat pengumuman baru aktif (termasuk harga H-3)."""
+    if not created or not instance.aktif:
+        return
+
+    # Auto-pengumuman harga memakai judul "Perubahan Harga …"
+    kategori = (
+        'harga'
+        if instance.judul.startswith('Perubahan Harga')
+        else 'pengumuman'
+    )
+    # Truncate body untuk FCM display (full isi tetap di model Pengumuman)
+    deskripsi = instance.isi[:500]
+    broadcast_notification(
+        judul=instance.judul,
+        deskripsi=deskripsi,
+        kategori=kategori,
+        pengumuman_id=instance.id,
+    )
+
+
 # ──────────────────────────────────────────────
 # Connection helpers
 # ──────────────────────────────────────────────
@@ -217,6 +250,7 @@ def connect_notification_signals():
     post_save.connect(_notif_penarikan, sender=PenarikanSaldo, weak=False)
     post_save.connect(_notif_penukaran, sender=PenukaranPoin, weak=False)
     post_save.connect(_notif_pengaduan, sender=Pengaduan, weak=False)
+    post_save.connect(_notif_pengumuman, sender=Pengumuman, weak=False)
 
 
 def disconnect_notification_signals():
@@ -226,3 +260,4 @@ def disconnect_notification_signals():
     post_save.disconnect(_notif_penarikan, sender=PenarikanSaldo)
     post_save.disconnect(_notif_penukaran, sender=PenukaranPoin)
     post_save.disconnect(_notif_pengaduan, sender=Pengaduan)
+    post_save.disconnect(_notif_pengumuman, sender=Pengumuman)

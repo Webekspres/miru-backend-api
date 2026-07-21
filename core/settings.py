@@ -211,7 +211,17 @@ LOGGING = {
         # Django default logger
         'django': {
             'handlers': ['console_json'],
-            'level': 'INFO' if not DEBUG else 'DEBUG',
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.utils.autoreload': {
+            'handlers': ['console_json'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['console_json'],
+            'level': 'INFO',
             'propagate': False,
         },
         # Security-related events
@@ -233,6 +243,39 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+
+# ---------------------------------------------------------------------------
+# Email (SMTP) — Fase 8.6: transactional admin emails
+# Semua kredensial dari environment; tidak ada fallback (harus diisi di .env)
+# ---------------------------------------------------------------------------
+if os.environ.get('EMAIL_HOST'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = os.environ['EMAIL_HOST']
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+    EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+    DEFAULT_FROM_EMAIL = os.environ.get(
+        'DEFAULT_FROM_EMAIL',
+        'MIRU Bank Sampah <noreply@mirubanksampah.id>',
+    )
+    # Admin email tujuan untuk notifikasi operasional (penjemputan baru, dll.)
+    ADMIN_NOTIF_EMAIL = os.environ.get('ADMIN_NOTIF_EMAIL', '')
+else:
+    # Dev fallback — cetak email ke console (tidak benar-benar dikirim)
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+# ---------------------------------------------------------------------------
+# Firebase Cloud Messaging (FCM) — Fase 8.6
+# Kredensial service account HANYA dari env / file di luar repo.
+# ---------------------------------------------------------------------------
+FCM_ENABLED = os.environ.get('FCM_ENABLED', 'False') == 'True'
+# Path absolut/relatif ke file JSON service account, ATAU…
+FIREBASE_CREDENTIALS_FILE = os.environ.get('FIREBASE_CREDENTIALS_FILE', '')
+# …inline JSON string (berguna di CI / secret manager; jangan commit).
+FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON', '')
 
 
 # ---------------------------------------------------------------------------

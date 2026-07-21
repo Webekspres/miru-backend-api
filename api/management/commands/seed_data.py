@@ -8,6 +8,7 @@ from django.utils import timezone
 from api.models import (
     DetailSetoran,
     KategoriSampah,
+    KontenEdukasi,
     MitraPengepul,
     Notifikasi,
     PenarikanSaldo,
@@ -20,6 +21,7 @@ from api.models import (
     Reward,
     TransaksiSetoran,
     User,
+    WilayahLayanan,
 )
 from api.notification_signals import connect_notification_signals, disconnect_notification_signals
 
@@ -40,6 +42,179 @@ REWARDS = [
     ('Bibit', 50, 30),
     ('Sembako', 250, 20),
     ('Alat Kebersihan', 300, 15),
+]
+
+WILAYAH_KELURAHAN = [
+    'Timika Baru',
+    'Mimika Baru',
+    'Nayaro',
+    'Kuala Kencana',
+    'Kampung Harapan',
+    'Wonosari Jaya',
+    'Hiripau',
+    'Wania',
+    'Koperapoka',
+    'Karangsari',
+]
+
+
+EDUKASI_CONTENT = [
+    {
+        'judul': 'Cara Memilah Sampah yang Benar',
+        'isi': (
+            'Pemilahan sampah yang benar adalah langkah pertama dalam mendukung '
+            'program bank sampah. Berikut panduan memilah sampah di rumah:\n\n'
+            '1. **Siapkan wadah terpisah** — minimal 2 wadah: satu untuk sampah '
+            'kering (plastik, kertas, logam) dan satu untuk sampah basah (sisa makanan).\n'
+            '2. **Bersihkan sampah** — sampah kering seperti botol plastik dan kaleng '
+            'sebaiknya dibilas agar tidak berbau dan menarik serangga.\n'
+            '3. **Keringkan** — pastikan sampah dalam kondisi kering untuk menghindari '
+            'jamur dan memudahkan penimbangan.\n'
+            '4. **Pisahkan per jenis** — kelompokkan plastik, kertas, kardus, logam, '
+            'dan kaca secara terpisah.\n'
+            '5. **Kurangi volume** — pipihkan botol plastik, lipat kardus untuk '
+            'menghemat ruang penyimpanan.\n\n'
+            'Dengan memilah sampah dengan benar, Anda membantu proses daur ulang '
+            'dan mendapatkan nilai setoran yang lebih baik!'
+        ),
+        'urutan': 1,
+    },
+    {
+        'judul': 'Jenis Sampah yang Diterima',
+        'isi': (
+            'MIRU Bank Sampah menerima berbagai jenis sampah anorganik. '
+            'Berikut daftar lengkap sampah yang dapat disetorkan:\n\n'
+            '**Plastik:** Botol PET (air mineral, minuman), gelas plastik, '
+            'jerigen, ember plastik.\n'
+            '**Kertas:** Kertas HVS, buku bekas, kardus/karton, majalah, koran.\n'
+            '**Logam:** Kaleng aluminium, besi tua, perkakas logam bekas.\n'
+            '**Kaca:** Botol sirup, botol kecap, gelas kaca.\n'
+            '**Lainnya:** Minyak jelantah (minyak goreng bekas) — khusus ini '
+            'diukur per liter, bukan per kg.\n\n'
+            '**Syarat sampah yang diterima:**\n'
+            '- Minimal 1 kg per jenis sampah\n'
+            '- Sampah dalam kondisi kering dan bersih\n'
+            '- Sudah dipisahkan sesuai jenis\n'
+            '- Sampah berbahaya (baterai, lampu) harap dilaporkan ke petugas\n\n'
+            'Petugas berhak **menolak** sampah yang tidak memenuhi ketentuan.'
+        ),
+        'urutan': 2,
+    },
+    {
+        'judul': 'Ketentuan Setoran Sampah',
+        'isi': (
+            'Sebelum melakukan setoran sampah di MIRU Bank Sampah, '
+            'perhatikan ketentuan berikut:\n\n'
+            '**Minimal Setoran:**\n'
+            '- Minimal 1 kg per jenis sampah\n'
+            '- Tidak ada batas maksimal setoran\n\n'
+            '**Jam Layanan:**\n'
+            '- Senin - Sabtu: 08.00 - 17.00 WIT\n'
+            '- Minggu & Hari Libur Nasional: Tutup\n\n'
+            '**Lokasi:**\n'
+            '- Kantor Distrik Mimika Baru\n'
+            '- Jl. Cendrawasih Poros SP.II, Timika\n\n'
+            '**Alur Setoran:**\n'
+            '1. Datang ke kantor bank sampah dengan sampah terpilah\n'
+            '2. Petugas akan menimbang dan memverifikasi sampah\n'
+            '3. Saldo langsung bertambah setelah setoran dicatat\n'
+            '4. Anda bisa memantau saldo melalui aplikasi mobile'
+        ),
+        'urutan': 3,
+    },
+    {
+        'judul': 'Cara Menggunakan Aplikasi MIRU',
+        'isi': (
+            'Aplikasi MIRU Bank Sampah memudahkan Anda mengelola sampah '
+            'dan memantau saldo. Berikut panduan penggunaannya:\n\n'
+            '**1. Registrasi Akun**\n'
+            '- Buka aplikasi MIRU di ponsel Android Anda\n'
+            '- Pilih "Daftar" dan isi data diri\n'
+            '- Setujui kebijakan data pribadi\n'
+            '- Akun akan aktif setelah diverifikasi (maks 1 hari kerja)\n\n'
+            '**2. Fitur Utama**\n'
+            '- **Setor Sampah:** Bawa sampah ke kantor, petugas catat setoran\n'
+            '- **Jemput Sampah:** Ajukan penjemputan (min estimasi 5 kg), '
+            'jadwal H+1\n'
+            '- **Cek Saldo & Poin:** Pantau saldo dan poin Anda kapan saja\n'
+            '- **Tarik Saldo:** Ajukan penarikan minimal Rp50.000\n'
+            '- **Tukar Poin:** Tukarkan poin dengan reward tersedia\n'
+            '- **Pengaduan:** Laporkan kendala melalui form pengaduan\n\n'
+            'Untuk bantuan lebih lanjut, hubungi admin MIRU di '
+            '0821 977 3693 atau datang langsung ke kantor distrik.'
+        ),
+        'urutan': 4,
+    },
+    {
+        'judul': 'Manfaat Daur Ulang untuk Lingkungan',
+        'isi': (
+            'Daur ulang sampah memiliki banyak manfaat bagi lingkungan '
+            'dan kehidupan kita sehari-hari:\n\n'
+            '**1. Mengurangi Pencemaran Lingkungan**\n'
+            'Sampah plastik membutuhkan ratusan tahun untuk terurai. '
+            'Dengan mendaur ulang, kita mengurangi tumpukan sampah '
+            'di Tempat Pembuangan Akhir (TPA).\n\n'
+            '**2. Menghemat Sumber Daya Alam**\n'
+            'Daur ulang kertas berarti mengurangi penebangan pohon. '
+            'Daur ulang logam mengurangi kebutuhan penambangan.\n\n'
+            '**3. Mengurangi Emisi Gas Rumah Kaca**\n'
+            'Proses daur ulang menghasilkan emisi karbon yang lebih '
+            'rendah dibandingkan produksi dari bahan baku baru.\n\n'
+            '**4. Menciptakan Lapangan Kerja**\n'
+            'Industri daur ulang menciptakan banyak lapangan kerja, '
+            'dari pemulung hingga pekerja di pabrik pengolahan.\n\n'
+            '**5. Manfaat Ekonomi**\n'
+            'Melalui bank sampah, sampah yang Anda kumpulkan memiliki '
+            'nilai ekonomi dan bisa ditukar dengan saldo atau reward!'
+        ),
+        'urutan': 5,
+    },
+    {
+        'judul': 'Tips Menjaga Kebersihan Sampah Sebelum Disetor',
+        'isi': (
+            'Agar sampah Anda diterima dan mendapatkan nilai terbaik, '
+            'ikuti tips berikut:\n\n'
+            '**1. Bilas wadah bekas** — Botol plastik, kaleng, dan wadah '
+            'lainnya sebaiknya dibilas bersih untuk menghilangkan sisa '
+            'makanan/minuman.\n'
+            '**2. Keringkan sebelum disimpan** — Sampah basah lebih mudah '
+            'berjamur dan berbau. Jemur atau lap hingga kering.\n'
+            '**3. Pisahkan tutup botol** — Tutup botol biasanya terbuat '
+            'dari jenis plastik berbeda. Pisahkan untuk nilai yang lebih baik.\n'
+            '**4. Lipat atau pipihkan** — Kardus lipat, botol plastik '
+            'pipihkan untuk menghemat ruang penyimpanan.\n'
+            '**5. Gunakan kantong terpisah** — Bawa sampah dalam kantong '
+            'yang sudah terpisah per jenis agar memudahkan petugas.\n\n'
+            'Sampah yang bersih dan terpilah dengan baik akan mempercepat '
+            'proses setoran dan memastikan Anda mendapatkan nilai yang fair!'
+        ),
+        'urutan': 6,
+    },
+    {
+        'judul': 'Standar Pelayanan MIRU Bank Sampah',
+        'isi': (
+            'MIRU Bank Sampah berkomitmen memberikan pelayanan terbaik '
+            'kepada seluruh nasabah. Berikut standar pelayanan kami:\n\n'
+            '**Waktu Pelayanan:**\n'
+            '- Verifikasi pendaftaran: maksimal 1 hari kerja\n'
+            '- Input transaksi setoran: pada hari yang sama\n'
+            '- Konfirmasi penjemputan: maksimal 1 hari kerja\n'
+            '- Penarikan saldo: maksimal 1-2 hari kerja\n'
+            '- Penanganan pengaduan: maksimal 2 hari kerja\n'
+            '- Laporan bulanan: akhir bulan berjalan\n\n'
+            '**Standar Etika Petugas:**\n'
+            '1. Melayani dengan sopan, ramah, dan profesional\n'
+            '2. Menimbang sampah secara jujur dan transparan\n'
+            '3. Tidak melakukan pungutan di luar ketentuan\n'
+            '4. Menjaga kerahasiaan data nasabah\n'
+            '5. Menggunakan akun sesuai kewenangan\n'
+            '6. Menjaga kebersihan lokasi bank sampah\n'
+            '7. Melaporkan kendala kepada admin/koordinator\n\n'
+            'Jika Anda merasa pelayanan tidak sesuai standar, '
+            'silakan sampaikan melalui form Pengaduan di aplikasi.'
+        ),
+        'urutan': 7,
+    },
 ]
 
 ADMIN_USER = ('admin', 'admin123', 'admin', 'Admin MIRU')
@@ -106,6 +281,33 @@ class Command(BaseCommand):
         'Use --minimal for core data only (categories, rewards, admin).'
     )
 
+    def _seed_wilayah(self):
+        """Seed data wilayah layanan dari data dictionary §K."""
+        created = 0
+        for kelurahan in WILAYAH_KELURAHAN:
+            _, was_created = WilayahLayanan.objects.get_or_create(
+                kelurahan=kelurahan,
+                defaults={'aktif': True},
+            )
+            if was_created:
+                created += 1
+        return created or len(WILAYAH_KELURAHAN)
+
+    def _seed_edukasi(self):
+        created = 0
+        for item in EDUKASI_CONTENT:
+            _, was_created = KontenEdukasi.objects.get_or_create(
+                judul=item['judul'],
+                defaults={
+                    'isi': item['isi'],
+                    'urutan': item['urutan'],
+                    'aktif': True,
+                },
+            )
+            if was_created:
+                created += 1
+        return created or len(EDUKASI_CONTENT)
+
     def add_arguments(self, parser):
         parser.add_argument(
             '--flush',
@@ -139,6 +341,8 @@ class Command(BaseCommand):
         counts['admin'] = self._seed_admin()
         counts['settings'] = self._seed_institution_settings()
         counts['pengumuman'] = self._seed_pengumuman()
+        counts['edukasi'] = self._seed_edukasi()
+        counts['wilayah'] = self._seed_wilayah()
 
         if minimal:
             connect_notification_signals()
@@ -194,6 +398,7 @@ class Command(BaseCommand):
         KategoriSampah.objects.all().delete()
         Reward.objects.all().delete()
         MitraPengepul.objects.all().delete()
+        WilayahLayanan.objects.all().delete()
 
     def _print_summary(self, total, counts, minimal):
         mode = 'minimal' if minimal else 'full'

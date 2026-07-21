@@ -78,14 +78,37 @@ def complete_penukaran_poin(nasabah: User, reward: Reward) -> tuple[User, Reward
 
 
 @transaction.atomic
-def credit_nasabah_setoran(nasabah: User, total_nilai: Decimal) -> User:
-    """Credit saldo and poin from a deposit; locks nasabah row."""
+def credit_nasabah_setoran(
+    nasabah: User, total_nilai: Decimal,
+    setoran: TransaksiSetoran | None = None,
+) -> User:
+    """Credit saldo and poin from a deposit; locks nasabah row.
+
+    If `setoran` is provided, also creates a PoinTransaksi record
+    to track 1-year expiry (Fase 8.5).
+    """
     locked = _lock_user(nasabah.pk)
+    poin_didapat = int(total_nilai / 1000)
     locked.saldo += total_nilai
-    locked.poin += int(total_nilai / 1000)
+    locked.poin += poin_didapat
     _ensure_non_negative_saldo(locked.saldo)
     _ensure_non_negative_poin(locked.poin)
     locked.save(update_fields=['saldo', 'poin'])
+
+    # Track poin for 1-year expiry tracking
+    if poin_didapat > 0 and setoran is not None:
+        from datetime import timedelta
+        from django.utils import timezone
+        from api.models import PoinTransaksi
+        PoinTransaksi.objects.create(
+            user=nasabah,
+            sumber='setoran',
+            setoran=setoran,
+            jumlah=poin_didapat,
+            sisa=poin_didapat,
+            tanggal_kedaluwarsa=timezone.now() + timedelta(days=365),
+        )
+
     return locked
 
 
@@ -178,5 +201,5 @@ def create_setoran_with_side_effects(
     transaksi.total_nilai = total_nilai
     transaksi.save(update_fields=['total_nilai'])
 
-    credit_nasabah_setoran(transaksi.nasabah, total_nilai)
+    credit_nasabah_setoran(transaksi.nasabah, total_nilai, setoran=transaksi)
     return transaksi

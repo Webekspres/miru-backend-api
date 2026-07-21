@@ -63,14 +63,15 @@ PRIVACY_POLICY = {
     },
     'keamanan_data_sensitif': {
         'nik': {
-            'status_saat_ini': 'disimpan_plaintext',
+            'status_saat_ini': 'tersimpan_terenkripsi',
             'opsional': True,
             'validasi_dukcapil': False,
-            'evaluasi_post_mvp': (
-                'Field-level encryption untuk NIK direncanakan pasca-MVP. '
-                'Prioritas: enkripsi at-rest dengan key management terpisah, '
-                'masking di API response untuk role non-admin, dan audit akses. '
-                'Implementasi penuh menunggu evaluasi infrastruktur production.'
+            'metode_enkripsi': 'AES-256 (Fernet) — key diturunkan dari SECRET_KEY',
+            'implementasi': (
+                'Field-level encryption untuk NIK telah diimplementasikan (Fase 8.4). '
+                'NIK dienkripsi at-rest menggunakan Fernet (AES-256 dalam mode CBC) '
+                'dengan key yang diturunkan dari SECRET_KEY aplikasi. '
+                'Dekripsi hanya terjadi saat data ditampilkan di API response.'
             ),
         },
     },

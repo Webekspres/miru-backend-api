@@ -1,3 +1,5 @@
+import os
+
 from rest_framework import serializers
 
 from .models import *
@@ -15,16 +17,24 @@ PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_s
 
 class UserProfileSerializer(serializers.ModelSerializer):
     qr = serializers.SerializerMethodField()
+    kelurahan_nama = serializers.CharField(
+        source='kelurahan.kelurahan', read_only=True, default=None,
+    )
 
     class Meta:
         model = User
         fields = [
             'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
-            'saldo', 'poin', 'is_active', 'date_joined', 'qr',
+            'kelurahan', 'kelurahan_nama', 'rt', 'rw',
+            'saldo', 'poin', 'is_active', 'date_joined', 'qr', 'foto_ktp',
         ]
         read_only_fields = [
             'id', 'username', 'role', 'saldo', 'poin', 'is_active', 'date_joined', 'qr',
+            'foto_ktp',
         ]
+        extra_kwargs = {
+            'foto_ktp': {'required': False, 'allow_null': True},
+        }
 
     def get_qr(self, obj) -> dict:
         return {
@@ -32,6 +42,12 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'nama_lengkap': obj.nama_lengkap,
             'no_hp': obj.no_hp,
         }
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        # Decrypt NIK for display
+        data['nik'] = instance.get_nik()
+        return data
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
@@ -42,6 +58,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'password', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
+            'kelurahan', 'rt', 'rw',
             'setuju_kebijakan_data', 'role', 'saldo', 'poin', 'is_active',
         ]
         read_only_fields = ['id', 'role', 'saldo', 'poin', 'is_active']
@@ -66,17 +83,22 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('setuju_kebijakan_data')
         from django.utils import timezone
+        nik = validated_data.get('nik', '')
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             nama_lengkap=validated_data['nama_lengkap'],
-            nik=validated_data.get('nik', ''),
+            nik=nik,
             no_hp=validated_data.get('no_hp', ''),
             alamat=validated_data.get('alamat', ''),
             role='nasabah',
             saldo=0,
             poin=0,
         )
+        # Encrypt NIK at-rest
+        if nik:
+            user.encrypt_nik(nik)
+            user.save(update_fields=['nik_encrypted'])
         user.setuju_kebijakan_data = True
         user.tanggal_persetujuan_kebijakan = timezone.now()
         user.save(update_fields=['setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan'])
@@ -107,7 +129,8 @@ class UserAdminSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
-            'alamat', 'saldo', 'poin', 'is_active',
+            'alamat', 'kelurahan', 'rt', 'rw',
+            'saldo', 'poin', 'is_active',
         ]
         read_only_fields = ['id']
 
@@ -137,23 +160,35 @@ class UserAdminSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
+        nik = validated_data.get('nik', '')
         user = User(**validated_data)
         user.set_password(password)
         user.save()
+        # Encrypt NIK at-rest
+        if nik:
+            user.encrypt_nik(nik)
+            user.save(update_fields=['nik_encrypted'])
         return user
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        nik = validated_data.get('nik')
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         if password:
             instance.set_password(password)
-        instance.save()
+        if nik is not None:
+            instance.encrypt_nik(nik)
+            instance.save(update_fields=['nik', 'nik_encrypted'])
+        else:
+            instance.save()
         return instance
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data.pop('password', None)
+        # Decrypt NIK for display
+        data['nik'] = instance.get_nik()
         return data
 
 
@@ -173,9 +208,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class KategoriSampahSerializer(serializers.ModelSerializer):
+    tanggal_berlaku = serializers.DateTimeField(
+        required=False,
+        help_text='Tanggal harga baru mulai berlaku (min H+3 dari sekarang). '
+                  'Kosongkan untuk default H+3.',
+    )
+
     class Meta:
         model = KategoriSampah
-        fields = ['id', 'nama', 'harga_beli_per_kg', 'stok_terkini_kg']
+        fields = ['id', 'nama', 'harga_beli_per_kg', 'stok_terkini_kg', 'tanggal_berlaku']
         read_only_fields = ['id', 'stok_terkini_kg']
 
     def validate_nama(self, value):
@@ -192,12 +233,37 @@ class KategoriSampahSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        # Extract tanggal_berlaku (not a model field on KategoriSampah)
+        tanggal_berlaku = validated_data.pop('tanggal_berlaku', None)
+
+        # Check if price is being changed
+        new_harga = validated_data.get('harga_beli_per_kg')
         old_harga = instance.harga_beli_per_kg
+
+        if new_harga is not None and new_harga != old_harga:
+            # Don't update harga_beli_per_kg on category yet — schedule instead
+            validated_data.pop('harga_beli_per_kg', None)
+
+            from api.services.price_history import (
+                record_price_change,
+                validate_tanggal_berlaku,
+            )
+            if tanggal_berlaku is not None:
+                try:
+                    validate_tanggal_berlaku(tanggal_berlaku)
+                except ValueError as exc:
+                    raise serializers.ValidationError(
+                        {'tanggal_berlaku': str(exc)},
+                    )
+
+            record_price_change(
+                instance, old_harga, new_harga,
+                tanggal_berlaku=tanggal_berlaku,
+            )
+
+        # Update other fields (nama, dll.)
         instance = super().update(instance, validated_data)
-        new_harga = instance.harga_beli_per_kg
-        if new_harga != old_harga:
-            from api.services.price_history import record_price_change
-            record_price_change(instance, old_harga, new_harga)
+
         return instance
 
 
@@ -371,8 +437,14 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         request = self.context['request']
-        from .services.pickups import validate_nasabah_owner
+        from .services.pickups import (
+            validate_max_pickups_per_week,
+            validate_nasabah_owner,
+            validate_wilayah_layanan,
+        )
         validate_nasabah_owner(request.user)
+        validate_wilayah_layanan(request.user)
+        validate_max_pickups_per_week(request.user)
         return attrs
 
     def create(self, validated_data):
@@ -449,14 +521,48 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+ALLOWED_UPLOAD_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+MAX_UPLOAD_SIZE_MB = 2
+
+
 class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenarikanSaldo
-        fields = ['nominal', 'metode', 'nama_bank', 'no_rekening', 'nama_pemilik_rekening']
+        fields = [
+            'nominal', 'metode', 'nama_bank', 'no_rekening',
+            'nama_pemilik_rekening', 'lampiran_ktp',
+        ]
+        extra_kwargs = {
+            'lampiran_ktp': {'required': False, 'allow_null': True},
+        }
 
     def validate_nominal(self, value):
         from .services.withdrawals import validate_nominal
         return validate_nominal(value)
+
+    def validate_lampiran_ktp(self, value):
+        if value is None:
+            return value
+        # Validasi tipe file — hanya gambar
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+            raise serializers.ValidationError(
+                f'Format file tidak didukung. Gunakan: {", ".join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}.'
+            )
+        # Validasi ukuran maksimal
+        if value.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024:
+            raise serializers.ValidationError(
+                f'Ukuran file maksimal {MAX_UPLOAD_SIZE_MB} MB.'
+            )
+        # Larang executable — cek magic bytes header
+        header = value.read(4)
+        value.seek(0)
+        executable_magic = {b'\x4d\x5a', b'\x7fELF', b'\xca\xfe\xba\xbe', b'\xcf\xfa\xed\xfe'}
+        if header[:2] in {b'MZ', b'\x7f\x45'} or header in executable_magic:
+            raise serializers.ValidationError(
+                'File executable tidak diizinkan untuk diunggah.'
+            )
+        return value
 
     def validate(self, attrs):
         request = self.context['request']
@@ -464,8 +570,19 @@ class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Hanya nasabah yang dapat mengajukan penarikan saldo.'
             )
-        from .services.withdrawals import validate_create_withdrawal
-        validate_create_withdrawal(request.user, attrs['nominal'])
+        from .services.withdrawals import (
+            validate_create_withdrawal,
+            is_besar,
+        )
+        nominal = attrs['nominal']
+        lampiran_ktp = attrs.get('lampiran_ktp')
+        if is_besar(nominal) and not lampiran_ktp:
+            raise serializers.ValidationError({
+                'lampiran_ktp': [
+                    'Penarikan ≥ Rp1.000.000 wajib melampirkan foto KTP.'
+                ],
+            })
+        validate_create_withdrawal(request.user, nominal)
         return attrs
 
     def create(self, validated_data):
@@ -504,6 +621,7 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
             'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
+            'lampiran_ktp',
             'status', 'tanggal',
         ]
         read_only_fields = fields
@@ -656,6 +774,66 @@ class PenjualanMitraSerializer(serializers.ModelSerializer):
         return data
 
 
+class WilayahLayananSerializer(serializers.ModelSerializer):
+    """CRUD wilayah layanan — admin/koordinator."""
+
+    class Meta:
+        model = WilayahLayanan
+        fields = ['id', 'kelurahan', 'rt', 'rw', 'aktif', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def validate_kelurahan(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Nama kelurahan wajib diisi.')
+        return value
+
+
+class KontenEdukasiSerializer(serializers.ModelSerializer):
+    """CRUD konten edukasi — admin/koordinator."""
+
+    kategori_terkait_nama = serializers.CharField(
+        source='kategori_terkait.nama', read_only=True, default=None,
+    )
+
+    class Meta:
+        model = KontenEdukasi
+        fields = [
+            'id', 'judul', 'isi', 'kategori_terkait', 'kategori_terkait_nama',
+            'aktif', 'urutan', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate_judul(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Judul wajib diisi.')
+        return value
+
+    def validate_isi(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Isi konten wajib diisi.')
+        return value
+
+    def validate_urutan(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Urutan tidak boleh negatif.')
+        return value
+
+
+class KontenEdukasiPublicSerializer(serializers.ModelSerializer):
+    """List/detail publik untuk mobile — hanya konten aktif, tanpa updated_at."""
+
+    kategori_terkait_nama = serializers.CharField(
+        source='kategori_terkait.nama', read_only=True, default=None,
+    )
+
+    class Meta:
+        model = KontenEdukasi
+        fields = [
+            'id', 'judul', 'isi', 'kategori_terkait_nama',
+            'urutan', 'created_at',
+        ]
+
+
 class PengaduanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pengaduan
@@ -729,6 +907,26 @@ class NotifikasiSerializer(serializers.ModelSerializer):
         model = Notifikasi
         fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'is_read', 'created_at']
         read_only_fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'created_at']
+
+
+class DeviceTokenSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    token = serializers.CharField(max_length=512)
+    platform = serializers.ChoiceField(
+        choices=('android', 'ios', 'web'),
+        default='android',
+        required=False,
+    )
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate_token(self, value):
+        value = (value or '').strip()
+        if not value:
+            raise serializers.ValidationError('Token tidak boleh kosong.')
+        if len(value) < 20:
+            raise serializers.ValidationError('Token FCM tidak valid.')
+        return value
 
 
 class PengaduanSerializer(serializers.ModelSerializer):

@@ -28,6 +28,7 @@ from .openapi import (
     CATEGORIES_TAG,
     complaint_schema,
     deposit_schema,
+    edukasi_schema,
     partner_sale_schema,
     partner_schema,
     pickup_schema,
@@ -761,6 +762,142 @@ class PenjualanMitraViewSet(viewsets.ModelViewSet):
             message='Data berhasil diambil.',
             request=request,
         )
+
+class WilayahLayananViewSet(viewsets.ModelViewSet):
+    queryset = WilayahLayanan.objects.all()
+    serializer_class = WilayahLayananSerializer
+    search_fields = ['kelurahan', 'rt', 'rw']
+    filterset_fields = ['aktif']
+    ordering_fields = ['kelurahan', 'created_at']
+    ordering = ['kelurahan', 'rt', 'rw']
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [IsAuthenticated(), IsMonitorReadOnly()]
+        return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Wilayah layanan berhasil ditambahkan.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Wilayah layanan berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response(
+            message='Wilayah layanan berhasil dihapus.',
+            status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
+
+@edukasi_schema
+class KontenEdukasiViewSet(viewsets.ModelViewSet):
+    queryset = KontenEdukasi.objects.select_related('kategori_terkait').all()
+    search_fields = ['judul', 'isi']
+    ordering_fields = ['urutan', 'judul', 'created_at']
+    ordering = ['urutan', 'created_at']
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_serializer_class(self):
+        # Public list/detail (AllowAny) → tanpa field internal
+        if self.action in ('list', 'retrieve') and not self.request.user.is_authenticated:
+            return KontenEdukasiPublicSerializer
+        # Nasabah authenticated → tetap publik, tanpa field internal
+        if self.action in ('list', 'retrieve'):
+            role = getattr(self.request.user, 'role', None)
+            if role == 'nasabah':
+                return KontenEdukasiPublicSerializer
+        return KontenEdukasiSerializer
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        if self.action == 'destroy':
+            return [IsAuthenticated(), IsAdmin()]
+        return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action in ('list', 'retrieve'):
+            user = self.request.user
+            if not user.is_authenticated or user.role != 'admin':
+                # Public/nasabah hanya lihat konten aktif
+                return qs.filter(aktif=True)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Konten edukasi berhasil dibuat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Konten edukasi berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response(
+            message='Konten edukasi berhasil dihapus.',
+            status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
 
 @complaint_schema
 class PengaduanViewSet(viewsets.ModelViewSet):

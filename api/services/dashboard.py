@@ -14,6 +14,7 @@ from api.models import (
     Pengaduan,
     TransaksiSetoran,
     User,
+    WilayahLayanan,
 )
 
 from .aggregates import fmt, stok_per_kategori
@@ -52,7 +53,25 @@ def get_overview() -> dict:
         'penjemputan_menunggu': Penjemputan.objects.filter(status='menunggu').count(),
         'pengaduan_terbuka': Pengaduan.objects.filter(status='terbuka').count(),
         'stok_per_kategori': stok_per_kategori(),
+        'wilayah_teraktif': _wilayah_teraktif(),
     }
+
+
+def _wilayah_teraktif() -> list[dict]:
+    """Daftar kelurahan dengan jumlah nasabah aktif terbanyak."""
+    rows = (
+        User.objects
+        .filter(role='nasabah', is_active=True, kelurahan__isnull=False)
+        .values('kelurahan_id', 'kelurahan__kelurahan')
+        .annotate(jumlah=Count('id'))
+        .order_by('-jumlah')[:5]
+    )
+    if not rows.exists():
+        return []
+    return [
+        {'kelurahan': row['kelurahan__kelurahan'], 'jumlah_nasabah': row['jumlah']}
+        for row in rows
+    ]
 
 
 def get_deposit_chart(bulan, tahun) -> dict:
