@@ -43,7 +43,7 @@
 | Kelas | Contoh | Perlakuan |
 |-------|--------|-----------|
 | **Rahasia sistem** | `SECRET_KEY`, JWT signing, DB password, Maps/FCM/WA API key | Env only; rotasi; tidak di log/repo |
-| **PII sensitif** | NIK, foto KTP | Enkripsi at-rest (post-MVP Fase 8); akses admin terbatas; mask di UI |
+| **PII sensitif** | NIK, foto KTP | Enkripsi at-rest (Fase 8); akses admin terbatas; mask di UI |
 | **PII operasional** | Nama, no HP, alamat, kelurahan | Hanya untuk operasional bank sampah; retensi sesuai kebijakan (arsip 5 thn transaksi) |
 | **Keuangan** | Saldo, poin, transaksi, penarikan | Atomic ledger; audit; anti double-processing |
 | **Publik** | Kategori sampah, harga aktif, pengumuman aktif, settings institusi (sebagian) | Boleh tanpa auth bila sudah ditandai Public di kontrak API |
@@ -215,10 +215,10 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 
 | Integrasi | Status | Catatan keamanan |
 |-----------|--------|------------------|
-| Google Maps (sederhana) | Post-MVP | API key restrict by IP/bundle; kuota klien |
-| FCM | Post-MVP | Server key / SA hanya di backend; validasi device token milik user |
-| WhatsApp Business | Post-MVP | Jangan kirim NIK/KTP; template message terbatas |
-| Email transactional | Post-MVP | Kredensial SMTP di env; jangan CC data sensitif massal |
+| Google Maps (sederhana) | Fase 8 (Modul 7) | API key restrict by IP/bundle; kuota klien |
+| FCM | Fase 8 (Modul 9) — backend ✅; client Flutter 🔲 | Server key / SA hanya di backend; validasi device token milik user |
+| WhatsApp Business | Fase 8 (Modul 9) | Jangan kirim NIK/KTP; template message terbatas |
+| Email transactional | Fase 8 (Modul 9) — ✅ sebagian | Kredensial SMTP di env; jangan CC data sensitif massal |
 | Payment gateway | **Out of scope** | Dilarang Constraints/Proposal |
 
 ---
@@ -237,7 +237,7 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 - [ ] `/health/` aktif & dipantau
 - [ ] Permission test lolos (nasabah tidak akses data orang lain)
 
-### Pasca-MVP (Fase 8 keamanan data)
+### Fase 8 — Keamanan data (Pengembangan Lanjutan)
 
 - [ ] Enkripsi NIK / KTP at-rest
 - [ ] Upload KTP tersimpan aman + akses terbatas

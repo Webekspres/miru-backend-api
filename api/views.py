@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 
 from drf_spectacular.utils import extend_schema
 
-from .filters import TransaksiSetoranFilter
+from .filters import PenjemputanFilter, TransaksiSetoranFilter
 from .models import *
 from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staff_only
 from .services import (
@@ -357,7 +357,7 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
 @pickup_schema
 class PenjemputanViewSet(viewsets.ModelViewSet):
     queryset = Penjemputan.objects.select_related('nasabah', 'petugas')
-    filterset_fields = ['nasabah', 'status', 'petugas']
+    filterset_class = PenjemputanFilter
     ordering_fields = ['jadwal']
     ordering = ['-jadwal']
     http_method_names = ['get', 'post', 'patch', 'head', 'options']

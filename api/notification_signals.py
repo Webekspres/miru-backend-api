@@ -56,7 +56,16 @@ def _notif_penjemputan(instance, created, **kwargs):
     if created:
         # Kirim email ke admin untuk penjemputan baru
         trigger_email_new_pickup(instance)
-        return  # In-app notif untuk penjemputan baru dibuat di blok update status
+        create_notification(
+            user_id=instance.nasabah_id,
+            judul='Pengajuan Penjemputan Diterima',
+            deskripsi=(
+                'Pengajuan penjemputan sampah Anda telah diterima. '
+                'Menunggu persetujuan admin MIRU.'
+            ),
+            kategori='penjemputan',
+        )
+        return
 
     old_status = getattr(instance, '_old_status', None)
     if old_status is None or old_status == instance.status:
@@ -69,12 +78,8 @@ def _notif_penjemputan(instance, created, **kwargs):
                           'Petugas akan segera dijadwalkan.',
         },
         'dijadwalkan': {
-            'judul': 'Penjemputan Dijadwalkan',
-            'deskripsi': (
-                f'Penjemputan sampah Anda telah dijadwalkan '
-                f'pada {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
-                f'Mohon siapkan sampah Anda.'
-            ),
+            'judul': 'Penjemputan Akan Dijemput',
+            'deskripsi': _nasabah_dijadwalkan_deskripsi(instance),
         },
         'dalam_perjalanan': {
             'judul': 'Petugas Dalam Perjalanan',
@@ -106,6 +111,66 @@ def _notif_penjemputan(instance, created, **kwargs):
         judul=msg['judul'],
         deskripsi=msg['deskripsi'],
         kategori='penjemputan',
+    )
+
+    # Saat admin menugaskan petugas → notifikasi ke petugas
+    if instance.status == 'dijadwalkan' and instance.petugas_id:
+        create_notification(
+            user_id=instance.petugas_id,
+            judul='Tugas Penjemputan Baru',
+            deskripsi=_petugas_tugas_deskripsi(instance),
+            kategori='penjemputan',
+        )
+
+
+def _nasabah_dijadwalkan_deskripsi(instance: Penjemputan) -> str:
+    petugas_nama = ''
+    if instance.petugas_id:
+        petugas = getattr(instance, 'petugas', None)
+        if petugas is not None and getattr(petugas, 'nama_lengkap', None):
+            petugas_nama = petugas.nama_lengkap
+        else:
+            from .models import User
+            petugas_nama = (
+                User.objects.filter(pk=instance.petugas_id)
+                .values_list('nama_lengkap', flat=True)
+                .first()
+                or ''
+            )
+
+    if petugas_nama:
+        return (
+            f'Sampah Anda sudah disetujui dan akan dijemput oleh petugas kami '
+            f'({petugas_nama}). '
+            f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
+            f'Mohon siapkan sampah Anda.'
+        )
+    return (
+        'Sampah Anda sudah disetujui dan akan dijemput oleh petugas kami. '
+        f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
+        f'Mohon siapkan sampah Anda.'
+    )
+
+
+def _petugas_tugas_deskripsi(instance: Penjemputan) -> str:
+    nasabah_nama = ''
+    nasabah = getattr(instance, 'nasabah', None)
+    if nasabah is not None and getattr(nasabah, 'nama_lengkap', None):
+        nasabah_nama = nasabah.nama_lengkap
+    else:
+        from .models import User
+        nasabah_nama = (
+            User.objects.filter(pk=instance.nasabah_id)
+            .values_list('nama_lengkap', flat=True)
+            .first()
+            or 'nasabah'
+        )
+
+    return (
+        f'Anda mendapat tugas menjemput sampah. '
+        f'Nasabah: {nasabah_nama}. '
+        f'Alamat: {instance.alamat_jemput}. '
+        f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT.'
     )
 
 

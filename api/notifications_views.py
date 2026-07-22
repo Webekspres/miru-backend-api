@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Notifikasi
 from .openapi import NOTIFICATIONS_TAG, notification_schema
-from .permissions import IsActivityReader, IsPemerintahReadOnly
+from .permissions import IsPemerintahReadOnly
+from .querysets import READ_ALL_ROLES
 from .serializers import NotifikasiSerializer
 from .utils.pagination import MiruPagination
 from .utils.response import success_response
@@ -15,8 +16,8 @@ class NotifikasiViewSet(viewsets.ModelViewSet):
     """
     ViewSet untuk notifikasi in-app.
 
-    - Nasabah hanya melihat notifikasi miliknya sendiri.
-    - Staff/admin bisa melihat notifikasi semua user.
+    - Nasabah & petugas hanya melihat notifikasi miliknya sendiri.
+    - Admin/koordinator/pemerintah bisa melihat semua (atau filter ?user=).
     - Endpoint khusus:
       * `{id}/read/` — Tandai satu notifikasi sebagai sudah dibaca.
       * `mark-all-read/` — Tandai semua notifikasi user sebagai sudah dibaca.
@@ -27,24 +28,25 @@ class NotifikasiViewSet(viewsets.ModelViewSet):
     pagination_class = MiruPagination
     ordering_fields = ['created_at']
     ordering = ['-created_at']
-    http_method_names = ['get', 'patch', 'head', 'options']
+    # POST dibutuhkan untuk mark_read / mark_all_read (actions).
+    http_method_names = ['get', 'post', 'patch', 'head', 'options']
 
     def get_permissions(self):
-        if self.action in ('list', 'retrieve', 'mark_read', 'mark_all_read'):
-            return [IsAuthenticated(), IsActivityReader(), IsPemerintahReadOnly()]
+        # Semua role terautentikasi boleh baca/tandai notifikasi miliknya.
         return [IsAuthenticated(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
         qs = super().get_queryset()
         user = self.request.user
-        # Nasabah hanya melihat notifikasi miliknya
-        if user.role == 'nasabah':
+        if user.role in ('nasabah', 'petugas'):
             return qs.filter(user=user)
-        # Staff/admin bisa melihat semua (dengan filter param user)
-        user_id = self.request.query_params.get('user')
-        if user_id:
-            return qs.filter(user_id=user_id)
-        return qs
+        if user.role in READ_ALL_ROLES:
+            user_id = self.request.query_params.get('user')
+            if user_id:
+                return qs.filter(user_id=user_id)
+            return qs
+        # Role lain (jika ada): hanya milik sendiri
+        return qs.filter(user=user)
 
     def list(self, request, *args, **kwargs):
         qs = self.filter_queryset(self.get_queryset())
@@ -84,8 +86,8 @@ class NotifikasiViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], url_path='mark-all-read')
     def mark_all_read(self, request):
-        """Tandai semua notifikasi user sebagai sudah dibaca."""
-        qs = self.get_queryset().filter(is_read=False)
+        """Tandai semua notifikasi milik user login sebagai sudah dibaca."""
+        qs = Notifikasi.objects.filter(user=request.user, is_read=False)
         count = qs.update(is_read=True)
         return success_response(
             data={'updated_count': count},

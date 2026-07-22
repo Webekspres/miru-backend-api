@@ -181,6 +181,26 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['data']), 1)
 
+    def test_filter_by_status_in(self):
+        """Tab Aktif admin memakai ?status__in=disetujui,dijadwalkan,..."""
+        self.pickup.status = 'disetujui'
+        self.pickup.save()
+        Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            estimasi_berat=Decimal('6.00'),
+            alamat_jemput='Timika 2',
+            jadwal=timezone.now() + timedelta(days=4),
+            status='menunggu',
+        )
+        self.auth_as(self.admin)
+        response = self.client.get(
+            '/api/pickups/?status__in=disetujui,dijadwalkan,dalam_perjalanan,dijemput',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        statuses = {row['status'] for row in response.data['data']}
+        self.assertIn('disetujui', statuses)
+        self.assertNotIn('menunggu', statuses)
+
     def test_nasabah_cannot_update(self):
         self.auth_as(self.nasabah)
         response = self.client.patch(
@@ -230,6 +250,61 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['data']['status'], 'dijadwalkan')
         self.assertEqual(response.data['data']['petugas'], self.petugas.id)
+
+    def test_assign_sends_notifications_to_nasabah_and_petugas(self):
+        from api.models import Notifikasi
+
+        self.pickup.status = 'disetujui'
+        self.pickup.save()
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            f'/api/pickups/{self.pickup.id}/',
+            {'status': 'dijadwalkan', 'petugas': self.petugas.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        nasabah_notif = Notifikasi.objects.filter(
+            user=self.nasabah, kategori='penjemputan',
+        ).order_by('-created_at').first()
+        self.assertIsNotNone(nasabah_notif)
+        self.assertIn('sudah disetujui', nasabah_notif.deskripsi.lower())
+        self.assertIn('dijemput oleh petugas', nasabah_notif.deskripsi.lower())
+
+        petugas_notif = Notifikasi.objects.filter(
+            user=self.petugas, kategori='penjemputan',
+        ).order_by('-created_at').first()
+        self.assertIsNotNone(petugas_notif)
+        self.assertIn('mendapat tugas menjemput', petugas_notif.deskripsi.lower())
+
+    def test_each_status_change_notifies_nasabah(self):
+        from api.models import Notifikasi
+
+        self.pickup.status = 'dijadwalkan'
+        self.pickup.petugas = self.petugas
+        self.pickup.save()
+
+        expected = {
+            'dalam_perjalanan': 'dalam perjalanan',
+            'dijemput': 'dijemput',
+            'selesai': 'selesai',
+        }
+        self.auth_as(self.petugas)
+        for new_status, keyword in expected.items():
+            before = Notifikasi.objects.filter(user=self.nasabah).count()
+            response = self.client.patch(
+                f'/api/pickups/{self.pickup.id}/',
+                {'status': new_status},
+                format='json',
+            )
+            self.assertEqual(response.status_code, status.HTTP_200_OK, new_status)
+            after = Notifikasi.objects.filter(user=self.nasabah).count()
+            self.assertEqual(after, before + 1, new_status)
+            latest = Notifikasi.objects.filter(
+                user=self.nasabah, kategori='penjemputan',
+            ).order_by('-created_at').first()
+            self.assertIsNotNone(latest)
+            self.assertIn(keyword, latest.deskripsi.lower() + latest.judul.lower())
 
     def test_update_status_action(self):
         self.pickup.status = 'dijadwalkan'
