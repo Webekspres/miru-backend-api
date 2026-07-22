@@ -130,8 +130,8 @@
     "semantic_hash": "58db253dd4ea9d8d7b4287fc48402924"
   },
   ".ai-steering/08-task-list.md": {
-    "mtime": 1784023085.167679,
-    "ast_hash": "625f59cf1a729249975cd932852ea348",
+    "mtime": 1784704650.5663395,
+    "ast_hash": "4bce351b4125c5c886661f1557056db8",
     "semantic_hash": ""
   },
   ".ai-steering/09-data-dictionary.md": {
@@ -330,8 +330,8 @@
     "semantic_hash": "383152c2dacd1e4538104c596db9e932"
   },
   "api/tests/test_pickups.py": {
-    "mtime": 1784636001.9581125,
-    "ast_hash": "0318d649c8c15cd2357e7af26e35a0d6",
+    "mtime": 1784636346.0166616,
+    "ast_hash": "8900c14c3fe33552c6add347b1164ccf",
     "semantic_hash": ""
   },
   "api/services/redemptions.py": {
@@ -585,8 +585,8 @@
     "semantic_hash": ""
   },
   "api/notification_signals.py": {
-    "mtime": 1784635962.9245913,
-    "ast_hash": "e23579ca11ce379b47f2db11ba5e6c8d",
+    "mtime": 1784636394.6675563,
+    "ast_hash": "734351e6e48cfe528194d2d3b62e803f",
     "semantic_hash": ""
   },
   "api/notifications_views.py": {
@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   ".ai-steering/10-security-and-privacy.md": {
-    "mtime": 1783998115.8826506,
-    "ast_hash": "c07eea1d4fe9325e2b9afcd5e1af7d3f",
+    "mtime": 1784636803.5638146,
+    "ast_hash": "c3ccca7496351ed213069a82b239e5d1",
     "semantic_hash": ""
   },
   "api/tests/test_rate_limiting.py": {
