@@ -62,6 +62,47 @@ def wa_credentials_configured() -> bool:
     )
 
 
+def get_dev_fixed_otp() -> str | None:
+    """
+    OTP tetap untuk local/dev.
+
+    Aktif hanya jika DEBUG=True dan OTP_DEV_FIXED_CODE berisi tepat 6 digit.
+    Di production (DEBUG=False) selalu None — env tidak cukup untuk mengaktifkan.
+    """
+    if not settings.DEBUG:
+        return None
+    code = (getattr(settings, 'OTP_DEV_FIXED_CODE', '') or '').strip()
+    if code.isdigit() and len(code) == OTP_LENGTH:
+        return code
+    return None
+
+
+def otp_dev_mode_enabled() -> bool:
+    return get_dev_fixed_otp() is not None
+
+
+def otp_dev_response_extras() -> dict:
+    """Field tambahan response request-otp (hanya mode OTP_DEV)."""
+    code = get_dev_fixed_otp()
+    if not code:
+        return {}
+    return {
+        'dev_otp': code,
+        'dev_otp_mode': True,
+    }
+
+
+def otp_request_message(default: str) -> str:
+    """Pesan sukses request OTP; di mode dev sebutkan kode tetap."""
+    code = get_dev_fixed_otp()
+    if not code:
+        return default
+    return (
+        f'Mode development: gunakan OTP tetap {code} '
+        '(tidak dikirim WhatsApp nyata).'
+    )
+
+
 def send_whatsapp_otp(phone: str, code: str, purpose: str) -> bool:
     """
     Kirim OTP ke WhatsApp.
@@ -71,9 +112,10 @@ def send_whatsapp_otp(phone: str, code: str, purpose: str) -> bool:
     masked = mask_phone(phone)
     if not wa_credentials_configured():
         logger.info(
-            'WA OTP stub: purpose=%s phone=%s (WA_* belum dikonfigurasi)',
+            'WA OTP stub: purpose=%s phone=%s (WA_* belum dikonfigurasi)%s',
             purpose,
             masked,
+            ' [OTP_DEV]' if otp_dev_mode_enabled() else '',
         )
         return True
 
@@ -103,7 +145,7 @@ def create_and_send_otp(
     """
     Buat OTP baru, kirim via WA (stub jika perlu).
 
-    `code` hanya untuk test — jangan dipakai di production path.
+    Urutan kode: argumen `code` (test) → OTP_DEV_FIXED_CODE (DEBUG) → acak.
     """
     now = timezone.now()
     recent = (
@@ -125,7 +167,7 @@ def create_and_send_otp(
         })
 
     invalidate_active_otps(user, purpose)
-    otp_code = code or generate_otp_code()
+    otp_code = code or get_dev_fixed_otp() or generate_otp_code()
     otp = PhoneOTP.objects.create(
         user=user,
         purpose=purpose,

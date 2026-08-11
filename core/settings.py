@@ -284,6 +284,8 @@ FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON', '')
 WA_API_URL = os.environ.get('WA_API_URL', '')
 WA_API_TOKEN = os.environ.get('WA_API_TOKEN', '')
 WA_SENDER = os.environ.get('WA_SENDER', '')
+# OTP tetap untuk local/dev saja — diabaikan jika DEBUG=False (lihat docs/OTP_DEV.md)
+OTP_DEV_FIXED_CODE = os.environ.get('OTP_DEV_FIXED_CODE', '').strip()
 
 
 # ---------------------------------------------------------------------------

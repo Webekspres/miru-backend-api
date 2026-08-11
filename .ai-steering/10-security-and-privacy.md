@@ -218,6 +218,7 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 | Google Maps (sederhana) | Fase 8 (Modul 7) | API key restrict by IP/bundle; kuota klien |
 | FCM | Fase 8 (Modul 9) — backend ✅; client Flutter 🔲 | Server key / SA hanya di backend; validasi device token milik user |
 | WhatsApp Business | Fase 8 (Modul 9) | Jangan kirim NIK/KTP; template message terbatas |
+| WhatsApp OTP (T2) | Auth / reset password | Kredensial `WA_*` di env; **jangan log OTP**. Local: `OTP_DEV_FIXED_CODE` hanya jika `DEBUG=True` — lihat `docs/OTP_DEV.md` |
 | Email transactional | Fase 8 (Modul 9) — ✅ sebagian | Kredensial SMTP di env; jangan CC data sensitif massal |
 | Payment gateway | **Out of scope** | Dilarang Constraints/Proposal |
 

@@ -2,11 +2,12 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.test import override_settings
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from api.models import PasswordResetToken
-from api.services.whatsapp import create_and_send_otp
+from api.services.whatsapp import create_and_send_otp, get_dev_fixed_otp, verify_otp_code
 
 from .base import EnvelopeAPITestCase
 
@@ -383,6 +384,55 @@ class AdminPhoneVerifiedTests(EnvelopeAPITestCase):
         petugas.refresh_from_db()
         self.assertFalse(petugas.phone_verified)
         self.assertEqual(petugas.no_hp, '08129998888')
+
+
+@override_settings(DEBUG=True, OTP_DEV_FIXED_CODE='123456')
+class OtpDevFixedCodeTests(EnvelopeAPITestCase):
+    """OTP tetap untuk local/dev — lihat docs/OTP_DEV.md."""
+
+    def setUp(self):
+        cache.clear()
+        self.user = self.create_nasabah(username='otp_dev_user', password='secret12')
+        self.user.phone_verified = False
+        self.user.save(update_fields=['phone_verified'])
+
+    def test_get_dev_fixed_otp_when_debug(self):
+        self.assertEqual(get_dev_fixed_otp(), '123456')
+
+    @override_settings(DEBUG=False, OTP_DEV_FIXED_CODE='123456')
+    def test_dev_otp_ignored_when_not_debug(self):
+        self.assertIsNone(get_dev_fixed_otp())
+
+    @override_settings(DEBUG=True, OTP_DEV_FIXED_CODE='12ab')
+    def test_invalid_dev_code_ignored(self):
+        self.assertIsNone(get_dev_fixed_otp())
+
+    def test_phone_request_otp_returns_dev_fields_and_accepts_fixed_code(self):
+        self.auth_as(self.user)
+        req = self.client.post('/api/auth/phone/request-otp/', {
+            'no_hp': '08123456789',
+        }, format='json')
+        self.assertEqual(req.status_code, status.HTTP_200_OK)
+        self.assert_envelope_success(req, 200)
+        self.assertTrue(req.data['data']['dev_otp_mode'])
+        self.assertEqual(req.data['data']['dev_otp'], '123456')
+        self.assertIn('123456', req.data['message'])
+
+        verify = self.client.post('/api/auth/phone/verify-otp/', {
+            'otp': '123456',
+        }, format='json')
+        self.assertEqual(verify.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertTrue(self.user.phone_verified)
+
+    def test_reset_password_request_otp_dev_mode(self):
+        req = self.client.post('/api/auth/reset-password/request-otp/', {
+            'username': 'otp_dev_user',
+            'no_hp': '08123456789',
+        }, format='json')
+        self.assertEqual(req.status_code, status.HTTP_200_OK)
+        self.assertEqual(req.data['data']['dev_otp'], '123456')
+        verify_otp_code(self.user, 'password_reset', '123456')
 
 
 class AddressGateTests(EnvelopeAPITestCase):

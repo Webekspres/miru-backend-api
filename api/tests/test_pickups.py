@@ -296,6 +296,14 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
             jadwal=timezone.now() + timedelta(days=4),
             status='dijadwalkan',
         )
+        done = Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.petugas,
+            estimasi_berat=Decimal('6.50'),
+            alamat_jemput='Timika 2b',
+            jadwal=timezone.now() - timedelta(days=1),
+            status='selesai',
+        )
         Penjemputan.objects.create(
             nasabah=self.nasabah,
             petugas=self.other_petugas,
@@ -317,11 +325,18 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         ids = {row['id'] for row in response.data['data']}
         self.assertIn(assigned.id, ids)
+        self.assertIn(done.id, ids)
         self.assertNotIn(waiting.id, ids)
         self.assertNotIn(rejected.id, ids)
         statuses = {row['status'] for row in response.data['data']}
         self.assertNotIn('menunggu', statuses)
         self.assertNotIn('ditolak', statuses)
+        self.assertIn('selesai', statuses)
+
+        selesai_tab = self.client.get('/api/pickups/?status=selesai')
+        self.assertEqual(selesai_tab.status_code, status.HTTP_200_OK)
+        selesai_ids = {row['id'] for row in selesai_tab.data['data']}
+        self.assertEqual(selesai_ids, {done.id})
 
     def test_filter_by_status(self):
         self.pickup.status = 'ditolak'

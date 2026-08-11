@@ -10,10 +10,11 @@ class CharInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
 class TransaksiSetoranFilter(django_filters.FilterSet):
     tanggal_after = django_filters.DateFilter(field_name='tanggal', lookup_expr='date__gte')
     tanggal_before = django_filters.DateFilter(field_name='tanggal', lookup_expr='date__lte')
+    tanggal = django_filters.DateFilter(field_name='tanggal', lookup_expr='date')
 
     class Meta:
         model = TransaksiSetoran
-        fields = ['nasabah', 'status']
+        fields = ['nasabah', 'status', 'petugas']
 
 
 class PenjemputanFilter(django_filters.FilterSet):

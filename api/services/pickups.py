@@ -23,7 +23,8 @@ MAX_PICKUPS_PER_WEEK_PER_WILAYAH = 2
 MIN_JADWAL_AHEAD = timedelta(hours=1)
 WIT = ZoneInfo('Asia/Jayapura')
 
-# Status aktif untuk antrian petugas (bukan menunggu/ditolak/selesai).
+# Status aktif untuk antrian/dashboard petugas (tanpa menunggu/ditolak/selesai).
+# List API petugas memakai filter_pickup_queryset (termasuk selesai untuk tab history).
 PETUGAS_VISIBLE_STATUSES = (
     'dijadwalkan',
     'dalam_perjalanan',

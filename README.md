@@ -34,6 +34,19 @@ Copy `.env.example` to `.env` and configure:
 | `USE_POSTGRES` | Use PostgreSQL | `True` for Docker |
 | `DB_*` | Database credentials | See `.env.example` |
 | `CORS_ALLOW_ALL_ORIGINS` | Allow all CORS origins | `True` for local dev |
+| `WA_*` | WhatsApp OTP provider | Kosong = stub (lihat `docs/OTP_DEV.md`) |
+| `OTP_DEV_FIXED_CODE` | OTP tetap 6 digit (hanya jika `DEBUG=True`) | Kosong |
+
+### OTP WhatsApp di local (tanpa provider)
+
+Tanpa kredensial `WA_*`, OTP tidak sampai ke WhatsApp. Untuk uji mobile, set di `.env`:
+
+```env
+DEBUG=True
+OTP_DEV_FIXED_CODE=123456
+```
+
+Lalu masukkan `123456` di layar verifikasi. Detail: [`docs/OTP_DEV.md`](docs/OTP_DEV.md).
 
 ### 2. Build and Run
 ```bash

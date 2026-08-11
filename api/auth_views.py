@@ -24,6 +24,8 @@ from .serializers import UserProfileSerializer
 from .services.whatsapp import (
     create_and_send_otp,
     mask_phone,
+    otp_dev_response_extras,
+    otp_request_message,
     phones_match,
     verify_otp_code,
 )
@@ -324,8 +326,9 @@ class ResetPasswordRequestOtpView(APIView):
                     'username': user.username,
                     'masked_phone': mask_phone(user.no_hp),
                     'expires_in_seconds': 300,
+                    **otp_dev_response_extras(),
                 },
-                message=(
+                message=otp_request_message(
                     'Kode OTP telah dikirim ke WhatsApp Anda. '
                     'Periksa notifikasi WhatsApp.'
                 ),
@@ -598,8 +601,9 @@ class PhoneRequestOtpView(APIView):
                     'masked_phone': mask_phone(no_hp),
                     'purpose': purpose,
                     'expires_in_seconds': 300,
+                    **otp_dev_response_extras(),
                 },
-                message=(
+                message=otp_request_message(
                     'Kode OTP telah dikirim ke WhatsApp Anda. '
                     'Periksa notifikasi WhatsApp.'
                 ),
