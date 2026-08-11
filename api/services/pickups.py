@@ -273,19 +273,8 @@ def reject_pickup(instance: Penjemputan, user: User) -> Penjemputan:
     return instance
 
 
-@transaction.atomic
 def assign_pickup(instance: Penjemputan, user: User, petugas_id: int) -> Penjemputan:
-    try:
-        petugas = User.objects.select_for_update().get(pk=petugas_id)
-    except User.DoesNotExist as exc:
-        raise ValidationError({'petugas_id': ['Petugas tidak ditemukan.']}) from exc
-
-    validate_petugas_user(petugas)
-    validate_status_transition(instance, 'dijadwalkan', user, petugas=petugas)
-    instance.petugas = petugas
-    instance.status = 'dijadwalkan'
-    instance.save(update_fields=['petugas', 'status'])
-    return instance
+    return approve_pickup(instance, user, petugas_id)
 
 
 def update_pickup_status(instance: Penjemputan, user: User, new_status: str) -> Penjemputan:

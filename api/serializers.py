@@ -551,17 +551,21 @@ class PenjemputanUpdateSerializer(serializers.ModelSerializer):
         return attrs
 
 
+def _validate_petugas_id(value):
+    from .services.pickups import validate_petugas_user
+    try:
+        petugas = User.objects.get(pk=value)
+    except User.DoesNotExist as exc:
+        raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
+    validate_petugas_user(petugas)
+    return value
+
+
 class PickupAssignSerializer(serializers.Serializer):
     petugas_id = serializers.IntegerField()
 
     def validate_petugas_id(self, value):
-        from .services.pickups import validate_petugas_user
-        try:
-            petugas = User.objects.get(pk=value)
-        except User.DoesNotExist as exc:
-            raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
-        validate_petugas_user(petugas)
-        return value
+        return _validate_petugas_id(value)
 
 
 class PickupApproveSerializer(serializers.Serializer):
@@ -570,13 +574,7 @@ class PickupApproveSerializer(serializers.Serializer):
     petugas_id = serializers.IntegerField()
 
     def validate_petugas_id(self, value):
-        from .services.pickups import validate_petugas_user
-        try:
-            petugas = User.objects.get(pk=value)
-        except User.DoesNotExist as exc:
-            raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
-        validate_petugas_user(petugas)
-        return value
+        return _validate_petugas_id(value)
 
 
 class PickupStatusActionSerializer(serializers.Serializer):

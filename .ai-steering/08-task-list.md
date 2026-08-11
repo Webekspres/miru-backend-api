@@ -28,9 +28,9 @@
 | 9 | Out of Scope | Larangan sistem / butuh addendum kontrak | ⛔ Tidak dikerjakan |
 
 > **Status proyek:** MVP (Fase 0–6) selesai. Hampir semua API Fase 8 fitur bisnis ✅.
-> **Kerja aktif #1:** **Audit Temuan** (`temuan.md`) — section di puncak BAGIAN A.
-> Setelah itu: sisa go-live Fase 7 + sisa Fase 8 opsional (WA, Maps, bulk import, job queue).
-> Klien (Web Admin + Mobile) punya section Audit Temuan paralel — koordinasikan kontrak API.
+> **Kerja aktif #1:** sisa go-live **Fase 7** (test restore) + sisa **Fase 8** opsional (WA, Maps, bulk import, job queue).
+> Audit Temuan backend (T0–T10) sudah ✅ — arsip BAGIAN B.
+> Klien: Web Audit ✅; Mobile masih punya sisa temuan UI — lihat `mirumobileapp/.ai-steering/08-task-list.md`.
 > **Tidak boleh** menambah fitur di luar 17 modul tanpa addendum.
 
 ### Cakupan 17 Modul Backend
@@ -59,10 +59,10 @@
 
 ## Urutan kerja disarankan (lintas repo)
 
-1. **⛔ PRIORITAS UTAMA — Audit Temuan** (`temuan.md` di root monorepo) — kerjakan dulu sebelum go-live / Fase 8 sisa opsional.
-2. Web Admin + Mobile — item Audit Temuan di masing-masing `08-task-list.md`.
-3. **Backend sisa go-live** — test restore backup; CORS/HTTPS + privacy URL (setelah temuan kritis beres).
-4. Backend opsional — WA channel operasional, Maps, bulk import, Celery/Redis.
+1. **Backend sisa go-live** — test restore backup; CORS/HTTPS + privacy URL.
+2. Backend opsional — WA channel, Maps, bulk import, Celery/Redis.
+3. Dukung sisa Audit Temuan **mobile** (kontrak API sudah ✅).
+4. Web Admin Audit Temuan sudah selesai.
 5. **Jangan** kerjakan Out of Scope tanpa addendum.
 
 ---
@@ -73,12 +73,115 @@
 
 ---
 
-## 🔥 Audit Temuan — PRIORITAS UTAMA (kerjakan dulu)
+## Fase 7: Production Ready — sisa go-live
+  *(Audit Temuan T0–T10 sudah ✅ di BAGIAN B.)*
 
-> **Sumber:** `temuan.md` (root monorepo, audit manual 2026-07).
-> **Aturan:** Item di section ini **mengalahkan** Fase 7–8 sisa di bawah sampai ditutup atau ditunda eksplisit.
-> Koordinasi: banyak item butuh perubahan API + wire di web-admin / mobile — tandai dependensi di checklist klien.
-> Bahasa pesan: **Bahasa Indonesia ramah**, spesifik (bukan generic “terjadi kesalahan” / teks throttle Inggris).
+> **Tujuan:** Backend siap production Webekspres.
+> **Sumber:** Jawaban §6.5; Constraints §7–8; `11-security-and-privacy.md` §12.
+> Konfigurasi keamanan, Gunicorn/Nginx, CI, logging, index, load test — **sudah ✅** (lihat BAGIAN B).
+
+### 7.3 Backup & Recovery — sisa
+
+- [ ] **Test restore minimal 1× sebelum go-live**
+  - Ikuti prosedur `BACKUP.md` §7 + `scripts/restore.sh`
+  - Verifikasi: DB restore → `/health/` OK → login admin + 1 transaksi baca berhasil
+  - Catat tanggal, siapa yang menjalankan, hasil lolos/gagal
+
+### 7.4 Monitoring — ditunda (bukan blocker)
+
+- [ ] **Integrasi Sentry + scrub PII di `before_send`** — **ditunda** (instruksi user)
+  - Saat diaktifkan: jangan kirim NIK, token, password, isi KTP ke Sentry
+  - Referensi: `11-security-and-privacy.md` §8
+
+---
+
+## Fase 8: Pengembangan Lanjutan — sisa
+
+> Fitur bisnis Modul 2–7, 9–11, 16 hampir semua ✅ di BAGIAN B.
+> Di bawah hanya yang **belum** diimplementasikan.
+
+### 8.6 Modul 9 — Notifikasi WhatsApp (lanjutan channel)
+
+> **Sumber:** Jawaban §6.6.2; Proposal modul 9; Security §11 (payload tanpa NIK/KTP).
+> FCM + in-app + email admin sudah ✅.
+
+- [ ] **Integrasi WhatsApp Business API** untuk konfirmasi setoran & penarikan
+  - Event minimal: setoran berhasil; penarikan disetujui/ditolak
+  - Payload **tanpa** NIK, nomor KTP lengkap, saldo penuh, atau token JWT
+  - Kredensial hanya di env (`WA_*` / setara) — jangan commit ke repo
+  - Fallback: jika WA gagal, in-app/FCM tetap jalan; log error tanpa PII
+  - Dokumentasikan opt-in / nomor HP sumber (dari profil nasabah)
+
+### 8.7 Modul 7 — Integrasi peta sederhana
+
+> **Sumber:** Jawaban §6.6.1; Constraints §5; Security §11 (API key di-restrict).
+> **Bukan** GPS live tracking armada.
+
+- [ ] **Field koordinat opsional** pada penjemputan (atau geocode alamat → lat/lng)
+  - Simpan di model/serializer penjemputan; boleh null jika alamat teks saja
+  - Validasi rentang koordinat masuk akal (Papua / area layanan)
+- [ ] **Konfigurasi Maps API key di environment**
+  - Restrict key: IP server / referrer web-admin / bundle ID mobile
+  - Jangan hardcode key di source
+- [ ] **Dokumentasikan batasan** di kontrak/API docs
+  - Tidak ada distance matrix, navigasi real-time, atau live tracking petugas
+
+### 8.8 Modul 1 / 15 / infrastruktur pendukung
+
+> **Sumber:** Persyaratan data klien; Constraints performa; dukungan notifikasi/backup.
+
+#### Modul 1 — Bulk import nasabah
+
+- [ ] **Bulk import nasabah via CSV/Excel**
+  - Endpoint admin/koordinator; validasi baris (username unik, password policy, role = nasabah)
+  - Batasi ukuran file; response envelope: sukses N / gagal M + detail baris error
+  - Consent `setuju_kebijakan_data` harus eksplisit di template/import atau ditolak
+  - Audit log: siapa import, jumlah, waktu
+  - **Tidak** import role staff lewat endpoint yang sama tanpa guard ketat
+
+#### Infrastruktur (dukungan modul 9/15/16 — bukan modul baru)
+
+- [ ] **Celery + Redis** untuk background jobs
+  - Antrean: email transactional, FCM batch, (nanti) WA, export berat, backup trigger
+  - Worker di docker-compose production; retry + dead-letter sederhana
+- [ ] **Redis cache** untuk dashboard overview (`/api/dashboard/overview/`)
+  - TTL pendek; invalidate saat transaksi kritis jika feasible
+- [ ] **API versioning `/api/v1/`** — hanya saat ada **breaking change** kontrak
+  - Jangan rename path sekarang jika klien masih `/api/`
+- [ ] **CDN untuk media files** — hanya jika traffic media/KTP/PDF naik nyata
+- [ ] **Read replica PostgreSQL** — hanya jika traffic baca meningkat nyata
+
+### 8.9 Publikasi platform (dukungan Modul 2 / Play Store)
+
+> **Sumber:** Constraints §10; Jawaban §6.4. Endpoint `GET /api/privacy-policy/` sudah ada ✅.
+
+- [ ] **Verifikasi CORS + HTTPS production** siap untuk mobile release
+  - `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` whitelist domain web-admin + (jika perlu) origin tool
+  - Cleartext tidak dipakai di production; SSL termination Nginx OK
+- [ ] **URL publik privacy policy** untuk Play Store
+  - Endpoint/kerangka sudah ada — pastikan domain HTTPS final + konten selaras kebijakan data
+  - Berikan URL final ke tim mobile (Fase 7 Play Store)
+
+---
+
+## Fase 9: Out of Scope / Larangan Sistem
+
+> **Sumber:** `06-system-constraints.md`; Proposal §5.
+> **Tidak dikerjakan** kecuali addendum kontrak tertulis.
+
+- [ ] ❌ Payment gateway otomatis (Midtrans, Xendit, dll.)
+- [ ] ❌ GPS live tracking penjemputan
+- [ ] ❌ Integrasi timbangan digital / barcode scanner fisik / printer auto
+- [ ] ❌ Integrasi API Dukcapil
+- [ ] ❌ Multi-tenant (banyak bank sampah independen)
+- [ ] ❌ Login untuk mitra/pengepul
+
+---
+
+# BAGIAN B — SELESAI (arsip) — urutan bawah
+
+
+## Audit Temuan — selesai ✅
 
 ### T0. Envelope error & pesan BI (lintas modul)
 
@@ -197,112 +300,6 @@
 
 ---
 
-## Fase 7: Production Ready — sisa go-live
-  *(kerjakan setelah Audit Temuan kritis beres atau paralel hanya item non-konflik)*
-
-> **Tujuan:** Backend siap production Webekspres.
-> **Sumber:** Jawaban §6.5; Constraints §7–8; `11-security-and-privacy.md` §12.
-> Konfigurasi keamanan, Gunicorn/Nginx, CI, logging, index, load test — **sudah ✅** (lihat BAGIAN B).
-
-### 7.3 Backup & Recovery — sisa
-
-- [ ] **Test restore minimal 1× sebelum go-live**
-  - Ikuti prosedur `BACKUP.md` §7 + `scripts/restore.sh`
-  - Verifikasi: DB restore → `/health/` OK → login admin + 1 transaksi baca berhasil
-  - Catat tanggal, siapa yang menjalankan, hasil lolos/gagal
-
-### 7.4 Monitoring — ditunda (bukan blocker)
-
-- [ ] **Integrasi Sentry + scrub PII di `before_send`** — **ditunda** (instruksi user)
-  - Saat diaktifkan: jangan kirim NIK, token, password, isi KTP ke Sentry
-  - Referensi: `11-security-and-privacy.md` §8
-
----
-
-## Fase 8: Pengembangan Lanjutan — sisa
-
-> Fitur bisnis Modul 2–7, 9–11, 16 hampir semua ✅ di BAGIAN B.
-> Di bawah hanya yang **belum** diimplementasikan.
-
-### 8.6 Modul 9 — Notifikasi WhatsApp (lanjutan channel)
-
-> **Sumber:** Jawaban §6.6.2; Proposal modul 9; Security §11 (payload tanpa NIK/KTP).
-> FCM + in-app + email admin sudah ✅.
-
-- [ ] **Integrasi WhatsApp Business API** untuk konfirmasi setoran & penarikan
-  - Event minimal: setoran berhasil; penarikan disetujui/ditolak
-  - Payload **tanpa** NIK, nomor KTP lengkap, saldo penuh, atau token JWT
-  - Kredensial hanya di env (`WA_*` / setara) — jangan commit ke repo
-  - Fallback: jika WA gagal, in-app/FCM tetap jalan; log error tanpa PII
-  - Dokumentasikan opt-in / nomor HP sumber (dari profil nasabah)
-
-### 8.7 Modul 7 — Integrasi peta sederhana
-
-> **Sumber:** Jawaban §6.6.1; Constraints §5; Security §11 (API key di-restrict).
-> **Bukan** GPS live tracking armada.
-
-- [ ] **Field koordinat opsional** pada penjemputan (atau geocode alamat → lat/lng)
-  - Simpan di model/serializer penjemputan; boleh null jika alamat teks saja
-  - Validasi rentang koordinat masuk akal (Papua / area layanan)
-- [ ] **Konfigurasi Maps API key di environment**
-  - Restrict key: IP server / referrer web-admin / bundle ID mobile
-  - Jangan hardcode key di source
-- [ ] **Dokumentasikan batasan** di kontrak/API docs
-  - Tidak ada distance matrix, navigasi real-time, atau live tracking petugas
-
-### 8.8 Modul 1 / 15 / infrastruktur pendukung
-
-> **Sumber:** Persyaratan data klien; Constraints performa; dukungan notifikasi/backup.
-
-#### Modul 1 — Bulk import nasabah
-
-- [ ] **Bulk import nasabah via CSV/Excel**
-  - Endpoint admin/koordinator; validasi baris (username unik, password policy, role = nasabah)
-  - Batasi ukuran file; response envelope: sukses N / gagal M + detail baris error
-  - Consent `setuju_kebijakan_data` harus eksplisit di template/import atau ditolak
-  - Audit log: siapa import, jumlah, waktu
-  - **Tidak** import role staff lewat endpoint yang sama tanpa guard ketat
-
-#### Infrastruktur (dukungan modul 9/15/16 — bukan modul baru)
-
-- [ ] **Celery + Redis** untuk background jobs
-  - Antrean: email transactional, FCM batch, (nanti) WA, export berat, backup trigger
-  - Worker di docker-compose production; retry + dead-letter sederhana
-- [ ] **Redis cache** untuk dashboard overview (`/api/dashboard/overview/`)
-  - TTL pendek; invalidate saat transaksi kritis jika feasible
-- [ ] **API versioning `/api/v1/`** — hanya saat ada **breaking change** kontrak
-  - Jangan rename path sekarang jika klien masih `/api/`
-- [ ] **CDN untuk media files** — hanya jika traffic media/KTP/PDF naik nyata
-- [ ] **Read replica PostgreSQL** — hanya jika traffic baca meningkat nyata
-
-### 8.9 Publikasi platform (dukungan Modul 2 / Play Store)
-
-> **Sumber:** Constraints §10; Jawaban §6.4. Endpoint `GET /api/privacy-policy/` sudah ada ✅.
-
-- [ ] **Verifikasi CORS + HTTPS production** siap untuk mobile release
-  - `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` whitelist domain web-admin + (jika perlu) origin tool
-  - Cleartext tidak dipakai di production; SSL termination Nginx OK
-- [ ] **URL publik privacy policy** untuk Play Store
-  - Endpoint/kerangka sudah ada — pastikan domain HTTPS final + konten selaras kebijakan data
-  - Berikan URL final ke tim mobile (Fase 7 Play Store)
-
----
-
-## Fase 9: Out of Scope / Larangan Sistem
-
-> **Sumber:** `06-system-constraints.md`; Proposal §5.
-> **Tidak dikerjakan** kecuali addendum kontrak tertulis.
-
-- [ ] ❌ Payment gateway otomatis (Midtrans, Xendit, dll.)
-- [ ] ❌ GPS live tracking penjemputan
-- [ ] ❌ Integrasi timbangan digital / barcode scanner fisik / printer auto
-- [ ] ❌ Integrasi API Dukcapil
-- [ ] ❌ Multi-tenant (banyak bank sampah independen)
-- [ ] ❌ Login untuk mitra/pengepul
-
----
-
-# BAGIAN B — SELESAI (arsip) — urutan bawah
 
 > Dipertahankan sebagai catatan verifikasi. Jangan mengulang pekerjaan di sini.
 

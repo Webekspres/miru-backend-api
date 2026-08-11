@@ -3215,6 +3215,7 @@ components:
       - petugas_tidak_datang
       - kesalahan_data
       - bukti_tidak_muncul
+      - lainnya
       type: string
       description: '* `saldo_belum_masuk` - Saldo Belum Masuk
 
@@ -5000,6 +5001,8 @@ components:
           maxLength: 200
         jam_operasional:
           type: string
+          description: Deprecated — prefer jam_buka/jam_tutup. Disinkron otomatis saat jam_buka & jam_tutup
+            diisi.
           maxLength: 255
         pengumuman:
           type: string
