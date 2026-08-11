@@ -12,8 +12,11 @@ MIN_NOMINAL = Decimal('50000')
 # Penarikan besar: ≥ Rp1.000.000 wajib lampiran KTP
 BESAR_NOMINAL = Decimal('1000000')
 
+ALLOWED_METODE = frozenset({'tunai', 'transfer'})
+
 
 def validate_nominal(nominal: Decimal) -> Decimal:
+    """Raise list/str detail — aman dipanggil dari validate_nominal serializer."""
     if nominal < MIN_NOMINAL:
         raise ValidationError(
             f'Nominal penarikan minimal Rp{MIN_NOMINAL:,.0f}.'.replace(',', '.')
@@ -21,12 +24,25 @@ def validate_nominal(nominal: Decimal) -> Decimal:
     return nominal
 
 
+def validate_metode(metode: str) -> str:
+    """Raise list/str detail — aman dipanggil dari validate_metode serializer."""
+    metode_norm = (metode or '').strip().lower()
+    if metode_norm not in ALLOWED_METODE:
+        raise ValidationError(
+            'Metode penarikan tidak valid. Gunakan: tunai atau transfer.'
+        )
+    return metode_norm
+
+
 def validate_saldo_cukup(nasabah: User, nominal: Decimal) -> None:
     nasabah.refresh_from_db()
     if nasabah.saldo < nominal:
-        raise ValidationError(
-            f'Saldo tidak mencukupi. Tersedia: Rp{nasabah.saldo}, diminta: Rp{nominal}.'
-        )
+        raise ValidationError({
+            'nominal': [
+                f'Saldo tidak mencukupi. Tersedia: Rp{nasabah.saldo}, '
+                f'diminta: Rp{nominal}.'
+            ],
+        })
 
 
 def validate_no_pending_withdrawal(nasabah: User, exclude_pk: int | None = None) -> None:
@@ -34,9 +50,11 @@ def validate_no_pending_withdrawal(nasabah: User, exclude_pk: int | None = None)
     if exclude_pk is not None:
         qs = qs.exclude(pk=exclude_pk)
     if qs.exists():
-        raise ValidationError(
-            'Masih ada penarikan saldo yang menunggu persetujuan.'
-        )
+        raise ValidationError({
+            'nominal': [
+                'Masih ada penarikan saldo yang menunggu persetujuan.',
+            ],
+        })
 
 
 def is_besar(nominal: Decimal) -> bool:
@@ -44,8 +62,14 @@ def is_besar(nominal: Decimal) -> bool:
     return nominal >= BESAR_NOMINAL
 
 
-def validate_create_withdrawal(nasabah: User, nominal: Decimal) -> None:
+def validate_create_withdrawal(
+    nasabah: User,
+    nominal: Decimal,
+    metode: str | None = None,
+) -> None:
     validate_nominal(nominal)
+    if metode is not None:
+        validate_metode(metode)
     validate_saldo_cukup(nasabah, nominal)
     validate_no_pending_withdrawal(nasabah)
 

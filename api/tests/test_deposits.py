@@ -167,12 +167,72 @@ class DepositFlowTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['data']['id'], self.nasabah.id)
         self.assertEqual(response.data['data']['nama_lengkap'], 'Budi Santoso')
 
+    def test_petugas_lookup_endpoint_by_id_success(self):
+        self.auth_as(self.petugas)
+        response = self.client.get(f'/api/users/lookup/?q={self.nasabah.id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['id'], self.nasabah.id)
+        self.assertEqual(response.data['data']['username'], 'budi_flow')
+
+    def test_petugas_lookup_endpoint_by_username_success(self):
+        self.auth_as(self.petugas)
+        response = self.client.get('/api/users/lookup/?q=budi_flow')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['id'], self.nasabah.id)
+
+    def test_petugas_lookup_endpoint_by_qr_json_success(self):
+        self.auth_as(self.petugas)
+        import json
+        from urllib.parse import quote
+
+        payload = json.dumps({
+            'id': self.nasabah.id,
+            'nama_lengkap': 'Budi Santoso',
+            'no_hp': '08123456789',
+        })
+        response = self.client.get(f'/api/users/lookup/?q={quote(payload)}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['id'], self.nasabah.id)
+
+    def test_petugas_lookup_endpoint_invalid_id_clear_error(self):
+        self.auth_as(self.petugas)
+        response = self.client.get('/api/users/lookup/?q=999999')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertFalse(response.data['success'])
+        self.assertEqual(response.data['code'], 'NOT_FOUND')
+        self.assertIn('q', response.data['errors'])
+        self.assertIn('tidak ditemukan', response.data['message'].lower())
+
+    def test_petugas_retrieve_invalid_id_clear_error(self):
+        self.auth_as(self.petugas)
+        response = self.client.get('/api/users/999999/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertIn('Nasabah', response.data['message'])
+        self.assertIn('id', response.data['errors'])
+
     def test_petugas_cannot_lookup_non_nasabah(self):
         self.auth_as(self.petugas)
         response = self.client.get(f'/api/users/{self.petugas.id}/')
         self.assertIn(response.status_code, (
             status.HTTP_403_FORBIDDEN, status.HTTP_404_NOT_FOUND,
         ))
+
+    def test_deposit_creates_notification_with_correct_total(self):
+        from api.models import Notifikasi
+
+        self.auth_as(self.petugas)
+        create = self.client.post('/api/deposits/', {
+            'nasabah': self.nasabah.id,
+            'details': [{'kategori': self.kategori.id, 'berat_kg': '5.00'}],
+        }, format='json')
+        self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+
+        notif = Notifikasi.objects.filter(
+            user=self.nasabah, kategori='setoran',
+        ).latest('id')
+        self.assertIn('Rp15.000', notif.deskripsi)
+        self.assertNotIn('Rp0', notif.deskripsi)
+        self.assertNotIn('Rp0,', notif.deskripsi)
 
     def test_e2e_lookup_deposit_saldo_poin_bukti(self):
         self.auth_as(self.petugas)

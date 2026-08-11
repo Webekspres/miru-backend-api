@@ -1,12 +1,15 @@
-from datetime import timedelta
+from datetime import time, timedelta
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 from django.utils import timezone
 from rest_framework import status
 
-from api.models import Penjemputan
+from api.models import Notifikasi, Penjemputan, PengaturanInstitusi
 
 from .base import EnvelopeAPITestCase
+
+WIT = ZoneInfo('Asia/Jayapura')
 
 
 class PickupCreateTests(EnvelopeAPITestCase):
@@ -14,7 +17,7 @@ class PickupCreateTests(EnvelopeAPITestCase):
         self.nasabah = self.create_nasabah(username='nasabah_pickup')
         self.petugas = self.create_petugas()
         self.admin = self.create_admin(username='admin_pickup')
-        self.jadwal = (timezone.now() + timedelta(days=2)).replace(
+        self.jadwal = (timezone.now().astimezone(WIT) + timedelta(days=2)).replace(
             hour=9, minute=0, second=0, microsecond=0,
         )
 
@@ -36,6 +39,62 @@ class PickupCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['nasabah'], self.nasabah.id)
         self.assertIsNone(data['petugas'])
 
+    def test_create_out_of_hours_sets_meta_warning(self):
+        settings = PengaturanInstitusi.load()
+        settings.jam_buka = time(8, 0)
+        settings.jam_tutup = time(17, 0)
+        settings.save()
+
+        late = (timezone.now().astimezone(WIT) + timedelta(days=2)).replace(
+            hour=20, minute=0, second=0, microsecond=0,
+        )
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/pickups/',
+            self._payload(jadwal=late.isoformat()),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(response.data['meta'].get('di_luar_jam_layanan'))
+        self.assertIn('peringatan', response.data['meta'])
+
+    def test_create_within_hours_no_out_of_hours_meta(self):
+        settings = PengaturanInstitusi.load()
+        settings.jam_buka = time(8, 0)
+        settings.jam_tutup = time(17, 0)
+        settings.save()
+
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertFalse(response.data['meta'].get('di_luar_jam_layanan', False))
+
+    def test_create_with_optional_coordinates(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/pickups/',
+            self._payload(
+                latitude='-4.543210',
+                longitude='136.540123',
+                catatan_lokasi='Dekat warung Bu Siti',
+            ),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = response.data['data']
+        self.assertEqual(data['latitude'], '-4.543210')
+        self.assertEqual(data['longitude'], '136.540123')
+        self.assertEqual(data['catatan_lokasi'], 'Dekat warung Bu Siti')
+
+    def test_reject_invalid_latitude(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/pickups/',
+            self._payload(latitude='99.0', longitude='136.5'),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_reject_weight_below_5kg(self):
         self.auth_as(self.nasabah)
         response = self.client.post(
@@ -45,15 +104,55 @@ class PickupCreateTests(EnvelopeAPITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_reject_jadwal_today(self):
+    def test_reject_jadwal_in_past(self):
         self.auth_as(self.nasabah)
-        today = timezone.now().replace(hour=14, minute=0, second=0, microsecond=0)
+        past = timezone.now() - timedelta(hours=2)
         response = self.client.post(
             '/api/pickups/',
-            self._payload(jadwal=today.isoformat()),
+            self._payload(jadwal=past.isoformat()),
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_reject_jadwal_less_than_one_hour(self):
+        self.auth_as(self.nasabah)
+        soon = timezone.now() + timedelta(minutes=30)
+        response = self.client.post(
+            '/api/pickups/',
+            self._payload(jadwal=soon.isoformat()),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_accept_jadwal_more_than_one_hour(self):
+        self.auth_as(self.nasabah)
+        ahead = timezone.now() + timedelta(hours=2)
+        response = self.client.post(
+            '/api/pickups/',
+            self._payload(jadwal=ahead.isoformat()),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_notifies_admin_and_koordinator(self):
+        admin = self.admin
+        koord = self.create_koordinator(username='koord_pickup_notif')
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pickup_id = response.data['data']['id']
+
+        admin_notif = Notifikasi.objects.filter(
+            user=admin, kategori='penjemputan', judul='Penjemputan Baru',
+        ).first()
+        self.assertIsNotNone(admin_notif)
+        self.assertIn(str(pickup_id), admin_notif.deskripsi)
+        self.assertIn('segera tindak lanjuti', admin_notif.deskripsi.lower())
+
+        koord_notif = Notifikasi.objects.filter(
+            user=koord, kategori='penjemputan', judul='Penjemputan Baru',
+        ).first()
+        self.assertIsNotNone(koord_notif)
 
     def test_petugas_cannot_create(self):
         self.auth_as(self.petugas)
@@ -86,23 +185,37 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
             status='menunggu',
         )
 
-    def test_admin_approve_and_schedule(self):
+    def test_admin_approve_requires_petugas(self):
+        """Tidak boleh disetujui tanpa petugas."""
         self.auth_as(self.admin)
-        approve = self.client.patch(
+        response = self.client.patch(
             f'/api/pickups/{self.pickup.id}/',
             {'status': 'disetujui'},
             format='json',
         )
-        self.assertEqual(approve.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        schedule = self.client.patch(
+    def test_admin_approve_and_assign_atomic_via_patch(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            f'/api/pickups/{self.pickup.id}/',
+            {'status': 'disetujui', 'petugas': self.petugas.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'dijadwalkan')
+        self.assertEqual(response.data['data']['petugas'], self.petugas.id)
+
+    def test_admin_schedule_from_menunggu_with_petugas(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
             f'/api/pickups/{self.pickup.id}/',
             {'status': 'dijadwalkan', 'petugas': self.petugas.id},
             format='json',
         )
-        self.assertEqual(schedule.status_code, status.HTTP_200_OK)
-        self.assertEqual(schedule.data['data']['status'], 'dijadwalkan')
-        self.assertEqual(schedule.data['data']['petugas'], self.petugas.id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'dijadwalkan')
+        self.assertEqual(response.data['data']['petugas'], self.petugas.id)
 
     def test_admin_reject(self):
         self.auth_as(self.admin)
@@ -173,6 +286,43 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_petugas_list_hides_menunggu_and_unassigned(self):
+        waiting = self.pickup
+        assigned = Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.petugas,
+            estimasi_berat=Decimal('6.00'),
+            alamat_jemput='Timika 2',
+            jadwal=timezone.now() + timedelta(days=4),
+            status='dijadwalkan',
+        )
+        Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.other_petugas,
+            estimasi_berat=Decimal('7.00'),
+            alamat_jemput='Timika 3',
+            jadwal=timezone.now() + timedelta(days=5),
+            status='dijadwalkan',
+        )
+        rejected = Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            estimasi_berat=Decimal('8.00'),
+            alamat_jemput='Timika 4',
+            jadwal=timezone.now() + timedelta(days=6),
+            status='ditolak',
+        )
+
+        self.auth_as(self.petugas)
+        response = self.client.get('/api/pickups/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        ids = {row['id'] for row in response.data['data']}
+        self.assertIn(assigned.id, ids)
+        self.assertNotIn(waiting.id, ids)
+        self.assertNotIn(rejected.id, ids)
+        statuses = {row['status'] for row in response.data['data']}
+        self.assertNotIn('menunggu', statuses)
+        self.assertNotIn('ditolak', statuses)
+
     def test_filter_by_status(self):
         self.pickup.status = 'ditolak'
         self.pickup.save()
@@ -184,6 +334,7 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
     def test_filter_by_status_in(self):
         """Tab Aktif admin memakai ?status__in=disetujui,dijadwalkan,..."""
         self.pickup.status = 'disetujui'
+        self.pickup.petugas = self.petugas
         self.pickup.save()
         Penjemputan.objects.create(
             nasabah=self.nasabah,
@@ -226,11 +377,21 @@ class PickupActionTests(EnvelopeAPITestCase):
             status='menunggu',
         )
 
-    def test_approve_action(self):
+    def test_approve_without_petugas_rejected(self):
         self.auth_as(self.admin)
         response = self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_approve_action_atomic_with_petugas(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/approve/',
+            {'petugas_id': self.petugas.id},
+            format='json',
+        )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['data']['status'], 'disetujui')
+        self.assertEqual(response.data['data']['status'], 'dijadwalkan')
+        self.assertEqual(response.data['data']['petugas'], self.petugas.id)
 
     def test_reject_action(self):
         self.auth_as(self.admin)
@@ -252,10 +413,6 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['data']['petugas'], self.petugas.id)
 
     def test_assign_sends_notifications_to_nasabah_and_petugas(self):
-        from api.models import Notifikasi
-
-        self.pickup.status = 'disetujui'
-        self.pickup.save()
         self.auth_as(self.admin)
         response = self.client.patch(
             f'/api/pickups/{self.pickup.id}/',
@@ -277,9 +434,36 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.assertIsNotNone(petugas_notif)
         self.assertIn('mendapat tugas menjemput', petugas_notif.deskripsi.lower())
 
-    def test_each_status_change_notifies_nasabah(self):
-        from api.models import Notifikasi
+    def test_selesai_notifies_petugas_and_admin(self):
+        self.pickup.status = 'dijemput'
+        self.pickup.petugas = self.petugas
+        self.pickup.save()
 
+        self.auth_as(self.petugas)
+        before_petugas = Notifikasi.objects.filter(user=self.petugas).count()
+        before_admin = Notifikasi.objects.filter(user=self.admin).count()
+        response = self.client.patch(
+            f'/api/pickups/{self.pickup.id}/',
+            {'status': 'selesai'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(
+            Notifikasi.objects.filter(user=self.petugas).count(),
+            before_petugas + 1,
+        )
+        self.assertEqual(
+            Notifikasi.objects.filter(user=self.admin).count(),
+            before_admin + 1,
+        )
+        admin_notif = Notifikasi.objects.filter(
+            user=self.admin, judul='Penjemputan Selesai',
+        ).order_by('-created_at').first()
+        self.assertIsNotNone(admin_notif)
+        self.assertIn(str(self.pickup.id), admin_notif.deskripsi)
+
+    def test_each_status_change_notifies_nasabah(self):
         self.pickup.status = 'dijadwalkan'
         self.pickup.petugas = self.petugas
         self.pickup.save()
@@ -321,17 +505,22 @@ class PickupActionTests(EnvelopeAPITestCase):
 
     def test_petugas_cannot_approve_action(self):
         self.auth_as(self.petugas)
-        response = self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/approve/',
+            {'petugas_id': self.petugas.id},
+            format='json',
+        )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_e2e_full_flow_via_actions(self):
         self.auth_as(self.admin)
-        self.client.post(f'/api/pickups/{self.pickup.id}/approve/')
-        self.client.post(
-            f'/api/pickups/{self.pickup.id}/assign/',
+        approve = self.client.post(
+            f'/api/pickups/{self.pickup.id}/approve/',
             {'petugas_id': self.petugas.id},
             format='json',
         )
+        self.assertEqual(approve.status_code, status.HTTP_200_OK)
+        self.assertEqual(approve.data['data']['status'], 'dijadwalkan')
 
         self.auth_as(self.petugas)
         for next_status in ('dalam_perjalanan', 'dijemput', 'selesai'):

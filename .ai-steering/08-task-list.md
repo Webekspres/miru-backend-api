@@ -82,7 +82,7 @@
 
 ### T0. Envelope error & pesan BI (lintas modul)
 
-- [ ] **Audit pesan validasi / throttle / 4xx** agar selalu envelope BI, field-level jika ada
+- [x] **Audit pesan validasi / throttle / 4xx** agar selalu envelope BI, field-level jika ada
   - Rate limit login: ganti teks Inggris (`Expected available in …`) → mis. “Terlalu banyak percobaan. Coba lagi dalam X detik.”
   - Login gagal: bedakan (atau samakan secara aman) pesan username tidak ada vs password salah — **ikuti keputusan produk di temuan** (lihat T2); jangan biarkan mobile dapat generic “terjadi kesalahan”
   - Penarikan / setoran / jemput / tukar poin: pastikan `errors` per field ikut di response (bukan hanya `message` generik “satu atau lebih field tidak valid”)
@@ -90,11 +90,11 @@
 
 ### T1. Modul 6 — Setoran (bug lookup & notifikasi nilai)
 
-- [ ] **Perbaiki lookup nasabah saat input setoran** (“ID nasabah tidak ditemukan padahal sudah benar”)
+- [x] **Perbaiki lookup nasabah saat input setoran** (“ID nasabah tidak ditemukan padahal sudah benar”)
   - Reproduksi: cari by id / username / QR payload yang dipakai web
   - Pastikan filter role=`nasabah`, `is_active`, dan format ID (int vs string) konsisten dengan yang di-QR mobile
   - Tambah test API: lookup berhasil untuk id valid + gagal jelas untuk id salah
-- [ ] **Notifikasi in-app setelah setoran** menampilkan **total nilai benar** (bukan Rp0)
+- [x] **Notifikasi in-app setelah setoran** menampilkan **total nilai benar** (bukan Rp0)
   - Cek timing signal vs `total_nilai` sudah terhitung; jangan notif sebelum side-effect selesai
   - Payload tanpa NIK/JWT; angka format Rupiah WIT
 
@@ -102,98 +102,98 @@
 
 > Temuan meminta alur OTP WhatsApp. Channel WA masih item 8.6 — kerjakan kontrak API dulu; implement kirim WA bisa stub/log di staging sampai kredensial siap.
 
-- [ ] **Login: pesan gagal spesifik & konsisten** untuk web + mobile
+- [x] **Login: pesan gagal spesifik & konsisten** untuk web + mobile
   - Password salah → pesan BI jelas
   - Username tidak terdaftar → pesan BI jelas (**sesuai temuan**; dokumentasikan trade-off enumerasi akun)
-- [ ] **Forgot password: jangan “sukses palsu” untuk username tidak ada**
+- [x] **Forgot password: jangan “sukses palsu” untuk username tidak ada**
   - Temuan: saat ini token tetap “terkirim” meski username tidak ada → ubah agar response memberitahu username tidak terdaftar **atau** (jika keamanan mengharuskan) response generik + **jangan** generate token
   - Pastikan tidak ada token orphan di DB untuk username invalid
-- [ ] **Alur reset password baru (OTP WA)** — ganti / perluas flow token panjang
+- [x] **Alur reset password baru (OTP WA)** — ganti / perluas flow token panjang
   1. Submit username
   2. Konfirmasi nomor HP yang cocok dengan profil (jangan izinkan reset tanpa cocok nomor)
   3. Kirim **OTP** ke WhatsApp (env `WA_*`); pesan: cek notifikasi WhatsApp
   4. Verifikasi OTP → izinkan set password baru (dua field: password + konfirmasi; validasi sama + policy min length; unik dari password lama jika feasible)
   5. Setelah sukses → client arahkan ke login
   - Endpoint + OpenAPI + test; rate-limit OTP; OTP expire singkat; jangan log OTP/PII
-- [ ] **Registrasi nasabah disingkat + verifikasi HP OTP**
+- [x] **Registrasi nasabah disingkat + verifikasi HP OTP**
   - Step 1: nama lengkap, username (unik), password
   - Step 2: nomor HP + OTP WA → baru aktif / login
   - Field lain (alamat, RT/RW, dll.) dilengkapi belakangan di profil
-- [ ] **Gate transaksi jika alamat belum lengkap**
+- [x] **Gate transaksi jika alamat belum lengkap**
   - Nasabah tanpa alamat (+ koordinat/patokan maps + wilayah dari API jika dipakai) **tidak boleh** ajukan jemput / tarik / tukar (atau sesuai keputusan: blok jemput saja)
   - Response 400 BI jelas: “Lengkapi alamat di profil sebelum …”
   - Alamat: teks + lat/lng opsional + referensi wilayah (dropdown dari API wilayah)
-- [ ] **Flag verifikasi nomor HP**
+- [x] **Flag verifikasi nomor HP**
   - Jika admin create/update nasabah dengan nomor HP → status **belum terverifikasi**
   - Saat login mobile: indikasikan `phone_verified=false` agar client arahkan ke layar verifikasi OTP
   - Endpoint verifikasi OTP HP (bisa reuse infrastruktur OTP reset)
 
 ### T3. Modul 7 — Penjemputan (alur approve, notifikasi, queryset, koordinat)
 
-- [ ] **Alur setujui + assign atomik**
+- [x] **Alur setujui + assign atomik**
   - Jangan biarkan status “aktif/disetujui” tanpa petugas: satu aksi/transaksi setujui+assign, atau tolak setujui jika `petugas` null
   - Sesuaikan serializer/action + test agar tidak ada jemput aktif tanpa petugas
-- [ ] **Notifikasi in-app ke admin/koordinator** saat nasabah ajukan jemput baru
+- [x] **Notifikasi in-app ke admin/koordinator** saat nasabah ajukan jemput baru
   - Judul/isi BI: ada penjemputan baru, segera tindak lanjuti; deep-link id jemput
-- [ ] **Notifikasi ke petugas + admin** saat status jemput **selesai**
-- [ ] **Filter list jemput untuk petugas (dan non-admin sesuai role)**
+- [x] **Notifikasi ke petugas + admin** saat status jemput **selesai**
+- [x] **Filter list jemput untuk petugas (dan non-admin sesuai role)**
   - Petugas: **jangan** tampilkan `menunggu` / `ditolak`; hanya jemput yang ditugaskan ke petugas tersebut (status aktif/dijadwalkan/dll. sesuai SOP)
   - Admin/koordinator tetap lihat sesuai matriks role
-- [ ] **Field koordinat / patokan lokasi** pada penjemputan (dukung maps mobile)
+- [x] **Field koordinat / patokan lokasi** pada penjemputan (dukung maps mobile)
   - lat/lng opsional + validasi rentang; dokumentasikan bukan live tracking
   - Auto-fill dari profil nasabah diizinkan di client; server terima override alamat/koordinat per pengajuan
-- [ ] **Validasi jadwal jemput di server** (selaras UI mobile)
+- [x] **Validasi jadwal jemput di server** (selaras UI mobile)
   - Tolak tanggal/jam di masa lalu; minimal ~1 jam dari sekarang (atau aturan WIT yang disepakati)
   - Pesan BI jelas
 
 ### T4. Modul 11 — Penukaran poin (snapshot harga poin, status, notifikasi)
 
-- [ ] **Snapshot `poin_dibutuhkan` saat pengajuan** di `PenukaranPoin`
+- [x] **Snapshot `poin_dibutuhkan` saat pengajuan** di `PenukaranPoin`
   - Simpan nilai poin saat create; approve memakai snapshot **atau** kebijakan eksplisit: tolak approve + status `ditolak` jika harga katalog naik & poin tidak cukup
   - Temuan: saat ini cek ulang harga terbaru tanpa snapshot → dokumentasikan & implement keputusan (disarankan: snapshot + tidak ubah biaya setelah diajukan)
-- [ ] **Status ditolak / dibatalkan** untuk penukaran yang tidak bisa diproses (bukan menggantung `menunggu` selamanya)
-- [ ] **Notifikasi in-app ke admin** saat ada pengajuan tukar poin baru
-- [ ] **(Opsional lanjut) Quantity / multi-line redemption** — hanya jika disepakati produk; default tetap qty 1 sampai kontrak API jelas
+- [x] **Status ditolak / dibatalkan** untuk penukaran yang tidak bisa diproses (bukan menggantung `menunggu` selamanya)
+- [x] **Notifikasi in-app ke admin** saat ada pengajuan tukar poin baru
+- [x] **(Opsional lanjut) Quantity / multi-line redemption** — accepted scope: default qty=1 per baris sampai kontrak API multi-qty jelas (tidak diimplementasikan)
 
 ### T5. Modul 10 — Penarikan saldo (error field-level)
 
-- [ ] **Perbaiki validasi penarikan** agar error envelope menyebut field yang salah (nominal min, saldo kurang, metode, dll.)
+- [x] **Perbaiki validasi penarikan** agar error envelope menyebut field yang salah (nominal min, saldo kurang, metode, dll.)
   - Reproduksi bug temuan: submit gagal “satu atau lebih field tidak valid” tanpa detail → pastikan serializer errors ikut ke klien
   - Setelah sukses create: message BI inkl. SLA 1–2 hari kerja (client juga menampilkan notif sukses)
 
 ### T6. Modul 9 — Riwayat / activity detail
 
-- [ ] **Pastikan payload activity / detail setoran lengkap untuk mobile**
+- [x] **Pastikan payload activity / detail setoran lengkap untuk mobile**
   - Per item setoran: jenis sampah, berat kg, petugas (jika ada), tanggal jemput/proses, jam
   - Endpoint detail yang dipakai RiwayatScreen mengembalikan nested details; test regresi
 
 ### T7. Modul 14 — Pengaduan
 
-- [ ] **Tambah pilihan jenis pengaduan `lainnya`** (atau setara) di choices model + migrasi + OpenAPI
+- [x] **Tambah pilihan jenis pengaduan `lainnya`** (atau setara) di choices model + migrasi + OpenAPI
   - Mobile form ikut opsi baru
-- [ ] **Notifikasi in-app ke admin** saat pengaduan baru masuk
-- [ ] **Validasi tutup pengaduan:** `tindak_lanjut` wajib sebelum status ditutup (400 BI jika kosong)
+- [x] **Notifikasi in-app ke admin** saat pengaduan baru masuk
+- [x] **Validasi tutup pengaduan:** `tindak_lanjut` wajib sebelum status ditutup (400 BI jika kosong)
 
 ### T8. Modul 4 / 5 / 17 — Edukasi markdown, harga H-3, jam operasional
 
-- [ ] **Edukasi:** pastikan field `isi` mendukung Markdown (simpan teks mentah; render di client)
+- [x] **Edukasi:** pastikan field `isi` mendukung Markdown (simpan teks mentah; render di client)
   - Tidak perlu HTML sanitizer berat di server; dokumentasikan subset Markdown yang diizinkan
-- [ ] **Harga H-3:** verifikasi API tetap enforce `tanggal_berlaku` ≥ H+3 + pengumuman (sudah ✅ — regresi test jika web form baru kirim field)
-- [ ] **Jam operasional institusi sebagai struktur waktu** (bukan free-text saja)
+- [x] **Harga H-3:** verifikasi API tetap enforce `tanggal_berlaku` ≥ H+3 + pengumuman (sudah ✅ — regresi test jika web form baru kirim field)
+- [x] **Jam operasional institusi sebagai struktur waktu** (bukan free-text saja)
   - Model/serializer: mis. `jam_buka`, `jam_tutup` (TimeField) + hari; response ramah untuk mobile
   - Deprecate / stop mengandalkan teks bebas untuk jam
   - **Hapus / nonaktifkan field upload logo institusi** (logo fiks pakai ikon app) — jangan break client lama: field opsional diabaikan atau dihapus bertahap
-- [ ] **Peringatan jemput di luar jam layanan** — server boleh warning di response atau client-only; jika server: flag/meta di create jemput
+- [x] **Peringatan jemput di luar jam layanan** — server boleh warning di response atau client-only; jika server: flag/meta di create jemput
 
 ### T9. Modul 15 — Dashboard petugas
 
-- [ ] **Overview / widget yang relevan untuk role `petugas`**
+- [x] **Overview / widget yang relevan untuk role `petugas`**
   - Minimal: jemput ditugaskan hari ini, antrian aktif milik sendiri (bukan angka admin penuh jika tidak diizinkan)
   - Pastikan permission overview tidak 403 untuk petugas **atau** endpoint ringkas khusus petugas
 
 ### T10. Modul 1 / 3 — Verifikasi HP setelah create admin
 
-- [ ] Lihat T2 flag `phone_verified`; pastikan create/update user dari admin meng-set unverified saat nomor diisi/diubah
+- [x] Lihat T2 flag `phone_verified`; pastikan create/update user dari admin meng-set unverified saat nomor diisi/diubah
 
 ---
 

@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import Http404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -20,7 +21,11 @@ from .services.pickups import (
     update_pickup_status,
 )
 from .services.withdrawals import approve_withdrawal, reject_withdrawal
-from .services.redemptions import approve_redemption
+from .services.redemptions import (
+    approve_redemption,
+    cancel_redemption,
+    reject_redemption,
+)
 from .services.activity import get_activity_items
 from .openapi import (
     ACTIVITY_TAG,
@@ -53,7 +58,7 @@ from .permissions import (
 )
 from .serializers import *
 from .utils.pagination import MiruPagination
-from .utils.response import success_response
+from .utils.response import error_response, success_response
 
 
 class AuditLogListView(APIView):
@@ -155,6 +160,8 @@ class UserViewSet(viewsets.ModelViewSet):
             if self._is_staff_manager():
                 return UserAdminSerializer
             return UserRegistrationSerializer
+        if self.action == 'lookup':
+            return NasabahLookupSerializer
         if self._is_petugas_lookup() and self.action in ('list', 'retrieve'):
             return NasabahLookupSerializer
         if self.action in ('retrieve', 'update', 'partial_update'):
@@ -170,7 +177,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if self._is_staff_manager():
                 return [IsAdminOrKoordinator()]
             return [AllowAny()]
-        if self.action == 'list':
+        if self.action in ('list', 'lookup'):
             return [IsAuthenticated(), IsStaffManagerOrPetugas()]
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
             return [IsAuthenticated(), IsUserOwnerOrAdmin()]
@@ -192,18 +199,92 @@ class UserViewSet(viewsets.ModelViewSet):
             message=(
                 'Pengguna berhasil dibuat.'
                 if is_staff_create
-                else 'Registrasi nasabah berhasil.'
+                else (
+                    'Registrasi berhasil. Verifikasi nomor HP via OTP WhatsApp '
+                    'untuk mengaktifkan akun.'
+                )
             ),
             status_code=status.HTTP_201_CREATED,
             request=request,
         )
 
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = self.get_object()
+        except Http404:
+            if self._is_petugas_lookup():
+                return error_response(
+                    message='Nasabah dengan ID tersebut tidak ditemukan.',
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    code='NOT_FOUND',
+                    errors={
+                        'id': [
+                            'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+                        ],
+                    },
+                    request=request,
+                )
+            raise
         serializer = self.get_serializer(instance)
         return success_response(
             data=serializer.data,
             message='Data berhasil diambil.',
+            request=request,
+        )
+
+    @extend_schema(
+        tags=['Users'],
+        summary='Lookup nasabah aktif (id / username / QR JSON)',
+        description=(
+            'Cari nasabah aktif untuk input setoran. Parameter `q` menerima '
+            'ID angka, username, atau payload QR MIRU JSON `{id, nama_lengkap, no_hp}`.'
+        ),
+        parameters=[
+            {
+                'name': 'q',
+                'in': 'query',
+                'required': True,
+                'schema': {'type': 'string'},
+                'description': 'ID, username, atau payload QR MIRU',
+            },
+        ],
+    )
+    @action(detail=False, methods=['get'], url_path='lookup')
+    def lookup(self, request):
+        from .services.deposits import resolve_active_nasabah
+
+        raw = request.query_params.get('q', '')
+        if not str(raw).strip():
+            return error_response(
+                message='Satu atau lebih field tidak valid.',
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code='VALIDATION_ERROR',
+                errors={
+                    'q': [
+                        'Parameter q wajib diisi (id, username, atau payload QR).',
+                    ],
+                },
+                request=request,
+            )
+
+        nasabah = resolve_active_nasabah(str(raw))
+        if nasabah is None:
+            return error_response(
+                message='Nasabah tidak ditemukan.',
+                status_code=status.HTTP_404_NOT_FOUND,
+                code='NOT_FOUND',
+                errors={
+                    'q': [
+                        'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+                    ],
+                },
+                request=request,
+            )
+
+        serializer = NasabahLookupSerializer(nasabah)
+        return success_response(
+            data=serializer.data,
+            message='Data nasabah berhasil ditemukan.',
             request=request,
         )
 
@@ -386,11 +467,14 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         output = PenjemputanSerializer(serializer.instance, context={'request': request})
+        from .services.pickups import out_of_hours_meta
+        meta = out_of_hours_meta(serializer.instance.jadwal)
         return success_response(
             data=output.data,
             message='Penjemputan berhasil diajukan.',
             status_code=status.HTTP_201_CREATED,
             request=request,
+            meta=meta,
         )
 
     def retrieve(self, request, *args, **kwargs):
@@ -424,9 +508,15 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='approve')
     def approve(self, request, pk=None):
         instance = self.get_object()
-        approve_pickup(instance, request.user)
+        serializer = PickupApproveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        approve_pickup(
+            instance, request.user, serializer.validated_data['petugas_id'],
+        )
         return self._pickup_response(
-            instance, 'Penjemputan berhasil disetujui.', request,
+            instance,
+            'Penjemputan berhasil disetujui dan petugas ditugaskan.',
+            request,
         )
 
     @action(detail=True, methods=['post'], url_path='reject')
@@ -491,7 +581,10 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
         output = PenarikanSaldoSerializer(serializer.instance, context={'request': request})
         return success_response(
             data=output.data,
-            message='Penarikan saldo berhasil diajukan.',
+            message=(
+                'Penarikan saldo berhasil diajukan. '
+                'Proses persetujuan biasanya 1–2 hari kerja.'
+            ),
             status_code=status.HTTP_201_CREATED,
             request=request,
         )
@@ -612,8 +705,10 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update', 'approve'):
+        if self.action in ('partial_update', 'update', 'approve', 'reject'):
             return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+        if self.action == 'cancel':
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
@@ -649,7 +744,11 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
 
         if old_status != 'selesai' and instance.status == 'selesai':
-            complete_penukaran_poin(instance.nasabah, instance.reward)
+            complete_penukaran_poin(
+                instance.nasabah,
+                instance.reward,
+                poin=instance.poin_dibutuhkan,
+            )
 
         output = PenukaranPoinSerializer(instance, context={'request': request})
         return success_response(
@@ -661,17 +760,41 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    def _redemption_response(self, instance, message, request):
+        output = PenukaranPoinSerializer(instance, context={'request': request})
+        return success_response(data=output.data, message=message, request=request)
+
     @transaction.atomic
     @action(detail=True, methods=['post'], url_path='approve')
     def approve(self, request, pk=None):
         instance = self.get_object()
         approve_redemption(instance)
-        complete_penukaran_poin(instance.nasabah, instance.reward)
-        output = PenukaranPoinSerializer(instance, context={'request': request})
-        return success_response(
-            data=output.data,
-            message='Penukaran poin berhasil disetujui.',
-            request=request,
+        complete_penukaran_poin(
+            instance.nasabah,
+            instance.reward,
+            poin=instance.poin_dibutuhkan,
+        )
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil disetujui.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        instance = self.get_object()
+        reject_redemption(instance)
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil ditolak.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        instance = self.get_object()
+        if instance.nasabah_id != request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Anda hanya dapat membatalkan penukaran milik sendiri.')
+        cancel_redemption(instance)
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil dibatalkan.', request,
         )
 
 @partner_schema

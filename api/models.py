@@ -18,7 +18,23 @@ class User(AbstractUser):
         help_text='NIK terenkripsi at-rest (Fase 8.4)',
     )
     no_hp = models.CharField(max_length=15, blank=True)
+    phone_verified = models.BooleanField(
+        default=False,
+        help_text='True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)',
+    )
     alamat = models.TextField(blank=True)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text='Koordinat lat profil (opsional, maps)',
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text='Koordinat lng profil (opsional, maps)',
+    )
+    patokan = models.CharField(
+        max_length=255, blank=True, default='',
+        help_text='Patokan lokasi / keterangan maps (opsional)',
+    )
     foto_ktp = models.FileField(
         upload_to='ktp/',
         null=True, blank=True,
@@ -127,6 +143,19 @@ class Penjemputan(models.Model):
     petugas = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='penjemputan_petugas')
     estimasi_berat = models.DecimalField(max_digits=8, decimal_places=2)
     alamat_jemput = models.TextField()
+    # Koordinat opsional untuk peta di mobile — bukan GPS live tracking.
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text='Latitude lokasi jemput (opsional, bukan live tracking).',
+    )
+    longitude = models.DecimalField(
+        max_digits=9, decimal_places=6, null=True, blank=True,
+        help_text='Longitude lokasi jemput (opsional, bukan live tracking).',
+    )
+    catatan_lokasi = models.CharField(
+        max_length=255, blank=True, default='',
+        help_text='Patokan lokasi (opsional), mis. dekat warung X.',
+    )
     jadwal = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
 
@@ -171,11 +200,32 @@ class Reward(models.Model):
     stok = models.IntegerField()
 
 class PenukaranPoin(models.Model):
-    STATUS_CHOICES = (('menunggu', 'Menunggu'), ('selesai', 'Selesai'))
+    STATUS_CHOICES = (
+        ('menunggu', 'Menunggu'),
+        ('selesai', 'Selesai'),
+        ('ditolak', 'Ditolak'),
+        ('dibatalkan', 'Dibatalkan'),
+    )
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE)
     reward = models.ForeignKey(Reward, on_delete=models.RESTRICT)
+    # Snapshot biaya poin saat pengajuan — approve memakai nilai ini, bukan harga katalog terbaru.
+    poin_dibutuhkan = models.PositiveIntegerField(
+        help_text='Snapshot poin saat pengajuan; tidak berubah jika harga katalog berubah.',
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
     tanggal = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        # Qty tetap 1 per baris (multi-qty deferred). Snapshot dari katalog jika belum diisi.
+        if self.reward_id and not self.poin_dibutuhkan:
+            reward_poin = (
+                Reward.objects.filter(pk=self.reward_id)
+                .values_list('poin_dibutuhkan', flat=True)
+                .first()
+            )
+            if reward_poin:
+                self.poin_dibutuhkan = reward_poin
+        super().save(*args, **kwargs)
 
 class MitraPengepul(models.Model):
     nama = models.CharField(max_length=100)
@@ -213,12 +263,16 @@ class AuditLog(models.Model):
         return f'{self.action} {self.model_name}#{self.object_id} by {self.user_id}'
 
 
+from datetime import time as _time
+
 DEFAULT_INSTITUTION = {
     'nama_institusi': 'Bank Sampah MIRU - Distrik Mimika Baru',
     'alamat': 'Jl. Cendrawasih Poros SP.II, Timika, Papua Tengah 99910',
     'kontak': '0821 977 3693',
     'email': 'distrikmiru@mimikakab.go.id',
     'jam_operasional': 'Senin–Sabtu, 08.00–17.00 WIT',
+    'jam_buka': _time(8, 0),
+    'jam_tutup': _time(17, 0),
     'pengumuman': 'Selamat datang di MIRU Bank Sampah!',
 }
 
@@ -230,8 +284,22 @@ class PengaturanInstitusi(models.Model):
     alamat = models.TextField(blank=True, default='')
     kontak = models.CharField(max_length=50, blank=True, default='')
     email = models.EmailField(blank=True, default='')
-    logo_url = models.URLField(blank=True, null=True)
-    jam_operasional = models.CharField(max_length=255, blank=True, default='')
+    logo_url = models.URLField(
+        blank=True, null=True,
+        help_text='Deprecated: logo fiks pakai ikon app; field diabaikan pada write.',
+    )
+    jam_operasional = models.CharField(
+        max_length=255, blank=True, default='',
+        help_text='Deprecated: gunakan jam_buka/jam_tutup. Disinkron otomatis untuk client lama.',
+    )
+    jam_buka = models.TimeField(
+        null=True, blank=True,
+        help_text='Jam buka layanan (WIT)',
+    )
+    jam_tutup = models.TimeField(
+        null=True, blank=True,
+        help_text='Jam tutup layanan (WIT)',
+    )
     pengumuman = models.TextField(blank=True, default='')
 
     class Meta:
@@ -240,6 +308,11 @@ class PengaturanInstitusi(models.Model):
 
     def save(self, *args, **kwargs):
         self.pk = 1
+        if self.jam_buka and self.jam_tutup:
+            self.jam_operasional = (
+                f'{self.jam_buka.strftime("%H.%M")}–'
+                f'{self.jam_tutup.strftime("%H.%M")} WIT'
+            )
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
@@ -338,6 +411,7 @@ class DeviceToken(models.Model):
 class PasswordResetToken(models.Model):
     """
     Token reset password dengan masa berlaku 1 jam (Fase 8.4).
+    Diterbitkan setelah OTP WhatsApp diverifikasi (T2).
     """
 
     user = models.ForeignKey(
@@ -360,6 +434,46 @@ class PasswordResetToken(models.Model):
         from datetime import timedelta
         from django.utils import timezone
         return timezone.now() > self.created_at + timedelta(hours=1)
+
+
+class PhoneOTP(models.Model):
+    """OTP WhatsApp untuk reset password / verifikasi HP (T2). Kode disimpan sebagai hash."""
+
+    PURPOSE_PASSWORD_RESET = 'password_reset'
+    PURPOSE_PHONE_VERIFY = 'phone_verify'
+    PURPOSE_REGISTRATION = 'registration'
+    PURPOSE_CHOICES = (
+        (PURPOSE_PASSWORD_RESET, 'Reset Password'),
+        (PURPOSE_PHONE_VERIFY, 'Verifikasi HP'),
+        (PURPOSE_REGISTRATION, 'Registrasi'),
+    )
+
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='phone_otps',
+    )
+    purpose = models.CharField(max_length=32, choices=PURPOSE_CHOICES)
+    phone = models.CharField(max_length=15)
+    code_hash = models.CharField(max_length=128)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_used = models.BooleanField(default=False)
+    attempts = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'OTP Telepon'
+        verbose_name_plural = 'OTP Telepon'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'purpose', 'is_used']),
+        ]
+
+    def __str__(self):
+        return f'{self.user_id}:{self.purpose}:{self.created_at.isoformat()}'
+
+    @property
+    def is_expired(self) -> bool:
+        from django.utils import timezone
+        return timezone.now() >= self.expires_at
 
 
 class PoinTransaksi(models.Model):
@@ -437,11 +551,21 @@ class WilayahLayanan(models.Model):
         return ' '.join(parts)
 
 
+# Subset Markdown yang diizinkan untuk KontenEdukasi.isi (simpan mentah; render di client).
+EDUKASI_MARKDOWN_SUBSET = (
+    'heading (#–###), bold/italic (* * / ** **), unordered/ordered list, '
+    'link [teks](url), inline code, fenced code block. '
+    'Tidak perlu HTML; server menyimpan teks mentah tanpa sanitizer HTML berat.'
+)
+
+
 class KontenEdukasi(models.Model):
     """Konten edukasi sampah — artikel/panduan untuk nasabah (Modul 4)."""
 
     judul = models.CharField(max_length=200)
-    isi = models.TextField(help_text='Isi konten/panduan edukasi')
+    isi = models.TextField(
+        help_text=f'Markdown mentah. Subset diizinkan: {EDUKASI_MARKDOWN_SUBSET}',
+    )
     kategori_terkait = models.ForeignKey(
         'KategoriSampah', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='konten_edukasi',
@@ -470,6 +594,7 @@ class Pengaduan(models.Model):
         ('petugas_tidak_datang', 'Petugas Tidak Datang'),
         ('kesalahan_data', 'Kesalahan Data'),
         ('bukti_tidak_muncul', 'Bukti Tidak Muncul'),
+        ('lainnya', 'Lainnya'),
     )
     STATUS_CHOICES = (('terbuka', 'Terbuka'), ('ditutup', 'Ditutup'))
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE)

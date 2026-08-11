@@ -44,11 +44,13 @@ def _query_param(name, schema_type='string', required=False, description=''):
 
 dashboard_overview_schema = extend_schema(
     tags=[DASHBOARD_TAG],
-    summary='Ringkasan monitoring program (admin/koordinator/pemerintah)',
+    summary='Ringkasan monitoring (admin/koordinator/pemerintah) atau widget petugas',
     description=(
-        'Data agregat untuk dashboard: total nasabah, nasabah aktif 30 hari, '
-        'total sampah & nilai setoran, penarikan, penukaran poin, penjemputan '
-        'menunggu, pengaduan terbuka, dan stok per kategori.'
+        'Admin/koordinator/pemerintah: data agregat (total nasabah, nasabah aktif '
+        '30 hari, total sampah & nilai setoran, penarikan, penukaran poin, '
+        'penjemputan menunggu, pengaduan terbuka, stok per kategori).\n\n'
+        'Petugas: widget ringkas — jemput_ditugaskan_hari_ini dan antrian_aktif '
+        '(hanya tugas milik sendiri).'
     ),
 )
 

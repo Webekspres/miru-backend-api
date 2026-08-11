@@ -1,10 +1,11 @@
 """Signal handlers for automatic Notifikasi generation.
 
 Triggers on key business events:
-- TransaksiSetoran created → "Setoran Baru"
+- TransaksiSetoran: notifikasi dipanggil dari ledger SETELAH total_nilai di-set
+  (bukan di sini — create awal masih total_nilai=0)
 - Penjemputan status changed → "Status Penjemputan"
 - PenarikanSaldo approved/rejected → "Penarikan Saldo"
-- PenukaranPoin approved → "Penukaran Poin"
+- PenukaranPoin created → nasabah + admin; approved/rejected/cancelled → nasabah
 - Pengaduan gets tindak_lanjut → "Tindak Lanjut Pengaduan"
 """
 
@@ -16,11 +17,13 @@ from .models import (
     Pengumuman,
     Penjemputan,
     PenukaranPoin,
-    TransaksiSetoran,
+    User,
 )
 from .services.notifications import (
     broadcast_notification,
     create_notification,
+    notify_admins,
+    notify_roles,
     trigger_email_new_pickup,
 )
 
@@ -35,23 +38,6 @@ from .services.notifications import (
 # ──────────────────────────────────────────────
 
 
-def _notif_setoran(instance, created, **kwargs):
-    if not created:
-        return
-    nasabah = instance.nasabah
-    if not nasabah:
-        return
-    create_notification(
-        user_id=nasabah.id,
-        judul='Setoran Sampah Berhasil',
-        deskripsi=(
-            f'Setoran sampah sebesar Rp{instance.total_nilai:,.0f} '
-            f'telah dicatat ke akun Anda. Cek saldo di halaman utama.'
-        ),
-        kategori='setoran',
-    )
-
-
 def _notif_penjemputan(instance, created, **kwargs):
     if created:
         # Kirim email ke admin untuk penjemputan baru
@@ -62,6 +48,16 @@ def _notif_penjemputan(instance, created, **kwargs):
             deskripsi=(
                 'Pengajuan penjemputan sampah Anda telah diterima. '
                 'Menunggu persetujuan admin MIRU.'
+            ),
+            kategori='penjemputan',
+        )
+        # In-app ke admin/koordinator — segera tindak lanjuti
+        notify_roles(
+            ('admin', 'koordinator'),
+            judul='Penjemputan Baru',
+            deskripsi=(
+                f'Ada pengajuan penjemputan baru (ID {instance.id}). '
+                f'Segera tindak lanjuti. Alamat: {instance.alamat_jemput}.'
             ),
             kategori='penjemputan',
         )
@@ -120,6 +116,27 @@ def _notif_penjemputan(instance, created, **kwargs):
             judul='Tugas Penjemputan Baru',
             deskripsi=_petugas_tugas_deskripsi(instance),
             kategori='penjemputan',
+        )
+
+    # Saat selesai → notifikasi ke petugas + admin
+    if instance.status == 'selesai':
+        selesai_deskripsi = (
+            f'Penjemputan ID {instance.id} telah selesai. '
+            f'Alamat: {instance.alamat_jemput}.'
+        )
+        if instance.petugas_id:
+            create_notification(
+                user_id=instance.petugas_id,
+                judul='Penjemputan Selesai',
+                deskripsi=selesai_deskripsi,
+                kategori='penjemputan',
+            )
+        notify_roles(
+            ('admin',),
+            judul='Penjemputan Selesai',
+            deskripsi=selesai_deskripsi,
+            kategori='penjemputan',
+            exclude_user_ids={instance.petugas_id} if instance.petugas_id else None,
         )
 
 
@@ -227,25 +244,63 @@ def _notif_penukaran(instance, created, **kwargs):
             ),
             kategori='penukaran',
         )
+        nasabah_nama = ''
+        nasabah = getattr(instance, 'nasabah', None)
+        if nasabah is not None and getattr(nasabah, 'nama_lengkap', None):
+            nasabah_nama = nasabah.nama_lengkap
+        else:
+            nasabah_nama = (
+                User.objects.filter(pk=instance.nasabah_id)
+                .values_list('nama_lengkap', flat=True)
+                .first()
+                or 'Nasabah'
+            )
+        notify_roles(
+            ('admin',),
+            judul='Pengajuan Penukaran Poin Baru',
+            deskripsi=(
+                f'{nasabah_nama} mengajukan penukaran {reward_nama} '
+                f'({instance.poin_dibutuhkan} poin).'
+            ),
+            kategori='penukaran',
+        )
         return
 
     old_status = getattr(instance, '_old_status', None)
     if old_status is None or old_status == instance.status:
         return
 
-    if instance.status != 'selesai':
-        return
-
     reward_nama = instance.reward.nama if instance.reward else 'Reward'
-    create_notification(
-        user_id=instance.nasabah_id,
-        judul='Penukaran Poin Berhasil',
-        deskripsi=(
-            f'Selamat! Penukaran poin untuk {reward_nama} telah disetujui. '
-            f'Hubungi admin MIRU untuk pengambilan reward.'
-        ),
-        kategori='penukaran',
-    )
+
+    if instance.status == 'selesai':
+        create_notification(
+            user_id=instance.nasabah_id,
+            judul='Penukaran Poin Berhasil',
+            deskripsi=(
+                f'Selamat! Penukaran poin untuk {reward_nama} telah disetujui. '
+                f'Hubungi admin MIRU untuk pengambilan reward.'
+            ),
+            kategori='penukaran',
+        )
+    elif instance.status == 'ditolak':
+        create_notification(
+            user_id=instance.nasabah_id,
+            judul='Penukaran Poin Ditolak',
+            deskripsi=(
+                f'Mohon maaf, penukaran poin untuk {reward_nama} ditolak. '
+                f'Hubungi admin MIRU untuk informasi lebih lanjut.'
+            ),
+            kategori='penukaran',
+        )
+    elif instance.status == 'dibatalkan':
+        create_notification(
+            user_id=instance.nasabah_id,
+            judul='Penukaran Poin Dibatalkan',
+            deskripsi=(
+                f'Penukaran poin untuk {reward_nama} telah dibatalkan.'
+            ),
+            kategori='penukaran',
+        )
 
 
 def _notif_pengaduan(instance, created, **kwargs):
@@ -256,6 +311,19 @@ def _notif_pengaduan(instance, created, **kwargs):
             deskripsi=(
                 f'Pengaduan "{instance.get_jenis_pengaduan_display()}" telah diterima. '
                 f'Admin akan menindaklanjuti maksimal 2 hari kerja.'
+            ),
+            kategori='pengaduan',
+        )
+        nasabah_nama = ''
+        nasabah = getattr(instance, 'nasabah', None)
+        if nasabah is not None and getattr(nasabah, 'nama_lengkap', None):
+            nasabah_nama = nasabah.nama_lengkap
+        notify_admins(
+            judul='Pengaduan Baru',
+            deskripsi=(
+                f'Pengaduan baru dari {nasabah_nama or "nasabah"}: '
+                f'"{instance.get_jenis_pengaduan_display()}". '
+                f'Silakan ditindaklanjuti.'
             ),
             kategori='pengaduan',
         )
@@ -310,7 +378,6 @@ def _notif_pengumuman(instance, created, **kwargs):
 
 def connect_notification_signals():
     """Connect all notification signal handlers."""
-    post_save.connect(_notif_setoran, sender=TransaksiSetoran, weak=False)
     post_save.connect(_notif_penjemputan, sender=Penjemputan, weak=False)
     post_save.connect(_notif_penarikan, sender=PenarikanSaldo, weak=False)
     post_save.connect(_notif_penukaran, sender=PenukaranPoin, weak=False)
@@ -320,7 +387,6 @@ def connect_notification_signals():
 
 def disconnect_notification_signals():
     """Disconnect notification signal handlers."""
-    post_save.disconnect(_notif_setoran, sender=TransaksiSetoran)
     post_save.disconnect(_notif_penjemputan, sender=Penjemputan)
     post_save.disconnect(_notif_penarikan, sender=PenarikanSaldo)
     post_save.disconnect(_notif_penukaran, sender=PenukaranPoin)

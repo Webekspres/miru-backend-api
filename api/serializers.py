@@ -24,13 +24,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
+            'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp',
+            'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'date_joined', 'qr', 'foto_ktp',
         ]
         read_only_fields = [
-            'id', 'username', 'role', 'saldo', 'poin', 'is_active', 'date_joined', 'qr',
-            'foto_ktp',
+            'id', 'username', 'role', 'saldo', 'poin', 'is_active',
+            'date_joined', 'qr', 'foto_ktp', 'phone_verified',
         ]
         extra_kwargs = {
             'foto_ktp': {'required': False, 'allow_null': True},
@@ -43,6 +44,15 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'no_hp': obj.no_hp,
         }
 
+    def update(self, instance, validated_data):
+        new_hp = validated_data.get('no_hp')
+        phone_changed = new_hp is not None and new_hp != instance.no_hp
+        instance = super().update(instance, validated_data)
+        if phone_changed:
+            instance.phone_verified = False
+            instance.save(update_fields=['phone_verified'])
+        return instance
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         # Decrypt NIK for display
@@ -51,17 +61,21 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    """Registrasi disingkat (T2): nama, username, password + consent. HP diverifikasi OTP."""
+
     password = serializers.CharField(write_only=True, min_length=6)
     setuju_kebijakan_data = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
-            'kelurahan', 'rt', 'rw',
+            'id', 'username', 'password', 'nama_lengkap',
             'setuju_kebijakan_data', 'role', 'saldo', 'poin', 'is_active',
+            'phone_verified',
         ]
-        read_only_fields = ['id', 'role', 'saldo', 'poin', 'is_active']
+        read_only_fields = [
+            'id', 'role', 'saldo', 'poin', 'is_active', 'phone_verified',
+        ]
 
     def validate_username(self, value):
         if User.objects.filter(username__iexact=value).exists():
@@ -83,25 +97,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('setuju_kebijakan_data')
         from django.utils import timezone
-        nik = validated_data.get('nik', '')
         user = User.objects.create_user(
             username=validated_data['username'],
             password=validated_data['password'],
             nama_lengkap=validated_data['nama_lengkap'],
-            nik=nik,
-            no_hp=validated_data.get('no_hp', ''),
-            alamat=validated_data.get('alamat', ''),
             role='nasabah',
             saldo=0,
             poin=0,
+            is_active=False,
+            phone_verified=False,
+            no_hp='',
+            alamat='',
         )
-        # Encrypt NIK at-rest
-        if nik:
-            user.encrypt_nik(nik)
-            user.save(update_fields=['nik_encrypted'])
         user.setuju_kebijakan_data = True
         user.tanggal_persetujuan_kebijakan = timezone.now()
-        user.save(update_fields=['setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan'])
+        user.save(update_fields=[
+            'setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan',
+        ])
         return user
 
     def to_representation(self, instance):
@@ -118,7 +130,10 @@ class NasabahLookupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'nama_lengkap', 'no_hp', 'is_active']
+        fields = [
+            'id', 'username', 'nama_lengkap', 'no_hp', 'alamat',
+            'is_active', 'phone_verified',
+        ]
         read_only_fields = fields
 
 
@@ -129,10 +144,11 @@ class UserAdminSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
-            'alamat', 'kelurahan', 'rt', 'rw',
+            'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
+            'kelurahan', 'rt', 'rw',
             'saldo', 'poin', 'is_active',
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'phone_verified']
 
     def validate_username(self, value):
         qs = User.objects.filter(username__iexact=value)
@@ -160,6 +176,9 @@ class UserAdminSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
+        # T10: nomor HP dari admin → belum terverifikasi
+        if validated_data.get('no_hp'):
+            validated_data['phone_verified'] = False
         nik = validated_data.get('nik', '')
         user = User(**validated_data)
         user.set_password(password)
@@ -173,15 +192,18 @@ class UserAdminSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
         nik = validated_data.get('nik')
+        new_hp = validated_data.get('no_hp')
+        phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        if phone_changed:
+            # T10: ganti/isi nomor → status belum terverifikasi
+            instance.phone_verified = False
         if password:
             instance.set_password(password)
         if nik is not None:
             instance.encrypt_nik(nik)
-            instance.save(update_fields=['nik', 'nik_encrypted'])
-        else:
-            instance.save()
+        instance.save()
         return instance
 
     def to_representation(self, instance):
@@ -198,7 +220,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
-            'alamat', 'saldo', 'poin', 'is_active',
+            'phone_verified', 'alamat', 'saldo', 'poin', 'is_active',
         ]
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -312,6 +334,15 @@ class DetailSetoranSerializer(serializers.ModelSerializer):
 
 class TransaksiSetoranCreateSerializer(serializers.ModelSerializer):
     details = DetailSetoranWriteSerializer(many=True)
+    nasabah = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(role='nasabah', is_active=True),
+        error_messages={
+            'does_not_exist': 'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+            'incorrect_type': 'ID nasabah tidak valid.',
+            'null': 'Nasabah wajib dipilih.',
+            'required': 'Nasabah wajib dipilih.',
+        },
+    )
 
     class Meta:
         model = TransaksiSetoran
@@ -424,27 +455,39 @@ TransaksiSetoranSerializer = TransaksiSetoranCreateSerializer
 class PenjemputanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Penjemputan
-        fields = ['estimasi_berat', 'alamat_jemput', 'jadwal']
+        fields = [
+            'estimasi_berat', 'alamat_jemput', 'jadwal',
+            'latitude', 'longitude', 'catatan_lokasi',
+        ]
+        extra_kwargs = {
+            'latitude': {'required': False, 'allow_null': True},
+            'longitude': {'required': False, 'allow_null': True},
+            'catatan_lokasi': {'required': False, 'allow_blank': True},
+        }
 
     def validate_estimasi_berat(self, value):
         from .services.pickups import validate_estimasi_berat
         return validate_estimasi_berat(value)
 
     def validate_jadwal(self, value):
-        from .services.pickups import validate_jadwal_h_plus_one
-        validate_jadwal_h_plus_one(value)
+        from .services.pickups import validate_jadwal
+        validate_jadwal(value)
         return value
 
     def validate(self, attrs):
         request = self.context['request']
         from .services.pickups import (
+            validate_koordinat,
             validate_max_pickups_per_week,
             validate_nasabah_owner,
             validate_wilayah_layanan,
         )
+        from .services.profile import require_complete_address
         validate_nasabah_owner(request.user)
+        require_complete_address(request.user, 'mengajukan penjemputan')
         validate_wilayah_layanan(request.user)
         validate_max_pickups_per_week(request.user)
+        validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
     def create(self, validated_data):
@@ -456,7 +499,12 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
 class PenjemputanUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Penjemputan
-        fields = ['status', 'petugas', 'jadwal']
+        fields = ['status', 'petugas', 'jadwal', 'latitude', 'longitude', 'catatan_lokasi']
+        extra_kwargs = {
+            'latitude': {'required': False, 'allow_null': True},
+            'longitude': {'required': False, 'allow_null': True},
+            'catatan_lokasi': {'required': False, 'allow_blank': True},
+        }
 
     def validate_petugas(self, value):
         if value is not None:
@@ -486,10 +534,39 @@ class PenjemputanUpdateSerializer(serializers.ModelSerializer):
                 instance, new_status, request.user, petugas=new_petugas,
             )
 
+        # Jika admin setujui via PATCH dengan petugas → naikkan ke dijadwalkan (atomik).
+        if (
+            request.user.role == 'admin'
+            and attrs.get('status') == 'disetujui'
+            and new_petugas is not None
+        ):
+            attrs['status'] = 'dijadwalkan'
+
+        lat = attrs['latitude'] if 'latitude' in attrs else instance.latitude
+        lng = attrs['longitude'] if 'longitude' in attrs else instance.longitude
+        if 'latitude' in attrs or 'longitude' in attrs:
+            from .services.pickups import validate_koordinat
+            validate_koordinat(lat, lng)
+
         return attrs
 
 
 class PickupAssignSerializer(serializers.Serializer):
+    petugas_id = serializers.IntegerField()
+
+    def validate_petugas_id(self, value):
+        from .services.pickups import validate_petugas_user
+        try:
+            petugas = User.objects.get(pk=value)
+        except User.DoesNotExist as exc:
+            raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
+        validate_petugas_user(petugas)
+        return value
+
+
+class PickupApproveSerializer(serializers.Serializer):
+    """Setujui + assign atomik — petugas_id wajib."""
+
     petugas_id = serializers.IntegerField()
 
     def validate_petugas_id(self, value):
@@ -517,6 +594,7 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
             'estimasi_berat', 'alamat_jemput', 'jadwal', 'status',
+            'latitude', 'longitude', 'catatan_lokasi',
         ]
         read_only_fields = fields
 
@@ -539,6 +617,10 @@ class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     def validate_nominal(self, value):
         from .services.withdrawals import validate_nominal
         return validate_nominal(value)
+
+    def validate_metode(self, value):
+        from .services.withdrawals import validate_metode
+        return validate_metode(value)
 
     def validate_lampiran_ktp(self, value):
         if value is None:
@@ -567,9 +649,13 @@ class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request = self.context['request']
         if request.user.role != 'nasabah':
-            raise serializers.ValidationError(
-                'Hanya nasabah yang dapat mengajukan penarikan saldo.'
-            )
+            raise serializers.ValidationError({
+                'non_field_errors': [
+                    'Hanya nasabah yang dapat mengajukan penarikan saldo.'
+                ],
+            })
+        from .services.profile import require_complete_address
+        require_complete_address(request.user, 'mengajukan penarikan')
         from .services.withdrawals import (
             validate_create_withdrawal,
             is_besar,
@@ -582,7 +668,7 @@ class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
                     'Penarikan ≥ Rp1.000.000 wajib melampirkan foto KTP.'
                 ],
             })
-        validate_create_withdrawal(request.user, nominal)
+        validate_create_withdrawal(request.user, nominal, attrs.get('metode'))
         return attrs
 
     def create(self, validated_data):
@@ -658,16 +744,21 @@ class PenukaranPoinCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request = self.context['request']
         if request.user.role != 'nasabah':
-            raise serializers.ValidationError(
-                'Hanya nasabah yang dapat menukar poin.'
-            )
+            raise serializers.ValidationError({
+                'non_field_errors': ['Hanya nasabah yang dapat menukar poin.'],
+            })
+        from .services.profile import require_complete_address
+        require_complete_address(request.user, 'menukar poin')
         from .services.redemptions import validate_create_redemption
         validate_create_redemption(request.user, attrs['reward'])
         return attrs
 
     def create(self, validated_data):
+        reward = validated_data['reward']
         validated_data['nasabah'] = self.context['request'].user
         validated_data['status'] = 'menunggu'
+        # Snapshot harga poin saat pengajuan (qty default = 1).
+        validated_data['poin_dibutuhkan'] = reward.poin_dibutuhkan
         return PenukaranPoin.objects.create(**validated_data)
 
 
@@ -679,7 +770,7 @@ class PenukaranPoinUpdateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         from api.exceptions import AlreadyProcessedError
 
-        if self.instance.status == 'selesai':
+        if self.instance.status != 'menunggu':
             raise AlreadyProcessedError('Penukaran poin sudah diproses.')
 
         new_status = attrs.get('status', self.instance.status)
@@ -689,15 +780,12 @@ class PenukaranPoinUpdateSerializer(serializers.ModelSerializer):
             )
 
         from .services.redemptions import validate_approve_redemption
-        validate_approve_redemption(self.instance.nasabah, self.instance.reward)
+        validate_approve_redemption(self.instance)
         return attrs
 
 
 class PenukaranPoinSerializer(serializers.ModelSerializer):
     reward_nama = serializers.CharField(source='reward.nama', read_only=True)
-    poin_dibutuhkan = serializers.IntegerField(
-        source='reward.poin_dibutuhkan', read_only=True,
-    )
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
 
     class Meta:
@@ -811,6 +899,7 @@ class KontenEdukasiSerializer(serializers.ModelSerializer):
     def validate_isi(self, value):
         if not value.strip():
             raise serializers.ValidationError('Isi konten wajib diisi.')
+        # Simpan Markdown mentah (subset didokumentasikan di model help_text).
         return value
 
     def validate_urutan(self, value):
@@ -882,17 +971,41 @@ class AuditLogSerializer(serializers.ModelSerializer):
 
 
 class PengaturanInstitusiSerializer(serializers.ModelSerializer):
+    """Profil institusi. logo_url read-only (diabaikan pada write)."""
+
     class Meta:
         model = PengaturanInstitusi
         fields = [
             'nama_institusi', 'alamat', 'kontak', 'email',
-            'logo_url', 'jam_operasional', 'pengumuman',
+            'logo_url', 'jam_operasional', 'jam_buka', 'jam_tutup',
+            'pengumuman',
         ]
+        read_only_fields = ['logo_url']
+        extra_kwargs = {
+            'jam_operasional': {
+                'help_text': (
+                    'Deprecated — prefer jam_buka/jam_tutup. '
+                    'Disinkron otomatis saat jam_buka & jam_tutup diisi.'
+                ),
+                'required': False,
+            },
+            'jam_buka': {'help_text': 'Jam buka layanan (WIT), format HH:MM:SS'},
+            'jam_tutup': {'help_text': 'Jam tutup layanan (WIT), format HH:MM:SS'},
+        }
 
     def validate_nama_institusi(self, value):
         if not value.strip():
             raise serializers.ValidationError('Nama institusi wajib diisi.')
         return value
+
+    def to_internal_value(self, data):
+        # Client lama boleh kirim logo_url — diabaikan tanpa error.
+        if hasattr(data, 'copy'):
+            data = data.copy()
+            data.pop('logo_url', None)
+        elif isinstance(data, dict):
+            data = {k: v for k, v in data.items() if k != 'logo_url'}
+        return super().to_internal_value(data)
 
 
 class PengumumanSerializer(serializers.ModelSerializer):

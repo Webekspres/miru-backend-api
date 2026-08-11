@@ -20,7 +20,10 @@ def filter_pickup_queryset(qs, user):
     if user.role == 'nasabah':
         return qs.filter(nasabah=user)
     if user.role == 'petugas':
-        return qs.filter(petugas=user)
+        # Petugas: hanya jemput yang ditugaskan ke diri sendiri;
+        # sembunyikan menunggu/ditolak (dan status tanpa tugas aktif).
+        from api.services.pickups import PETUGAS_VISIBLE_STATUSES
+        return qs.filter(petugas=user, status__in=PETUGAS_VISIBLE_STATUSES)
     if user.role in READ_ALL_ROLES:
         return qs
     return qs.none()

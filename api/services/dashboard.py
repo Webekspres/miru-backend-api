@@ -18,7 +18,8 @@ from api.models import (
 )
 
 from .aggregates import fmt, stok_per_kategori
-from .periods import month_bounds, parse_int, project_tz, range_bounds
+from .periods import day_bounds, month_bounds, parse_int, project_tz, range_bounds
+from .pickups import PETUGAS_VISIBLE_STATUSES
 
 ACTIVE_WINDOW_DAYS = 30
 
@@ -54,6 +55,28 @@ def get_overview() -> dict:
         'pengaduan_terbuka': Pengaduan.objects.filter(status='terbuka').count(),
         'stok_per_kategori': stok_per_kategori(),
         'wilayah_teraktif': _wilayah_teraktif(),
+    }
+
+
+def get_petugas_overview(user: User) -> dict:
+    """Ringkasan widget untuk role petugas (bukan angka admin penuh)."""
+    start_dt, end_dt = day_bounds(timezone.localdate())
+
+    jemput_hari_ini = Penjemputan.objects.filter(
+        petugas=user,
+        jadwal__range=(start_dt, end_dt),
+        status__in=PETUGAS_VISIBLE_STATUSES,
+    ).count()
+
+    antrian_aktif = Penjemputan.objects.filter(
+        petugas=user,
+        status__in=PETUGAS_VISIBLE_STATUSES,
+    ).count()
+
+    return {
+        'role': 'petugas',
+        'jemput_ditugaskan_hari_ini': jemput_hari_ini,
+        'antrian_aktif': antrian_aktif,
     }
 
 

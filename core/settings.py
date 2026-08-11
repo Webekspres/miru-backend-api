@@ -158,6 +158,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/minute',   # AnonRateThrottle untuk /api/auth/login/
+        'otp': '5/minute',      # AnonRateThrottle untuk OTP WA (T2)
         'write': '100/hour',    # UserRateThrottle untuk semua write operation
     },
 }
@@ -276,6 +277,13 @@ FCM_ENABLED = os.environ.get('FCM_ENABLED', 'False') == 'True'
 FIREBASE_CREDENTIALS_FILE = os.environ.get('FIREBASE_CREDENTIALS_FILE', '')
 # …inline JSON string (berguna di CI / secret manager; jangan commit).
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON', '')
+
+# ---------------------------------------------------------------------------
+# WhatsApp OTP (T2) — kosongkan = stub/log (tanpa kirim nyata)
+# ---------------------------------------------------------------------------
+WA_API_URL = os.environ.get('WA_API_URL', '')
+WA_API_TOKEN = os.environ.get('WA_API_TOKEN', '')
+WA_SENDER = os.environ.get('WA_SENDER', '')
 
 
 # ---------------------------------------------------------------------------

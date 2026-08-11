@@ -16,7 +16,13 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
         self.koordinator = self.create_koordinator(username='koord_wd')
 
     def _payload(self, **overrides):
-        payload = {'nominal': '100000.00', 'metode': 'tunai', 'nama_bank': '', 'no_rekening': '', 'nama_pemilik_rekening': ''}
+        payload = {
+            'nominal': '100000.00',
+            'metode': 'tunai',
+            'nama_bank': '',
+            'no_rekening': '',
+            'nama_pemilik_rekening': '',
+        }
         payload.update(overrides)
         return payload
 
@@ -28,6 +34,7 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['status'], 'menunggu')
         self.assertEqual(data['nominal'], '100000.00')
         self.assertEqual(data['nasabah'], self.nasabah.id)
+        self.assertIn('1–2 hari kerja', response.data['message'])
 
     def test_reject_nominal_below_minimum(self):
         self.auth_as(self.nasabah)
@@ -35,6 +42,8 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
             '/api/withdrawals/', self._payload(nominal='30000.00'), format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('nominal', response.data['errors'])
+        self.assertIn('minimal', response.data['message'].lower())
 
     def test_reject_insufficient_saldo(self):
         self.nasabah.saldo = Decimal('40000.00')
@@ -42,6 +51,16 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
         self.auth_as(self.nasabah)
         response = self.client.post('/api/withdrawals/', self._payload(), format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('nominal', response.data['errors'])
+        self.assertIn('tidak mencukupi', response.data['message'].lower())
+
+    def test_reject_invalid_metode(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/withdrawals/', self._payload(metode='crypto'), format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('metode', response.data['errors'])
 
     def test_reject_duplicate_pending(self):
         PenarikanSaldo.objects.create(
@@ -53,6 +72,7 @@ class WithdrawalCreateTests(EnvelopeAPITestCase):
         self.auth_as(self.nasabah)
         response = self.client.post('/api/withdrawals/', self._payload(), format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('nominal', response.data['errors'])
 
     def test_admin_cannot_create(self):
         self.auth_as(self.admin)
@@ -219,6 +239,7 @@ class WithdrawalActionTests(EnvelopeAPITestCase):
             'nominal': '75000.00', 'metode': 'transfer',
         }, format='json')
         self.assertEqual(create.status_code, status.HTTP_201_CREATED)
+        self.assertIn('1–2 hari kerja', create.data['message'])
         wd_id = create.data['data']['id']
 
         self.auth_as(self.admin)

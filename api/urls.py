@@ -1,7 +1,15 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
-from .auth_views import ForgotPasswordView, PoinInfoView, ResetPasswordView
+from .auth_views import (
+    ForgotPasswordView,
+    PhoneRequestOtpView,
+    PhoneVerifyOtpView,
+    PoinInfoView,
+    ResetPasswordRequestOtpView,
+    ResetPasswordVerifyOtpView,
+    ResetPasswordView,
+)
 from .download_views import (
     DownloadDepositReceiptView,
     DownloadKTPView,
@@ -72,9 +80,21 @@ urlpatterns = [
         InventoryHistoryView.as_view(),
         name='inventory-history',
     ),
-    # Fase 8.4 — Password reset
+    # T2 — Password reset OTP WA + verifikasi HP
     path('auth/forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
+    path(
+        'auth/reset-password/request-otp/',
+        ResetPasswordRequestOtpView.as_view(),
+        name='reset-password-request-otp',
+    ),
+    path(
+        'auth/reset-password/verify-otp/',
+        ResetPasswordVerifyOtpView.as_view(),
+        name='reset-password-verify-otp',
+    ),
     path('auth/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
+    path('auth/phone/request-otp/', PhoneRequestOtpView.as_view(), name='phone-request-otp'),
+    path('auth/phone/verify-otp/', PhoneVerifyOtpView.as_view(), name='phone-verify-otp'),
 
     # Fase 8.5 — Info poin & masa berlaku
     path('auth/poin-info/', PoinInfoView.as_view(), name='poin-info'),

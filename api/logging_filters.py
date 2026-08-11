@@ -21,6 +21,8 @@ SENSITIVE_PATTERNS: list[tuple[re.Pattern, str]] = [
     (re.compile(r'\b(\d{16})\b'), r'***NIK-REDACTED***'),
     # No HP
     (re.compile(r'("no_hp")\s*:\s*"\d{10,15}"', re.IGNORECASE), r'\1: "***REDACTED***"'),
+    # OTP codes (6 digit in JSON)
+    (re.compile(r'("otp")\s*:\s*"\d{4,8}"', re.IGNORECASE), r'\1: "***REDACTED***"'),
 ]
 
 

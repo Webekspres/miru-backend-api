@@ -95,6 +95,18 @@ class IsMonitorReadOnly(permissions.BasePermission):
         )
 
 
+class IsDashboardOverviewReader(permissions.BasePermission):
+    """Admin/koordinator/pemerintah (full) atau petugas (widget sendiri)."""
+
+    def has_permission(self, request, view):
+        from api.querysets import READ_ALL_ROLES
+        return bool(
+            request.user
+            and request.user.is_authenticated
+            and request.user.role in (*READ_ALL_ROLES, 'petugas')
+        )
+
+
 class IsActivityReader(permissions.BasePermission):
     """Nasabah (milik sendiri) atau staff read-all untuk riwayat gabungan."""
 
