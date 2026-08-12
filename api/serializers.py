@@ -28,9 +28,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'date_joined', 'qr', 'foto_ktp',
+            'avatar_url',
         ]
         read_only_fields = [
-            'id', 'username', 'role', 'saldo', 'poin', 'is_active',
+            'id', 'role', 'saldo', 'poin', 'is_active',
             'date_joined', 'qr', 'foto_ktp', 'phone_verified',
         ]
         extra_kwargs = {
@@ -53,10 +54,33 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.save(update_fields=['phone_verified'])
         return instance
 
+    def validate_username(self, value):
+        value = (value or '').strip()
+        if not value:
+            raise serializers.ValidationError('Username wajib diisi.')
+        qs = User.objects.filter(username__iexact=value)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError('Username sudah digunakan.')
+        return value
+
+    def validate_avatar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
     def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
         data = super().to_representation(instance)
         # Decrypt NIK for display
         data['nik'] = instance.get_nik()
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
         return data
 
 
@@ -132,9 +156,18 @@ class NasabahLookupSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'nama_lengkap', 'no_hp', 'alamat',
-            'is_active', 'phone_verified',
+            'is_active', 'phone_verified', 'avatar_url',
         ]
         read_only_fields = fields
+
+    def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
+        data = super().to_representation(instance)
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
+        return data
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
@@ -146,7 +179,7 @@ class UserAdminSerializer(serializers.ModelSerializer):
             'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'rt', 'rw',
-            'saldo', 'poin', 'is_active',
+            'saldo', 'poin', 'is_active', 'avatar_url',
         ]
         read_only_fields = ['id', 'phone_verified']
 
@@ -206,11 +239,23 @@ class UserAdminSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+    def validate_avatar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
     def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
         data = super().to_representation(instance)
         data.pop('password', None)
         # Decrypt NIK for display
         data['nik'] = instance.get_nik()
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
         return data
 
 
@@ -874,20 +919,49 @@ class WilayahLayananSerializer(serializers.ModelSerializer):
         return value
 
 
+class MediaUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+    purpose = serializers.ChoiceField(
+        choices=['edukasi', 'avatar', 'konten'], default='edukasi',
+    )
+
+
 class KontenEdukasiSerializer(serializers.ModelSerializer):
     """CRUD konten edukasi — admin/koordinator."""
 
     kategori_terkait_nama = serializers.CharField(
         source='kategori_terkait.nama', read_only=True, default=None,
     )
+    featured_image = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True, write_only=True,
+    )
 
     class Meta:
         model = KontenEdukasi
         fields = [
-            'id', 'judul', 'isi', 'kategori_terkait', 'kategori_terkait_nama',
+            'id', 'judul', 'isi', 'gambar_url', 'featured_image',
+            'kategori_terkait', 'kategori_terkait_nama',
             'aktif', 'urutan', 'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'urutan', 'created_at', 'updated_at']
+
+    def to_internal_value(self, data):
+        if hasattr(data, 'copy'):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+        if not data.get('gambar_url') and data.get('featured_image'):
+            data['gambar_url'] = data.get('featured_image')
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        from .services.object_storage import public_object_url
+
+        data = super().to_representation(instance)
+        resolved = public_object_url(instance.gambar_url, self.context.get('request'))
+        data['gambar_url'] = resolved or None
+        data['featured_image'] = data['gambar_url']
+        return data
 
     def validate_judul(self, value):
         if not value.strip():
@@ -900,10 +974,16 @@ class KontenEdukasiSerializer(serializers.ModelSerializer):
         # Simpan Markdown mentah (subset didokumentasikan di model help_text).
         return value
 
-    def validate_urutan(self, value):
-        if value < 0:
-            raise serializers.ValidationError('Urutan tidak boleh negatif.')
-        return value
+    def validate_gambar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
+    def validate(self, attrs):
+        attrs.pop('featured_image', None)
+        return attrs
 
 
 class KontenEdukasiPublicSerializer(serializers.ModelSerializer):
@@ -916,9 +996,18 @@ class KontenEdukasiPublicSerializer(serializers.ModelSerializer):
     class Meta:
         model = KontenEdukasi
         fields = [
-            'id', 'judul', 'isi', 'kategori_terkait_nama',
-            'urutan', 'created_at',
+            'id', 'judul', 'isi', 'gambar_url', 'kategori_terkait_nama',
+            'created_at',
         ]
+
+    def to_representation(self, instance):
+        from .services.object_storage import public_object_url
+
+        data = super().to_representation(instance)
+        data['gambar_url'] = public_object_url(
+            instance.gambar_url, self.context.get('request'),
+        ) or None
+        return data
 
 
 class PengaduanCreateSerializer(serializers.ModelSerializer):
@@ -976,7 +1065,7 @@ class PengaturanInstitusiSerializer(serializers.ModelSerializer):
         fields = [
             'nama_institusi', 'alamat', 'kontak', 'email',
             'logo_url', 'jam_operasional', 'jam_buka', 'jam_tutup',
-            'pengumuman',
+            'pengumuman', 'tentang', 'kebijakan',
         ]
         read_only_fields = ['logo_url']
         extra_kwargs = {
@@ -1004,6 +1093,16 @@ class PengaturanInstitusiSerializer(serializers.ModelSerializer):
         elif isinstance(data, dict):
             data = {k: v for k, v in data.items() if k != 'logo_url'}
         return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        from api.services.privacy_policy import DEFAULT_KEBIJAKAN_MD, DEFAULT_TENTANG_MD
+
+        data = super().to_representation(instance)
+        if not (data.get('tentang') or '').strip():
+            data['tentang'] = DEFAULT_TENTANG_MD
+        if not (data.get('kebijakan') or '').strip():
+            data['kebijakan'] = DEFAULT_KEBIJAKAN_MD
+        return data
 
 
 class PengumumanSerializer(serializers.ModelSerializer):

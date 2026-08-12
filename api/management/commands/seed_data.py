@@ -293,10 +293,20 @@ class Command(BaseCommand):
                 created += 1
         return created or len(WILAYAH_KELURAHAN)
 
+    def _ensure_avatar(self, user):
+        if user.avatar_url:
+            return
+        from api.services.seed_images import upload_avatar
+
+        user.avatar_url = upload_avatar(user.nama_lengkap, seed=user.username)
+        user.save(update_fields=['avatar_url'])
+
     def _seed_edukasi(self):
+        from api.services.seed_images import upload_article_cover
+
         created = 0
         for item in EDUKASI_CONTENT:
-            _, was_created = KontenEdukasi.objects.get_or_create(
+            obj, was_created = KontenEdukasi.objects.get_or_create(
                 judul=item['judul'],
                 defaults={
                     'isi': item['isi'],
@@ -306,6 +316,9 @@ class Command(BaseCommand):
             )
             if was_created:
                 created += 1
+            if not obj.gambar_url:
+                obj.gambar_url = upload_article_cover(item['judul'], item['urutan'])
+                obj.save(update_fields=['gambar_url'])
         return created or len(EDUKASI_CONTENT)
 
     def add_arguments(self, parser):
@@ -327,9 +340,19 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        from django.conf import settings
+
+        from api.services.object_storage import ensure_bucket
+        from api.services.seed_images import reset_seed_image_cache
+
         minimal = options['minimal']
+        reset_seed_image_cache()
 
         disconnect_notification_signals()
+
+        if settings.MINIO_ENABLED:
+            ensure_bucket()
+            self.stdout.write(f'MinIO bucket: {settings.MINIO_BUCKET}')
 
         if options['flush']:
             self.stdout.write('Flushing data...')
@@ -386,6 +409,13 @@ class Command(BaseCommand):
             User.objects.filter(username=ADMIN_USER[0]).delete()
             return
 
+        from api.services.object_storage import clear_public_prefixes
+
+        removed = clear_public_prefixes()
+        self.stdout.write(f'  cleared {removed} public objects (avatar/ + edukasi/)')
+
+        KontenEdukasi.objects.all().delete()
+        Pengumuman.objects.all().delete()
         Notifikasi.objects.all().delete()
         DetailSetoran.objects.all().delete()
         TransaksiSetoran.objects.all().delete()
@@ -460,17 +490,29 @@ class Command(BaseCommand):
 
     def _seed_admin(self):
         username, password, role, nama = ADMIN_USER
-        if User.objects.filter(username=username).exists():
-            return 1
-        User.objects.create_user(
-            username=username, password=password, role=role,
-            nama_lengkap=nama, no_hp='08219773690',
-            alamat='Jl. Cendrawasih Poros SP.II, Timika',
-        )
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            user = User.objects.create_user(
+                username=username, password=password, role=role,
+                nama_lengkap=nama, no_hp='08219773690',
+                alamat='Jl. Cendrawasih Poros SP.II, Timika',
+            )
+        self._ensure_avatar(user)
         return 1
 
     def _seed_institution_settings(self):
-        PengaturanInstitusi.load()
+        from api.services.privacy_policy import DEFAULT_KEBIJAKAN_MD, DEFAULT_TENTANG_MD
+
+        inst = PengaturanInstitusi.load()
+        update_fields = []
+        if not (inst.tentang or '').strip():
+            inst.tentang = DEFAULT_TENTANG_MD
+            update_fields.append('tentang')
+        if not (inst.kebijakan or '').strip():
+            inst.kebijakan = DEFAULT_KEBIJAKAN_MD
+            update_fields.append('kebijakan')
+        if update_fields:
+            inst.save(update_fields=update_fields)
         return 1
 
     def _seed_pengumuman(self):
@@ -495,15 +537,16 @@ class Command(BaseCommand):
     def _seed_extra_staff(self):
         created = 0
         for username, password, role, nama in EXTRA_STAFF_USERS:
-            if User.objects.filter(username=username).exists():
-                continue
-            User.objects.create_user(
-                username=username, password=password, role=role,
-                nama_lengkap=nama,
-                no_hp='0821977369{}'.format(created % 10),
-                alamat='Jl. Cendrawasih Poros SP.II, Timika',
-            )
-            created += 1
+            user = User.objects.filter(username=username).first()
+            if user is None:
+                user = User.objects.create_user(
+                    username=username, password=password, role=role,
+                    nama_lengkap=nama,
+                    no_hp='0821977369{}'.format(created % 10),
+                    alamat='Jl. Cendrawasih Poros SP.II, Timika',
+                )
+                created += 1
+            self._ensure_avatar(user)
         return created or len(EXTRA_STAFF_USERS)
 
     def _seed_nasabah(self, count):
@@ -546,6 +589,7 @@ class Command(BaseCommand):
             if created:
                 user.set_password('nasabah123')
                 user.save()
+            self._ensure_avatar(user)
             nasabah_list.append(user)
         return nasabah_list
 

@@ -10,6 +10,7 @@ from .auth_views import (
     ResetPasswordVerifyOtpView,
     ResetPasswordView,
 )
+from .media_views import MediaUploadView
 from .download_views import (
     DownloadDepositReceiptView,
     DownloadKTPView,
@@ -56,6 +57,7 @@ router.register(r'notifications', NotifikasiViewSet, basename='notification')
 router.register(r'device-tokens', DeviceTokenViewSet, basename='device-token')
 
 urlpatterns = [
+    path('media/uploads/', MediaUploadView.as_view(), name='media-upload'),
     path('activity/', ActivityListView.as_view(), name='activity'),
     path('audit-log/', AuditLogListView.as_view(), name='audit-log'),
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),

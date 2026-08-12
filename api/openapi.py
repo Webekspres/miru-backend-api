@@ -28,6 +28,7 @@ REPORTS_TAG = 'Reports'
 AUDIT_LOG_TAG = 'Audit Log'
 INVENTORY_TAG = 'Inventory'
 EDUKASI_TAG = 'Edukasi'
+MEDIA_TAG = 'Media'
 NOTIFICATIONS_TAG = 'Notifications'
 SETTINGS_TAG = 'Settings'
 
@@ -415,9 +416,9 @@ edukasi_schema = extend_schema_view(
                 value={
                     'judul': 'Cara Memilah Sampah yang Benar',
                     'isi': 'Panduan lengkap memilah sampah rumah tangga...',
+                    'gambar_url': 'edukasi/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.webp',
                     'kategori_terkait': 1,
                     'aktif': True,
-                    'urutan': 1,
                 },
                 request_only=True,
             ),

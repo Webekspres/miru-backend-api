@@ -32,7 +32,9 @@ from .services.whatsapp import (
 from .utils.response import error_envelope, success_envelope, success_response
 
 
-def user_auth_payload(user) -> dict:
+def user_auth_payload(user, request=None) -> dict:
+    from api.services.object_storage import serialized_media_url
+
     return {
         'id': user.id,
         'username': user.username,
@@ -42,6 +44,7 @@ def user_auth_payload(user) -> dict:
         'phone_verified': user.phone_verified,
         'saldo': str(user.saldo),
         'poin': user.poin,
+        'avatar_url': serialized_media_url(user.avatar_url, request),
     }
 
 
@@ -67,7 +70,7 @@ class MiruTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
         data = super().validate(attrs)
-        data['user'] = user_auth_payload(self.user)
+        data['user'] = user_auth_payload(self.user, self.context.get('request'))
         return data
 
 
@@ -711,7 +714,9 @@ class MeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        serializer = UserProfileSerializer(request.user)
+        serializer = UserProfileSerializer(
+            request.user, context={'request': request},
+        )
         return success_response(
             data=serializer.data,
             message='Profil berhasil diambil.',
@@ -723,6 +728,7 @@ class MeView(APIView):
             request.user,
             data=request.data,
             partial=True,
+            context={'request': request},
         )
         if not serializer.is_valid():
             return Response(

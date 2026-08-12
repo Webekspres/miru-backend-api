@@ -947,8 +947,8 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
 class KontenEdukasiViewSet(viewsets.ModelViewSet):
     queryset = KontenEdukasi.objects.select_related('kategori_terkait').all()
     search_fields = ['judul', 'isi']
-    ordering_fields = ['urutan', 'judul', 'created_at']
-    ordering = ['urutan', 'created_at']
+    ordering_fields = ['judul', 'created_at']
+    ordering = ['-created_at']
     http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
 
     def get_serializer_class(self):

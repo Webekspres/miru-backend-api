@@ -135,6 +135,8 @@ class PrivacyPolicyTests(EnvelopeAPITestCase):
         self.assertIn('data_yang_disimpan', data)
         self.assertIn('keamanan_data_sensitif', data)
         self.assertIn('metode_enkripsi', data['keamanan_data_sensitif']['nik'])
+        self.assertIn('konten', data)
+        self.assertIn('#', data['konten'])
 
 
 class LoginTests(EnvelopeAPITestCase):
@@ -262,6 +264,22 @@ class MeEndpointTests(EnvelopeAPITestCase):
         self.assertFalse(self.user.phone_verified)
         self.assertEqual(response.data['data']['qr']['nama_lengkap'], 'Nama Diperbarui')
         self.assertEqual(response.data['data']['qr']['no_hp'], '08999999999')
+
+    def test_me_patch_username(self):
+        other = self.create_nasabah(username='taken_user')
+        taken = self.client.patch('/api/auth/me/', {
+            'username': other.username,
+        }, format='json')
+        self.assertEqual(taken.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', taken.data['errors'])
+
+        response = self.client.patch('/api/auth/me/', {
+            'username': 'me_user_baru',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['username'], 'me_user_baru')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'me_user_baru')
 
     def test_me_patch_cannot_change_role(self):
         response = self.client.patch('/api/auth/me/', {

@@ -1,4 +1,5 @@
 import os
+import sys
 from datetime import timedelta
 from pathlib import Path
 
@@ -297,6 +298,21 @@ STATICFILES_DIRS = []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ---------------------------------------------------------------------------
+# MinIO — object storage publik (gambar edukasi). KTP tetap di MEDIA_ROOT.
+# Kosongkan MINIO_ENDPOINT untuk fallback filesystem (tes/CI).
+# ---------------------------------------------------------------------------
+MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', '').rstrip('/')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', os.environ.get('MINIO_ROOT_USER', ''))
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', os.environ.get('MINIO_ROOT_PASSWORD', ''))
+MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'mirubanksampah')
+MINIO_REGION = os.environ.get('MINIO_REGION', 'us-east-1')
+MINIO_PUBLIC_URL = os.environ.get('MINIO_PUBLIC_URL', '').rstrip('/')
+if 'test' in sys.argv:
+    MINIO_ENDPOINT = ''
+    MINIO_PUBLIC_URL = ''
+MINIO_ENABLED = bool(MINIO_ENDPOINT)
 
 # ---------------------------------------------------------------------------
 # Security settings — aktif hanya saat DEBUG=False (production)

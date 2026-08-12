@@ -78,5 +78,72 @@ PRIVACY_POLICY = {
 }
 
 
+DEFAULT_KEBIJAKAN_MD = """# Kebijakan Perlindungan Data Pribadi
+
+**MIRU Bank Sampah** — Distrik Mimika Baru
+
+Berlaku sesuai Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP).
+
+## 1. Pendahuluan
+
+MIRU Bank Sampah berkomitmen melindungi data pribadi nasabah dan petugas. Kebijakan ini menjelaskan bagaimana data dikumpulkan, digunakan, disimpan, dan dilindungi.
+
+## 2. Data yang Dikumpulkan
+
+- Nama lengkap, nomor HP, alamat, username
+- NIK (opsional, tersimpan terenkripsi)
+- Riwayat transaksi (setoran, penarikan, penukaran poin)
+- Foto profil (jika diunggah)
+
+## 3. Tujuan Penggunaan
+
+- Membuat dan mengelola akun
+- Memproses setoran, penarikan, dan penukaran poin
+- Menghubungi terkait jadwal penjemputan
+- Pelaporan kepada pemerintah daerah
+
+## 4. Penyimpanan dan Keamanan
+
+Data disimpan di server yang aman. NIK dienkripsi at-rest. Data tidak dijual kepada pihak ketiga.
+
+## 5. Hak Anda
+
+- Mengakses dan memperbaiki data melalui aplikasi
+- Mengajukan pengaduan terkait data atau layanan
+- Meminta penjelasan penggunaan data kepada admin program
+
+## 6. Masa Retensi
+
+Data transaksi disimpan minimal 5 tahun sesuai tata kelola arsip. Setelah masa retensi, data dapat dianonimkan atau dihapus.
+
+## 7. Kontak
+
+Hubungi admin MIRU Bank Sampah melalui aplikasi atau kantor Distrik Mimika Baru.
+"""
+
+DEFAULT_TENTANG_MD = """# Tentang MIRU
+
+MIRU (Mimika Recycle Unit) adalah aplikasi bank sampah resmi Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah.
+
+> Sampah Bernilai, Lingkungan Bersih, Warga Sejahtera
+
+## Layanan utama
+
+- **Setoran sampah terpilah** — plastik, kertas, logam, dan minyak jelantah
+- **Penjemputan** — jadwal jemput oleh petugas bank sampah
+- **Saldo & poin** — hasil setoran dapat ditarik atau ditukar reward
+- **Pengaduan** — laporkan kendala layanan melalui aplikasi
+
+## Teknologi
+
+Dikembangkan untuk masyarakat Distrik Mimika Baru.
+"""
+
+
 def get_privacy_policy() -> dict:
-    return PRIVACY_POLICY
+    from api.models import PengaturanInstitusi
+
+    inst = PengaturanInstitusi.load()
+    data = dict(PRIVACY_POLICY)
+    data['konten'] = (inst.kebijakan or '').strip() or DEFAULT_KEBIJAKAN_MD
+    return data

@@ -40,6 +40,12 @@ class User(AbstractUser):
         null=True, blank=True,
         help_text='Foto KTP untuk verifikasi identitas (Fase 8.4)',
     )
+    avatar_url = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='Key objek MinIO (avatar/...) atau URL foto profil.',
+    )
     kelurahan = models.ForeignKey(
         'WilayahLayanan', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='penduduk',
@@ -274,6 +280,8 @@ DEFAULT_INSTITUTION = {
     'jam_buka': _time(8, 0),
     'jam_tutup': _time(17, 0),
     'pengumuman': 'Selamat datang di MIRU Bank Sampah!',
+    'tentang': '',
+    'kebijakan': '',
 }
 
 
@@ -301,6 +309,16 @@ class PengaturanInstitusi(models.Model):
         help_text='Jam tutup layanan (WIT)',
     )
     pengumuman = models.TextField(blank=True, default='')
+    tentang = models.TextField(
+        blank=True,
+        default='',
+        help_text='Markdown halaman Tentang MIRU (mobile & web).',
+    )
+    kebijakan = models.TextField(
+        blank=True,
+        default='',
+        help_text='Markdown kebijakan data pribadi (mobile & web).',
+    )
 
     class Meta:
         verbose_name = 'Pengaturan Institusi'
@@ -566,6 +584,12 @@ class KontenEdukasi(models.Model):
     isi = models.TextField(
         help_text=f'Markdown mentah. Subset diizinkan: {EDUKASI_MARKDOWN_SUBSET}',
     )
+    gambar_url = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        help_text='Key objek MinIO (edukasi/...) atau URL gambar eksternal.',
+    )
     kategori_terkait = models.ForeignKey(
         'KategoriSampah', on_delete=models.SET_NULL, null=True, blank=True,
         related_name='konten_edukasi',
@@ -579,7 +603,7 @@ class KontenEdukasi(models.Model):
     class Meta:
         verbose_name = 'Konten Edukasi'
         verbose_name_plural = 'Konten Edukasi'
-        ordering = ['urutan', 'created_at']
+        ordering = ['-created_at']
 
     def __str__(self):
         return self.judul
