@@ -247,3 +247,80 @@ class WithdrawalActionTests(EnvelopeAPITestCase):
         self.assertEqual(approve.status_code, status.HTTP_200_OK)
         fresh.refresh_from_db()
         self.assertEqual(fresh.saldo, Decimal('125000.00'))
+
+
+class WithdrawalKtpLampiranTests(EnvelopeAPITestCase):
+    """PDP: KTP hanya lampiran sementara penarikan ≥ 1 juta."""
+
+    PNG = (
+        b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01'
+        b'\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89'
+        b'\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01'
+        b'\r\n\xb4\x00\x00\x00\x00IEND\xaeB`\x82'
+    )
+
+    def setUp(self):
+        from django.core.files.uploadedfile import SimpleUploadedFile
+
+        self.nasabah = self.create_nasabah(username='nasabah_ktp')
+        self.nasabah.saldo = Decimal('2000000.00')
+        self.nasabah.save()
+        self.admin = self.create_admin(username='admin_ktp')
+        self._png = lambda: SimpleUploadedFile(
+            'ktp.png', self.PNG, content_type='image/png',
+        )
+
+    def test_profile_has_no_nik_or_foto_ktp(self):
+        self.auth_as(self.nasabah)
+        response = self.client.get('/api/auth/me/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        self.assertNotIn('nik', data)
+        self.assertNotIn('foto_ktp', data)
+
+    def test_besar_tanpa_lampiran_ditolak(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/withdrawals/', {
+            'nominal': '1000000.00',
+            'metode': 'tunai',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('lampiran_ktp', response.data['errors'])
+
+    def test_besar_dengan_lampiran_lalu_dihapus_saat_approve(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/withdrawals/',
+            {
+                'nominal': '1000000.00',
+                'metode': 'tunai',
+                'lampiran_ktp': self._png(),
+            },
+            format='multipart',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = response.data['data']
+        self.assertTrue(data['ada_lampiran_ktp'])
+        self.assertNotIn('lampiran_ktp', data)
+        wd_id = data['id']
+
+        self.auth_as(self.admin)
+        download = self.client.get(f'/api/withdrawals/{wd_id}/lampiran-ktp/')
+        self.assertEqual(download.status_code, status.HTTP_200_OK)
+
+        self.auth_as(self.nasabah)
+        forbidden = self.client.get(f'/api/withdrawals/{wd_id}/lampiran-ktp/')
+        self.assertEqual(forbidden.status_code, status.HTTP_403_FORBIDDEN)
+
+        self.auth_as(self.admin)
+        approve = self.client.post(f'/api/withdrawals/{wd_id}/approve/')
+        self.assertEqual(approve.status_code, status.HTTP_200_OK)
+        self.assertFalse(approve.data['data']['ada_lampiran_ktp'])
+        self.assertTrue(approve.data['data']['ktp_diverifikasi'])
+
+        gone = self.client.get(f'/api/withdrawals/{wd_id}/lampiran-ktp/')
+        self.assertEqual(gone.status_code, status.HTTP_404_NOT_FOUND)
+
+        wd = PenarikanSaldo.objects.get(pk=wd_id)
+        self.assertFalse(wd.lampiran_ktp)
+        self.assertTrue(wd.ktp_diverifikasi)

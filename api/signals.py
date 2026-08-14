@@ -24,6 +24,7 @@ EXCLUDED_FIELDS = {
     'last_login',
     'password',
     'updated_at',
+    'lampiran_ktp',
 }
 # Fields to include only for certain models
 USER_EXCLUDED = EXCLUDED_FIELDS | {'date_joined'}

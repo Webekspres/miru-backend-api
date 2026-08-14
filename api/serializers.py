@@ -24,19 +24,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp',
+            'id', 'username', 'role', 'nama_lengkap', 'no_hp',
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
-            'saldo', 'poin', 'is_active', 'date_joined', 'qr', 'foto_ktp',
+            'saldo', 'poin', 'is_active', 'date_joined', 'qr',
             'avatar_url',
         ]
         read_only_fields = [
             'id', 'role', 'saldo', 'poin', 'is_active',
-            'date_joined', 'qr', 'foto_ktp', 'phone_verified',
+            'date_joined', 'qr', 'phone_verified',
         ]
-        extra_kwargs = {
-            'foto_ktp': {'required': False, 'allow_null': True},
-        }
 
     def get_qr(self, obj) -> dict:
         return {
@@ -76,8 +73,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         from .services.object_storage import serialized_media_url
 
         data = super().to_representation(instance)
-        # Decrypt NIK for display
-        data['nik'] = instance.get_nik()
         data['avatar_url'] = serialized_media_url(
             instance.avatar_url, self.context.get('request'),
         )
@@ -176,7 +171,7 @@ class UserAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
+            'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'avatar_url',
@@ -212,19 +207,13 @@ class UserAdminSerializer(serializers.ModelSerializer):
         # T10: nomor HP dari admin → belum terverifikasi
         if validated_data.get('no_hp'):
             validated_data['phone_verified'] = False
-        nik = validated_data.get('nik', '')
         user = User(**validated_data)
         user.set_password(password)
         user.save()
-        # Encrypt NIK at-rest
-        if nik:
-            user.encrypt_nik(nik)
-            user.save(update_fields=['nik_encrypted'])
         return user
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
-        nik = validated_data.get('nik')
         new_hp = validated_data.get('no_hp')
         phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():
@@ -234,8 +223,6 @@ class UserAdminSerializer(serializers.ModelSerializer):
             instance.phone_verified = False
         if password:
             instance.set_password(password)
-        if nik is not None:
-            instance.encrypt_nik(nik)
         instance.save()
         return instance
 
@@ -251,8 +238,6 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
         data = super().to_representation(instance)
         data.pop('password', None)
-        # Decrypt NIK for display
-        data['nik'] = instance.get_nik()
         data['avatar_url'] = serialized_media_url(
             instance.avatar_url, self.context.get('request'),
         )
@@ -264,7 +249,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
+            'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
             'phone_verified', 'alamat', 'saldo', 'poin', 'is_active',
         ]
         extra_kwargs = {'password': {'write_only': True}}
@@ -750,13 +735,14 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
             'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
-            'lampiran_ktp',
-            'status', 'tanggal',
+            'status', 'tanggal', 'ktp_diverifikasi',
         ]
         read_only_fields = fields
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        # Jangan expose URL file KTP — unduh hanya via endpoint role-gated.
+        data['ada_lampiran_ktp'] = bool(instance.lampiran_ktp)
         if instance.status == 'selesai':
             instance.nasabah.refresh_from_db()
             data['saldo_nasabah_baru'] = str(instance.nasabah.saldo)

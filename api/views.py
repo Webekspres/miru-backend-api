@@ -142,7 +142,7 @@ class AuditLogListView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [IsAdminOrKoordinator]
-    search_fields = ['username', 'nama_lengkap', 'no_hp', 'nik']
+    search_fields = ['username', 'nama_lengkap', 'no_hp']
     filterset_fields = ['role', 'is_active']
     ordering_fields = ['date_joined', 'nama_lengkap', 'username']
     ordering = ['-date_joined']
@@ -608,6 +608,9 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
 
         if old_status != 'selesai' and instance.status == 'selesai':
             debit_nasabah_saldo(instance.nasabah, instance.nominal)
+            from api.services.withdrawals import purge_lampiran_ktp
+            purge_lampiran_ktp(instance)
+            instance.save(update_fields=['lampiran_ktp', 'ktp_diverifikasi'])
 
         output = PenarikanSaldoSerializer(instance, context={'request': request})
         return success_response(

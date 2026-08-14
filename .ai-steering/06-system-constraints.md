@@ -20,7 +20,7 @@
 
 ### 4. TIDAK ADA Integrasi Dukcapil
 - **Larangan**: Jangan integrasikan API Dukcapil untuk validasi NIK.
-- NIK hanya data opsional, tidak divalidasi ke database kependudukan.
+- **NIK tidak dikumpulkan** di sistem (bukan field wajib proposal).
 
 ### 5. Google Maps API — Sederhana Saja
 - Integrasi peta hanya untuk menampilkan alamat penjemputan (static map atau input alamat).
@@ -29,8 +29,8 @@
 
 ### 6. Keamanan & Privasi
 - Data nasabah (nama, alamat, no HP) hanya untuk operasional bank sampah.
-- NIK/foto KTP hanya untuk verifikasi penarikan saldo besar.
-- Data disimpan terenkripsi, tidak dibagikan ke pihak ketiga.
+- NIK tidak disimpan. Foto KTP hanya lampiran sementara verifikasi penarikan ≥ Rp1.000.000, lalu dihapus.
+- Data tidak dibagikan kepada pihak ketiga.
 - Tunduk pada UU No. 27/2022 tentang Perlindungan Data Pribadi.
 
 ### 7. Backup & Maintenance

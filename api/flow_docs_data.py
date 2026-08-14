@@ -204,7 +204,6 @@ FLOW_SECTIONS = [
                         'username': 'nasabah001',
                         'role': 'nasabah',
                         'nama_lengkap': 'Nasabah Satu',
-                        'nik': '',
                         'no_hp': '08120000001',
                         'alamat': 'Jl. Cendrawasih, Timika',
                         'saldo': '125000.00',
@@ -259,7 +258,6 @@ FLOW_SECTIONS = [
                     'nama_lengkap': 'Budi Santoso',
                     'no_hp': '08123456789',
                     'alamat': 'Jl. Cendrawasih No. 1, Timika',
-                    'nik': '',
                 }),
                 'response': _json(_envelope(
                     {

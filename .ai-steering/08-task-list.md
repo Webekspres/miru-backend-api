@@ -39,14 +39,14 @@
 |----|-------|------------|----------------|
 | 1 | Manajemen Akses & Pengguna | ✅ | Bulk import nasabah (belum) |
 | 2 | Autentikasi & Akun Nasabah | ✅ | Lupa password ✅; verifikasi HP/email opsional ✅ |
-| 3 | Profil & Kartu Digital | ✅ | KTP + enkripsi NIK ✅ |
+| 3 | Profil & Kartu Digital | ✅ | NIK **tidak** disimpan (PDP); QR kartu digital ✅ |
 | 4 | Informasi & Edukasi Sampah | ✅ | CRUD + list/detail edukasi ✅ |
 | 5 | Katalog & Harga Sampah | ✅ | Kebijakan harga H-3 ✅ |
 | 6 | Setor Sampah Langsung | ✅ | PDF bukti ✅ |
-| 7 | Penjemputan Sampah | ✅ | Wilayah + kuota ✅; Maps koordinat (belum) |
+| 7 | Penjemputan Sampah | ✅ | Wilayah + kuota + lat/lng opsional ✅; Maps key (belum) |
 | 8 | Penimbangan & Verifikasi | ✅ | — |
 | 9 | Saldo & Riwayat Transaksi | ✅ | In-app + FCM ✅; WhatsApp (belum) |
-| 10 | Penarikan Saldo | ✅ | PDF tanda terima + metadata metode ✅ |
+| 10 | Penarikan Saldo | ✅ | PDF + lampiran KTP sementara (≥1jt, hapus setelah proses) ✅ |
 | 11 | Poin & Reward | ✅ | Kedaluwarsa poin 1 tahun ✅ |
 | 12 | Stok Gudang | ✅ | — |
 | 13 | Penjualan ke Mitra | ✅ | — |
@@ -90,7 +90,7 @@
 ### 7.4 Monitoring — ditunda (bukan blocker)
 
 - [ ] **Integrasi Sentry + scrub PII di `before_send`** — **ditunda** (instruksi user)
-  - Saat diaktifkan: jangan kirim NIK, token, password, isi KTP ke Sentry
+  - Saat diaktifkan: jangan kirim token, password, foto KTP, atau isi lampiran ke Sentry
   - Referensi: `11-security-and-privacy.md` §8
 
 ---
@@ -107,7 +107,7 @@
 
 - [ ] **Integrasi WhatsApp Business API** untuk konfirmasi setoran & penarikan
   - Event minimal: setoran berhasil; penarikan disetujui/ditolak
-  - Payload **tanpa** NIK, nomor KTP lengkap, saldo penuh, atau token JWT
+  - Payload **tanpa** foto KTP, saldo penuh, atau token JWT
   - Kredensial hanya di env (`WA_*` / setara) — jangan commit ke repo
   - Fallback: jika WA gagal, in-app/FCM tetap jalan; log error tanpa PII
   - Dokumentasikan opt-in / nomor HP sumber (dari profil nasabah)
@@ -116,10 +116,8 @@
 
 > **Sumber:** Jawaban §6.6.1; Constraints §5; Security §11 (API key di-restrict).
 > **Bukan** GPS live tracking armada.
+> Field lat/lng opsional di model/serializer penjemputan **sudah ✅** (T3 / BAGIAN B).
 
-- [ ] **Field koordinat opsional** pada penjemputan (atau geocode alamat → lat/lng)
-  - Simpan di model/serializer penjemputan; boleh null jika alamat teks saja
-  - Validasi rentang koordinat masuk akal (Papua / area layanan)
 - [ ] **Konfigurasi Maps API key di environment**
   - Restrict key: IP server / referrer web-admin / bundle ID mobile
   - Jangan hardcode key di source
@@ -148,7 +146,7 @@
   - TTL pendek; invalidate saat transaksi kritis jika feasible
 - [ ] **API versioning `/api/v1/`** — hanya saat ada **breaking change** kontrak
   - Jangan rename path sekarang jika klien masih `/api/`
-- [ ] **CDN untuk media files** — hanya jika traffic media/KTP/PDF naik nyata
+- [ ] **CDN untuk media files** — hanya jika traffic media/PDF naik nyata (bukan untuk lampiran KTP)
 - [ ] **Read replica PostgreSQL** — hanya jika traffic baca meningkat nyata
 
 ### 8.9 Publikasi platform (dukungan Modul 2 / Play Store)
@@ -381,11 +379,11 @@
 ### 8.4 Modul 2 / 3 / 10 — Identitas, lupa password, bukti ✅
 - [x] `ForgotPasswordView` + `ResetPasswordView` + token berumur pendek
 - [x] (Opsional) kerangka verifikasi HP/email — hanya jika disepakati klien
-- [x] Upload foto KTP privat untuk penarikan besar
-- [x] Validasi tipe/ukuran file; larang executable
-- [x] Field-level encryption NIK / data KTP at-rest
-- [x] Threshold penarikan besar + wajib lampiran KTP
-- [x] Unduh KTP/PDF role-gated (`download_views`)
+- [x] **NIK tidak dikumpulkan / tidak disimpan** (selaras proposal: bukan field modul; PDP minimisasi)
+- [x] Lampiran foto KTP **sementara** hanya penarikan ≥ Rp1.000.000 — bukan arsip profil
+- [x] Validasi tipe/ukuran file; larang executable; nginx deny `/media/lampiran_ktp/`
+- [x] Hapus file lampiran setelah approve/tolak (`purge_lampiran_ktp`); flag `ktp_diverifikasi`
+- [x] Unduh lampiran role-gated hanya status `menunggu` + audit `view`
 - [x] Generate PDF bukti setoran & penarikan (`pdf_receipt.py`)
 - [x] Metadata metode transfer bank / e-wallet (**tanpa** payment gateway)
 
@@ -475,7 +473,7 @@
 
 - [x] Audit log; pengaturan institusi; pengumuman
 - [x] Riwayat harga; role pemerintah; consent UU PDP
-- [x] Enkripsi NIK diselesaikan di Fase 8.4 ✅
+- [x] NIK tidak disimpan; lampiran KTP penarikan besar dihapus setelah proses (PDP) ✅
 
 ---
 

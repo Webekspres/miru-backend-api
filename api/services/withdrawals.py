@@ -87,7 +87,8 @@ def approve_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
     _ensure_pending(instance)
     validate_approve_withdrawal(instance)
     instance.status = 'selesai'
-    instance.save(update_fields=['status'])
+    purge_lampiran_ktp(instance)
+    instance.save(update_fields=['status', 'lampiran_ktp', 'ktp_diverifikasi'])
     return instance
 
 
@@ -95,5 +96,24 @@ def reject_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
     """Tolak pengajuan — saldo tidak pernah didebit saat create, jadi tidak perlu refund."""
     _ensure_pending(instance)
     instance.status = 'ditolak'
-    instance.save(update_fields=['status'])
+    purge_lampiran_ktp(instance)
+    instance.save(update_fields=['status', 'lampiran_ktp', 'ktp_diverifikasi'])
     return instance
+
+
+def purge_lampiran_ktp(instance: PenarikanSaldo) -> None:
+    """Hapus file KTP setelah tujuan verifikasi selesai. Jangan simpan di profil."""
+    had_file = bool(instance.lampiran_ktp)
+    if instance.lampiran_ktp:
+        try:
+            instance.lampiran_ktp.delete(save=False)
+        except OSError:
+            name = instance.lampiran_ktp.name
+            if name:
+                try:
+                    instance.lampiran_ktp.storage.delete(name)
+                except OSError:
+                    pass
+    instance.lampiran_ktp = None
+    if had_file:
+        instance.ktp_diverifikasi = True

@@ -130,11 +130,18 @@ class PrivacyPolicyTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response)
         data = response.data['data']
-        self.assertEqual(data['versi'], '1.0')
+        self.assertEqual(data['versi'], '1.1')
         self.assertEqual(data['retensi']['masa_tahun'], 5)
         self.assertIn('data_yang_disimpan', data)
         self.assertIn('keamanan_data_sensitif', data)
-        self.assertIn('metode_enkripsi', data['keamanan_data_sensitif']['nik'])
+        self.assertEqual(
+            data['keamanan_data_sensitif']['nik']['status_saat_ini'],
+            'tidak_disimpan',
+        )
+        self.assertNotIn('NIK', ' '.join(
+            item for cat in data['data_yang_disimpan']
+            for item in cat.get('field', [])
+        ))
         self.assertIn('konten', data)
         self.assertIn('#', data['konten'])
 
@@ -235,6 +242,8 @@ class MeEndpointTests(EnvelopeAPITestCase):
         self.assertEqual(data['role'], 'nasabah')
         self.assertTrue(data['phone_verified'])
         self.assertNotIn('password', data)
+        self.assertNotIn('nik', data)
+        self.assertNotIn('foto_ktp', data)
         self.assertIn('qr', data)
         self.assertEqual(data['qr'], {
             'id': self.user.id,

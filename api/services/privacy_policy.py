@@ -1,6 +1,4 @@
-"""Kebijakan data pribadi (UU PDP) — konten untuk API publik."""
-
-PRIVACY_POLICY_VERSION = '1.0'
+PRIVACY_POLICY_VERSION = '1.1'
 RETENTION_YEARS = 5
 
 PRIVACY_POLICY = {
@@ -12,12 +10,12 @@ PRIVACY_POLICY = {
         'MIRU Bank Sampah mengumpulkan data pribadi nasabah dan petugas '
         'untuk operasional program bank sampah. Data diproses secara terbatas, '
         'disimpan dengan aman, dan dihapus sesuai kebijakan retensi setelah '
-        'masa penyimpanan berakhir.'
+        'masa penyimpanan berakhir. NIK dan foto KTP tidak disimpan di profil.'
     ),
     'data_yang_disimpan': [
         {
             'kategori': 'Data identitas nasabah',
-            'field': ['username', 'nama_lengkap', 'nik', 'no_hp', 'alamat'],
+            'field': ['username', 'nama_lengkap', 'no_hp', 'alamat'],
             'tujuan': 'Registrasi, identifikasi saat setoran, dan komunikasi layanan',
         },
         {
@@ -39,13 +37,19 @@ PRIVACY_POLICY = {
             'tujuan': 'Transparansi, akuntabilitas, dan kepatuhan regulasi',
         },
     ],
+    'data_yang_tidak_dikumpulkan': [
+        'NIK',
+        'Foto KTP pada profil / kartu digital',
+        'Scan KTP otomatis / face recognition / data Dukcapil',
+    ],
     'retensi': {
         'masa_tahun': RETENTION_YEARS,
         'keterangan': (
             'Data transaksi dan arsip digital disimpan minimal 5 tahun '
             'sesuai ketentuan tata kelola arsip OPD dan SOP bank sampah. '
             'Setelah masa retensi, data dapat dianonimkan atau dihapus '
-            'sesuai keputusan pengelola.'
+            'sesuai keputusan pengelola. Lampiran foto KTP pada penarikan '
+            'besar dihapus segera setelah pengajuan disetujui atau ditolak.'
         ),
     },
     'hak_pengguna': [
@@ -63,16 +67,21 @@ PRIVACY_POLICY = {
     },
     'keamanan_data_sensitif': {
         'nik': {
-            'status_saat_ini': 'tersimpan_terenkripsi',
+            'status_saat_ini': 'tidak_disimpan',
             'opsional': True,
             'validasi_dukcapil': False,
-            'metode_enkripsi': 'AES-256 (Fernet) — key diturunkan dari SECRET_KEY',
             'implementasi': (
-                'Field-level encryption untuk NIK telah diimplementasikan (Fase 8.4). '
-                'NIK dienkripsi at-rest menggunakan Fernet (AES-256 dalam mode CBC) '
-                'dengan key yang diturunkan dari SECRET_KEY aplikasi. '
-                'Dekripsi hanya terjadi saat data ditampilkan di API response.'
+                'NIK tidak dikumpulkan dan tidak disimpan. Identitas operasional '
+                'menggunakan nama, username/ID, nomor HP, dan alamat.'
             ),
+        },
+        'lampiran_ktp_penarikan_besar': {
+            'tujuan': (
+                'Verifikasi identitas saat pengajuan penarikan ≥ Rp1.000.000. '
+                'Bukan arsip identitas permanen.'
+            ),
+            'akses': 'Hanya admin/koordinator, hanya saat status menunggu',
+            'retensi': 'File dihapus setelah penarikan disetujui atau ditolak',
         },
     },
 }
@@ -91,9 +100,10 @@ MIRU Bank Sampah berkomitmen melindungi data pribadi nasabah dan petugas. Kebija
 ## 2. Data yang Dikumpulkan
 
 - Nama lengkap, nomor HP, alamat, username
-- NIK (opsional, tersimpan terenkripsi)
 - Riwayat transaksi (setoran, penarikan, penukaran poin)
 - Foto profil (jika diunggah)
+
+NIK dan foto KTP **tidak** disimpan di akun. Foto KTP hanya dilampirkan sementara jika Anda mengajukan penarikan Rp1.000.000 atau lebih, lalu dihapus setelah petugas memproses pengajuan.
 
 ## 3. Tujuan Penggunaan
 
@@ -104,7 +114,7 @@ MIRU Bank Sampah berkomitmen melindungi data pribadi nasabah dan petugas. Kebija
 
 ## 4. Penyimpanan dan Keamanan
 
-Data disimpan di server yang aman. NIK dienkripsi at-rest. Data tidak dijual kepada pihak ketiga.
+Data disimpan di server yang aman. Data tidak dijual kepada pihak ketiga. Lampiran verifikasi penarikan besar tidak dipublikasikan dan tidak dikirim lewat notifikasi.
 
 ## 5. Hak Anda
 
@@ -114,7 +124,7 @@ Data disimpan di server yang aman. NIK dienkripsi at-rest. Data tidak dijual kep
 
 ## 6. Masa Retensi
 
-Data transaksi disimpan minimal 5 tahun sesuai tata kelola arsip. Setelah masa retensi, data dapat dianonimkan atau dihapus.
+Data transaksi disimpan minimal 5 tahun sesuai tata kelola arsip. Lampiran foto KTP dihapus setelah penarikan selesai diproses. Setelah masa retensi transaksi, data dapat dianonimkan atau dihapus.
 
 ## 7. Kontak
 

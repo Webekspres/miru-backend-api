@@ -67,8 +67,16 @@ if os.environ.get('USE_POSTGRES') == 'True':
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
             'PORT': os.environ.get('DB_PORT', '5432'),
-            # Persistent connections — mengurangi overhead koneksi baru per request
-            'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', '300')),
+            # Persistent connections — hanya di production.
+            # runserver is threaded; CONN_MAX_AGE>0 quickly exhausts Postgres
+            # ("FATAL: sorry, too many clients already").
+            'CONN_MAX_AGE': int(
+                os.environ.get(
+                    'CONN_MAX_AGE',
+                    '0' if DEBUG else '300',
+                )
+            ),
+            'CONN_HEALTH_CHECKS': True,
         }
     }
 else:

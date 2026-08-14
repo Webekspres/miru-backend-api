@@ -1,6 +1,5 @@
 """
-Views for downloading KTP images and PDF receipts (role-gated).
-Fase 8.4 — Identitas, lupa password, KTP.
+Views for downloading KTP lampiran (pending only) and PDF receipts (role-gated).
 """
 
 import mimetypes
@@ -10,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
-from .models import PenarikanSaldo, TransaksiSetoran, User
+from .models import AuditLog, PenarikanSaldo, TransaksiSetoran
 from rest_framework import status
 from rest_framework.response import Response
 
@@ -22,63 +21,34 @@ from .services.pdf_receipt import (
 from .utils.response import error_envelope
 
 
-class DownloadKTPView(APIView):
-    """
-    Role-gated download foto KTP nasabah.
-
-    Hanya admin/koordinator yang bisa mengunduh KTP.
-    URL tidak publik — query parameter tidak cukup, harus via header Authorization.
-    """
-
-    permission_classes = [IsAuthenticated, IsAdminOrKoordinator]
-
-    def get(self, request, user_id):
-        user = get_object_or_404(User, pk=user_id)
-        if not user.foto_ktp:
-            return Response(
-                error_envelope(
-                    message='Nasabah ini belum mengunggah foto KTP.',
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    code='NOT_FOUND',
-                    errors={'foto_ktp': ['Belum diunggah.']},
-                    request=request,
-                ),
-                status=status.HTTP_404_NOT_FOUND,
-            )
-
-        file_path = user.foto_ktp.path
-        content_type, _ = mimetypes.guess_type(file_path)
-        if not content_type:
-            content_type = 'application/octet-stream'
-
-        response = FileResponse(
-            open(file_path, 'rb'),
-            content_type=content_type,
-        )
-        response['Content-Disposition'] = (
-            f'attachment; filename="KTP_{user.nama_lengkap}_{user.id}.jpg"'
-        )
-        return response
+def _client_ip(request):
+    forwarded = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded:
+        return forwarded.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
 
 
 class DownloadLampiranKTPView(APIView):
     """
-    Role-gated download lampiran KTP pada penarikan besar.
+    Unduh lampiran KTP penarikan besar — hanya selama status menunggu.
 
-    Hanya admin/koordinator yang bisa mengunduh.
+    Setelah approve/tolak file dihapus. Hanya admin/koordinator.
     """
 
     permission_classes = [IsAuthenticated, IsAdminOrKoordinator]
 
     def get(self, request, withdrawal_id):
         penarikan = get_object_or_404(PenarikanSaldo, pk=withdrawal_id)
-        if not penarikan.lampiran_ktp:
+        if penarikan.status != 'menunggu' or not penarikan.lampiran_ktp:
             return Response(
                 error_envelope(
-                    message='Penarikan ini tidak memiliki lampiran KTP.',
+                    message=(
+                        'Lampiran KTP tidak tersedia. '
+                        'File hanya ada saat pengajuan menunggu verifikasi.'
+                    ),
                     status_code=status.HTTP_404_NOT_FOUND,
                     code='NOT_FOUND',
-                    errors={'lampiran_ktp': ['Belum diunggah.']},
+                    errors={'lampiran_ktp': ['Tidak tersedia.']},
                     request=request,
                 ),
                 status=status.HTTP_404_NOT_FOUND,
@@ -89,12 +59,26 @@ class DownloadLampiranKTPView(APIView):
         if not content_type:
             content_type = 'application/octet-stream'
 
+        AuditLog.objects.create(
+            user=request.user,
+            action='view',
+            model_name='PenarikanSaldo',
+            object_id=str(penarikan.pk),
+            changes={'lampiran_ktp': {'old': None, 'new': 'diakses'}},
+            ip_address=_client_ip(request),
+        )
+
+        from io import BytesIO
+
+        with open(file_path, 'rb') as fh:
+            payload = BytesIO(fh.read())
+
         response = FileResponse(
-            open(file_path, 'rb'),
+            payload,
             content_type=content_type,
         )
         response['Content-Disposition'] = (
-            f'attachment; filename="LampiranKTP_Penarikan_{penarikan.id}.jpg"'
+            f'attachment; filename="verifikasi_penarikan_{penarikan.id}.jpg"'
         )
         return response
 
@@ -111,7 +95,6 @@ class DownloadDepositReceiptView(APIView):
     def get(self, request, deposit_id):
         transaksi = get_object_or_404(TransaksiSetoran, pk=deposit_id)
 
-        # Nasabah hanya bisa unduh bukti milik sendiri
         if request.user.role == 'nasabah' and transaksi.nasabah_id != request.user.id:
             return Response(
                 error_envelope(
@@ -145,7 +128,6 @@ class DownloadWithdrawalReceiptView(APIView):
     def get(self, request, withdrawal_id):
         penarikan = get_object_or_404(PenarikanSaldo, pk=withdrawal_id)
 
-        # Nasabah hanya bisa unduh milik sendiri
         if request.user.role == 'nasabah' and penarikan.nasabah_id != request.user.id:
             return Response(
                 error_envelope(

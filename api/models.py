@@ -12,11 +12,6 @@ class User(AbstractUser):
     )
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
     nama_lengkap = models.CharField(max_length=255)
-    nik = models.CharField(max_length=16, blank=True)
-    nik_encrypted = models.TextField(
-        blank=True, default='',
-        help_text='NIK terenkripsi at-rest (Fase 8.4)',
-    )
     no_hp = models.CharField(max_length=15, blank=True)
     phone_verified = models.BooleanField(
         default=False,
@@ -34,11 +29,6 @@ class User(AbstractUser):
     patokan = models.CharField(
         max_length=255, blank=True, default='',
         help_text='Patokan lokasi / keterangan maps (opsional)',
-    )
-    foto_ktp = models.FileField(
-        upload_to='ktp/',
-        null=True, blank=True,
-        help_text='Foto KTP untuk verifikasi identitas (Fase 8.4)',
     )
     avatar_url = models.CharField(
         max_length=500,
@@ -62,25 +52,6 @@ class User(AbstractUser):
         indexes = [
             models.Index(fields=['role']),
         ]
-
-    def get_nik(self) -> str:
-        """
-        Decrypt and return NIK. Falls back to plaintext `nik` if not encrypted.
-        Call this whenever reading NIK for display.
-        """
-        if self.nik_encrypted:
-            from api.services.encryption import decrypt_value
-            try:
-                return decrypt_value(self.nik_encrypted)
-            except Exception:
-                pass
-        return self.nik
-
-    def encrypt_nik(self, plain_nik: str) -> None:
-        """Encrypt plaintext NIK and store in both nik and nik_encrypted fields."""
-        from api.services.encryption import encrypt_value
-        self.nik = plain_nik
-        self.nik_encrypted = encrypt_value(plain_nik)
 
 class KategoriSampah(models.Model):
     nama = models.CharField(max_length=100)
@@ -187,7 +158,11 @@ class PenarikanSaldo(models.Model):
     lampiran_ktp = models.FileField(
         upload_to='lampiran_ktp/',
         null=True, blank=True,
-        help_text='Lampiran KTP untuk penarikan besar ≥ Rp1.000.000 (Fase 8.4)',
+        help_text='Lampiran KTP sementara untuk penarikan ≥ Rp1.000.000; dihapus setelah diproses.',
+    )
+    ktp_diverifikasi = models.BooleanField(
+        default=False,
+        help_text='True setelah lampiran KTP dilihat dan penarikan disetujui/ditolak (file sudah dihapus).',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
     tanggal = models.DateTimeField(auto_now_add=True)

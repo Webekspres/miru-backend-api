@@ -13,7 +13,6 @@ from .auth_views import (
 from .media_views import MediaUploadView
 from .download_views import (
     DownloadDepositReceiptView,
-    DownloadKTPView,
     DownloadLampiranKTPView,
     DownloadWithdrawalReceiptView,
 )
@@ -113,12 +112,7 @@ urlpatterns = [
         name='withdrawal-receipt',
     ),
 
-    # Fase 8.4 — KTP download (role-gated: admin/koordinator only)
-    path(
-        'users/<int:user_id>/ktp/',
-        DownloadKTPView.as_view(),
-        name='download-ktp',
-    ),
+    # Lampiran KTP penarikan besar — hanya admin/koordinator, hanya status menunggu
     path(
         'withdrawals/<int:withdrawal_id>/lampiran-ktp/',
         DownloadLampiranKTPView.as_view(),
