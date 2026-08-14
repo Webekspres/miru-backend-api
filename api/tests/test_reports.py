@@ -11,7 +11,7 @@ from api.models import (
     TransaksiSetoran,
 )
 
-from .base import EnvelopeAPITestCase
+from .base import EnvelopeAPITestCase, User
 
 TZ = ZoneInfo(settings.TIME_ZONE)
 
