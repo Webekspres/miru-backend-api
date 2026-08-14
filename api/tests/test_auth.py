@@ -85,7 +85,7 @@ class PrivacyPolicyTests(EnvelopeAPITestCase):
         self.assertEqual(data['retensi']['masa_tahun'], 5)
         self.assertIn('data_yang_disimpan', data)
         self.assertIn('keamanan_data_sensitif', data)
-        self.assertIn('evaluasi_post_mvp', data['keamanan_data_sensitif']['nik'])
+        self.assertIn('status_saat_ini', data['keamanan_data_sensitif']['nik'])
 
 
 class LoginTests(EnvelopeAPITestCase):

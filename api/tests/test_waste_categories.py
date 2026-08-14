@@ -85,13 +85,13 @@ class WasteCategoryAdminCrudTests(EnvelopeAPITestCase):
         self.auth_as(self.admin)
         response = self.client.patch(
             f'/api/waste-categories/{self.category.id}/',
-            {'harga_beli_per_kg': '1800.00'},
+            {'nama': 'Kardus Tebal'},
             format='json',
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response, 200)
-        self.assertEqual(response.data['data']['harga_beli_per_kg'], '1800.00')
+        self.assertEqual(response.data['data']['nama'], 'Kardus Tebal')
         self.assertEqual(response.data['data']['stok_terkini_kg'], '75.00')
 
     def test_cannot_set_stok_via_create_or_patch(self):
