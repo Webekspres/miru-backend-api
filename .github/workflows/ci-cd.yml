@@ -122,6 +122,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ needs.build-and-push.outputs.env_name }}
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Sync staging stack files to VPS
+        if: needs.build-and-push.outputs.env_name == 'staging'
+        uses: appleboy/scp-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22022 }}
+          username: ${{ secrets.SSH_USER || 'developer' }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: deploy/staging/docker-compose.yml,deploy/staging/nginx.conf
+          target: /opt/miru-staging
+          strip_components: 2
+
       - name: Execute Remote Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -135,18 +150,55 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin || true
             echo "==> Deploying Backend to ${{ needs.build-and-push.outputs.env_name }} at ${{ needs.build-and-push.outputs.target_dir }}..."
             cd ${{ needs.build-and-push.outputs.target_dir }}
-            
-            # Pull latest backend image from GHCR
-            docker compose pull api
-            
-            # Restart API service
-            docker compose up -d --no-deps api
-            
-            # Run database migrations
+
+            if [ "${{ needs.build-and-push.outputs.env_name }}" = "staging" ]; then
+              echo "==> Ensuring MinIO credentials in .env..."
+              touch .env
+              grep -q '^MINIO_ROOT_USER=' .env || echo 'MINIO_ROOT_USER=miru_staging' >> .env
+              grep -q '^MINIO_ROOT_PASSWORD=' .env || echo "MINIO_ROOT_PASSWORD=$(openssl rand -hex 16)" >> .env
+              grep -q '^MINIO_ACCESS_KEY=' .env || echo 'MINIO_ACCESS_KEY=miru_staging' >> .env
+              grep -q '^MINIO_SECRET_KEY=' .env || echo "MINIO_SECRET_KEY=$(grep '^MINIO_ROOT_PASSWORD=' .env | cut -d= -f2-)" >> .env
+              grep -q '^MINIO_BUCKET=' .env || echo 'MINIO_BUCKET=mirubanksampah' >> .env
+              grep -q '^MINIO_REGION=' .env || echo 'MINIO_REGION=us-east-1' >> .env
+
+              echo "==> Pull images and start full staging stack (db, minio, api, admin, nginx)..."
+              docker compose pull api admin
+              docker compose up -d
+
+              echo "==> Waiting for MinIO to become healthy..."
+              for i in $(seq 1 30); do
+                if docker compose ps minio | grep -q '(healthy)'; then
+                  echo "MinIO is healthy."
+                  break
+                fi
+                if [ "$i" -eq 30 ]; then
+                  echo "ERROR: MinIO failed to become healthy."
+                  docker compose ps
+                  docker compose logs minio --tail 50
+                  exit 1
+                fi
+                sleep 2
+              done
+            else
+              docker compose pull api
+              docker compose up -d --no-deps api
+            fi
+
             echo "==> Running database migrations..."
             docker compose exec -T api python manage.py migrate --noinput
-            
-            # Check container health
-            echo "==> Verifying API container status..."
-            docker compose ps api
+
+            if [ "${{ needs.build-and-push.outputs.env_name }}" = "staging" ]; then
+              echo "==> Verifying MinIO from Django..."
+              docker compose exec -T api python manage.py shell -c "
+            from django.conf import settings
+            from api.services.object_storage import ensure_bucket
+            assert settings.MINIO_ENABLED, 'MINIO_ENABLED is False'
+            ensure_bucket()
+            print('MinIO OK:', settings.MINIO_ENDPOINT, settings.MINIO_BUCKET)
+            "
+              docker compose ps minio api
+            else
+              docker compose ps api
+            fi
+
             echo "==> Backend Deployment completed successfully!"
