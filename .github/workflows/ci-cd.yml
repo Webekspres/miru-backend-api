@@ -161,8 +161,8 @@ jobs:
               grep -q '^MINIO_BUCKET=' .env || echo 'MINIO_BUCKET=mirubanksampah' >> .env
               grep -q '^MINIO_REGION=' .env || echo 'MINIO_REGION=us-east-1' >> .env
 
-              echo "==> Pull images and start full staging stack (db, minio, api, admin, nginx)..."
-              docker compose pull api admin
+              echo "==> Pull API image and start full staging stack (db, minio, api, admin, nginx)..."
+              docker compose pull api
               docker compose up -d
 
               echo "==> Waiting for MinIO to become healthy..."
