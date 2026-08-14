@@ -120,6 +120,7 @@ jobs:
     needs: build-and-push
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    environment: ${{ needs.build-and-push.outputs.env_name }}
     steps:
       - name: Execute Remote Deploy over SSH
         uses: appleboy/ssh-action@v1.2.0
