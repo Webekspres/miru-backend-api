@@ -104,6 +104,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Fast password hasher for tests to drastically speed up CI execution
+if 'test' in sys.argv or os.environ.get('CI') == 'true':
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]
+
 LANGUAGE_CODE = 'id'
 
 TIME_ZONE = 'Asia/Jayapura'

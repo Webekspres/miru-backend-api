@@ -11,7 +11,7 @@ from api.models import (
     TransaksiSetoran,
 )
 
-from .base import EnvelopeAPITestCase
+from .base import EnvelopeAPITestCase, User
 
 TZ = ZoneInfo(settings.TIME_ZONE)
 
@@ -22,6 +22,7 @@ class ReportTestMixin:
 
     def _build(self):
         self.nasabah = self.create_nasabah(username='nasabah_rep')
+        User.objects.filter(pk=self.nasabah.pk).update(date_joined=self._aware(2026, 7, 7))
         self.petugas = self.create_petugas(username='petugas_rep')
         self.admin = self.create_admin(username='admin_rep')
 

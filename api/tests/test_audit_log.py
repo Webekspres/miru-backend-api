@@ -38,7 +38,7 @@ class AuditLogSignalTests(EnvelopeAPITestCase):
         self.auth_as(self.admin)
         self.client.patch(
             f'/api/waste-categories/{self.kategori.id}/',
-            {'harga_beli_per_kg': '3500.00'},
+            {'nama': 'Kategori Diperbarui'},
             format='json',
         )
 
@@ -48,7 +48,7 @@ class AuditLogSignalTests(EnvelopeAPITestCase):
         ).first()
         self.assertIsNotNone(log)
         self.assertEqual(
-            log.changes['harga_beli_per_kg']['new'], '3500.00',
+            log.changes['nama']['new'], 'Kategori Diperbarui',
         )
 
     def test_create_pengaduan_logged(self):
