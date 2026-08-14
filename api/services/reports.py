@@ -190,7 +190,7 @@ def evaluation_report(start, end) -> dict:
     poin_ditukar = (
         PenukaranPoin.objects
         .filter(tanggal__range=(start_dt, end_dt), status='selesai')
-        .aggregate(total=Sum('reward__poin_dibutuhkan'))['total']
+        .aggregate(total=Sum('poin_dibutuhkan'))['total']
     )
 
     kendala_list = _kendala_per_jenis(start_dt, end_dt)

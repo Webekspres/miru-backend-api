@@ -23,5 +23,6 @@ Only use Read/Grep/Glob directly when graphify has oriented you or `graphify-out
 ## Stack
 
 - Django 5.2 + DRF + JWT + PostgreSQL/SQLite
+- **Venv wajib** — semua perintah Python/Django memakai `venv\Scripts\python.exe` (Windows) atau `venv/bin/python` (Unix). Jangan `python` / `py` sistem.
 - API docs (OpenAPI): `/api/docs/` · Panduan alur: `/api/guide/`
 - Steering docs: `.ai-steering/` (on-demand only)

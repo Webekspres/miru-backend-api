@@ -67,8 +67,16 @@ if os.environ.get('USE_POSTGRES') == 'True':
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
             'PORT': os.environ.get('DB_PORT', '5432'),
-            # Persistent connections — mengurangi overhead koneksi baru per request
-            'CONN_MAX_AGE': int(os.environ.get('CONN_MAX_AGE', '300')),
+            # Persistent connections — hanya di production.
+            # runserver is threaded; CONN_MAX_AGE>0 quickly exhausts Postgres
+            # ("FATAL: sorry, too many clients already").
+            'CONN_MAX_AGE': int(
+                os.environ.get(
+                    'CONN_MAX_AGE',
+                    '0' if DEBUG else '300',
+                )
+            ),
+            'CONN_HEALTH_CHECKS': True,
         }
     }
 else:
@@ -165,6 +173,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/minute',   # AnonRateThrottle untuk /api/auth/login/
+        'otp': '5/minute',      # AnonRateThrottle untuk OTP WA (T2)
         'write': '100/hour',    # UserRateThrottle untuk semua write operation
     },
 }
@@ -284,6 +293,15 @@ FIREBASE_CREDENTIALS_FILE = os.environ.get('FIREBASE_CREDENTIALS_FILE', '')
 # …inline JSON string (berguna di CI / secret manager; jangan commit).
 FIREBASE_CREDENTIALS_JSON = os.environ.get('FIREBASE_CREDENTIALS_JSON', '')
 
+# ---------------------------------------------------------------------------
+# WhatsApp OTP (T2) — kosongkan = stub/log (tanpa kirim nyata)
+# ---------------------------------------------------------------------------
+WA_API_URL = os.environ.get('WA_API_URL', '')
+WA_API_TOKEN = os.environ.get('WA_API_TOKEN', '')
+WA_SENDER = os.environ.get('WA_SENDER', '')
+# OTP tetap untuk local/dev saja — diabaikan jika DEBUG=False (lihat docs/OTP_DEV.md)
+OTP_DEV_FIXED_CODE = os.environ.get('OTP_DEV_FIXED_CODE', '').strip()
+
 
 # ---------------------------------------------------------------------------
 # Static & Media files (production)
@@ -294,6 +312,21 @@ STATICFILES_DIRS = []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ---------------------------------------------------------------------------
+# MinIO — object storage publik (gambar edukasi). KTP tetap di MEDIA_ROOT.
+# Kosongkan MINIO_ENDPOINT untuk fallback filesystem (tes/CI).
+# ---------------------------------------------------------------------------
+MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', '').rstrip('/')
+MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', os.environ.get('MINIO_ROOT_USER', ''))
+MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', os.environ.get('MINIO_ROOT_PASSWORD', ''))
+MINIO_BUCKET = os.environ.get('MINIO_BUCKET', 'mirubanksampah')
+MINIO_REGION = os.environ.get('MINIO_REGION', 'us-east-1')
+MINIO_PUBLIC_URL = os.environ.get('MINIO_PUBLIC_URL', '').rstrip('/')
+if 'test' in sys.argv:
+    MINIO_ENDPOINT = ''
+    MINIO_PUBLIC_URL = ''
+MINIO_ENABLED = bool(MINIO_ENDPOINT)
 
 # ---------------------------------------------------------------------------
 # Security settings — aktif hanya saat DEBUG=False (production)

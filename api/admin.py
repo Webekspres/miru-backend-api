@@ -39,11 +39,11 @@ class WilayahLayananAdmin(admin.ModelAdmin):
 
 @admin.register(KontenEdukasi)
 class KontenEdukasiAdmin(admin.ModelAdmin):
-    list_display = ('judul', 'kategori_terkait', 'aktif', 'urutan', 'created_at')
+    list_display = ('judul', 'kategori_terkait', 'aktif', 'created_at')
     list_filter = ('aktif', 'kategori_terkait')
     search_fields = ('judul', 'isi')
-    list_editable = ('aktif', 'urutan')
-    ordering = ('urutan', 'created_at')
+    list_editable = ('aktif',)
+    ordering = ('-created_at',)
 
 
 @admin.register(PasswordResetToken)

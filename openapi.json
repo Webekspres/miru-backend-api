@@ -2,10 +2,10 @@ openapi: 3.0.3
 info:
   title: MIRU Bank Sampah API
   version: 1.0.0
-  description: 'REST API untuk sistem MIRU Bank Sampah, Distrik Mimika Baru. Semua
-    response menggunakan JSON Envelope (`success`, `status_code`, `message`, `data`,
-    `meta`). Panduan alur per role: `/api/guide/`. Akun demo (setelah `seed_data`):
-    `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`, `koordinator/koordinator123`.'
+  description: 'REST API untuk sistem MIRU Bank Sampah, Distrik Mimika Baru. Semua response menggunakan
+    JSON Envelope (`success`, `status_code`, `message`, `data`, `meta`). Panduan alur per role: `/api/guide/`.
+    Akun demo (setelah `seed_data`): `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`,
+    `koordinator/koordinator123`.'
 paths:
   /api/activity/:
     get:
@@ -22,8 +22,8 @@ paths:
   /api/auth/login/:
     post:
       operationId: auth_login_create
-      description: 'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil
-        singkat user. Akun demo: `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`.'
+      description: 'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil singkat user. Akun
+        demo: `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`.'
       summary: Login — dapatkan access & refresh token
       tags:
       - Auth
@@ -51,9 +51,8 @@ paths:
   /api/auth/me/:
     get:
       operationId: auth_me_retrieve
-      description: Ambil profil lengkap user dari JWT. Termasuk field `qr` ({ id,
-        nama_lengkap, no_hp }) untuk kartu digital. Nasabah tidak bisa ubah role/saldo/poin
-        via PATCH.
+      description: Ambil profil lengkap user dari JWT. Termasuk field `qr` ({ id, nama_lengkap, no_hp
+        }) untuk kartu digital. Nasabah tidak bisa ubah role/saldo/poin via PATCH.
       summary: Profil user yang sedang login
       tags:
       - Auth
@@ -137,14 +136,19 @@ paths:
           - penjemputan_terlambat
           - petugas_tidak_datang
           - saldo_belum_masuk
-        description: |-
-          * `saldo_belum_masuk` - Saldo Belum Masuk
+        description: '* `saldo_belum_masuk` - Saldo Belum Masuk
+
           * `penjemputan_terlambat` - Penjemputan Terlambat
+
           * `berat_tidak_sesuai` - Berat Tidak Sesuai
+
           * `harga_tidak_sesuai` - Harga Tidak Sesuai
+
           * `petugas_tidak_datang` - Petugas Tidak Datang
+
           * `kesalahan_data` - Kesalahan Data
-          * `bukti_tidak_muncul` - Bukti Tidak Muncul
+
+          * `bukti_tidak_muncul` - Bukti Tidak Muncul'
       - in: query
         name: nasabah
         schema:
@@ -180,9 +184,9 @@ paths:
           enum:
           - ditutup
           - terbuka
-        description: |-
-          * `terbuka` - Terbuka
-          * `ditutup` - Ditutup
+        description: '* `terbuka` - Terbuka
+
+          * `ditutup` - Ditutup'
       tags:
       - Complaints
       security:
@@ -300,9 +304,9 @@ paths:
   /api/dashboard/overview/:
     get:
       operationId: dashboard_overview_retrieve
-      description: 'Data agregat untuk dashboard: total nasabah, nasabah aktif 30
-        hari, total sampah & nilai setoran, penarikan, penukaran poin, penjemputan
-        menunggu, pengaduan terbuka, dan stok per kategori.'
+      description: 'Data agregat untuk dashboard: total nasabah, nasabah aktif 30 hari, total sampah &
+        nilai setoran, penarikan, penukaran poin, penjemputan menunggu, pengaduan terbuka, dan stok per
+        kategori.'
       summary: Ringkasan monitoring program (admin/koordinator/pemerintah)
       tags:
       - Dashboard
@@ -460,8 +464,8 @@ paths:
   /api/inventory/{kategori_id}/history/:
     get:
       operationId: inventory_history_retrieve
-      description: Gabungan pergerakan stok dari setoran (masuk) dan penjualan ke
-        mitra (keluar), diurutkan terbaru dulu.
+      description: Gabungan pergerakan stok dari setoran (masuk) dan penjualan ke mitra (keluar), diurutkan
+        terbaru dulu.
       summary: Riwayat perubahan stok per kategori
       parameters:
       - in: path
@@ -809,14 +813,19 @@ paths:
           - ditolak
           - menunggu
           - selesai
-        description: |-
-          * `menunggu` - Menunggu
+        description: '* `menunggu` - Menunggu
+
           * `disetujui` - Disetujui
+
           * `dijadwalkan` - Dijadwalkan
+
           * `dalam_perjalanan` - Dalam Perjalanan
+
           * `dijemput` - Dijemput
+
           * `selesai` - Selesai
-          * `ditolak` - Ditolak
+
+          * `ditolak` - Ditolak'
       tags:
       - Pickups
       security:
@@ -1113,9 +1122,9 @@ paths:
           enum:
           - menunggu
           - selesai
-        description: |-
-          * `menunggu` - Menunggu
-          * `selesai` - Selesai
+        description: '* `menunggu` - Menunggu
+
+          * `selesai` - Selesai'
       tags:
       - Reward Redemptions
       security:
@@ -1453,12 +1462,15 @@ paths:
           - nasabah
           - pemerintah
           - petugas
-        description: |-
-          * `nasabah` - Nasabah
+        description: '* `nasabah` - Nasabah
+
           * `petugas` - Petugas
+
           * `admin` - Admin Aplikasi
+
           * `koordinator` - Koordinator
-          * `pemerintah` - Pemerintah Distrik
+
+          * `pemerintah` - Pemerintah Distrik'
       - name: search
         required: false
         in: query
@@ -1841,10 +1853,11 @@ paths:
           - ditolak
           - menunggu
           - selesai
-        description: |-
-          * `menunggu` - Menunggu
+        description: '* `menunggu` - Menunggu
+
           * `selesai` - Selesai
-          * `ditolak` - Ditolak
+
+          * `ditolak` - Ditolak'
       tags:
       - Withdrawals
       security:
@@ -2020,6 +2033,1123 @@ paths:
                         type: string
                         example: ok
           description: ''
+  /api/audit-log/:
+    get:
+      operationId: audit_log_retrieve
+      description: Riwayat perubahan data untuk keperluan audit. Filter berdasarkan user, model, atau
+        tanggal.
+      summary: Daftar audit log (admin only)
+      tags:
+      - Audit Log
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/forgot-password/:
+    post:
+      operationId: auth_forgot_password_create
+      description: Langkah 1 reset password (T2). Username tidak terdaftar → 400 (tanpa token orphan).
+        Jika terdaftar → kembalikan nomor HP tersamar untuk dikonfirmasi di langkah berikutnya.
+      summary: Lupa password — cek username
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              username:
+                type: string
+                description: Username akun
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/phone/request-otp/:
+    post:
+      operationId: auth_phone_request_otp_create
+      description: 'Untuk registrasi: kirim username + no_hp (akun belum aktif). Untuk verifikasi ulang
+        (login): user terautentikasi boleh kirim no_hp.'
+      summary: Registrasi / verifikasi HP — minta OTP WA
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              username:
+                type: string
+              no_hp:
+                type: string
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/phone/verify-otp/:
+    post:
+      operationId: auth_phone_verify_otp_create
+      description: 'Verifikasi OTP HP. Untuk registrasi: aktifkan akun + phone_verified. Untuk user login:
+        set phone_verified=true.'
+      summary: Registrasi / verifikasi HP — verifikasi OTP
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              username:
+                type: string
+              otp:
+                type: string
+              no_hp:
+                type: string
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/poin-info/:
+    get:
+      operationId: auth_poin_info_retrieve
+      description: Menampilkan saldo poin, total poin yang akan hangus, dan tanggal kedaluwarsa terdekat
+        (Fase 8.5).
+      summary: Informasi poin & masa berlaku
+      tags:
+      - Auth
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/reset-password/:
+    post:
+      operationId: auth_reset_password_create
+      description: 'Langkah 4: set password dengan password + password_confirm (min 6 karakter; sebaiknya
+        beda dari password lama).'
+      summary: Reset password — set password baru
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              token:
+                type: string
+              password:
+                type: string
+              password_confirm:
+                type: string
+              new_password:
+                type: string
+                description: Alias legacy; prefer `password`.
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/reset-password/request-otp/:
+    post:
+      operationId: auth_reset_password_request_otp_create
+      description: 'Langkah 2: nomor HP harus cocok dengan profil. OTP dikirim ke WhatsApp (stub/log jika
+        WA_* belum diisi).'
+      summary: Reset password — konfirmasi HP & kirim OTP WA
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              username:
+                type: string
+              no_hp:
+                type: string
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/reset-password/verify-otp/:
+    post:
+      operationId: auth_reset_password_verify_otp_create
+      description: 'Langkah 3: verifikasi OTP. Jika valid, terbitkan reset_token untuk set password baru.'
+      summary: Reset password — verifikasi OTP
+      tags:
+      - Auth
+      requestBody:
+        content:
+          type:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+          properties:
+            schema:
+              username:
+                type: string
+              otp:
+                type: string
+          required:
+            schema:
+              type: object
+              additionalProperties: {}
+              description: Unspecified request body
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/deposits/{deposit_id}/receipt/:
+    get:
+      operationId: deposits_receipt_retrieve
+      description: 'Download PDF bukti setoran. Role-gated:
+
+        - Nasabah → hanya unduh milik sendiri
+
+        - Admin/koordinator/petugas → unduh semua'
+      parameters:
+      - in: path
+        name: deposit_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - deposits
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/device-tokens/:
+    get:
+      operationId: device_tokens_retrieve
+      description: 'Register / unregister FCM device tokens.
+
+
+        - POST   /api/device-tokens/          { "token": "...", "platform": "android" }
+
+        - GET    /api/device-tokens/          list milik user
+
+        - DELETE /api/device-tokens/{pk}/     hapus by id (milik user)
+
+        - DELETE /api/device-tokens/unregister/  body: { "token": "..." }'
+      summary: Daftar device token milik user
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: device_tokens_create
+      description: Daftarkan atau perbarui FCM device token milik user yang login. Token yang sama dari
+        device lain akan dipindahkan ke user ini.
+      summary: Register FCM device token
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceTokenRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DeviceTokenRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DeviceTokenRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceToken'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceToken'
+          description: ''
+  /api/device-tokens/unregister/:
+    delete:
+      operationId: device_tokens_unregister_destroy
+      description: DELETE by token string (body) — praktis dari mobile logout.
+      tags:
+      - device-tokens
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/device-tokens/{id}/:
+    delete:
+      operationId: device_tokens_destroy
+      description: Hapus device token milik user yang login (by token string di body atau pk).
+      summary: Unregister FCM device token
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/edukasi/:
+    get:
+      operationId: edukasi_list
+      description: Konten edukasi sampah — artikel/panduan untuk nasabah. List public (tanpa auth).
+      summary: Daftar konten edukasi (public)
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Edukasi
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedKontenEdukasiPublicList'
+          description: ''
+    post:
+      operationId: edukasi_create
+      summary: Tambah konten edukasi (admin/koordinator)
+      tags:
+      - Edukasi
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KontenEdukasiRequest'
+            examples:
+              BuatArtikelEdukasi:
+                value:
+                  judul: Cara Memilah Sampah yang Benar
+                  isi: Panduan lengkap memilah sampah rumah tangga...
+                  kategori_terkait: 1
+                  aktif: true
+                  urutan: 1
+                summary: Buat artikel edukasi
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/KontenEdukasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/KontenEdukasiRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KontenEdukasi'
+          description: ''
+  /api/edukasi/{id}/:
+    get:
+      operationId: edukasi_retrieve
+      summary: Detail konten edukasi (public)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Konten Edukasi.
+        required: true
+      tags:
+      - Edukasi
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KontenEdukasiPublic'
+          description: ''
+    patch:
+      operationId: edukasi_partial_update
+      summary: Perbarui konten edukasi
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Konten Edukasi.
+        required: true
+      tags:
+      - Edukasi
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedKontenEdukasiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedKontenEdukasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedKontenEdukasiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KontenEdukasi'
+          description: ''
+    delete:
+      operationId: edukasi_destroy
+      summary: Hapus konten edukasi (admin only)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Konten Edukasi.
+        required: true
+      tags:
+      - Edukasi
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/:
+    get:
+      operationId: notifications_list
+      description: Notifikasi in-app untuk user. Nasabah hanya melihat milik sendiri.
+      summary: Daftar notifikasi
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotifikasiList'
+          description: ''
+    post:
+      operationId: notifications_create
+      description: "ViewSet untuk notifikasi in-app.\n\n- Nasabah & petugas hanya melihat notifikasi miliknya\
+        \ sendiri.\n- Admin/koordinator/pemerintah bisa melihat semua (atau filter ?user=).\n- Endpoint\
+        \ khusus:\n  * `{id}/read/` — Tandai satu notifikasi sebagai sudah dibaca.\n  * `mark-all-read/`\
+        \ — Tandai semua notifikasi user sebagai sudah dibaca."
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notifikasi'
+          description: ''
+  /api/notifications/mark-all-read/:
+    post:
+      operationId: notifications_mark_all_read_create
+      description: POST to /notifications/mark-all-read/ untuk menandai semua sudah dibaca.
+      summary: Tandai semua notifikasi sebagai sudah dibaca
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  updated_count:
+                    type: integer
+          description: ''
+  /api/notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      description: "ViewSet untuk notifikasi in-app.\n\n- Nasabah & petugas hanya melihat notifikasi miliknya\
+        \ sendiri.\n- Admin/koordinator/pemerintah bisa melihat semua (atau filter ?user=).\n- Endpoint\
+        \ khusus:\n  * `{id}/read/` — Tandai satu notifikasi sebagai sudah dibaca.\n  * `mark-all-read/`\
+        \ — Tandai semua notifikasi user sebagai sudah dibaca."
+      summary: Detail notifikasi
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Notifikasi.
+        required: true
+      tags:
+      - Notifications
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notifikasi'
+          description: ''
+    patch:
+      operationId: notifications_partial_update
+      description: Partial update notifikasi. Untuk menandai sudah dibaca, utamakan POST /api/notifications/{id}/read/.
+      summary: Perbarui notifikasi (partial)
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Notifikasi.
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotifikasiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotifikasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotifikasiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notifikasi'
+          description: ''
+  /api/notifications/{id}/read/:
+    post:
+      operationId: notifications_read_create
+      description: POST to /notifications/{id}/read/ untuk menandai sudah dibaca.
+      summary: Tandai satu notifikasi sebagai sudah dibaca
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Notifikasi.
+        required: true
+      tags:
+      - Notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotifikasiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notifikasi'
+          description: ''
+  /api/pengumuman/:
+    get:
+      operationId: pengumuman_retrieve
+      description: Pengumuman yang ditampilkan di aplikasi mobile nasabah.
+      summary: Daftar pengumuman aktif (public)
+      tags:
+      - Settings
+      security:
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/privacy-policy/:
+    get:
+      operationId: privacy_policy_retrieve
+      description: Dokumentasi data yang disimpan, retensi 5 tahun, hak pengguna, dan evaluasi keamanan
+        data sensitif (NIK).
+      summary: Kebijakan data pribadi (UU PDP)
+      tags:
+      - Settings
+      security:
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/reports/daily/export/:
+    get:
+      operationId: reports_daily_export_retrieve
+      description: Download laporan harian dalam format Excel.
+      summary: Export laporan harian ke Excel (.xlsx)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: Excel file (.xlsx)
+          description: ''
+  /api/reports/evaluation/export/:
+    get:
+      operationId: reports_evaluation_export_retrieve
+      description: Download data agregat evaluasi program dalam format Excel.
+      summary: Export laporan evaluasi ke Excel (.xlsx)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: Excel file (.xlsx)
+          description: ''
+  /api/reports/monthly/export/:
+    get:
+      operationId: reports_monthly_export_retrieve
+      description: Download laporan bulanan lengkap format SOP dalam Excel.
+      summary: Export laporan bulanan ke Excel (.xlsx)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: Excel file (.xlsx)
+          description: ''
+  /api/reports/waste/export/:
+    get:
+      operationId: reports_waste_export_retrieve
+      description: Download laporan tonase & nilai sampah per kategori dalam Excel.
+      summary: Export laporan sampah ke Excel (.xlsx)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: Excel file (.xlsx)
+          description: ''
+  /api/reports/weekly/export/:
+    get:
+      operationId: reports_weekly_export_retrieve
+      description: Download laporan mingguan dalam format Excel.
+      summary: Export laporan mingguan ke Excel (.xlsx)
+      tags:
+      - Reports
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+                description: Excel file (.xlsx)
+          description: ''
+  /api/settings/:
+    get:
+      operationId: settings_retrieve
+      description: Profil institusi untuk tampilan mobile dan web.
+      summary: Pengaturan institusi (public)
+      tags:
+      - Settings
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+    patch:
+      operationId: settings_partial_update
+      description: GET public — profil institusi. PATCH admin only.
+      summary: Perbarui pengaturan institusi (admin only)
+      tags:
+      - Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaturanInstitusiRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaturanInstitusiRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPengaturanInstitusiRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/users/{user_id}/ktp/:
+    get:
+      operationId: users_ktp_retrieve
+      description: 'Role-gated download foto KTP nasabah.
+
+
+        Hanya admin/koordinator yang bisa mengunduh KTP.
+
+        URL tidak publik — query parameter tidak cukup, harus via header Authorization.'
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/waste-categories/{id}/price-history/:
+    get:
+      operationId: waste_categories_price_history_retrieve
+      description: Daftar perubahan harga_beli_per_kg untuk kategori ini.
+      summary: Riwayat perubahan harga kategori
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this kategori sampah.
+        required: true
+      tags:
+      - Waste Categories
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KategoriSampah'
+          description: ''
+  /api/wilayah/:
+    get:
+      operationId: wilayah_list
+      parameters:
+      - in: query
+        name: aktif
+        schema:
+          type: boolean
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - wilayah
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWilayahLayananList'
+          description: ''
+    post:
+      operationId: wilayah_create
+      tags:
+      - wilayah
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WilayahLayanan'
+          description: ''
+  /api/wilayah/{id}/:
+    get:
+      operationId: wilayah_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Wilayah Layanan.
+        required: true
+      tags:
+      - wilayah
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WilayahLayanan'
+          description: ''
+    put:
+      operationId: wilayah_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Wilayah Layanan.
+        required: true
+      tags:
+      - wilayah
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WilayahLayananRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WilayahLayanan'
+          description: ''
+    patch:
+      operationId: wilayah_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Wilayah Layanan.
+        required: true
+      tags:
+      - wilayah
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWilayahLayananRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWilayahLayananRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWilayahLayananRequest'
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WilayahLayanan'
+          description: ''
+    delete:
+      operationId: wilayah_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this Wilayah Layanan.
+        required: true
+      tags:
+      - wilayah
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/withdrawals/{withdrawal_id}/lampiran-ktp/:
+    get:
+      operationId: withdrawals_lampiran_ktp_retrieve
+      description: 'Role-gated download lampiran KTP pada penarikan besar.
+
+
+        Hanya admin/koordinator yang bisa mengunduh.'
+      parameters:
+      - in: path
+        name: withdrawal_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - withdrawals
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/withdrawals/{withdrawal_id}/receipt/:
+    get:
+      operationId: withdrawals_receipt_retrieve
+      description: 'Download PDF tanda terima penarikan. Role-gated:
+
+        - Nasabah → hanya unduh milik sendiri
+
+        - Admin/koordinator → unduh semua'
+      parameters:
+      - in: path
+        name: withdrawal_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - withdrawals
+      security:
+      - jwtAuth: []
+      - BearerAuth: []
+      responses:
+        '200':
+          description: No response body
 components:
   schemas:
     DetailSetoranRead:
@@ -2085,15 +3215,22 @@ components:
       - petugas_tidak_datang
       - kesalahan_data
       - bukti_tidak_muncul
+      - lainnya
       type: string
-      description: |-
-        * `saldo_belum_masuk` - Saldo Belum Masuk
+      description: '* `saldo_belum_masuk` - Saldo Belum Masuk
+
         * `penjemputan_terlambat` - Penjemputan Terlambat
+
         * `berat_tidak_sesuai` - Berat Tidak Sesuai
+
         * `harga_tidak_sesuai` - Harga Tidak Sesuai
+
         * `petugas_tidak_datang` - Petugas Tidak Datang
+
         * `kesalahan_data` - Kesalahan Data
-        * `bukti_tidak_muncul` - Bukti Tidak Muncul
+
+        * `bukti_tidak_muncul` - Bukti Tidak Muncul'
+      properties: {}
     KategoriSampah:
       type: object
       properties:
@@ -2416,6 +3553,11 @@ components:
           type: string
           format: decimal
           pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        tanggal_berlaku:
+          type: string
+          format: date-time
+          description: Tanggal harga baru mulai berlaku (min H+3 dari sekarang). Kosongkan untuk default
+            H+3.
     PatchedMitraPengepulRequest:
       type: object
       properties:
@@ -2509,8 +3651,36 @@ components:
         is_active:
           type: boolean
           title: Aktif
-          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
-            tanpa perlu menghapus akunnya.
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini tanpa perlu menghapus
+            akunnya.
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lat profil (opsional, maps)
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lng profil (opsional, maps)
+        patokan:
+          type: string
+          description: Patokan lokasi / keterangan maps (opsional)
+          maxLength: 255
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
     PatchedUserProfileRequest:
       type: object
       properties:
@@ -2526,6 +3696,34 @@ components:
           maxLength: 15
         alamat:
           type: string
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lat profil (opsional, maps)
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lng profil (opsional, maps)
+        patokan:
+          type: string
+          description: Patokan lokasi / keterangan maps (opsional)
+          maxLength: 255
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
     PenarikanSaldo:
       type: object
       properties:
@@ -2945,12 +4143,15 @@ components:
       - koordinator
       - pemerintah
       type: string
-      description: |-
-        * `nasabah` - Nasabah
+      description: '* `nasabah` - Nasabah
+
         * `petugas` - Petugas
+
         * `admin` - Admin Aplikasi
+
         * `koordinator` - Koordinator
-        * `pemerintah` - Pemerintah Distrik
+
+        * `pemerintah` - Pemerintah Distrik'
     Status626Enum:
       enum:
       - menunggu
@@ -2961,40 +4162,46 @@ components:
       - selesai
       - ditolak
       type: string
-      description: |-
-        * `menunggu` - Menunggu
+      description: '* `menunggu` - Menunggu
+
         * `disetujui` - Disetujui
+
         * `dijadwalkan` - Dijadwalkan
+
         * `dalam_perjalanan` - Dalam Perjalanan
+
         * `dijemput` - Dijemput
+
         * `selesai` - Selesai
-        * `ditolak` - Ditolak
+
+        * `ditolak` - Ditolak'
     Status730Enum:
       enum:
       - menunggu
       - selesai
       - ditolak
       type: string
-      description: |-
-        * `menunggu` - Menunggu
+      description: '* `menunggu` - Menunggu
+
         * `selesai` - Selesai
-        * `ditolak` - Ditolak
+
+        * `ditolak` - Ditolak'
     Status767Enum:
       enum:
       - terbuka
       - ditutup
       type: string
-      description: |-
-        * `terbuka` - Terbuka
-        * `ditutup` - Ditutup
+      description: '* `terbuka` - Terbuka
+
+        * `ditutup` - Ditutup'
     StatusA0bEnum:
       enum:
       - menunggu
       - selesai
       type: string
-      description: |-
-        * `menunggu` - Menunggu
-        * `selesai` - Selesai
+      description: '* `menunggu` - Menunggu
+
+        * `selesai` - Selesai'
     TokenRefresh:
       type: object
       properties:
@@ -3148,8 +4355,40 @@ components:
         is_active:
           type: boolean
           title: Aktif
-          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
-            tanpa perlu menghapus akunnya.
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini tanpa perlu menghapus
+            akunnya.
+        phone_verified:
+          type: boolean
+          readOnly: true
+          description: True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lat profil (opsional, maps)
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lng profil (opsional, maps)
+        patokan:
+          type: string
+          description: Patokan lokasi / keterangan maps (opsional)
+          maxLength: 255
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
       required:
       - id
       - nama_lengkap
@@ -3193,8 +4432,36 @@ components:
         is_active:
           type: boolean
           title: Aktif
-          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
-            tanpa perlu menghapus akunnya.
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini tanpa perlu menghapus
+            akunnya.
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lat profil (opsional, maps)
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lng profil (opsional, maps)
+        patokan:
+          type: string
+          description: Patokan lokasi / keterangan maps (opsional)
+          maxLength: 255
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
       required:
       - nama_lengkap
       - username
@@ -3236,8 +4503,8 @@ components:
           type: boolean
           readOnly: true
           title: Aktif
-          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
-            tanpa perlu menghapus akunnya.
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini tanpa perlu menghapus
+            akunnya.
         date_joined:
           type: string
           format: date-time
@@ -3247,6 +4514,47 @@ components:
           type: object
           additionalProperties: {}
           readOnly: true
+        phone_verified:
+          type: boolean
+          readOnly: true
+          description: True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)
+        latitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lat profil (opsional, maps)
+        longitude:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,6})?$
+          nullable: true
+          description: Koordinat lng profil (opsional, maps)
+        patokan:
+          type: string
+          description: Patokan lokasi / keterangan maps (opsional)
+          maxLength: 255
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        kelurahan_nama:
+          type: string
+          readOnly: true
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
+        foto_ktp:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+          description: Foto KTP untuk verifikasi identitas (Fase 8.4)
       required:
       - date_joined
       - id
@@ -3296,8 +4604,24 @@ components:
           type: boolean
           readOnly: true
           title: Aktif
-          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini
-            tanpa perlu menghapus akunnya.
+          description: Menentukan apakah pengguna dianggap aktif. Hapus pilihan ini tanpa perlu menghapus
+            akunnya.
+        phone_verified:
+          type: boolean
+          readOnly: true
+          description: True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
       required:
       - id
       - is_active
@@ -3332,10 +4656,462 @@ components:
           maxLength: 15
         alamat:
           type: string
+        setuju_kebijakan_data:
+          type: boolean
+          writeOnly: true
+        kelurahan:
+          type: integer
+          nullable: true
+          description: Kelurahan/kampung domisili (Fase 8.3)
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
       required:
       - nama_lengkap
       - password
       - username
+    DeviceToken:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        token:
+          type: string
+          maxLength: 512
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/PlatformEnum'
+          default: android
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - token
+      - updated_at
+    DeviceTokenRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 512
+        platform:
+          allOf:
+          - $ref: '#/components/schemas/PlatformEnum'
+          default: android
+      required:
+      - token
+    KategoriEnum:
+      enum:
+      - setoran
+      - penjemputan
+      - penarikan
+      - penukaran
+      - pengaduan
+      - pengumuman
+      - harga
+      - sistem
+      type: string
+      description: '* `setoran` - Setoran
+
+        * `penjemputan` - Penjemputan
+
+        * `penarikan` - Penarikan Saldo
+
+        * `penukaran` - Penukaran Poin
+
+        * `pengaduan` - Pengaduan
+
+        * `pengumuman` - Pengumuman
+
+        * `harga` - Perubahan Harga
+
+        * `sistem` - Sistem'
+    KontenEdukasi:
+      type: object
+      description: CRUD konten edukasi — admin/koordinator.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        judul:
+          type: string
+          maxLength: 200
+        isi:
+          type: string
+          description: Isi konten/panduan edukasi
+        kategori_terkait:
+          type: integer
+          nullable: true
+          description: Kategori sampah terkait (opsional)
+        kategori_terkait_nama:
+          type: string
+          readOnly: true
+        aktif:
+          type: boolean
+        urutan:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Urutan tampil (ascending)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - isi
+      - judul
+      - kategori_terkait_nama
+      - updated_at
+    KontenEdukasiPublic:
+      type: object
+      description: List/detail publik untuk mobile — hanya konten aktif, tanpa updated_at.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        judul:
+          type: string
+          maxLength: 200
+        isi:
+          type: string
+          description: Isi konten/panduan edukasi
+        kategori_terkait_nama:
+          type: string
+          readOnly: true
+        urutan:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Urutan tampil (ascending)
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - isi
+      - judul
+      - kategori_terkait_nama
+    KontenEdukasiRequest:
+      type: object
+      description: CRUD konten edukasi — admin/koordinator.
+      properties:
+        judul:
+          type: string
+          minLength: 1
+          maxLength: 200
+        isi:
+          type: string
+          minLength: 1
+          description: Isi konten/panduan edukasi
+        kategori_terkait:
+          type: integer
+          nullable: true
+          description: Kategori sampah terkait (opsional)
+        aktif:
+          type: boolean
+        urutan:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Urutan tampil (ascending)
+      required:
+      - isi
+      - judul
+    Notifikasi:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          readOnly: true
+          description: Penerima notifikasi
+        judul:
+          type: string
+          readOnly: true
+        deskripsi:
+          type: string
+          readOnly: true
+        kategori:
+          allOf:
+          - $ref: '#/components/schemas/KategoriEnum'
+          readOnly: true
+        is_read:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - deskripsi
+      - id
+      - judul
+      - kategori
+      - user
+    NotifikasiRequest:
+      type: object
+      properties:
+        is_read:
+          type: boolean
+    PaginatedKontenEdukasiPublicList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/KontenEdukasiPublic'
+    PaginatedNotifikasiList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notifikasi'
+    PaginatedWilayahLayananList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WilayahLayanan'
+    PatchedKontenEdukasiRequest:
+      type: object
+      description: CRUD konten edukasi — admin/koordinator.
+      properties:
+        judul:
+          type: string
+          minLength: 1
+          maxLength: 200
+        isi:
+          type: string
+          minLength: 1
+          description: Isi konten/panduan edukasi
+        kategori_terkait:
+          type: integer
+          nullable: true
+          description: Kategori sampah terkait (opsional)
+        aktif:
+          type: boolean
+        urutan:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: Urutan tampil (ascending)
+    PatchedNotifikasiRequest:
+      type: object
+      properties:
+        is_read:
+          type: boolean
+    PatchedPengaturanInstitusiRequest:
+      type: object
+      properties:
+        nama_institusi:
+          type: string
+          minLength: 1
+          maxLength: 255
+        alamat:
+          type: string
+        kontak:
+          type: string
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        logo_url:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        jam_operasional:
+          type: string
+          description: Deprecated — prefer jam_buka/jam_tutup. Disinkron otomatis saat jam_buka & jam_tutup
+            diisi.
+          maxLength: 255
+        pengumuman:
+          type: string
+        jam_buka:
+          type: string
+          format: time
+          nullable: true
+          description: Jam buka layanan (WIT), format HH:MM:SS
+        jam_tutup:
+          type: string
+          format: time
+          nullable: true
+          description: Jam tutup layanan (WIT), format HH:MM:SS
+    PatchedTransaksiSetoranCorrectionRequest:
+      type: object
+      description: 'Admin-only: koreksi data transaksi setoran.'
+      properties:
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+    PatchedWilayahLayananRequest:
+      type: object
+      description: CRUD wilayah layanan — admin/koordinator.
+      properties:
+        kelurahan:
+          type: string
+          minLength: 1
+          maxLength: 100
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
+        aktif:
+          type: boolean
+          description: Wilayah yang masih dilayani
+    PlatformEnum:
+      enum:
+      - android
+      - ios
+      - web
+      type: string
+      description: '* `android` - android
+
+        * `ios` - ios
+
+        * `web` - web'
+    TransaksiSetoranCorrection:
+      type: object
+      description: 'Admin-only: koreksi data transaksi setoran.'
+      properties:
+        total_nilai:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+    WilayahLayanan:
+      type: object
+      description: CRUD wilayah layanan — admin/koordinator.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        kelurahan:
+          type: string
+          maxLength: 100
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
+        aktif:
+          type: boolean
+          description: Wilayah yang masih dilayani
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - kelurahan
+    WilayahLayananRequest:
+      type: object
+      description: CRUD wilayah layanan — admin/koordinator.
+      properties:
+        kelurahan:
+          type: string
+          minLength: 1
+          maxLength: 100
+        rt:
+          type: string
+          description: RT (opsional)
+          maxLength: 10
+        rw:
+          type: string
+          description: RW (opsional)
+          maxLength: 10
+        aktif:
+          type: boolean
+          description: Wilayah yang masih dilayani
+      required:
+      - kelurahan
   securitySchemes:
     BearerAuth:
       type: http

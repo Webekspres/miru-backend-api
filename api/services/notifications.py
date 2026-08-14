@@ -25,6 +25,31 @@ def create_notification(
     return notif
 
 
+def notify_roles(
+    roles: tuple[str, ...] | list[str],
+    judul: str,
+    deskripsi: str,
+    kategori: str = 'sistem',
+    *,
+    exclude_user_ids: set[int] | None = None,
+) -> int:
+    """Buat notifikasi in-app untuk semua user aktif dengan role tertentu."""
+    qs = User.objects.filter(role__in=roles, is_active=True)
+    if exclude_user_ids:
+        qs = qs.exclude(pk__in=exclude_user_ids)
+    user_ids = list(qs.values_list('id', flat=True))
+    count = 0
+    for uid in user_ids:
+        create_notification(
+            user_id=uid,
+            judul=judul,
+            deskripsi=deskripsi,
+            kategori=kategori,
+        )
+        count += 1
+    return count
+
+
 def broadcast_notification(
     judul: str,
     deskripsi: str,
@@ -73,6 +98,49 @@ def broadcast_notification(
         import logging
         logging.getLogger('miru.request').error(
             'Gagal broadcast FCM (%s): %s', kategori, exc,
+        )
+
+    return len(created)
+
+
+def notify_admins(
+    judul: str,
+    deskripsi: str,
+    kategori: str = 'pengaduan',
+) -> int:
+    """Buat notifikasi in-app untuk semua admin aktif. Returns jumlah dibuat."""
+    admin_ids = list(
+        User.objects.filter(role='admin', is_active=True)
+        .values_list('id', flat=True)
+    )
+    if not admin_ids:
+        return 0
+
+    created = Notifikasi.objects.bulk_create([
+        Notifikasi(
+            user_id=uid,
+            judul=judul,
+            deskripsi=deskripsi,
+            kategori=kategori,
+        )
+        for uid in admin_ids
+    ])
+
+    try:
+        from api.services.fcm import build_notification_payload, send_to_user_ids
+        send_to_user_ids(
+            admin_ids,
+            title=judul,
+            body=deskripsi,
+            data=build_notification_payload(
+                kategori=kategori,
+                event=kategori,
+            ),
+        )
+    except Exception as exc:
+        import logging
+        logging.getLogger('miru.request').error(
+            'Gagal FCM notifikasi admin (%s): %s', kategori, exc,
         )
 
     return len(created)

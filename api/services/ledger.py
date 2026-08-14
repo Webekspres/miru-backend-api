@@ -70,10 +70,21 @@ def decrease_reward_stok(reward: Reward, jumlah: int = 1) -> Reward:
 
 
 @transaction.atomic
-def complete_penukaran_poin(nasabah: User, reward: Reward) -> tuple[User, Reward]:
-    """Atomically debit poin and decrease reward stock on redemption approval."""
-    user = debit_nasabah_poin(nasabah, reward.poin_dibutuhkan)
-    reward_locked = decrease_reward_stok(reward, 1)
+def complete_penukaran_poin(
+    nasabah: User,
+    reward: Reward,
+    *,
+    poin: int | None = None,
+    qty: int = 1,
+) -> tuple[User, Reward]:
+    """Atomically debit poin and decrease reward stock on redemption approval.
+
+    `poin` should be the snapshot from PenukaranPoin.poin_dibutuhkan when available;
+    falls back to current reward catalog price only for legacy callers.
+    """
+    poin_to_debit = reward.poin_dibutuhkan if poin is None else poin
+    user = debit_nasabah_poin(nasabah, poin_to_debit)
+    reward_locked = decrease_reward_stok(reward, qty)
     return user, reward_locked
 
 
@@ -202,4 +213,20 @@ def create_setoran_with_side_effects(
     transaksi.save(update_fields=['total_nilai'])
 
     credit_nasabah_setoran(transaksi.nasabah, total_nilai, setoran=transaksi)
+
+    # Notifikasi SETELAH total_nilai di-set (bukan saat create dengan default 0).
+    if transaksi.nasabah_id and total_nilai > 0:
+        from api.services.notifications import create_notification
+
+        nilai_fmt = f'{total_nilai:,.0f}'.replace(',', '.')
+        create_notification(
+            user_id=transaksi.nasabah_id,
+            judul='Setoran Sampah Berhasil',
+            deskripsi=(
+                f'Setoran sampah sebesar Rp{nilai_fmt} '
+                f'telah dicatat ke akun Anda. Cek saldo di halaman utama.'
+            ),
+            kategori='setoran',
+        )
+
     return transaksi

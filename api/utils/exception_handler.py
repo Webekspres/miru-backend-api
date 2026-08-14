@@ -1,5 +1,7 @@
+import math
+
 from rest_framework import status
-from rest_framework.exceptions import APIException, ValidationError
+from rest_framework.exceptions import APIException, Throttled, ValidationError
 from rest_framework.views import exception_handler
 from rest_framework_simplejwt.exceptions import TokenError
 
@@ -21,7 +23,19 @@ def _flatten_errors(detail, prefix=''):
     return {prefix or 'non_field_errors': [str(detail)]}
 
 
+def _throttle_wait_seconds(exc: Throttled) -> int | None:
+    wait = getattr(exc, 'wait', None)
+    if wait is None:
+        return None
+    try:
+        return max(1, int(math.ceil(float(wait))))
+    except (TypeError, ValueError):
+        return None
+
+
 def _get_error_code(exc, status_code: int) -> str:
+    if isinstance(exc, Throttled):
+        return 'RATE_LIMIT_EXCEEDED'
     if status_code == 400:
         return 'VALIDATION_ERROR'
     if isinstance(exc, ValidationError):
@@ -47,7 +61,21 @@ def _get_error_code(exc, status_code: int) -> str:
 
 
 def _get_error_message(exc, status_code: int) -> str:
+    if isinstance(exc, Throttled):
+        seconds = _throttle_wait_seconds(exc)
+        if seconds is not None:
+            return (
+                f'Terlalu banyak percobaan. Coba lagi dalam {seconds} detik.'
+            )
+        return 'Terlalu banyak percobaan. Silakan coba lagi nanti.'
     if isinstance(exc, ValidationError):
+        # Prefer pesan field-level konkret agar klien tidak hanya melihat pesan generik.
+        flat = _flatten_errors(exc.detail)
+        for field, msgs in flat.items():
+            if field != 'non_field_errors' and msgs:
+                return str(msgs[0])
+        if flat.get('non_field_errors'):
+            return str(flat['non_field_errors'][0])
         return 'Satu atau lebih field tidak valid.'
     if status_code == 401:
         return 'Autentikasi gagal. Silakan login kembali.'
@@ -57,6 +85,8 @@ def _get_error_message(exc, status_code: int) -> str:
         return 'Data tidak ditemukan.'
     if status_code == 405:
         return 'Metode HTTP tidak diizinkan.'
+    if status_code == 429:
+        return 'Terlalu banyak percobaan. Silakan coba lagi nanti.'
     if status_code >= 500:
         return 'Terjadi kesalahan pada server.'
     detail = getattr(exc, 'detail', str(exc))
@@ -102,17 +132,15 @@ def miru_exception_handler(exc, context):
         return response
 
     if isinstance(exc, APIException):
-        status_code = exc.status_code
-    else:
-        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        status_code = getattr(exc, 'status_code', 500)
+        envelope = error_envelope(
+            message=_get_error_message(exc, status_code),
+            status_code=status_code,
+            code=_get_error_code(exc, status_code),
+            errors=_flatten_errors(exc.detail) if hasattr(exc, 'detail') else None,
+            request=request,
+        )
+        from rest_framework.response import Response
+        return Response(envelope, status=status_code)
 
-    envelope = error_envelope(
-        message=_get_error_message(exc, status_code),
-        status_code=status_code,
-        code=_get_error_code(exc, status_code),
-        errors=None,
-        request=request,
-    )
-    from rest_framework.response import Response
-
-    return Response(envelope, status=status_code)
+    return None

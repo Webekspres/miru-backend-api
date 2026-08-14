@@ -53,6 +53,26 @@ class LoginRateLimitTests(EnvelopeAPITestCase):
             (status.HTTP_200_OK, status.HTTP_401_UNAUTHORIZED, status.HTTP_429_TOO_MANY_REQUESTS),
         )
 
+    def test_throttled_login_message_is_bahasa_indonesia(self):
+        """Rate limit login mengembalikan pesan BI + sisa detik, bukan teks Inggris."""
+        from rest_framework.exceptions import Throttled
+        from rest_framework.test import APIRequestFactory
+        from api.utils.exception_handler import miru_exception_handler
+
+        factory = APIRequestFactory()
+        request = factory.post('/api/auth/login/')
+        response = miru_exception_handler(
+            Throttled(wait=42.2),
+            {'request': request},
+        )
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertFalse(response.data['success'])
+        self.assertEqual(response.data['code'], 'RATE_LIMIT_EXCEEDED')
+        self.assertIn('Terlalu banyak percobaan', response.data['message'])
+        self.assertIn('43 detik', response.data['message'])
+        self.assertNotIn('Expected available', response.data['message'])
+        self.assertNotIn('Request was throttled', response.data['message'])
+
 
 class WriteRateLimitTests(EnvelopeAPITestCase):
     """Verifikasi write throttle class terpasang secara global."""

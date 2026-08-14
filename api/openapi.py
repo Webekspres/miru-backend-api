@@ -28,6 +28,7 @@ REPORTS_TAG = 'Reports'
 AUDIT_LOG_TAG = 'Audit Log'
 INVENTORY_TAG = 'Inventory'
 EDUKASI_TAG = 'Edukasi'
+MEDIA_TAG = 'Media'
 NOTIFICATIONS_TAG = 'Notifications'
 SETTINGS_TAG = 'Settings'
 
@@ -44,11 +45,13 @@ def _query_param(name, schema_type='string', required=False, description=''):
 
 dashboard_overview_schema = extend_schema(
     tags=[DASHBOARD_TAG],
-    summary='Ringkasan monitoring program (admin/koordinator/pemerintah)',
+    summary='Ringkasan monitoring (admin/koordinator/pemerintah) atau widget petugas',
     description=(
-        'Data agregat untuk dashboard: total nasabah, nasabah aktif 30 hari, '
-        'total sampah & nilai setoran, penarikan, penukaran poin, penjemputan '
-        'menunggu, pengaduan terbuka, dan stok per kategori.'
+        'Admin/koordinator/pemerintah: data agregat (total nasabah, nasabah aktif '
+        '30 hari, total sampah & nilai setoran, penarikan, penukaran poin, '
+        'penjemputan menunggu, pengaduan terbuka, stok per kategori).\n\n'
+        'Petugas: widget ringkas — jemput_ditugaskan_hari_ini dan antrian_aktif '
+        '(hanya tugas milik sendiri).'
     ),
 )
 
@@ -413,9 +416,9 @@ edukasi_schema = extend_schema_view(
                 value={
                     'judul': 'Cara Memilah Sampah yang Benar',
                     'isi': 'Panduan lengkap memilah sampah rumah tangga...',
+                    'gambar_url': 'edukasi/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.webp',
                     'kategori_terkait': 1,
                     'aktif': True,
-                    'urutan': 1,
                 },
                 request_only=True,
             ),

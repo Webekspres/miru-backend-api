@@ -24,7 +24,7 @@
 | 3 | **Zero trust input** | Semua input dari client dianggap berbahaya — validasi DRF |
 | 4 | **Secrets out of code** | `SECRET_KEY`, DB, API key hanya di environment / secret store |
 | 5 | **Encrypt in transit** | HTTPS wajib di production (Jawaban §6.5.4) |
-| 6 | **Minimize PII** | NIK/foto KTP hanya bila perlu (penarikan besar); jangan log PII |
+| 6 | **Minimize PII** | Jangan kumpulkan NIK; foto KTP hanya lampiran sementara penarikan ≥1jt |
 | 7 | **Auditability** | Perubahan kritis tercatat di `AuditLog` |
 | 8 | **Fail closed** | Default deny pada permission; error bisnis tidak bocorkan detail internal |
 
@@ -43,7 +43,7 @@
 | Kelas | Contoh | Perlakuan |
 |-------|--------|-----------|
 | **Rahasia sistem** | `SECRET_KEY`, JWT signing, DB password, Maps/FCM/WA API key | Env only; rotasi; tidak di log/repo |
-| **PII sensitif** | NIK, foto KTP | Enkripsi at-rest (Fase 8); akses admin terbatas; mask di UI |
+| **PII sensitif** | Foto KTP (lampiran penarikan besar) | Tidak di profil; privat; hapus setelah proses; akses admin terbatas |
 | **PII operasional** | Nama, no HP, alamat, kelurahan | Hanya untuk operasional bank sampah; retensi sesuai kebijakan (arsip 5 thn transaksi) |
 | **Keuangan** | Saldo, poin, transaksi, penarikan | Atomic ledger; audit; anti double-processing |
 | **Publik** | Kategori sampah, harga aktif, pengumuman aktif, settings institusi (sebagian) | Boleh tanpa auth bila sudah ditandai Public di kontrak API |
@@ -163,10 +163,10 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 
 | Item | Aturan |
 |------|--------|
-| Foto KTP | Hanya untuk penarikan besar (persyaratan); simpan di media privat; akses role-gated |
-| NIK | Field-level encryption (Fase 8); jangan log |
+| Foto KTP | Hanya lampiran penarikan ≥ Rp1.000.000; media privat; nginx deny path; hapus setelah approve/tolak |
+| NIK | **Tidak dikumpulkan** (bukan field modul proposal; PDP minimisasi) |
 | Validasi file | Tipe MIME/ukuran max; larang executable |
-| Media URL | Jangan buat bucket/public list semua KTP |
+| Media URL | Jangan serve `/media/lampiran_ktp/` atau `/media/ktp/` publik |
 | PDF bukti | Generate server-side; auth wajib untuk unduh milik orang lain |
 
 ---
@@ -218,6 +218,7 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 | Google Maps (sederhana) | Fase 8 (Modul 7) | API key restrict by IP/bundle; kuota klien |
 | FCM | Fase 8 (Modul 9) — backend ✅; client Flutter 🔲 | Server key / SA hanya di backend; validasi device token milik user |
 | WhatsApp Business | Fase 8 (Modul 9) | Jangan kirim NIK/KTP; template message terbatas |
+| WhatsApp OTP (T2) | Auth / reset password | Kredensial `WA_*` di env; **jangan log OTP**. Local: `OTP_DEV_FIXED_CODE` hanya jika `DEBUG=True` — lihat `docs/OTP_DEV.md` |
 | Email transactional | Fase 8 (Modul 9) — ✅ sebagian | Kredensial SMTP di env; jangan CC data sensitif massal |
 | Payment gateway | **Out of scope** | Dilarang Constraints/Proposal |
 
@@ -239,10 +240,10 @@ Ini adalah kontrol **keamanan finansial**, setara pentingnya dengan auth.
 
 ### Fase 8 — Keamanan data (Pengembangan Lanjutan)
 
-- [ ] Enkripsi NIK / KTP at-rest
-- [ ] Upload KTP tersimpan aman + akses terbatas
-- [ ] Lupa password dengan token berumur pendek
-- [ ] Retensi/arsip 5 tahun terdefinisi operasional
+- [x] NIK tidak dikumpulkan (PDP minimisasi)
+- [x] Lampiran KTP penarikan besar privat + hapus setelah proses
+- [x] Lupa password dengan token/OTP berumur pendek
+- [x] Retensi/arsip 5 tahun terdefinisi operasional; lampiran KTP **bukan** arsip 5 tahun
 
 ---
 

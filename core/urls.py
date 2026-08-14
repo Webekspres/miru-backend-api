@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from api.auth_views import MeView, MiruTokenObtainPairView, MiruTokenRefreshView
 from api.flow_docs_views import FlowDocsView
 from api.health_views import HealthCheckView
+from api.media_views import PublicObjectView
 
 urlpatterns = [
     path('', lambda r: redirect('/health/')),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('api/guide/', FlowDocsView.as_view(), name='flow-guide'),
     path('api/', include('api.urls')),
+    path('objects/<path:key>', PublicObjectView.as_view(), name='public-object'),
 ]

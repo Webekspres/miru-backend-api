@@ -3,6 +3,7 @@ Custom DRF throttle classes for MIRU Bank Sampah API.
 
 Rate limits:
 - Login endpoint: 10 requests/minute per anonymous IP
+- OTP endpoints: 5 requests/minute per anonymous IP
 - Write endpoints: 100 requests/hour per authenticated user
 """
 
@@ -14,6 +15,12 @@ class LoginAnonRateThrottle(AnonRateThrottle):
     """10 requests per minute untuk endpoint login (anonymous)."""
 
     scope = 'login'
+
+
+class OtpAnonRateThrottle(AnonRateThrottle):
+    """5 requests per minute untuk request/verify OTP (anonymous)."""
+
+    scope = 'otp'
 
 
 class WriteUserRateThrottle(UserRateThrottle):

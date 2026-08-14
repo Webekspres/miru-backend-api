@@ -98,6 +98,23 @@ class PriceHistoryTests(EnvelopeAPITestCase):
             RiwayatHarga.objects.filter(kategori=self.category).count(), 0,
         )
 
+    def test_accept_tanggal_berlaku_exactly_h_plus_3(self):
+        """Regression: tanggal_berlaku ≥ H+3 (tepat 72 jam) masih diterima."""
+        self.auth_as(self.admin)
+        exactly_h3 = timezone.now() + timedelta(hours=72, minutes=1)
+        response = self.client.patch(
+            f'/api/waste-categories/{self.category.id}/',
+            {
+                'harga_beli_per_kg': '3600.00',
+                'tanggal_berlaku': exactly_h3.isoformat(),
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            RiwayatHarga.objects.filter(kategori=self.category).count(), 1,
+        )
+
     def test_reject_tanggal_berlaku_in_past(self):
         """Tanggal di masa lalu harus ditolak."""
         self.auth_as(self.admin)

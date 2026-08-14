@@ -30,6 +30,8 @@ class EnvelopeAPITestCase(APITestCase):
             role='nasabah',
             no_hp='08123456789',
             alamat='Timika',
+            phone_verified=True,
+            is_active=True,
         )
 
     def create_admin(self, username='admin_test', password='secret12'):

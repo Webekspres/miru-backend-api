@@ -31,7 +31,46 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
         self.assertIn('kontak', data)
         self.assertIn('email', data)
         self.assertIn('jam_operasional', data)
+        self.assertIn('jam_buka', data)
+        self.assertIn('jam_tutup', data)
         self.assertIn('pengumuman', data)
+        self.assertIn('tentang', data)
+        self.assertIn('kebijakan', data)
+        self.assertTrue(data['tentang'].strip())
+        self.assertTrue(data['kebijakan'].strip())
+
+    def test_admin_can_patch_jam_buka_tutup(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            '/api/settings/',
+            {'jam_buka': '08:00:00', 'jam_tutup': '16:30:00'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        self.assertEqual(data['jam_buka'], '08:00:00')
+        self.assertEqual(data['jam_tutup'], '16:30:00')
+        self.assertIn('08.00', data['jam_operasional'])
+        self.assertIn('16.30', data['jam_operasional'])
+
+    def test_logo_url_ignored_on_patch(self):
+        settings = PengaturanInstitusi.load()
+        settings.logo_url = None
+        settings.save()
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            '/api/settings/',
+            {
+                'nama_institusi': 'MIRU Logo Ignore',
+                'logo_url': 'https://example.com/logo.png',
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['nama_institusi'], 'MIRU Logo Ignore')
+        self.assertIsNone(response.data['data']['logo_url'])
+        settings.refresh_from_db()
+        self.assertIsNone(settings.logo_url)
 
     def test_admin_can_patch_settings(self):
         self.auth_as(self.admin)
@@ -52,6 +91,23 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
         settings = PengaturanInstitusi.load()
         self.assertEqual(settings.nama_institusi, 'MIRU Bank Sampah Updated')
         self.assertEqual(settings.kontak, '08111111111')
+
+    def test_admin_can_patch_tentang_and_kebijakan(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            '/api/settings/',
+            {
+                'tentang': '# Tentang\n\nIsi tentang MIRU.',
+                'kebijakan': '# Kebijakan\n\nIsi kebijakan.',
+            },
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('# Tentang', response.data['data']['tentang'])
+        self.assertIn('# Kebijakan', response.data['data']['kebijakan'])
+        privacy = self.client.get('/api/privacy-policy/')
+        self.assertEqual(privacy.status_code, status.HTTP_200_OK)
+        self.assertIn('# Kebijakan', privacy.data['data']['konten'])
 
     def test_nasabah_cannot_patch_settings(self):
         self.auth_as(self.nasabah)

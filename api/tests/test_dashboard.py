@@ -1,4 +1,5 @@
 from decimal import Decimal
+from datetime import timedelta
 
 from django.utils import timezone
 from rest_framework import status
@@ -85,10 +86,42 @@ class DashboardOverviewTests(DashboardTestMixin, EnvelopeAPITestCase):
         response = self.client.get('/api/dashboard/overview/')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_petugas_forbidden(self):
+    def test_petugas_overview_widgets(self):
+        today = timezone.localtime(timezone.now())
+        Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.petugas,
+            estimasi_berat=Decimal('5.00'),
+            alamat_jemput='Timika',
+            jadwal=today,
+            status='dijadwalkan',
+        )
+        Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.petugas,
+            estimasi_berat=Decimal('6.00'),
+            alamat_jemput='Timika 2',
+            jadwal=today + timedelta(days=2),
+            status='dalam_perjalanan',
+        )
+        # Menunggu / bukan milik petugas — tidak masuk widget
+        Penjemputan.objects.filter(status='menunggu').delete()
+        Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            estimasi_berat=Decimal('7.00'),
+            alamat_jemput='Lain',
+            jadwal=today,
+            status='menunggu',
+        )
+
         self.auth_as(self.petugas)
         response = self.client.get('/api/dashboard/overview/')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        self.assertEqual(data['role'], 'petugas')
+        self.assertEqual(data['jemput_ditugaskan_hari_ini'], 1)
+        self.assertEqual(data['antrian_aktif'], 2)
+        self.assertNotIn('total_nasabah', data)
 
     def test_unauthenticated_401(self):
         response = self.client.get('/api/dashboard/overview/')

@@ -1,10 +1,18 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import *
-from .auth_views import ForgotPasswordView, PoinInfoView, ResetPasswordView
+from .auth_views import (
+    ForgotPasswordView,
+    PhoneRequestOtpView,
+    PhoneVerifyOtpView,
+    PoinInfoView,
+    ResetPasswordRequestOtpView,
+    ResetPasswordVerifyOtpView,
+    ResetPasswordView,
+)
+from .media_views import MediaUploadView
 from .download_views import (
     DownloadDepositReceiptView,
-    DownloadKTPView,
     DownloadLampiranKTPView,
     DownloadWithdrawalReceiptView,
 )
@@ -48,6 +56,7 @@ router.register(r'notifications', NotifikasiViewSet, basename='notification')
 router.register(r'device-tokens', DeviceTokenViewSet, basename='device-token')
 
 urlpatterns = [
+    path('media/uploads/', MediaUploadView.as_view(), name='media-upload'),
     path('activity/', ActivityListView.as_view(), name='activity'),
     path('audit-log/', AuditLogListView.as_view(), name='audit-log'),
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
@@ -72,9 +81,21 @@ urlpatterns = [
         InventoryHistoryView.as_view(),
         name='inventory-history',
     ),
-    # Fase 8.4 — Password reset
+    # T2 — Password reset OTP WA + verifikasi HP
     path('auth/forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
+    path(
+        'auth/reset-password/request-otp/',
+        ResetPasswordRequestOtpView.as_view(),
+        name='reset-password-request-otp',
+    ),
+    path(
+        'auth/reset-password/verify-otp/',
+        ResetPasswordVerifyOtpView.as_view(),
+        name='reset-password-verify-otp',
+    ),
     path('auth/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
+    path('auth/phone/request-otp/', PhoneRequestOtpView.as_view(), name='phone-request-otp'),
+    path('auth/phone/verify-otp/', PhoneVerifyOtpView.as_view(), name='phone-verify-otp'),
 
     # Fase 8.5 — Info poin & masa berlaku
     path('auth/poin-info/', PoinInfoView.as_view(), name='poin-info'),
@@ -91,12 +112,7 @@ urlpatterns = [
         name='withdrawal-receipt',
     ),
 
-    # Fase 8.4 — KTP download (role-gated: admin/koordinator only)
-    path(
-        'users/<int:user_id>/ktp/',
-        DownloadKTPView.as_view(),
-        name='download-ktp',
-    ),
+    # Lampiran KTP penarikan besar — hanya admin/koordinator, hanya status menunggu
     path(
         'withdrawals/<int:withdrawal_id>/lampiran-ktp/',
         DownloadLampiranKTPView.as_view(),
