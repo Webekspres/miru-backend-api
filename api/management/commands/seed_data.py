@@ -281,6 +281,14 @@ class Command(BaseCommand):
         'Use --minimal for core data only (categories, rewards, admin).'
     )
 
+    def _log(self, message: str) -> None:
+        self.stdout.write(message)
+        if hasattr(self.stdout, 'flush'):
+            self.stdout.flush()
+
+    def _step(self, label: str) -> None:
+        self._log(f'-> {label}...')
+
     def _seed_wilayah(self):
         """Seed data wilayah layanan dari data dictionary §K."""
         created = 0
@@ -305,7 +313,9 @@ class Command(BaseCommand):
         from api.services.seed_images import upload_article_cover
 
         created = 0
-        for item in EDUKASI_CONTENT:
+        total = len(EDUKASI_CONTENT)
+        for idx, item in enumerate(EDUKASI_CONTENT, start=1):
+            self._log(f'  edukasi {idx}/{total}: {item["judul"][:40]}...')
             obj, was_created = KontenEdukasi.objects.get_or_create(
                 judul=item['judul'],
                 defaults={
@@ -350,21 +360,31 @@ class Command(BaseCommand):
 
         disconnect_notification_signals()
 
+        self._log('Memulai seed_data...')
+
         if settings.MINIO_ENABLED:
+            self._step('Menyiapkan bucket MinIO')
             ensure_bucket()
-            self.stdout.write(f'MinIO bucket: {settings.MINIO_BUCKET}')
+            self._log(f'  bucket: {settings.MINIO_BUCKET}')
 
         if options['flush']:
-            self.stdout.write('Flushing data...')
+            self._step('Menghapus data lama (--flush)')
             self._flush_data(minimal=minimal)
 
         counts = {}
+        self._step('Kategori sampah')
         counts['categories'] = self._seed_categories()
+        self._step('Reward')
         counts['rewards'] = self._seed_rewards()
+        self._step('Admin')
         counts['admin'] = self._seed_admin()
+        self._step('Pengaturan institusi')
         counts['settings'] = self._seed_institution_settings()
+        self._step('Pengumuman')
         counts['pengumuman'] = self._seed_pengumuman()
+        self._step('Konten edukasi + gambar')
         counts['edukasi'] = self._seed_edukasi()
+        self._step('Wilayah layanan')
         counts['wilayah'] = self._seed_wilayah()
 
         if minimal:
@@ -373,9 +393,12 @@ class Command(BaseCommand):
             self._print_summary(total, counts, minimal=True)
             return
 
+        self._step('Staff tambahan')
         counts['staff'] = self._seed_extra_staff()
+        self._step(f'Nasabah demo ({options["nasabah"]} akun + avatar)')
         nasabah_list = self._seed_nasabah(options['nasabah'])
         counts['nasabah'] = len(nasabah_list)
+        self._step('Mitra pengepul')
         counts['partners'] = self._seed_partners()
         petugas = User.objects.filter(role='petugas')
 
@@ -384,19 +407,24 @@ class Command(BaseCommand):
         showcase_users = [u for u in nasabah_list if u.username in SHOWCASE_USERNAMES]
         regular_users = [u for u in nasabah_list if u.username not in SHOWCASE_USERNAMES]
 
-        # Regular seed for all other nasabah
+        self._step('Transaksi setoran')
         counts['deposits'] = self._seed_deposits(regular_users, petugas)
+        self._step('Penjemputan')
         counts['pickups'] = self._seed_pickups(regular_users, petugas)
+        self._step('Penarikan saldo')
         counts['withdrawals'] = self._seed_withdrawals(regular_users)
+        self._step('Pengaduan')
         counts['complaints'] = self._seed_complaints(regular_users)
+        self._step('Penjualan mitra')
         counts['partner_sales'] = self._seed_partner_sales()
+        self._step('Penukaran poin')
         counts['redemptions'] = self._seed_redemptions(regular_users)
 
-        # Rich history for showcase users
+        self._step('Riwayat showcase (nasabah001 & 002)')
         showcase_counts = self._seed_showcase_history(showcase_users, petugas)
         counts.update(showcase_counts)
 
-        # Notifications for ALL users
+        self._step('Notifikasi')
         counts['notifications'] = self._seed_notifications(nasabah_list, showcase_users)
 
         connect_notification_signals()
@@ -412,8 +440,9 @@ class Command(BaseCommand):
         from api.services.object_storage import clear_public_prefixes
 
         removed = clear_public_prefixes()
-        self.stdout.write(f'  cleared {removed} public objects (avatar/ + edukasi/)')
+        self._log(f'  objek publik dihapus: {removed} (avatar/ + edukasi/)')
 
+        self._log('  menghapus baris database...')
         KontenEdukasi.objects.all().delete()
         Pengumuman.objects.all().delete()
         Notifikasi.objects.all().delete()
@@ -559,6 +588,8 @@ class Command(BaseCommand):
     def _seed_nasabah(self, count):
         nasabah_list = []
         for i in range(1, count + 1):
+            if i == 1 or i % 20 == 0 or i == count:
+                self._log(f'  nasabah {i}/{count}...')
             username = f'nasabah{i:03d}'
 
             # Showcase users get richer names and higher starting values
@@ -1074,7 +1105,5 @@ class Command(BaseCommand):
             created += 1
 
         distinct_users = Notifikasi.objects.values('user').distinct().count()
-        self.stdout.write(
-            f'  Seeded {created} notifications across {distinct_users} users'
-        )
+        self._log(f'  {created} notifikasi untuk {distinct_users} pengguna')
         return created
