@@ -294,6 +294,11 @@ class PengaturanInstitusi(models.Model):
         default='',
         help_text='Markdown kebijakan data pribadi (mobile & web).',
     )
+    syarat_ketentuan = models.TextField(
+        blank=True,
+        default='',
+        help_text='Markdown syarat & ketentuan (web publik & admin).',
+    )
 
     class Meta:
         verbose_name = 'Pengaturan Institusi'
@@ -435,10 +440,12 @@ class PhoneOTP(models.Model):
     PURPOSE_PASSWORD_RESET = 'password_reset'
     PURPOSE_PHONE_VERIFY = 'phone_verify'
     PURPOSE_REGISTRATION = 'registration'
+    PURPOSE_ACCOUNT_DELETION = 'account_deletion'
     PURPOSE_CHOICES = (
         (PURPOSE_PASSWORD_RESET, 'Reset Password'),
         (PURPOSE_PHONE_VERIFY, 'Verifikasi HP'),
         (PURPOSE_REGISTRATION, 'Registrasi'),
+        (PURPOSE_ACCOUNT_DELETION, 'Hapus Akun'),
     )
 
     user = models.ForeignKey(

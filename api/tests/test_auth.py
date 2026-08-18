@@ -130,8 +130,13 @@ class PrivacyPolicyTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response)
         data = response.data['data']
-        self.assertEqual(data['versi'], '1.1')
+        self.assertEqual(data['versi'], '2.0')
         self.assertEqual(data['retensi']['masa_tahun'], 5)
+        self.assertIn('penghapusan_akun', data)
+        self.assertIn('cara', data['penghapusan_akun'])
+        self.assertIn('dipertahankan', data['penghapusan_akun'])
+        self.assertIn('hak_pengguna', data)
+        self.assertTrue(any('hapus' in hak.lower() for hak in data['hak_pengguna']))
         self.assertIn('data_yang_disimpan', data)
         self.assertIn('keamanan_data_sensitif', data)
         self.assertEqual(

@@ -1051,7 +1051,7 @@ class PengaturanInstitusiSerializer(serializers.ModelSerializer):
         fields = [
             'nama_institusi', 'alamat', 'kontak', 'email',
             'logo_url', 'jam_operasional', 'jam_buka', 'jam_tutup',
-            'pengumuman', 'tentang', 'kebijakan',
+            'pengumuman', 'tentang', 'kebijakan', 'syarat_ketentuan',
         ]
         read_only_fields = ['logo_url']
         extra_kwargs = {
@@ -1081,13 +1081,19 @@ class PengaturanInstitusiSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def to_representation(self, instance):
-        from api.services.privacy_policy import DEFAULT_KEBIJAKAN_MD, DEFAULT_TENTANG_MD
+        from api.services.privacy_policy import (
+            DEFAULT_KEBIJAKAN_MD,
+            DEFAULT_SYARAT_MD,
+            DEFAULT_TENTANG_MD,
+        )
 
         data = super().to_representation(instance)
         if not (data.get('tentang') or '').strip():
             data['tentang'] = DEFAULT_TENTANG_MD
         if not (data.get('kebijakan') or '').strip():
             data['kebijakan'] = DEFAULT_KEBIJAKAN_MD
+        if not (data.get('syarat_ketentuan') or '').strip():
+            data['syarat_ketentuan'] = DEFAULT_SYARAT_MD
         return data
 
 

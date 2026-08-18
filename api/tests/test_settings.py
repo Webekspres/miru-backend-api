@@ -36,8 +36,36 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
         self.assertIn('pengumuman', data)
         self.assertIn('tentang', data)
         self.assertIn('kebijakan', data)
+        self.assertIn('syarat_ketentuan', data)
         self.assertTrue(data['tentang'].strip())
         self.assertTrue(data['kebijakan'].strip())
+        self.assertTrue(data['syarat_ketentuan'].strip())
+
+    def test_terms_endpoint_public(self):
+        response = self.client.get('/api/terms/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_envelope_success(response)
+        data = response.data['data']
+        self.assertEqual(data['versi'], '1.0')
+        self.assertEqual(data['judul'], 'Syarat & Ketentuan MIRU Bank Sampah')
+        self.assertIn('ringkasan', data)
+        self.assertIn('konten', data)
+        self.assertIn('#', data['konten'])
+        self.assertIn('Penghapusan Akun', data['konten'])
+        self.assertIn('/hapus-akun', data['konten'])
+
+    def test_admin_can_patch_syarat_ketentuan(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            '/api/settings/',
+            {'syarat_ketentuan': '# Syarat\n\nIsi syarat MIRU.'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('# Syarat', response.data['data']['syarat_ketentuan'])
+        terms = self.client.get('/api/terms/')
+        self.assertEqual(terms.status_code, status.HTTP_200_OK)
+        self.assertIn('# Syarat', terms.data['data']['konten'])
 
     def test_admin_can_patch_jam_buka_tutup(self):
         self.auth_as(self.admin)

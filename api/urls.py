@@ -25,7 +25,17 @@ from .export_views import (
 )
 from .notifications_views import NotifikasiViewSet
 from .device_token_views import DeviceTokenViewSet
-from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView
+from .settings_views import (
+    InstitutionSettingsView,
+    PengumumanListView,
+    PrivacyPolicyView,
+    TermsView,
+)
+from .delete_account_views import (
+    DeleteAccountCheckView,
+    DeleteAccountConfirmView,
+    DeleteAccountRequestOtpView,
+)
 from .monitoring_views import (
     DashboardDepositChartView,
     DashboardOverviewView,
@@ -62,6 +72,7 @@ urlpatterns = [
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
     path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
+    path('terms/', TermsView.as_view(), name='terms'),
     path(
         'device-tokens/unregister/',
         DeviceTokenViewSet.as_view({'delete': 'unregister'}),
@@ -96,6 +107,23 @@ urlpatterns = [
     path('auth/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
     path('auth/phone/request-otp/', PhoneRequestOtpView.as_view(), name='phone-request-otp'),
     path('auth/phone/verify-otp/', PhoneVerifyOtpView.as_view(), name='phone-verify-otp'),
+
+    # Play Store — self-service hapus akun (konfirmasi mendalam + OTP WA)
+    path(
+        'auth/delete-account/check/',
+        DeleteAccountCheckView.as_view(),
+        name='delete-account-check',
+    ),
+    path(
+        'auth/delete-account/request-otp/',
+        DeleteAccountRequestOtpView.as_view(),
+        name='delete-account-request-otp',
+    ),
+    path(
+        'auth/delete-account/confirm/',
+        DeleteAccountConfirmView.as_view(),
+        name='delete-account-confirm',
+    ),
 
     # Fase 8.5 — Info poin & masa berlaku
     path('auth/poin-info/', PoinInfoView.as_view(), name='poin-info'),
