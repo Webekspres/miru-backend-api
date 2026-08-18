@@ -36,8 +36,10 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
         self.assertIn('pengumuman', data)
         self.assertIn('tentang', data)
         self.assertIn('kebijakan', data)
+        self.assertIn('syarat_ketentuan', data)
         self.assertTrue(data['tentang'].strip())
         self.assertTrue(data['kebijakan'].strip())
+        self.assertTrue(data['syarat_ketentuan'].strip())
 
     def test_admin_can_patch_jam_buka_tutup(self):
         self.auth_as(self.admin)
@@ -99,15 +101,20 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
             {
                 'tentang': '# Tentang\n\nIsi tentang MIRU.',
                 'kebijakan': '# Kebijakan\n\nIsi kebijakan.',
+                'syarat_ketentuan': '# Syarat\n\nIsi syarat.',
             },
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('# Tentang', response.data['data']['tentang'])
         self.assertIn('# Kebijakan', response.data['data']['kebijakan'])
+        self.assertIn('# Syarat', response.data['data']['syarat_ketentuan'])
         privacy = self.client.get('/api/privacy-policy/')
         self.assertEqual(privacy.status_code, status.HTTP_200_OK)
         self.assertIn('# Kebijakan', privacy.data['data']['konten'])
+        terms = self.client.get('/api/terms/')
+        self.assertEqual(terms.status_code, status.HTTP_200_OK)
+        self.assertIn('# Syarat', terms.data['data']['konten'])
 
     def test_nasabah_cannot_patch_settings(self):
         self.auth_as(self.nasabah)

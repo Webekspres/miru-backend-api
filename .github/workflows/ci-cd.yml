@@ -133,20 +133,14 @@ jobs:
             set -e
             echo "==> Logging in to GHCR on server..."
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin || true
-            echo "==> Deploying Backend to ${{ needs.build-and-push.outputs.env_name }} at ${{ needs.build-and-push.outputs.target_dir }}..."
+            echo "==> Deploying API image to ${{ needs.build-and-push.outputs.env_name }} at ${{ needs.build-and-push.outputs.target_dir }}..."
             cd ${{ needs.build-and-push.outputs.target_dir }}
-            
-            # Pull latest backend image from GHCR
+
             docker compose pull api
-            
-            # Restart API service
             docker compose up -d --no-deps api
-            
-            # Run database migrations
+
             echo "==> Running database migrations..."
             docker compose exec -T api python manage.py migrate --noinput
-            
-            # Check container health
-            echo "==> Verifying API container status..."
+
             docker compose ps api
-            echo "==> Backend Deployment completed successfully!"
+            echo "==> API deployment completed (stack infra: Webekspres/miru-infra)."

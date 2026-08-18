@@ -83,3 +83,24 @@ class PrivacyPolicyView(APIView):
             message='Kebijakan data pribadi berhasil diambil.',
             request=request,
         )
+
+
+@extend_schema(
+    tags=[SETTINGS_TAG],
+    summary='Syarat dan ketentuan layanan',
+    description=(
+        'Dokumen syarat penggunaan aplikasi MIRU-G untuk Play Store '
+        'dan situs web publik.'
+    ),
+)
+class TermsOfServiceView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        from .services.privacy_policy import get_terms_of_service
+        return success_response(
+            data=get_terms_of_service(),
+            message='Syarat dan ketentuan berhasil diambil.',
+            request=request,
+        )
