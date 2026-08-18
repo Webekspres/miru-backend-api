@@ -1,4 +1,5 @@
-PRIVACY_POLICY_VERSION = '1.1'
+PRIVACY_POLICY_VERSION = '2.0'
+TERMS_OF_SERVICE_VERSION = '1.0'
 RETENTION_YEARS = 5
 
 PRIVACY_POLICY = {
@@ -8,9 +9,12 @@ PRIVACY_POLICY = {
     'dasar_hukum': 'Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)',
     'ringkasan': (
         'MIRU Bank Sampah mengumpulkan data pribadi nasabah dan petugas '
-        'untuk operasional program bank sampah. Data diproses secara terbatas, '
-        'disimpan dengan aman, dan dihapus sesuai kebijakan retensi setelah '
-        'masa penyimpanan berakhir. NIK dan foto KTP tidak disimpan di profil.'
+        'secara terbatas untuk operasional program bank sampah, disimpan '
+        'dengan aman, dan tidak pernah dijual kepada pihak ketiga. Nasabah '
+        'berhak mengakses, memperbaiki, hingga menghapus akun beserta data '
+        'pribadinya melalui aplikasi atau website. NIK dan foto KTP tidak '
+        'disimpan di profil. Catatan transaksi dipertahankan maksimal 5 tahun '
+        'sebagai arsip keuangan bank sampah sesuai ketentuan perundangan.'
     ),
     'data_yang_disimpan': [
         {
@@ -32,15 +36,22 @@ PRIVACY_POLICY = {
             'tujuan': 'Perhitungan hak nasabah atas setoran dan reward',
         },
         {
-            'kategori': 'Data audit',
+            'kategori': 'Data audit & keamanan',
             'field': ['audit log', 'riwayat harga', 'persetujuan kebijakan'],
             'tujuan': 'Transparansi, akuntabilitas, dan kepatuhan regulasi',
+        },
+        {
+            'kategori': 'Data teknis & perangkat',
+            'field': ['device token FCM', 'stempel waktu akses'],
+            'tujuan': 'Pengiriman notifikasi dan pengamanan sesi akun',
         },
     ],
     'data_yang_tidak_dikumpulkan': [
         'NIK',
         'Foto KTP pada profil / kartu digital',
         'Scan KTP otomatis / face recognition / data Dukcapil',
+        'Riwayat lokasi GPS secara berkala',
+        'Kontak ponsel / galeri / mikrofon',
     ],
     'retensi': {
         'masa_tahun': RETENTION_YEARS,
@@ -54,9 +65,29 @@ PRIVACY_POLICY = {
     },
     'hak_pengguna': [
         'Mengakses dan memperbarui profil melalui aplikasi',
-        'Mengajukan pengaduan terkait data atau layanan',
+        'Memperbaiki atau melengkapi data yang tidak akurat',
         'Meminta penjelasan penggunaan data kepada admin program',
+        'Mengajukan pengaduan terkait data atau layanan',
+        'Menarik persetujuan pemrosesan data kapan saja',
+        'Menghapus akun beserta data pribadi melalui aplikasi atau website',
     ],
+    'penghapusan_akun': {
+        'cara': [
+            'Melalui aplikasi mobile (menu Profil) atau halaman website /hapus-akun',
+            'Verifikasi kepemilikan dengan OTP WhatsApp (seperti saat login)',
+            'Konfirmasi tertulis (ketik frasa konfirmasi) sebelum akun dihapus',
+        ],
+        'akibat': (
+            'Akun dinonaktifkan, data pribadi dianonimkan/dihapus, saldo dan '
+            'poin dinolkan, dan pengguna tidak dapat login kembali.'
+        ),
+        'dipertahankan': (
+            'Catatan transaksi (setoran, penjemputan, penarikan, penukaran '
+            'poin, pengaduan) dipertahankan sebagai arsip keuangan bank '
+            'sampah sesuai Pasal 26 UU PDP (kepentingan hukum/operasional), '
+            'tanpa menautkan kembali ke identitas pribadi setelah dianonimkan.'
+        ),
+    },
     'persetujuan_registrasi': {
         'field': 'setuju_kebijakan_data',
         'wajib': True,
@@ -87,287 +118,283 @@ PRIVACY_POLICY = {
 }
 
 
-DEFAULT_KEBIJAKAN_MD = """# Kebijakan Privasi (Privacy Policy)
+TERMS = {
+    'versi': TERMS_OF_SERVICE_VERSION,
+    'judul': 'Syarat & Ketentuan MIRU Bank Sampah',
+    'institusi': 'Bank Sampah MIRU — Distrik Mimika Baru',
+    'dasar_hukum': 'Hukum Republik Indonesia, termasuk UU Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi',
+    'ringkasan': (
+        'Syarat & Ketentuan ini mengatur penggunaan aplikasi dan layanan '
+        'MIRU Bank Sampah oleh nasabah, termasuk pendaftaran akun, setoran, '
+        'penjemputan, saldo & poin, penarikan, penukaran reward, pengaduan, '
+        'serta hak dan kewajiban pengguna. Dengan mendaftar atau menggunakan '
+        'layanan, Anda dianggap telah membaca dan menyetujui seluruh ketentuan '
+        'di bawah ini.'
+    ),
+}
 
-**MIRU-G — Mimika Baru Green Solution**
-Bank Sampah Resmi Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah
 
-**Versi:** 1.1 · **Dasar hukum:** Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)
+DEFAULT_KEBIJAKAN_MD = """# Kebijakan Perlindungan Data Pribadi
 
-Terakhir diperbarui: sesuai tanggal publikasi di aplikasi.
+**MIRU Bank Sampah** — Distrik Mimika Baru
+
+Berlaku sesuai **Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi (UU PDP)**.
 
 ---
 
 ## 1. Pendahuluan
 
-MIRU-G ("kami", "Bank Sampah MIRU") berkomitmen melindungi data pribadi pengguna aplikasi mobile dan layanan terkait. Kebijakan Privasi ini menjelaskan jenis data yang kami kumpulkan, alasan pengumpulan, cara penyimpanan, hak Anda sebagai subjek data, serta cara menghubungi pengelola program.
+MIRU Bank Sampah (selanjutnya disebut "kami") berkomitmen melindungi data pribadi setiap nasabah, petugas, dan pengguna layanan. Kebijakan ini menjelaskan secara terbuka:
 
-Dengan mendaftar atau menggunakan aplikasi MIRU-G, Anda menyetujui kebijakan ini.
+- data pribadi apa saja yang kami kumpulkan;
+- untuk apa data tersebut digunakan;
+- bagaimana data disimpan, dilindungi, dan berapa lama disimpan;
+- hak-hak Anda sebagai pemilik data pribadi, termasuk cara menghapus akun.
 
-## 2. Ruang Lingkup
+Dengan mendaftar akun atau menggunakan layanan MIRU Bank Sampah, Anda menyatakan setuju terhadap pemrosesan data pribadi sesuai kebijakan ini.
 
-Kebijakan ini berlaku untuk:
+## 2. Dasar Hukum
 
-- Aplikasi mobile MIRU-G (Android) untuk nasabah bank sampah
-- Panel web administrasi MIRU-G (admin, koordinator, petugas, pemerintah distrik)
-- Situs web publik MIRU-G (informasi layanan, edukasi, dan dokumen legal)
+Pemrosesan data pribadi dalam sistem ini dilakukan berdasarkan:
 
-## 3. Data yang Kami Kumpulkan
+1. **Undang-Undang Nomor 27 Tahun 2022** tentang Pelindungan Data Pribadi (UU PDP);
+2. Peraturan perundang-undangan terkait arsip dan tata kelola keuangan daerah;
+3. SOP pengelolaan bank sampah Distrik Mimika Baru;
+4. Persetujuan (consent) yang Anda berikan saat registrasi, yang waktu persetujuannya kami catat di sistem.
 
-### 3.1 Data identitas dan profil
+## 3. Data Pribadi yang Dikumpulkan
 
-- Username / ID nasabah
-- Nama lengkap
-- Nomor telepon (HP)
-- Alamat domisili
-- Foto profil (opsional, jika Anda mengunggah)
+Kami hanya mengumpulkan data yang benar-benar diperlukan untuk menyelenggarakan layanan bank sampah:
 
-**NIK dan foto KTP tidak disimpan permanen di profil akun.**
+| Kategori | Data | Tujuan |
+|---|---|---|
+| Identitas akun | Username, nama lengkap, nomor HP, alamat, RT/RW/kelurahan | Registrasi, identifikasi saat setoran, komunikasi layanan |
+| Keuangan program | Saldo, poin | Perhitungan hak Anda atas hasil setoran dan reward |
+| Transaksi | Setoran, penjemputan, penarikan, penukaran poin, pengaduan | Pencatatan operasional dan bukti digital |
+| Audit | Audit log, riwayat harga, waktu persetujuan kebijakan | Transparansi, akuntabilitas, kepatuhan regulasi |
+| Teknis | Token perangkat (FCM), stempel waktu akses | Pengiriman notifikasi dan pengamanan sesi |
 
-### 3.2 Data transaksi dan layanan
+**Data yang TIDAK kami kumpulkan:** NIK, foto KTP pada profil/kartu digital, scan KTP otomatis, face recognition, data Dukcapil, riwayat lokasi GPS berkala, kontak ponsel, galeri, maupun mikrofon.
 
-- Riwayat setoran sampah (jenis, berat, nilai)
-- Riwayat penarikan saldo dan penukaran poin/reward
-- Permintaan penjemputan sampah (termasuk alamat/lokasi jemput)
-- Pengaduan layanan
-- Saldo dan poin program
+> Foto KTP hanya dilampirkan **sementara** saat Anda mengajukan penarikan Rp1.000.000 atau lebih, dan **dihapus segera** setelah pengajuan disetujui atau ditolak oleh petugas.
 
-### 3.3 Data teknis
+## 4. Tujuan dan Dasar Pemrosesan
 
-- Token perangkat (FCM) untuk notifikasi push — jika Anda mengizinkan
-- Log audit aktivitas akun (untuk keamanan dan akuntabilitas)
-- Waktu persetujuan kebijakan data saat registrasi
+Data pribadi diproses semata-mata untuk:
 
-### 3.4 Lampiran sementara
+- membuat dan mengelola akun Anda;
+- memproses setoran, penjemputan, penarikan saldo, dan penukaran poin;
+- menghubungi Anda terkait jadwal penjemputan atau status layanan;
+- menyusun laporan agregat untuk Pemerintah Distrik dan OPD terkait;
+- menjaga keamanan sistem dan mencegah penyalahgunaan akun.
 
-Untuk penarikan saldo **Rp1.000.000 atau lebih**, Anda dapat diminta melampirkan foto KTP sebagai verifikasi identitas. File ini:
+Kami **tidak pernah menjual** data pribadi kepada pihak ketiga, dan tidak menggunakannya untuk iklan lintas platform.
 
-- Hanya diakses admin/koordinator saat pengajuan menunggu
-- **Tidak** disimpan sebagai arsip identitas permanen
-- **Dihapus** setelah penarikan disetujui atau ditolak
+## 5. Penyimpanan dan Keamanan
 
-## 4. Izin Aplikasi Mobile
+- Data disimpan pada server yang dikelola dengan kontrol akses berlapis;
+- Kata sandi disimpan dalam bentuk ter-hash, tidak pernah dalam teks terbuka;
+- Kode OTP disimpan sebagai hash dan hanya berlaku 5 menit;
+- Setiap perubahan data penting tercatat dalam audit log;
+- Akses data nasabah oleh petugas dibatasi sesuai peran dan kebutuhan kerja.
 
-Aplikasi MIRU-G dapat meminta izin perangkat berikut:
+## 6. Masa Retensi Data
 
-- **Internet** — sinkronisasi data, login, dan transaksi
-- **Kamera** — foto profil, lampiran KTP penarikan besar, dokumentasi setoran
-- **Lokasi** — alamat penjemputan sampah (GPS/koordinat)
-- **Penyimpanan / Galeri** — memilih foto dari perangkat
+- **Catatan transaksi** dan arsip digital disimpan **minimal 5 tahun** sesuai tata kelola arsip OPD dan SOP bank sampah;
+- **Lampiran foto KTP** penarikan besar dihapus segera setelah diproses;
+- **Data profil** yang sudah tidak aktif dapat dianonimkan atau dihapus sesuai keputusan pengelola;
+- Setelah masa retensi berakhir, data dianonimkan atau dihapus permanen.
 
-Anda dapat menolak izin; beberapa fitur (misalnya unggah foto atau penjemputan berbasis lokasi) mungkin tidak berfungsi penuh.
+## 7. Hak Anda sebagai Pemilik Data
 
-## 5. Tujuan Penggunaan Data
+Berdasarkan UU PDP, Anda berhak untuk:
 
-Data pribadi digunakan untuk:
+1. **Mengakses** data pribadi Anda;
+2. **Memperbaiki / melengkapi** data yang tidak akurat;
+3. **Menghapus** data pribadi Anda (termasuk melalui fitur hapus akun);
+4. **Menarik persetujuan** pemrosesan data kapan saja;
+5. **Mengajukan keberatan / pembatasan** pemrosesan;
+6. **Mengajukan pengaduan** terkait pemrosesan data;
+7. Menuntut **ganti rugi** apabila terjadi pelanggaran sesuai ketentuan perundang-undangan.
 
-1. Registrasi, autentikasi, dan pengelolaan akun nasabah
-2. Pencatatan setoran, penarikan, penukaran poin, dan bukti digital
-3. Penjadwalan dan pelaksanaan penjemputan sampah
-4. Notifikasi layanan (setoran, penjemputan, penarikan, pengumuman)
-5. Penanganan pengaduan
-6. Pelaporan operasional kepada Pemerintah Distrik Mimika Baru
-7. Audit, keamanan sistem, dan kepatuhan regulasi
+## 8. Penghapusan Akun
 
-Kami **tidak menjual** data pribadi Anda kepada pihak ketiga.
+Anda dapat menghapus akun beserta data pribadi Anda kapan saja melalui:
 
-## 6. Berbagi Data dengan Pihak Ketiga
+1. **Aplikasi mobile** — menu Profil, lalu pilih Hapus Akun; atau
+2. **Website** — halaman `https://(domain)/hapus-akun`.
 
-Data dapat diproses oleh penyedia layanan teknis yang membantu operasional aplikasi, antara lain:
+Demi keamanan, proses penghapusan mewajibkan:
 
-- **Firebase Cloud Messaging (Google)** — pengiriman notifikasi push
-- **Penyedia hosting/server** — penyimpanan data aplikasi
+- verifikasi kepemilikan melalui **OTP WhatsApp** (sama seperti saat login);
+- konfirmasi nomor HP terdaftar; dan
+- konfirmasi tertulis bahwa Anda memahami tindakan ini **permanen**.
 
-Pihak ketiga hanya memproses data sesuai instruksi kami dan standar keamanan yang wajar. Data pemerintah daerah (laporan distrik) hanya dibagikan sesuai kewenangan resmi program bank sampah.
+Setelah penghapusan: akun dinonaktifkan, data pribadi dianonimkan/dihapus, saldo dan poin dinolkan, dan Anda tidak dapat login kembali.
 
-## 7. Penyimpanan dan Keamanan
+**Catatan penting:** berdasarkan **Pasal 26 UU PDP**, kami dapat mempertahankan catatan transaksi (setoran, penjemputan, penarikan, penukaran poin, pengaduan) sebagai arsip keuangan bank sampah yang sah, **tanpa menautkan kembali ke identitas pribadi** Anda setelah dianonimkan. Data yang dipertahankan tidak digunakan untuk keperluan lain.
 
-- Data disimpan di server dengan kontrol akses berbasis peran (nasabah, petugas, admin)
-- Koneksi aplikasi menggunakan enkripsi HTTPS
-- Lampiran sensitif (foto KTP penarikan) tidak dipublikasikan dan tidak dikirim lewat notifikasi
-- Audit log mencatat perubahan penting untuk transparansi
+## 9. Berbagi Data
 
-## 8. Masa Retensi Data
+Data hanya dibagikan dalam lingkup:
 
-- **Data transaksi dan arsip digital:** minimal **5 (lima) tahun** sesuai tata kelola arsip OPD dan SOP bank sampah
-- **Lampiran foto KTP penarikan besar:** dihapus segera setelah pengajuan selesai diproses
-- **Token notifikasi:** dihapus saat logout/uninstall atau saat token tidak valid
-- Setelah masa retensi, data dapat **dianonimkan atau dihapus** sesuai keputusan pengelola
+- **Petugas/Admin/Koordinator** bank sampah — sebatas yang diperlukan untuk melayani Anda;
+- **Pemerintah Distrik Mimika Baru** — dalam bentuk laporan agregat untuk evaluasi program;
+- **Penyedia layanan teknis** (misal penyimpanan cloud, gateway WhatsApp) — sebatas kontrak kerja, tanpa hak menggunakan data di luar kepentingan layanan.
 
-## 9. Hak Subjek Data (UU PDP)
+## 10. Perubahan Kebijakan
 
-Anda berhak untuk:
+Kebijakan ini dapat diperbarui sewaktu-waktu. Perubahan substansial akan diumumkan melalui aplikasi dan/atau website. Versi terbaru selalu tersedia di halaman Kebijakan Privasi. Dengan tetap menggunakan layanan setelah perubahan, Anda dianggap menyetujui kebijakan terbaru.
 
-- Mengakses dan memperbarui data profil melalui aplikasi
-- Mengajukan pengaduan terkait data atau layanan
-- Meminta penjelasan penggunaan data kepada admin program
-- Menarik persetujuan (dengan konsekuensi tidak dapat melanjutkan layanan yang memerlukan data tersebut)
+## 11. Kontak dan Pengaduan
 
-Permintaan dapat diajukan melalui fitur pengaduan di aplikasi atau kontak resmi di bawah.
+Untuk pertanyaan, koreksi data, atau pengaduan terkait perlindungan data pribadi, hubungi:
 
-## 10. Data Anak
+- **Kantor:** Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah
+- **Kontak:** 0821 977 3693
+- **Email:** distrikmiru@mimikakab.go.id
 
-Layanan MIRU-G ditujukan untuk warga/nasabah bank sampah. Jika pengguna berusia di bawah 18 tahun, pendaftaran sebaiknya didampingi orang tua/wali. Kami tidak dengan sengaja mengumpulkan data anak tanpa persetujuan wali yang sah.
-
-## 11. Perubahan Kebijakan
-
-Kami dapat memperbarui Kebijakan Privasi ini. Versi terbaru akan dipublikasikan di aplikasi dan situs web. Perubahan material dapat memerlukan persetujuan ulang saat login/registrasi.
-
-## 12. Kontak Pengelola Data
-
-**Bank Sampah MIRU — Distrik Mimika Baru**
-Pemerintah Kabupaten Mimika
-
-- Alamat: Jl. Cenderawasih Poros SP.II, Timika, Mimika Baru, Kabupaten Mimika, Papua Tengah 99910
-- Telepon: 0821 977 3693
-- Email: distrikmiru@mimikakab.go.id
-- Jam layanan: Senin–Sabtu, 08.00–17.00 WIT
-
-Untuk pertanyaan privasi, hubungi admin program melalui aplikasi (Pengaduan) atau kontak di atas.
+Kami akan menindaklanjuti setiap permintaan sesuai ketentuan UU PDP.
 """
 
-DEFAULT_SYARAT_MD = """# Syarat dan Ketentuan (Terms & Conditions)
 
-**MIRU-G — Mimika Baru Green Solution**
-Bank Sampah Resmi Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah
+DEFAULT_SYARAT_MD = """# Syarat & Ketentuan
 
-**Versi:** 1.0
+**MIRU Bank Sampah** — Distrik Mimika Baru
 
-Terakhir diperbarui: sesuai tanggal publikasi di aplikasi.
+Berlaku sejak tanggal diumumkan dan mengikat setiap pengguna layanan.
 
 ---
 
 ## 1. Penerimaan Syarat
 
-Dengan mengunduh, mendaftar, atau menggunakan aplikasi MIRU-G ("Aplikasi"), Anda ("Pengguna", "Nasabah") setuju terikat oleh Syarat dan Ketentuan ini beserta [Kebijakan Privasi](/privacy-policy) kami.
-
-Jika Anda tidak setuju, mohon tidak menggunakan Aplikasi.
+Dengan mendaftar akun, mengunduh, atau menggunakan aplikasi/website MIRU Bank Sampah, Anda dianggap telah membaca, memahami, dan menyetujui seluruh Syarat & Ketentuan ini beserta Kebijakan Perlindungan Data Pribadi. Jika tidak setuju, mohon tidak menggunakan layanan ini.
 
 ## 2. Definisi
 
-- **MIRU-G / Bank Sampah MIRU:** program bank sampah resmi Distrik Mimika Baru yang dikelola Pemerintah Kabupaten Mimika.
-- **Nasabah:** warga terdaftar yang menyetor sampah terpilah dan memiliki saldo/poin program.
-- **Petugas / Koordinator / Admin:** pengguna panel web yang mengelola operasional bank sampah.
-- **Setoran:** penyerahan sampah terpilah yang dicatat dalam sistem.
-- **Saldo:** nilai rupiah hasil setoran yang dapat ditarik sesuai ketentuan.
-- **Poin:** poin reward program yang dapat ditukar dengan hadiah/reward.
+- **Nasabah** — pengguna aplikasi mobile (masyarakat) yang memiliki akun MIRU.
+- **Petugas / Admin / Koordinator** — pengelola bank sampah yang bertugas melayani operasional.
+- **Saldo** — nilai rupiah hasil setoran sampah yang menjadi hak nasabah.
+- **Poin** — satuan reward yang diperoleh dari transaksi setoran dan dapat ditukar dengan hadiah.
+- **Layanan** — seluruh fitur: setoran, penjemputan, saldo & poin, penarikan, penukaran reward, dan pengaduan.
 
-## 3. Layanan
+## 3. Pendaftaran Akun
 
-MIRU-G menyediakan layanan digital antara lain:
+- Pendaftaran dilakukan dengan data yang **benar, lengkap, dan dapat dipertanggungjawabkan**.
+- Nomor HP diverifikasi melalui **OTP WhatsApp**; satu nomor HP mewakili satu akun.
+- Anda bertanggung jawab penuh atas kerahasiaan username dan kata sandi akun.
+- Pengelola berhak menolak atau menonaktifkan akun yang terdaftar dengan identitas palsu atau untuk tujuan melanggar hukum.
 
-1. Registrasi dan profil nasabah
-2. Pencatatan setoran sampah terpilah
-3. Permintaan penjemputan sampah
-4. Informasi saldo, poin, dan riwayat transaksi
-5. Pengajuan penarikan saldo
-6. Penukaran poin/reward
-7. Pengaduan layanan
-8. Notifikasi dan edukasi sampah
+## 4. Layanan Bank Sampah
 
-Layanan dapat diubah, ditambah, atau dihentikan sebagian oleh pengelola demi kepentingan operasional, dengan pemberitahuan wajar jika memungkinkan.
+1. **Setoran sampah terpilah** — sampah plastik, kertas, logam, dan jenis lain yang diterima sesuai ketentuan; hasil setoran masuk sebagai saldo dan poin.
+2. **Penjemputan** — penjadwalan jemput sampah oleh petugas di alamat yang terdaftar; hanya untuk wilayah layanan yang aktif.
+3. **Saldo & poin** — saldo dapat ditarik tunai/rekening; poin dapat ditukar dengan reward selama masa berlaku (1 tahun).
+4. **Penarikan saldo** — penarikan Rp1.000.000 atau lebih wajib melampirkan foto KTP untuk verifikasi; foto dihapus setelah diproses.
+5. **Pengaduan** — nasabah dapat melaporkan kendala layanan melalui aplikasi dan akan ditindaklanjuti petugas.
 
-## 4. Pendaftaran Akun
+## 5. Hak dan Kewajiban Nasabah
 
-1. Nasabah wajib memberikan data yang **benar dan dapat dipertanggungjawabkan** (nama, nomor HP, alamat).
-2. Nasabah wajib **menyetujui Kebijakan Privasi** saat registrasi.
-3. Satu nasabah menggunakan satu akun; dilarang membuat akun palsu atau ganda untuk manipulasi saldo/poin.
-4. Anda bertanggung jawab menjaga kerahasiaan kata sandi dan aktivitas pada akun Anda.
-5. Segera laporkan jika akun dicurigai disalahgunakan.
+**Kewajiban:**
 
-## 5. Ketentuan Setoran Sampah
+- Menjaga keakuratan data profil dan segera memperbarui jika berubah;
+- Tidak menggunakan akun untuk aktivitas ilegal, penipuan, atau penyalahgunaan layanan;
+- Menjaga kerahasiaan kredensial akun;
+- Mematuhi ketentuan jenis dan berat minimal sampah yang diterima.
 
-1. Sampah harus **terpilah** sesuai kategori yang ditetapkan bank sampah.
-2. Berat dan jenis sampah dicatat petugas/koordinator; keputusan pencatatan mengacu pada prosedur operasional distrik.
-3. Harga sampah mengikuti **tarif resmi** yang berlaku; perubahan harga akan diinformasikan melalui pengumuman.
-4. Setoran fiktif, manipulasi berat, atau penyerahan sampah terlarang dapat mengakibatkan penolakan transaksi atau sanksi akun.
+**Hak:**
 
-## 6. Saldo, Poin, dan Penarikan
+- Mengakses ringkasan saldo, poin, dan riwayat transaksi;
+- Mengajukan penjemputan, penarikan, dan penukaran poin;
+- Mengajukan pengaduan dan memperoleh tanggapan;
+- Memperbarui atau menghapus akun sesuai ketentuan yang berlaku.
 
-1. Saldo dan poin dihitung berdasarkan setoran yang **disetujui/dicatat** dalam sistem.
-2. Penarikan saldo mengikuti prosedur dan batas minimum/maksimum yang ditetapkan pengelola.
-3. Penarikan **Rp1.000.000 atau lebih** dapat memerlukan verifikasi identitas (termasuk lampiran foto KTP sementara).
-4. Pengelola berhak menunda atau menolak penarikan jika ditemukan indikasi pelanggaran, data tidak valid, atau kewajiban administrasi belum terpenuhi.
-5. Poin reward memiliki masa berlaku sesuai ketentuan program; poin kadaluarsa tidak dapat ditukar kembali.
+## 6. Saldo, Poin, dan Reward
 
-## 7. Penjemputan Sampah
+- Nilai setoran dihitung berdasarkan **harga resmi per kilogram** yang diumumkan dan mulai berlaku sesuai ketentuan perubahan harga (H+3);
+- Poin diberikan berdasarkan nilai setoran dan berlaku **1 tahun** sejak diperoleh; poin yang tidak digunakan akan hangus otomatis;
+- Penukaran reward mengikuti stok yang tersedia dan keputusan pengelola;
+- Kesalahan pencatatan dapat dikoreksi oleh pengelola melalui mekanisme yang sah dan tercatat di audit log.
 
-1. Nasabah dapat mengajukan penjemputan melalui Aplikasi dengan alamat/lokasi yang akurat.
-2. Jadwal penjemputan bergantung ketersediaan petugas dan wilayah layanan.
-3. Nasabah wajib menyiapkan sampah terpilah saat petugas tiba.
-4. Pembatalan atau perubahan jadwal sebaiknya dilakukan secepatnya melalui Aplikasi atau kontak petugas.
+## 7. Penghentian dan Penghapusan Akun
 
-## 8. Pengaduan
+- **Anda** dapat menghapus akun kapan saja melalui aplikasi (menu Profil) atau halaman website `/hapus-akun` dengan verifikasi OTP WhatsApp dan konfirmasi tertulis.
+- **Pengelola** berhak menonaktifkan akun apabila melanggar ketentuan ini, terlibat penipuan, atau berdasarkan ketentuan hukum.
+- Penghapusan akun bersifat permanen; saldo dan poin yang tersisa tidak dapat dikembalikan setelah proses selesai.
+- Catatan transaksi tetap dipertahankan sebagai arsip keuangan bank sampah sesuai peraturan perundang-undangan.
 
-Nasabah dapat mengajukan pengaduan terkait layanan atau data pribadi melalui fitur Pengaduan. Pengelola akan menindaklanjuti sesuai prosedur operasional dan ketentuan peraturan yang berlaku.
+## 8. Pembatasan Tanggung Jawab
 
-## 9. Penggunaan yang Dilarang
+- Layanan disediakan sebagaimana adanya; pengelola berupaya menjaga ketersediaan dan keakuratan data;
+- Pengelola tidak bertanggung jawab atas kerugian akibat kelalaian nasabah (misal membagikan kredensial akun) atau force majeure;
+- Pengelola tidak bertanggung jawab atas keputusan pengguna yang bertentangan dengan ketentuan ini.
 
-Pengguna dilarang:
+## 9. Perubahan Syarat
 
-- Mengakses sistem tanpa otorisasi atau mencoba mengganggu keamanan server
-- Menyalahgunakan fitur untuk penipuan, pencucian data, atau manipulasi saldo/poin
-- Mengunggah konten ilegal, menyesatkan, atau melanggar hak pihak ketiga
-- Menyebarkan malware atau melakukan scraping otomatis terhadap layanan
+Syarat & Ketentuan dapat diperbarui sewaktu-waktu. Perubahan akan diumumkan melalui aplikasi dan/atau website, dan versi terbaru selalu tersedia di halaman ini. Penggunaan layanan setelah perubahan berarti menyetujui ketentuan terbaru.
 
-Pelanggaran dapat mengakibatkan **penangguhan atau penghapusan akun** serta tindakan sesuai hukum.
+## 10. Hukum yang Berlaku
 
-## 10. Kekayaan Intelektual
+Syarat & Ketentuan ini tunduk pada hukum Republik Indonesia, termasuk UU Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi. Sengketa diupayakan diselesaikan secara musyawarah terlebih dahulu, dan apabila tidak tercapai diselesaikan melalui mekanisme yang berlaku di wilayah hukum Kabupaten Mimika.
 
-Nama MIRU-G, logo, desain antarmuka, dan materi edukasi adalah milik pengelola/pemerintah distrik. Dilarang menyalin, memodifikasi, atau mendistribusikan tanpa izin tertulis, kecuali untuk penggunaan pribadi non-komersial yang diizinkan.
+## 11. Kontak
 
-## 11. Batasan Tanggung Jawab
-
-1. Aplikasi disediakan **"sebagaimana adanya"** untuk mendukung operasional bank sampah.
-2. Pengelola berupaya menjaga ketersediaan sistem, namun tidak menjamin layanan bebas gangguan (misalnya pemadaman jaringan, pemeliharaan server).
-3. Pengelola tidak bertanggung jawab atas kerugian tidak langsung akibat force majeure, kesalahan jaringan pihak ketiga, atau kelalaian pengguna menjaga keamanan akun.
-4. Keputusan operasional di lapangan (penerimaan jenis sampah, verifikasi setoran) mengacu pada SOP resmi distrik.
-
-## 12. Penangguhan dan Penghapusan Akun
-
-Pengelola dapat menangguhkan atau menghapus akun jika:
-
-- Terbukti melanggar Syarat dan Ketentuan
-- Data registrasi palsu atau menyesatkan
-- Tidak ada aktivitas dalam jangka waktu lama (sesuai kebijakan internal)
-- Atas permintaan resmi aparat sesuai hukum
-
-Nasabah dapat meminta penghapusan akun melalui pengaduan; data tertentu dapat tetap disimpan sesuai kewajiban retensi arsip (lihat Kebijakan Privasi).
-
-## 13. Perubahan Syarat
-
-Syarat dan Ketentuan dapat diperbarui. Versi terbaru dipublikasikan di situs web dan/atau Aplikasi. Penggunaan berkelanjutan setelah perubahan dianggap sebagai penerimaan syarat yang diperbarui.
-
-## 14. Hukum yang Berlaku
-
-Syarat ini tunduk pada hukum Republik Indonesia, termasuk UU Perlindungan Data Pribadi. Sengketa diselesaikan secara musyawarah; jika tidak tercapai, melalui mekanisme hukum yang berlaku di Kabupaten Mimika.
-
-## 15. Kontak
-
-**Bank Sampah MIRU — Distrik Mimika Baru**
-
-- Alamat: Jl. Cenderawasih Poros SP.II, Timika, Mimika Baru, Kabupaten Mimika, Papua Tengah 99910
-- Telepon: 0821 977 3693
-- Email: distrikmiru@mimikakab.go.id
-- Jam layanan: Senin–Sabtu, 08.00–17.00 WIT
+- **Kantor:** Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah
+- **Kontak:** 0821 977 3693
+- **Email:** distrikmiru@mimikakab.go.id
 """
+
 
 DEFAULT_TENTANG_MD = """# Tentang MIRU
 
-MIRU (Mimika Recycle Unit) adalah aplikasi bank sampah resmi Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah.
+**MIRU (Mimika Recycle Unit)** adalah aplikasi bank sampah resmi **Distrik Mimika Baru**, Kabupaten Mimika, Papua Tengah — bagian dari program inovasi daerah dalam pengelolaan sampah.
 
-> Sampah Bernilai, Lingkungan Bersih, Warga Sejahtera
+> **"Sampah Bernilai, Lingkungan Bersih, Warga Sejahtera"**
 
-## Layanan utama
+## Apa itu MIRU Bank Sampah?
 
-- **Setoran sampah terpilah** — plastik, kertas, logam, dan minyak jelantah
-- **Penjemputan** — jadwal jemput oleh petugas bank sampah
-- **Saldo & poin** — hasil setoran dapat ditarik atau ditukar reward
-- **Pengaduan** — laporkan kendala layanan melalui aplikasi
+MIRU Bank Sampah adalah sistem digital yang menghubungkan masyarakat (nasabah), petugas bank sampah, dan Pemerintah Distrik dalam satu ekosistem pengelolaan sampah. Sampah yang tadinya dianggap tidak bernilai, melalui MIRU dikelola menjadi **nilai ekonomi** bagi warga sekaligus menjaga kebersihan lingkungan.
+
+## Visi & Misi
+
+- **Visi:** Mewujudkan Distrik Mimika Baru yang bersih, sehat, dan sejahtera melalui pengelolaan sampah berbasis masyarakat.
+- **Misi:**
+  1. Meningkatkan kesadaran masyarakat dalam memilah sampah;
+  2. Memberikan nilai ekonomi langsung dari setoran sampah;
+  3. Mewujudkan tata kelola bank sampah yang transparan dan akuntabel;
+  4. Mendukung target pengurangan sampah daerah.
+
+## Layanan Utama
+
+- **Setoran sampah terpilah** — plastik, kertas, logam, dan minyak jelantah dengan penimbangan resmi;
+- **Penjemputan** — jadwal jemput sampah oleh petugas bank sampah di rumah;
+- **Saldo & poin** — hasil setoran tersimpan sebagai saldo yang dapat ditarik, serta poin yang dapat ditukar reward;
+- **Kartu digital (QR)** — identitas nasabah untuk transaksi cepat dan akurat;
+- **Pengaduan** — saluran laporan kendala layanan yang ditindaklanjuti petugas;
+- **Edukasi sampah** — artikel dan panduan memilah sampah untuk warga.
+
+## Cara Kerja
+
+1. **Daftar** — buat akun melalui aplikasi mobile dan verifikasi nomor HP;
+2. **Setor** — bawa sampah terpilah ke bank sampah atau ajukan penjemputan;
+3. **Catat** — petugas menimbang, mencatat nilai, dan saldo/poin bertambah otomatis;
+4. **Tarik/Tukar** — saldo dapat ditarik atau poin ditukar reward;
+5. **Pantau** — seluruh riwayat transaksi dapat dilihat kapan saja di aplikasi.
 
 ## Teknologi
 
-Dikembangkan untuk masyarakat Distrik Mimika Baru.
+Dikembangkan oleh **PT Webekspres Teknologi Indonesia** untuk Pemerintah Distrik Mimika Baru. Sistem terdiri dari aplikasi mobile untuk nasabah, panel web untuk petugas/admin, dan API terpusat yang aman (JWT + enkripsi data pribadi).
+
+## Wilayah Layanan
+
+Layanan MIRU Bank Sampah beroperasi di wilayah kerja **Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah** sesuai daftar kelurahan/kampung yang aktif di sistem.
+
+## Kontak
+
+- **Kantor:** Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah
+- **Kontak:** 0821 977 3693
+- **Email:** distrikmiru@mimikakab.go.id
+- **Jam Operasional:** Senin–Sabtu, 08.00–17.00 WIT
 """
 
 
@@ -380,24 +407,12 @@ def get_privacy_policy() -> dict:
     return data
 
 
-TERMS_OF_SERVICE_VERSION = '1.0'
-
-TERMS_OF_SERVICE = {
-    'versi': TERMS_OF_SERVICE_VERSION,
-    'judul': 'Syarat dan Ketentuan MIRU-G',
-    'institusi': 'Bank Sampah MIRU — Distrik Mimika Baru',
-    'ringkasan': (
-        'Syarat penggunaan aplikasi MIRU-G untuk nasabah bank sampah: '
-        'pendaftaran akun, setoran sampah, saldo/poin, penarikan, '
-        'penjemputan, dan tata cara pengaduan layanan.'
-    ),
-}
-
-
 def get_terms_of_service() -> dict:
     from api.models import PengaturanInstitusi
 
     inst = PengaturanInstitusi.load()
-    data = dict(TERMS_OF_SERVICE)
-    data['konten'] = (inst.syarat_ketentuan or '').strip() or DEFAULT_SYARAT_MD
+    data = dict(TERMS)
+    data['konten'] = (
+        (inst.syarat_ketentuan or '').strip() or DEFAULT_SYARAT_MD
+    )
     return data
