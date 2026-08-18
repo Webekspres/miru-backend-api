@@ -29,7 +29,7 @@ from .settings_views import (
     InstitutionSettingsView,
     PengumumanListView,
     PrivacyPolicyView,
-    TermsView,
+    TermsOfServiceView,
 )
 from .delete_account_views import (
     DeleteAccountCheckView,
@@ -72,7 +72,7 @@ urlpatterns = [
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
     path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
-    path('terms/', TermsView.as_view(), name='terms'),
+    path('terms/', TermsOfServiceView.as_view(), name='terms'),
     path(
         'device-tokens/unregister/',
         DeviceTokenViewSet.as_view({'delete': 'unregister'}),

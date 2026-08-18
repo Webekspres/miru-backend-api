@@ -1,5 +1,5 @@
 PRIVACY_POLICY_VERSION = '2.0'
-TERMS_VERSION = '1.0'
+TERMS_OF_SERVICE_VERSION = '1.0'
 RETENTION_YEARS = 5
 
 PRIVACY_POLICY = {
@@ -119,7 +119,7 @@ PRIVACY_POLICY = {
 
 
 TERMS = {
-    'versi': TERMS_VERSION,
+    'versi': TERMS_OF_SERVICE_VERSION,
     'judul': 'Syarat & Ketentuan MIRU Bank Sampah',
     'institusi': 'Bank Sampah MIRU — Distrik Mimika Baru',
     'dasar_hukum': 'Hukum Republik Indonesia, termasuk UU Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi',
@@ -407,7 +407,7 @@ def get_privacy_policy() -> dict:
     return data
 
 
-def get_terms() -> dict:
+def get_terms_of_service() -> dict:
     from api.models import PengaturanInstitusi
 
     inst = PengaturanInstitusi.load()

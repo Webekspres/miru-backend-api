@@ -127,15 +127,20 @@ class InstitutionSettingsTests(EnvelopeAPITestCase):
             {
                 'tentang': '# Tentang\n\nIsi tentang MIRU.',
                 'kebijakan': '# Kebijakan\n\nIsi kebijakan.',
+                'syarat_ketentuan': '# Syarat\n\nIsi syarat.',
             },
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn('# Tentang', response.data['data']['tentang'])
         self.assertIn('# Kebijakan', response.data['data']['kebijakan'])
+        self.assertIn('# Syarat', response.data['data']['syarat_ketentuan'])
         privacy = self.client.get('/api/privacy-policy/')
         self.assertEqual(privacy.status_code, status.HTTP_200_OK)
         self.assertIn('# Kebijakan', privacy.data['data']['konten'])
+        terms = self.client.get('/api/terms/')
+        self.assertEqual(terms.status_code, status.HTTP_200_OK)
+        self.assertIn('# Syarat', terms.data['data']['konten'])
 
     def test_nasabah_cannot_patch_settings(self):
         self.auth_as(self.nasabah)

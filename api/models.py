@@ -257,6 +257,7 @@ DEFAULT_INSTITUTION = {
     'pengumuman': 'Selamat datang di MIRU Bank Sampah!',
     'tentang': '',
     'kebijakan': '',
+    'syarat_ketentuan': '',
 }
 
 
@@ -297,7 +298,7 @@ class PengaturanInstitusi(models.Model):
     syarat_ketentuan = models.TextField(
         blank=True,
         default='',
-        help_text='Markdown syarat & ketentuan (web publik & admin).',
+        help_text='Markdown syarat & ketentuan (web publik & Play Store).',
     )
 
     class Meta:

@@ -87,20 +87,20 @@ class PrivacyPolicyView(APIView):
 
 @extend_schema(
     tags=[SETTINGS_TAG],
-    summary='Syarat & Ketentuan (terms & conditions)',
+    summary='Syarat dan ketentuan layanan',
     description=(
-        'Dokumen Syarat & Ketentuan penggunaan layanan MIRU Bank Sampah — '
-        'konten publik untuk halaman web /terms.'
+        'Dokumen syarat penggunaan aplikasi MIRU-G untuk Play Store '
+        'dan situs web publik.'
     ),
 )
-class TermsView(APIView):
+class TermsOfServiceView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
 
     def get(self, request):
-        from .services.privacy_policy import get_terms
+        from .services.privacy_policy import get_terms_of_service
         return success_response(
-            data=get_terms(),
-            message='Syarat & Ketentuan berhasil diambil.',
+            data=get_terms_of_service(),
+            message='Syarat dan ketentuan berhasil diambil.',
             request=request,
         )
