@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786701983.2040153,
-    "ast_hash": "2a5dfd0697a055a757bf1ade488d30da",
+    "mtime": 1787017117.3589878,
+    "ast_hash": "4a5d955c4ab48007a66fdf808ac4003a",
     "semantic_hash": ""
   },
   "RTK.md": {
@@ -840,13 +840,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci-cd.yml": {
-    "mtime": 1786702205.861982,
-    "ast_hash": "394496a09e8df6d343dd9acc54166a6c",
-    "semantic_hash": ""
-  },
-  "deploy/staging/docker-compose.yml": {
-    "mtime": 1786701953.3984911,
-    "ast_hash": "5c51d9c28bb9efe981ec2f50697e910e",
+    "mtime": 1787017089.3047764,
+    "ast_hash": "c655394debb8ee24235cb219596c0543",
     "semantic_hash": ""
   }
 }

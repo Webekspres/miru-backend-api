@@ -137,7 +137,7 @@
       "label": "Migrasi di VPS",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L105",
+      "source_location": "L110",
       "_origin": "ast",
       "id": "readme_migrasi_di_vps",
       "community": 53,
@@ -147,7 +147,7 @@
       "label": "Cek MinIO di VPS",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L112",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "readme_cek_minio_di_vps",
       "community": 53,
@@ -157,7 +157,7 @@
       "label": "Seed Demo Data",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L120",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "readme_seed_demo_data",
       "community": 53,
@@ -167,7 +167,7 @@
       "label": "Mode minimal (data inti saja)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L124",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "readme_mode_minimal_data_inti_saja",
       "community": 53,
@@ -177,7 +177,7 @@
       "label": "Mode full (200+ records untuk uji integrasi)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L143",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "readme_mode_full_200_records_untuk_uji_integrasi",
       "community": 53,
@@ -187,7 +187,7 @@
       "label": "API Access & Documentation",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L180",
+      "source_location": "L185",
       "_origin": "ast",
       "id": "readme_api_access_documentation",
       "community": 53,
@@ -197,7 +197,7 @@
       "label": "API Routes (English)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L200",
+      "source_location": "L205",
       "_origin": "ast",
       "id": "readme_api_routes_english",
       "community": 53,
@@ -207,7 +207,7 @@
       "label": "Authentication",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L215",
+      "source_location": "L220",
       "_origin": "ast",
       "id": "readme_authentication",
       "community": 53,
@@ -217,7 +217,7 @@
       "label": "Related Projects (Repositori GitHub Terpisah)",
       "file_type": "document",
       "source_file": "README.md",
-      "source_location": "L226",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "readme_related_projects_repositori_github_terpisah",
       "community": 53,
@@ -23139,9 +23139,9 @@
       "source_file": "README.md",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_miru_bank_sampah_backend",
-      "target": "readme_docker_lokal_postgresql_minio",
-      "confidence_score": 1.0
+      "target": "readme_docker_lokal_postgresql_minio"
     },
     {
       "relation": "contains",
@@ -23169,9 +23169,9 @@
       "source_file": "README.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_miru_bank_sampah_backend",
-      "target": "readme_vps_staging_production",
-      "confidence_score": 1.0
+      "target": "readme_vps_staging_production"
     },
     {
       "relation": "contains",
@@ -23199,9 +23199,9 @@
       "source_file": "README.md",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_1_environment_variables",
-      "confidence_score": 1.0
+      "target": "readme_1_environment_variables"
     },
     {
       "relation": "contains",
@@ -23209,9 +23209,9 @@
       "source_file": "README.md",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_2_build_and_run",
-      "confidence_score": 1.0
+      "target": "readme_2_build_and_run"
     },
     {
       "relation": "contains",
@@ -23219,9 +23219,9 @@
       "source_file": "README.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_3_run_migrations",
-      "confidence_score": 1.0
+      "target": "readme_3_run_migrations"
     },
     {
       "relation": "contains",
@@ -23229,9 +23229,9 @@
       "source_file": "README.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_4_run_tests",
-      "confidence_score": 1.0
+      "target": "readme_4_run_tests"
     },
     {
       "relation": "contains",
@@ -23239,9 +23239,9 @@
       "source_file": "README.md",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_5_mobile_hp_fisik_windows_docker_desktop",
-      "confidence_score": 1.0
+      "target": "readme_5_mobile_hp_fisik_windows_docker_desktop"
     },
     {
       "relation": "contains",
@@ -23249,9 +23249,9 @@
       "source_file": "README.md",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_docker_lokal_postgresql_minio",
-      "target": "readme_otp_whatsapp_di_local_tanpa_provider",
-      "confidence_score": 1.0
+      "target": "readme_otp_whatsapp_di_local_tanpa_provider"
     },
     {
       "relation": "contains",
@@ -23259,9 +23259,9 @@
       "source_file": "README.md",
       "source_location": "L112",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_vps_staging_production",
-      "target": "readme_cek_minio_di_vps",
-      "confidence_score": 1.0
+      "target": "readme_cek_minio_di_vps"
     },
     {
       "relation": "contains",
@@ -23269,9 +23269,9 @@
       "source_file": "README.md",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_vps_staging_production",
-      "target": "readme_migrasi_di_vps",
-      "confidence_score": 1.0
+      "target": "readme_migrasi_di_vps"
     },
     {
       "relation": "contains",
@@ -23279,9 +23279,9 @@
       "source_file": "README.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_vps_staging_production",
-      "target": "readme_seed_demo_data",
-      "confidence_score": 1.0
+      "target": "readme_seed_demo_data"
     },
     {
       "relation": "contains",
@@ -23289,9 +23289,9 @@
       "source_file": "README.md",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_seed_demo_data",
-      "target": "readme_mode_full_200_records_untuk_uji_integrasi",
-      "confidence_score": 1.0
+      "target": "readme_mode_full_200_records_untuk_uji_integrasi"
     },
     {
       "relation": "contains",
@@ -23299,9 +23299,9 @@
       "source_file": "README.md",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "readme_seed_demo_data",
-      "target": "readme_mode_minimal_data_inti_saja",
-      "confidence_score": 1.0
+      "target": "readme_mode_minimal_data_inti_saja"
     },
     {
       "relation": "contains",
@@ -71021,5 +71021,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f761fbdcb39ac167da95a420c16267d88abc775e"
+  "built_at_commit": "aa154412628805812b5ed7f4992dc68f27a49694"
 }
