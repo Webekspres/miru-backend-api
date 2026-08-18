@@ -89,7 +89,12 @@ static const String apiBaseUrl = 'http://192.168.0.228:8000/api';
 
 ## VPS Staging / Production
 
-Stack deploy di `/opt/miru-staging` (staging) atau `/opt/miru-prod` (production). Service Django bernama **`api`**. Definisi stack staging ada di repo: [`deploy/staging/`](deploy/staging/) — disinkronkan otomatis oleh CI saat push ke branch `staging`.
+Stack deploy di `/opt/miru-staging` (staging) atau `/opt/miru-prod` (production). Service Django bernama **`api`**. Definisi stack (compose, nginx, MinIO, db) ada di repo terpisah **[Webekspres/miru-infra](https://github.com/Webekspres/miru-infra)** — disinkronkan oleh CI infra saat push ke branch `staging`/`main`.
+
+| Repo | Tanggung jawab |
+|------|----------------|
+| **miru-infra** | Stack VPS: db, minio, nginx, compose |
+| **miru-backend-api** (ini) | Build image API → `docker compose pull api` |
 
 | Lingkungan | Direktori | Service Django | Image |
 |------------|-----------|----------------|-------|
@@ -98,7 +103,7 @@ Stack deploy di `/opt/miru-staging` (staging) atau `/opt/miru-prod` (production)
 
 **Services staging:** `db`, `minio`, `minio-init`, `api`, `admin`, `nginx`
 
-MinIO credentials di `.env` VPS (contoh: [`deploy/staging/.env.minio.example`](deploy/staging/.env.minio.example)). CI menambahkan `MINIO_*` otomatis jika belum ada. `MINIO_ENDPOINT` di-set via `docker-compose.yml` (`http://minio:9000`), bukan di `.env`.
+MinIO credentials di `.env` VPS (contoh: [`miru-infra/staging/env.example`](https://github.com/Webekspres/miru-infra/blob/staging/staging/env.example)). CI infra menambahkan `MINIO_*` otomatis jika belum ada. `MINIO_ENDPOINT` di-set via `docker-compose.yml` (`http://minio:9000`), bukan di `.env`.
 
 Gambar publik dilayani nginx di `https://api.dev.mirubanksampah.id/objects/` → bucket MinIO.
 
