@@ -25,7 +25,7 @@ from .export_views import (
 )
 from .notifications_views import NotifikasiViewSet
 from .device_token_views import DeviceTokenViewSet
-from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView
+from .settings_views import InstitutionSettingsView, PengumumanListView, PrivacyPolicyView, TermsOfServiceView
 from .monitoring_views import (
     DashboardDepositChartView,
     DashboardOverviewView,
@@ -62,6 +62,7 @@ urlpatterns = [
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
     path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
+    path('terms/', TermsOfServiceView.as_view(), name='terms'),
     path(
         'device-tokens/unregister/',
         DeviceTokenViewSet.as_view({'delete': 'unregister'}),

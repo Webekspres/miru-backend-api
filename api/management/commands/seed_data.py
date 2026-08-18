@@ -501,7 +501,11 @@ class Command(BaseCommand):
         return 1
 
     def _seed_institution_settings(self):
-        from api.services.privacy_policy import DEFAULT_KEBIJAKAN_MD, DEFAULT_TENTANG_MD
+        from api.services.privacy_policy import (
+            DEFAULT_KEBIJAKAN_MD,
+            DEFAULT_SYARAT_MD,
+            DEFAULT_TENTANG_MD,
+        )
 
         inst = PengaturanInstitusi.load()
         update_fields = []
@@ -511,6 +515,9 @@ class Command(BaseCommand):
         if not (inst.kebijakan or '').strip():
             inst.kebijakan = DEFAULT_KEBIJAKAN_MD
             update_fields.append('kebijakan')
+        if not (inst.syarat_ketentuan or '').strip():
+            inst.syarat_ketentuan = DEFAULT_SYARAT_MD
+            update_fields.append('syarat_ketentuan')
         if update_fields:
             inst.save(update_fields=update_fields)
         return 1

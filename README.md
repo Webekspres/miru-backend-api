@@ -105,7 +105,7 @@ Stack deploy di `/opt/miru-staging` (staging) atau `/opt/miru-prod` (production)
 
 MinIO credentials di `.env` VPS (contoh: [`miru-infra/staging/env.example`](https://github.com/Webekspres/miru-infra/blob/staging/staging/env.example)). CI infra menambahkan `MINIO_*` otomatis jika belum ada. `MINIO_ENDPOINT` di-set via `docker-compose.yml` (`http://minio:9000`), bukan di `.env`.
 
-Gambar publik dilayani nginx di `https://api.dev.mirubanksampah.id/objects/` → bucket MinIO.
+Gambar publik dilayani `https://api.dev.mirubanksampah.id/objects/...` — nginx meneruskan ke Django (`PublicObjectView`), yang membaca dari bucket MinIO.
 
 ### Migrasi di VPS
 

@@ -146,6 +146,18 @@ class PrivacyPolicyTests(EnvelopeAPITestCase):
         self.assertIn('#', data['konten'])
 
 
+class TermsOfServiceTests(EnvelopeAPITestCase):
+    def test_get_terms_public(self):
+        response = self.client.get('/api/terms/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assert_envelope_success(response)
+        data = response.data['data']
+        self.assertEqual(data['versi'], '1.0')
+        self.assertIn('konten', data)
+        self.assertIn('Syarat', data['konten'])
+        self.assertIn('ringkasan', data)
+
+
 class LoginTests(EnvelopeAPITestCase):
     def setUp(self):
         cache.clear()
