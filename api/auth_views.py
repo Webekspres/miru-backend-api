@@ -1,5 +1,6 @@
 import secrets
 
+from django.conf import settings
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -595,6 +596,29 @@ class PhoneRequestOtpView(APIView):
             user.no_hp = no_hp
             user.phone_verified = False
             user.save(update_fields=['no_hp', 'phone_verified'])
+
+        # --- Skip phone verification mode (internal testing) ---
+        if getattr(settings, 'SKIP_PHONE_VERIFICATION', False):
+            update_fields = ['phone_verified']
+            user.phone_verified = True
+            if purpose == PhoneOTP.PURPOSE_REGISTRATION or not user.is_active:
+                user.is_active = True
+                update_fields.append('is_active')
+            user.save(update_fields=update_fields)
+            return Response(
+                success_envelope(
+                    data={
+                        'username': user.username,
+                        'phone_verified': True,
+                        'is_active': user.is_active,
+                        'no_hp': user.no_hp,
+                    },
+                    message='Verifikasi HP dilewati (mode testing).',
+                    status_code=status.HTTP_200_OK,
+                    request=request,
+                ),
+                status=status.HTTP_200_OK,
+            )
 
         create_and_send_otp(user, purpose, no_hp)
         return Response(
