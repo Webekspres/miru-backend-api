@@ -525,7 +525,11 @@ class Command(BaseCommand):
                 username=username, password=password, role=role,
                 nama_lengkap=nama, no_hp='08219773690',
                 alamat='Jl. Cendrawasih Poros SP.II, Timika',
+                phone_verified=True,
             )
+        elif not user.phone_verified:
+            user.phone_verified = True
+            user.save(update_fields=['phone_verified'])
         self._ensure_avatar(user)
         return 1
 
@@ -580,8 +584,12 @@ class Command(BaseCommand):
                     nama_lengkap=nama,
                     no_hp='0821977369{}'.format(created % 10),
                     alamat='Jl. Cendrawasih Poros SP.II, Timika',
+                    phone_verified=True,
                 )
                 created += 1
+            elif not user.phone_verified:
+                user.phone_verified = True
+                user.save(update_fields=['phone_verified'])
             self._ensure_avatar(user)
         return created or len(EXTRA_STAFF_USERS)
 
@@ -601,6 +609,7 @@ class Command(BaseCommand):
                     'alamat': 'Jl. Cendrawasih No. 42, Timika',
                     'saldo': Decimal('250000.00'),
                     'poin': 500,
+                    'phone_verified': True,
                 }
             elif username == 'nasabah002':
                 defaults = {
@@ -610,6 +619,7 @@ class Command(BaseCommand):
                     'alamat': 'Perumahan MIRU Blok A.5, Timika',
                     'saldo': Decimal('185000.00'),
                     'poin': 350,
+                    'phone_verified': True,
                 }
             else:
                 defaults = {
@@ -619,6 +629,7 @@ class Command(BaseCommand):
                     'alamat': f'Kelurahan Timika Baru RT {i % 20:02d}',
                     'saldo': Decimal('0.00'),
                     'poin': 0,
+                    'phone_verified': True,
                 }
 
             user, created = User.objects.get_or_create(
