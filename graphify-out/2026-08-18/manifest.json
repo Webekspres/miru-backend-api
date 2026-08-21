@@ -30,8 +30,8 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "api/models.py": {
-    "mtime": 1786672875.2001023,
-    "ast_hash": "96249a4c1bbab37f8d40ee13b6b1d334",
+    "mtime": 1787044202.6797993,
+    "ast_hash": "ecb79c701c41c98cd3a67f1ea9f29ed9",
     "semantic_hash": ""
   },
   "api/permissions.py": {
@@ -40,13 +40,13 @@
     "semantic_hash": ""
   },
   "api/serializers.py": {
-    "mtime": 1786672890.4106524,
-    "ast_hash": "9fc015ed0e807a95acae163c3f12a1c4",
+    "mtime": 1787043068.7486916,
+    "ast_hash": "05f8008f784f8b5a646b2dc513b154c1",
     "semantic_hash": ""
   },
   "api/urls.py": {
-    "mtime": 1786672924.2323413,
-    "ast_hash": "af7b19aaf82c9859dc4a722e0452bfe3",
+    "mtime": 1787044202.6858096,
+    "ast_hash": "8284c0f3aa3ab4af13067812b25257ee",
     "semantic_hash": ""
   },
   "api/views.py": {
@@ -150,8 +150,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1786701983.2040153,
-    "ast_hash": "2a5dfd0697a055a757bf1ade488d30da",
+    "mtime": 1787043905.6297157,
+    "ast_hash": "b29395a2a0ca88237f7ee96412fae857",
     "semantic_hash": ""
   },
   "RTK.md": {
@@ -230,8 +230,8 @@
     "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
   },
   "api/management/commands/seed_data.py": {
-    "mtime": 1786504457.5834744,
-    "ast_hash": "5b10b1166011550838f5ad5ed32c2e8b",
+    "mtime": 1787043905.635337,
+    "ast_hash": "faefbd646ce5665f6182231b27d28647",
     "semantic_hash": ""
   },
   "api/openapi.py": {
@@ -250,8 +250,8 @@
     "semantic_hash": ""
   },
   "api/tests/test_auth.py": {
-    "mtime": 1786700028.587173,
-    "ast_hash": "e977cfb513cc4aa454f5a546faa7df46",
+    "mtime": 1787044202.6827986,
+    "ast_hash": "57880f3f615b8bf206c2d87cd1f9beaf",
     "semantic_hash": ""
   },
   "api/tests/test_seed_data.py": {
@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "api/services/privacy_policy.py": {
-    "mtime": 1786672958.3040233,
-    "ast_hash": "9cde30219a56b1cf91399071bf3fad82",
+    "mtime": 1787044202.6817987,
+    "ast_hash": "744df060d436df3d7e8874240fff8a9b",
     "semantic_hash": ""
   },
   "api/services/settings.py": {
@@ -505,8 +505,8 @@
     "semantic_hash": "ad20ed0eaa7c8ad418f09f244143513f"
   },
   "api/settings_views.py": {
-    "mtime": 1784012040.0009718,
-    "ast_hash": "d6047078fcfb44003697917393ba285e",
+    "mtime": 1787043941.7712412,
+    "ast_hash": "6d6874ba20e1b48290296e34563a4bb8",
     "semantic_hash": ""
   },
   "api/tests/test_price_history.py": {
@@ -515,8 +515,8 @@
     "semantic_hash": ""
   },
   "api/tests/test_settings.py": {
-    "mtime": 1786504450.5423093,
-    "ast_hash": "180f3402b971259c723f8e4d84c32df1",
+    "mtime": 1787044202.6848001,
+    "ast_hash": "0f5121041c7c56ec723980c6730fe349",
     "semantic_hash": ""
   },
   "scripts/create_db.py": {
@@ -629,26 +629,6 @@
     "ast_hash": "047adcd37ea912092524b6000ba89d88",
     "semantic_hash": ""
   },
-  "docker-compose.production.yml": {
-    "mtime": 1784011684.3448484,
-    "ast_hash": "1ff872fa52b5d1a5e3f6f6fcc6d59ad2",
-    "semantic_hash": ""
-  },
-  "scripts/backup.sh": {
-    "mtime": 1784012396.815933,
-    "ast_hash": "88fe9730003d6bf3b0c330b53acfad44",
-    "semantic_hash": ""
-  },
-  "scripts/backup_weekly.sh": {
-    "mtime": 1784012423.4202075,
-    "ast_hash": "faec01fc31e8d70d7278b659ea7349a7",
-    "semantic_hash": ""
-  },
-  "scripts/restore.sh": {
-    "mtime": 1784012352.6363418,
-    "ast_hash": "e418ee4da2113e8b3a8eeb9a17c70e72",
-    "semantic_hash": ""
-  },
   "BACKUP.md": {
     "mtime": 1784012309.7593281,
     "ast_hash": "8c7eb3f396985b67a7b716e455dec9a7",
@@ -657,16 +637,6 @@
   "api/logging_filters.py": {
     "mtime": 1786415407.43793,
     "ast_hash": "7a4b55ef34f6e736977ce47efc5323fc",
-    "semantic_hash": ""
-  },
-  "scripts/healthcheck.sh": {
-    "mtime": 1784013158.0439408,
-    "ast_hash": "7002f88f826d3e3bcee422f5328af386",
-    "semantic_hash": ""
-  },
-  "scripts/locustfile.py": {
-    "mtime": 1784013574.0397062,
-    "ast_hash": "abfea9fb8b4584bf8a4873d2dcecd175",
     "semantic_hash": ""
   },
   "api/device_token_views.py": {
@@ -840,13 +810,38 @@
     "semantic_hash": ""
   },
   ".github/workflows/ci-cd.yml": {
-    "mtime": 1786702205.861982,
-    "ast_hash": "394496a09e8df6d343dd9acc54166a6c",
+    "mtime": 1787043905.6276994,
+    "ast_hash": "c655394debb8ee24235cb219596c0543",
     "semantic_hash": ""
   },
-  "deploy/staging/docker-compose.yml": {
-    "mtime": 1786701953.3984911,
-    "ast_hash": "5c51d9c28bb9efe981ec2f50697e910e",
+  "api/delete_account_views.py": {
+    "mtime": 1787044202.6777968,
+    "ast_hash": "810b3e0b33d66489ec4bac556c341a69",
+    "semantic_hash": ""
+  },
+  "api/migrations/0027_institusi_syarat_ketentuan.py": {
+    "mtime": 1787043905.6388576,
+    "ast_hash": "c07063ce9b3daa2a7f5a213c8ed2eaeb",
+    "semantic_hash": ""
+  },
+  "api/migrations/0028_alter_kontenedukasi_options.py": {
+    "mtime": 1787043905.639877,
+    "ast_hash": "8668681b0ea5dfba363f64462cd50f61",
+    "semantic_hash": ""
+  },
+  "api/migrations/0029_alter_phoneotp_purpose.py": {
+    "mtime": 1787044202.6787975,
+    "ast_hash": "1c00bf261be031916336ad60c37dc9e8",
+    "semantic_hash": ""
+  },
+  "api/services/account_deletion.py": {
+    "mtime": 1787044202.6807978,
+    "ast_hash": "d0680d1e65b4deda95b0ae31bb8ec780",
+    "semantic_hash": ""
+  },
+  "api/tests/test_delete_account.py": {
+    "mtime": 1787044202.6837988,
+    "ast_hash": "b41323c985ff94e0bcb6b155c2ec24f2",
     "semantic_hash": ""
   }
 }
