@@ -302,6 +302,11 @@ WA_SENDER = os.environ.get('WA_SENDER', '')
 # OTP tetap untuk local/dev saja — diabaikan jika DEBUG=False (lihat docs/OTP_DEV.md)
 OTP_DEV_FIXED_CODE = os.environ.get('OTP_DEV_FIXED_CODE', '').strip()
 
+# Skip phone verification — untuk internal testing tanpa WA gateway.
+# Saat True, request-otp langsung verifikasi tanpa perlu kode OTP.
+# Hanya gunakan di staging/testing; JANGAN aktifkan di production.
+SKIP_PHONE_VERIFICATION = os.environ.get('SKIP_PHONE_VERIFICATION', 'False') == 'True'
+
 
 # ---------------------------------------------------------------------------
 # Static & Media files (production)
