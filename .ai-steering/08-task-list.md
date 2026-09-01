@@ -30,7 +30,7 @@
 > **Status proyek:** MVP (Fase 0–6) selesai. Hampir semua API Fase 8 fitur bisnis ✅.
 > **Kerja aktif #1:** sisa go-live **Fase 7** (test restore) + sisa **Fase 8** opsional (WA, Maps, bulk import, job queue).
 > Audit Temuan backend (T0–T10) sudah ✅ — arsip BAGIAN B.
-> Klien: Web Audit ✅; Mobile masih punya sisa temuan UI — lihat `mirumobileapp/.ai-steering/08-task-list.md`.
+> Klien: Web Audit (W0–W11) ✅; Mobile Audit (M0–M10) ✅ — lihat `mobile/.ai-steering/08-task-list.md` untuk sisa Fase 8 client (FCM, PDF, poin).
 > **Tidak boleh** menambah fitur di luar 17 modul tanpa addendum.
 
 ### Cakupan 17 Modul Backend
@@ -61,8 +61,8 @@
 
 1. **Backend sisa go-live** — test restore backup; CORS/HTTPS + privacy URL.
 2. Backend opsional — WA channel, Maps, bulk import, Celery/Redis.
-3. Dukung sisa Audit Temuan **mobile** (kontrak API sudah ✅).
-4. Web Admin Audit Temuan sudah selesai.
+3. Dukung sisa **Fase 8 client** di `web/` dan `mobile/` (PDF UI, bulk import UI, FCM client) — kontrak API sudah ✅.
+4. Audit Temuan web & mobile sudah selesai (arsip masing-masing BAGIAN B).
 5. **Jangan** kerjakan Out of Scope tanpa addendum.
 
 ---
@@ -119,7 +119,7 @@
 > Field lat/lng opsional di model/serializer penjemputan **sudah ✅** (T3 / BAGIAN B).
 
 - [ ] **Konfigurasi Maps API key di environment**
-  - Restrict key: IP server / referrer web-admin / bundle ID mobile
+  - Restrict key: IP server / referrer `web/` admin / bundle ID `mobile/`
   - Jangan hardcode key di source
 - [ ] **Dokumentasikan batasan** di kontrak/API docs
   - Tidak ada distance matrix, navigasi real-time, atau live tracking petugas
@@ -154,7 +154,7 @@
 > **Sumber:** Constraints §10; Jawaban §6.4. Endpoint `GET /api/privacy-policy/` sudah ada ✅.
 
 - [ ] **Verifikasi CORS + HTTPS production** siap untuk mobile release
-  - `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` whitelist domain web-admin + (jika perlu) origin tool
+  - `ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS` whitelist domain web admin (`web/`) + (jika perlu) origin tool
   - Cleartext tidak dipakai di production; SSL termination Nginx OK
 - [ ] **URL publik privacy policy** untuk Play Store
   - Endpoint/kerangka sudah ada — pastikan domain HTTPS final + konten selaras kebijakan data
@@ -500,5 +500,5 @@
 | Repo | Dokumen |
 |------|---------|
 | Backend (kanonik) | `.ai-steering/11-security-and-privacy.md` |
-| Web Admin | `web-admin/.ai-steering/11-security-and-privacy.md` |
-| Mobile | `mirumobileapp/.ai-steering/11-security-and-privacy.md` |
+| Web Admin | `web/.ai-steering/11-security-and-privacy.md` |
+| Mobile | `mobile/.ai-steering/11-security-and-privacy.md` |
