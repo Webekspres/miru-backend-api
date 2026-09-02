@@ -26,6 +26,10 @@ secrets/
 *firebase*.json
 *-firebase-adminsdk-*.json
 
+# Backup artifacts (encrypted dumps + restore-test logs)
+backups/
+*.dump.gz.gpg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
