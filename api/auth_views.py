@@ -1,3 +1,4 @@
+import hmac
 import secrets
 
 from django.conf import settings
@@ -7,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -14,6 +16,13 @@ from rest_framework_simplejwt.exceptions import TokenError
 
 from .throttles import LoginAnonRateThrottle, OtpAnonRateThrottle
 
+from .authentication import (
+    ACCESS_COOKIE_NAME,
+    CSRF_COOKIE_NAME,
+    CSRF_HEADER_NAME,
+    REFRESH_COOKIE_NAME,
+    generate_csrf_token,
+)
 from .models import PasswordResetToken, PhoneOTP, PoinTransaksi, User
 from .openapi import (
     auth_login_schema,
@@ -62,6 +71,52 @@ def _validation_error(request, message, errors, status_code=status.HTTP_400_BAD_
     )
 
 
+def _cookie_kwargs() -> dict:
+    return {
+        'httponly': True,
+        'secure': not settings.DEBUG,
+        'samesite': 'Lax',
+        'domain': getattr(settings, 'COOKIE_DOMAIN', None) or None,
+        'path': '/',
+    }
+
+
+def set_auth_cookies(response, access: str | None = None, refresh: str | None = None) -> None:
+    """Set cookie HttpOnly untuk web admin (dipakai bersamaan dengan body
+    JSON access/refresh yang tetap dikirim untuk klien mobile)."""
+    kwargs = _cookie_kwargs()
+    if access is not None:
+        response.set_cookie(
+            ACCESS_COOKIE_NAME, access,
+            max_age=int(settings.SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'].total_seconds()),
+            **kwargs,
+        )
+    if refresh is not None:
+        response.set_cookie(
+            REFRESH_COOKIE_NAME, refresh,
+            max_age=int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()),
+            **kwargs,
+        )
+    # Cookie CSRF sengaja TIDAK httponly — dibaca JS lalu dikirim balik via
+    # header X-CSRFToken (double-submit) untuk request tidak-aman via cookie.
+    csrf_kwargs = {**kwargs, 'httponly': False}
+    response.set_cookie(
+        CSRF_COOKIE_NAME, generate_csrf_token(),
+        max_age=int(settings.SIMPLE_JWT['REFRESH_TOKEN_LIFETIME'].total_seconds()),
+        **csrf_kwargs,
+    )
+
+
+def clear_auth_cookies(response) -> None:
+    delete_kwargs = {
+        'domain': getattr(settings, 'COOKIE_DOMAIN', None) or None,
+        'path': '/',
+        'samesite': 'Lax',
+    }
+    for name in (ACCESS_COOKIE_NAME, REFRESH_COOKIE_NAME, CSRF_COOKIE_NAME):
+        response.delete_cookie(name, **delete_kwargs)
+
+
 class MiruTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
@@ -101,27 +156,21 @@ class MiruTokenObtainPairView(TokenObtainPairView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        try:
-            user_obj = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return Response(
-                error_envelope(
-                    message='Username tidak terdaftar.',
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    code='AUTHENTICATION_FAILED',
-                    errors={'username': ['Username tidak terdaftar.']},
-                    request=request,
-                ),
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        user_obj = User.objects.filter(username=username).first()
+        if user_obj is None:
+            # Equalize execution timing against brute force by running a dummy PBKDF2 calculation
+            User().set_password(password)
+            is_valid_password = False
+        else:
+            is_valid_password = user_obj.check_password(password)
 
-        if not user_obj.check_password(password):
+        if user_obj is None or not is_valid_password:
             return Response(
                 error_envelope(
-                    message='Password salah.',
+                    message='Username atau password salah.',
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     code='AUTHENTICATION_FAILED',
-                    errors={'password': ['Password salah.']},
+                    errors={'detail': ['Username atau password salah.']},
                     request=request,
                 ),
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -153,7 +202,7 @@ class MiruTokenObtainPairView(TokenObtainPairView):
         })
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
-        return Response(
+        response = Response(
             success_envelope(
                 data={
                     'access': data['access'],
@@ -166,6 +215,8 @@ class MiruTokenObtainPairView(TokenObtainPairView):
             ),
             status=status.HTTP_200_OK,
         )
+        set_auth_cookies(response, access=data['access'], refresh=data['refresh'])
+        return response
 
 
 @auth_refresh_schema
@@ -173,7 +224,15 @@ class MiruTokenRefreshView(TokenRefreshView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
+        payload = request.data
+        # Web admin: refresh token tidak dikirim di body (HttpOnly, tidak
+        # bisa dibaca JS) — ambil dari cookie. Mobile tetap kirim di body.
+        if not payload.get('refresh'):
+            cookie_refresh = request.COOKIES.get(REFRESH_COOKIE_NAME)
+            if cookie_refresh:
+                payload = {**payload, 'refresh': cookie_refresh}
+
+        serializer = self.get_serializer(data=payload)
         try:
             serializer.is_valid(raise_exception=True)
         except TokenError:
@@ -189,15 +248,97 @@ class MiruTokenRefreshView(TokenRefreshView):
             )
 
         data = serializer.validated_data
-        return Response(
+        response_data = {'access': data['access']}
+        if 'refresh' in data:
+            response_data['refresh'] = data['refresh']
+
+        response = Response(
             success_envelope(
-                data={'access': data['access']},
+                data=response_data,
                 message='Token berhasil diperbarui.',
                 status_code=status.HTTP_200_OK,
                 request=request,
             ),
             status=status.HTTP_200_OK,
         )
+        set_auth_cookies(response, access=data['access'], refresh=data.get('refresh'))
+        return response
+
+
+@extend_schema(
+    tags=['Auth'],
+    summary='Logout — cabut refresh token & hapus cookie sesi',
+    description=(
+        'Blacklist refresh token (body untuk mobile, cookie untuk web '
+        'admin) dan hapus cookie access/refresh/csrf. Wajib untuk web admin '
+        'karena cookie HttpOnly tidak bisa dihapus lewat JS.'
+    ),
+    request={
+        'type': 'object',
+        'properties': {
+            'refresh': {'type': 'string'},
+        },
+    },
+)
+class LogoutView(APIView):
+    # AllowAny, bukan IsAuthenticated: sesi yang access token-nya sudah
+    # kedaluwarsa tetap harus bisa logout agar cookie HttpOnly ikut dihapus
+    # (kalau tidak, cookie basi akan terus terkirim dan proxy edge guard
+    # menganggap pengguna masih login → redirect loop ke /login).
+    # Keamanan: jalur cookie wajib lolos CSRF double-submit (mencegah logout
+    # CSRF lintas situs); jalur mobile cukup Bearer header seperti biasa.
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        has_bearer = request.META.get('HTTP_AUTHORIZATION', '').startswith('Bearer ')
+
+        if has_bearer:
+            # Mobile: refresh token dikirim di body; tidak ada cookie yang
+            # perlu dihapus.
+            raw_refresh = request.data.get('refresh')
+            if raw_refresh:
+                try:
+                    RefreshToken(raw_refresh).blacklist()
+                except TokenError:
+                    pass
+            return Response(
+                success_envelope(
+                    data=None,
+                    message='Logout berhasil.',
+                    status_code=status.HTTP_200_OK,
+                    request=request,
+                ),
+                status=status.HTTP_200_OK,
+            )
+
+        csrf_cookie = request.COOKIES.get(CSRF_COOKIE_NAME, '')
+        csrf_header = request.headers.get(CSRF_HEADER_NAME, '')
+        if not csrf_cookie or not csrf_header or not hmac.compare_digest(csrf_cookie, csrf_header):
+            return _validation_error(
+                request,
+                'Sesi tidak valid atau telah kedaluwarsa. Silakan login kembali.',
+                errors={'refresh': ['Tidak ada sesi aktif.']},
+                status_code=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        raw_refresh = request.data.get('refresh') or request.COOKIES.get(REFRESH_COOKIE_NAME)
+        if raw_refresh:
+            try:
+                RefreshToken(raw_refresh).blacklist()
+            except TokenError:
+                pass  # sudah invalid/kedaluwarsa — tujuan akhir (logout) tetap tercapai
+
+        response = Response(
+            success_envelope(
+                data=None,
+                message='Logout berhasil.',
+                status_code=status.HTTP_200_OK,
+                request=request,
+            ),
+            status=status.HTTP_200_OK,
+        )
+        clear_auth_cookies(response)
+        return response
 
 
 @extend_schema(
@@ -576,8 +717,18 @@ class PhoneRequestOtpView(APIView):
             if not user.is_active or not user.phone_verified:
                 purpose = PhoneOTP.PURPOSE_REGISTRATION
             else:
-                # Sudah aktif: hanya boleh ganti/verifikasi jika no_hp cocok
-                # atau menyimpan nomor baru sebelum verifikasi
+                # Sudah aktif dan terverifikasi: request ini TIDAK terautentikasi
+                # sebagai user tsb, jadi nomor baru hanya boleh diproses jika
+                # cocok dengan yang tersimpan (resend OTP), tidak boleh
+                # menimpa no_hp — mencegah pengambilalihan akun oleh pihak
+                # yang hanya tahu username korban.
+                if not phones_match(no_hp, user.no_hp):
+                    return _validation_error(
+                        request,
+                        'Nomor HP tidak cocok dengan profil. Login terlebih '
+                        'dahulu untuk mengganti nomor HP.',
+                        {'no_hp': ['Nomor HP tidak cocok dengan yang terdaftar.']},
+                    )
                 purpose = PhoneOTP.PURPOSE_PHONE_VERIFY
         else:
             return _validation_error(
@@ -586,13 +737,14 @@ class PhoneRequestOtpView(APIView):
                 {'username': ['Username wajib diisi.']},
             )
 
-        # Simpan nomor sementara pada profil jika belum / sedang registrasi
+        # Simpan nomor sementara pada profil jika belum / sedang registrasi,
+        # atau jika user terautentikasi sedang mengganti nomornya sendiri.
         if purpose == PhoneOTP.PURPOSE_REGISTRATION or not user.no_hp:
             user.no_hp = no_hp
             user.phone_verified = False
             user.save(update_fields=['no_hp', 'phone_verified'])
-        elif not phones_match(no_hp, user.no_hp):
-            # Ganti nomor → unverified
+        elif request.user and request.user.is_authenticated and not phones_match(no_hp, user.no_hp):
+            # Ganti nomor → unverified (hanya untuk user yang sudah login)
             user.no_hp = no_hp
             user.phone_verified = False
             user.save(update_fields=['no_hp', 'phone_verified'])

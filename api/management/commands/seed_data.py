@@ -2,7 +2,7 @@ import random
 from datetime import timedelta
 from decimal import Decimal
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from api.models import (
@@ -348,12 +348,29 @@ class Command(BaseCommand):
             default=180,
             help='Number of nasabah users to create in full mode (default: 180)',
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help=(
+                'Allow running with DEBUG=False. Required because this command '
+                'creates accounts with well-known public passwords (e.g. '
+                'admin/admin123).'
+            ),
+        )
 
     def handle(self, *args, **options):
         from django.conf import settings
 
         from api.services.object_storage import ensure_bucket
         from api.services.seed_images import reset_seed_image_cache
+
+        if not settings.DEBUG and not options['force']:
+            raise CommandError(
+                'seed_data membuat akun dengan password yang diketahui publik '
+                '(mis. admin/admin123) dan menolak untuk berjalan saat '
+                'DEBUG=False. Gunakan --force hanya jika lingkungan ini benar-benar '
+                'demo/isolasi, bukan production/staging yang reachable publik.'
+            )
 
         minimal = options['minimal']
         reset_seed_image_cache()

@@ -1,5 +1,6 @@
 import os
 
+from django.db import transaction
 from rest_framework import serializers
 
 from .models import *
@@ -520,8 +521,17 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
         validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
-        validated_data['nasabah'] = self.context['request'].user
+        user = self.context['request'].user
+        if user.kelurahan_id:
+            # Lock the WilayahLayanan row to serialize concurrent submissions from the same kelurahan
+            from .models import WilayahLayanan
+            from .services.pickups import validate_max_pickups_per_week
+            WilayahLayanan.objects.select_for_update().filter(pk=user.kelurahan_id).first()
+            validate_max_pickups_per_week(user)
+
+        validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'
         return Penjemputan.objects.create(**validated_data)
 

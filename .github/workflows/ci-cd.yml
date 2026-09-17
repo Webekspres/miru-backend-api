@@ -69,6 +69,7 @@ jobs:
       env_name: ${{ steps.set-env.outputs.env_name }}
       target_dir: ${{ steps.set-env.outputs.target_dir }}
       image_tag: ${{ steps.set-env.outputs.image_tag }}
+      image_sha_tag: ${{ steps.set-env.outputs.image_sha_tag }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -80,10 +81,12 @@ jobs:
             echo "env_name=production" >> $GITHUB_OUTPUT
             echo "target_dir=/opt/miru-prod" >> $GITHUB_OUTPUT
             echo "image_tag=latest" >> $GITHUB_OUTPUT
+            echo "image_sha_tag=production-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
           else
             echo "env_name=staging" >> $GITHUB_OUTPUT
             echo "target_dir=/opt/miru-staging" >> $GITHUB_OUTPUT
             echo "image_tag=staging" >> $GITHUB_OUTPUT
+            echo "image_sha_tag=staging-${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
           fi
 
       - name: Set up Docker Buildx
@@ -139,6 +142,14 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin || true
             echo "==> Deploying API image to ${{ needs.build-and-push.outputs.env_name }} at ${{ needs.build-and-push.outputs.target_dir }}..."
             cd ${{ needs.build-and-push.outputs.target_dir }}
+
+            echo "==> Pinning API image to immutable tag ${{ needs.build-and-push.outputs.image_sha_tag }}..."
+            API_IMAGE_TAG="${{ needs.build-and-push.outputs.image_sha_tag }}"
+            if grep -q '^API_IMAGE_TAG=' .env 2>/dev/null; then
+              sed -i "s#^API_IMAGE_TAG=.*#API_IMAGE_TAG=$API_IMAGE_TAG#" .env
+            else
+              echo "API_IMAGE_TAG=$API_IMAGE_TAG" >> .env
+            fi
 
             docker compose pull api
             docker compose up -d --no-deps api

@@ -54,8 +54,26 @@ class DownloadLampiranKTPView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        file_path = penarikan.lampiran_ktp.path
-        content_type, _ = mimetypes.guess_type(file_path)
+        from io import BytesIO
+
+        try:
+            fh = penarikan.lampiran_ktp.open('rb')
+            payload = BytesIO(fh.read())
+            fh.close()
+        except (OSError, FileNotFoundError, ValueError, NotImplementedError):
+            return Response(
+                error_envelope(
+                    message='Lampiran KTP tidak dapat diakses atau file tidak ditemukan di penyimpanan.',
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    code='NOT_FOUND',
+                    errors={'lampiran_ktp': ['Tidak ditemukan di penyimpanan.']},
+                    request=request,
+                ),
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        filename = getattr(penarikan.lampiran_ktp, 'name', '') or f'ktp_{penarikan.id}.jpg'
+        content_type, _ = mimetypes.guess_type(filename)
         if not content_type:
             content_type = 'application/octet-stream'
 
@@ -67,11 +85,6 @@ class DownloadLampiranKTPView(APIView):
             changes={'lampiran_ktp': {'old': None, 'new': 'diakses'}},
             ip_address=_client_ip(request),
         )
-
-        from io import BytesIO
-
-        with open(file_path, 'rb') as fh:
-            payload = BytesIO(fh.read())
 
         response = FileResponse(
             payload,

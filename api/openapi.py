@@ -4,12 +4,6 @@ from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_v
 
 from .serializers import NotifikasiSerializer, UserProfileSerializer
 
-DEMO_CREDENTIALS = OpenApiExample(
-    'Akun demo (setelah seed_data)',
-    value={'username': 'nasabah001', 'password': 'nasabah123'},
-    request_only=True,
-)
-
 AUTH_TAG = 'Auth'
 HEALTH_TAG = 'Health'
 USERS_TAG = 'Users'
@@ -137,10 +131,8 @@ auth_login_schema = extend_schema(
     tags=[AUTH_TAG],
     summary='Login — dapatkan access & refresh token',
     description=(
-        'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil singkat user. '
-        'Akun demo: `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`.'
+        'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil singkat user.'
     ),
-    examples=[DEMO_CREDENTIALS],
     auth=[],
 )
 
