@@ -36,6 +36,30 @@ class ComplaintCreateTests(EnvelopeAPITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_create_jenis_lainnya(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/complaints/',
+            self._payload(jenis_pengaduan='lainnya', keluhan='Lain-lain.'),
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['data']['jenis_pengaduan'], 'lainnya')
+
+    def test_create_notifies_admin(self):
+        from api.models import Notifikasi
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/complaints/', self._payload(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        admin_notif = Notifikasi.objects.filter(
+            user=self.admin, kategori='pengaduan', judul='Pengaduan Baru',
+        )
+        self.assertTrue(admin_notif.exists())
+        nasabah_notif = Notifikasi.objects.filter(
+            user=self.nasabah, kategori='pengaduan', judul='Pengaduan Diterima',
+        )
+        self.assertTrue(nasabah_notif.exists())
+
     def test_admin_cannot_create(self):
         self.auth_as(self.admin)
         response = self.client.post('/api/complaints/', self._payload(), format='json')
@@ -75,6 +99,18 @@ class ComplaintManageTests(EnvelopeAPITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('tindak_lanjut', str(response.data))
+
+    def test_close_rejects_blank_tindak_lanjut(self):
+        self.auth_as(self.admin)
+        response = self.client.patch(
+            f'/api/complaints/{self.complaint.id}/',
+            {'status': 'ditutup', 'tindak_lanjut': '   '},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(response.data['success'])
+        self.assertIn('tindak_lanjut', response.data.get('errors', {}))
 
     def test_koordinator_cannot_update(self):
         self.auth_as(self.koordinator)

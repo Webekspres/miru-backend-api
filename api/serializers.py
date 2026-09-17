@@ -1,3 +1,6 @@
+import os
+
+from django.db import transaction
 from rest_framework import serializers
 
 from .models import *
@@ -15,15 +18,22 @@ PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_s
 
 class UserProfileSerializer(serializers.ModelSerializer):
     qr = serializers.SerializerMethodField()
+    kelurahan_nama = serializers.CharField(
+        source='kelurahan.kelurahan', read_only=True, default=None,
+    )
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'role', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
+            'id', 'username', 'role', 'nama_lengkap', 'no_hp',
+            'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
+            'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'date_joined', 'qr',
+            'avatar_url',
         ]
         read_only_fields = [
-            'id', 'username', 'role', 'saldo', 'poin', 'is_active', 'date_joined', 'qr',
+            'id', 'role', 'saldo', 'poin', 'is_active',
+            'date_joined', 'qr', 'phone_verified',
         ]
 
     def get_qr(self, obj) -> dict:
@@ -33,18 +43,59 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'no_hp': obj.no_hp,
         }
 
+    def update(self, instance, validated_data):
+        new_hp = validated_data.get('no_hp')
+        phone_changed = new_hp is not None and new_hp != instance.no_hp
+        instance = super().update(instance, validated_data)
+        if phone_changed:
+            instance.phone_verified = False
+            instance.save(update_fields=['phone_verified'])
+        return instance
+
+    def validate_username(self, value):
+        value = (value or '').strip()
+        if not value:
+            raise serializers.ValidationError('Username wajib diisi.')
+        qs = User.objects.filter(username__iexact=value)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise serializers.ValidationError('Username sudah digunakan.')
+        return value
+
+    def validate_avatar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
+    def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
+        data = super().to_representation(instance)
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
+        return data
+
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
+    """Registrasi disingkat (T2): nama, username, password + consent. HP diverifikasi OTP."""
+
     password = serializers.CharField(write_only=True, min_length=6)
     setuju_kebijakan_data = serializers.BooleanField(write_only=True)
 
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'nama_lengkap', 'nik', 'no_hp', 'alamat',
+            'id', 'username', 'password', 'nama_lengkap',
             'setuju_kebijakan_data', 'role', 'saldo', 'poin', 'is_active',
+            'phone_verified',
         ]
-        read_only_fields = ['id', 'role', 'saldo', 'poin', 'is_active']
+        read_only_fields = [
+            'id', 'role', 'saldo', 'poin', 'is_active', 'phone_verified',
+        ]
 
     def validate_username(self, value):
         if User.objects.filter(username__iexact=value).exists():
@@ -70,16 +121,19 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             username=validated_data['username'],
             password=validated_data['password'],
             nama_lengkap=validated_data['nama_lengkap'],
-            nik=validated_data.get('nik', ''),
-            no_hp=validated_data.get('no_hp', ''),
-            alamat=validated_data.get('alamat', ''),
             role='nasabah',
             saldo=0,
             poin=0,
+            is_active=False,
+            phone_verified=False,
+            no_hp='',
+            alamat='',
         )
         user.setuju_kebijakan_data = True
         user.tanggal_persetujuan_kebijakan = timezone.now()
-        user.save(update_fields=['setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan'])
+        user.save(update_fields=[
+            'setuju_kebijakan_data', 'tanggal_persetujuan_kebijakan',
+        ])
         return user
 
     def to_representation(self, instance):
@@ -96,8 +150,20 @@ class NasabahLookupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'nama_lengkap', 'no_hp', 'is_active']
+        fields = [
+            'id', 'username', 'nama_lengkap', 'no_hp', 'alamat',
+            'is_active', 'phone_verified', 'avatar_url',
+        ]
         read_only_fields = fields
+
+    def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
+        data = super().to_representation(instance)
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
+        return data
 
 
 class UserAdminSerializer(serializers.ModelSerializer):
@@ -106,10 +172,12 @@ class UserAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
-            'alamat', 'saldo', 'poin', 'is_active',
+            'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
+            'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
+            'kelurahan', 'rt', 'rw',
+            'saldo', 'poin', 'is_active', 'avatar_url',
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'phone_verified']
 
     def validate_username(self, value):
         qs = User.objects.filter(username__iexact=value)
@@ -137,6 +205,9 @@ class UserAdminSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
+        # T10: nomor HP dari admin → belum terverifikasi
+        if validated_data.get('no_hp'):
+            validated_data['phone_verified'] = False
         user = User(**validated_data)
         user.set_password(password)
         user.save()
@@ -144,16 +215,33 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        new_hp = validated_data.get('no_hp')
+        phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
+        if phone_changed:
+            # T10: ganti/isi nomor → status belum terverifikasi
+            instance.phone_verified = False
         if password:
             instance.set_password(password)
         instance.save()
         return instance
 
+    def validate_avatar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
     def to_representation(self, instance):
+        from .services.object_storage import serialized_media_url
+
         data = super().to_representation(instance)
         data.pop('password', None)
+        data['avatar_url'] = serialized_media_url(
+            instance.avatar_url, self.context.get('request'),
+        )
         return data
 
 
@@ -162,8 +250,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'password', 'role', 'nama_lengkap', 'nik', 'no_hp',
-            'alamat', 'saldo', 'poin', 'is_active',
+            'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
+            'phone_verified', 'alamat', 'saldo', 'poin', 'is_active',
         ]
         extra_kwargs = {'password': {'write_only': True}}
 
@@ -173,9 +261,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class KategoriSampahSerializer(serializers.ModelSerializer):
+    tanggal_berlaku = serializers.DateTimeField(
+        required=False,
+        help_text='Tanggal harga baru mulai berlaku (min H+3 dari sekarang). '
+                  'Kosongkan untuk default H+3.',
+    )
+
     class Meta:
         model = KategoriSampah
-        fields = ['id', 'nama', 'harga_beli_per_kg', 'stok_terkini_kg']
+        fields = ['id', 'nama', 'harga_beli_per_kg', 'stok_terkini_kg', 'tanggal_berlaku']
         read_only_fields = ['id', 'stok_terkini_kg']
 
     def validate_nama(self, value):
@@ -192,12 +286,37 @@ class KategoriSampahSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        # Extract tanggal_berlaku (not a model field on KategoriSampah)
+        tanggal_berlaku = validated_data.pop('tanggal_berlaku', None)
+
+        # Check if price is being changed
+        new_harga = validated_data.get('harga_beli_per_kg')
         old_harga = instance.harga_beli_per_kg
+
+        if new_harga is not None and new_harga != old_harga:
+            # Don't update harga_beli_per_kg on category yet — schedule instead
+            validated_data.pop('harga_beli_per_kg', None)
+
+            from api.services.price_history import (
+                record_price_change,
+                validate_tanggal_berlaku,
+            )
+            if tanggal_berlaku is not None:
+                try:
+                    validate_tanggal_berlaku(tanggal_berlaku)
+                except ValueError as exc:
+                    raise serializers.ValidationError(
+                        {'tanggal_berlaku': str(exc)},
+                    )
+
+            record_price_change(
+                instance, old_harga, new_harga,
+                tanggal_berlaku=tanggal_berlaku,
+            )
+
+        # Update other fields (nama, dll.)
         instance = super().update(instance, validated_data)
-        new_harga = instance.harga_beli_per_kg
-        if new_harga != old_harga:
-            from api.services.price_history import record_price_change
-            record_price_change(instance, old_harga, new_harga)
+
         return instance
 
 
@@ -246,6 +365,15 @@ class DetailSetoranSerializer(serializers.ModelSerializer):
 
 class TransaksiSetoranCreateSerializer(serializers.ModelSerializer):
     details = DetailSetoranWriteSerializer(many=True)
+    nasabah = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(role='nasabah', is_active=True),
+        error_messages={
+            'does_not_exist': 'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+            'incorrect_type': 'ID nasabah tidak valid.',
+            'null': 'Nasabah wajib dipilih.',
+            'required': 'Nasabah wajib dipilih.',
+        },
+    )
 
     class Meta:
         model = TransaksiSetoran
@@ -358,25 +486,52 @@ TransaksiSetoranSerializer = TransaksiSetoranCreateSerializer
 class PenjemputanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Penjemputan
-        fields = ['estimasi_berat', 'alamat_jemput', 'jadwal']
+        fields = [
+            'estimasi_berat', 'alamat_jemput', 'jadwal',
+            'latitude', 'longitude', 'catatan_lokasi',
+        ]
+        extra_kwargs = {
+            'latitude': {'required': False, 'allow_null': True},
+            'longitude': {'required': False, 'allow_null': True},
+            'catatan_lokasi': {'required': False, 'allow_blank': True},
+        }
 
     def validate_estimasi_berat(self, value):
         from .services.pickups import validate_estimasi_berat
         return validate_estimasi_berat(value)
 
     def validate_jadwal(self, value):
-        from .services.pickups import validate_jadwal_h_plus_one
-        validate_jadwal_h_plus_one(value)
+        from .services.pickups import validate_jadwal
+        validate_jadwal(value)
         return value
 
     def validate(self, attrs):
         request = self.context['request']
-        from .services.pickups import validate_nasabah_owner
+        from .services.pickups import (
+            validate_koordinat,
+            validate_max_pickups_per_week,
+            validate_nasabah_owner,
+            validate_wilayah_layanan,
+        )
+        from .services.profile import require_complete_address
         validate_nasabah_owner(request.user)
+        require_complete_address(request.user, 'mengajukan penjemputan')
+        validate_wilayah_layanan(request.user)
+        validate_max_pickups_per_week(request.user)
+        validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
+    @transaction.atomic
     def create(self, validated_data):
-        validated_data['nasabah'] = self.context['request'].user
+        user = self.context['request'].user
+        if user.kelurahan_id:
+            # Lock the WilayahLayanan row to serialize concurrent submissions from the same kelurahan
+            from .models import WilayahLayanan
+            from .services.pickups import validate_max_pickups_per_week
+            WilayahLayanan.objects.select_for_update().filter(pk=user.kelurahan_id).first()
+            validate_max_pickups_per_week(user)
+
+        validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'
         return Penjemputan.objects.create(**validated_data)
 
@@ -384,7 +539,12 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
 class PenjemputanUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Penjemputan
-        fields = ['status', 'petugas', 'jadwal']
+        fields = ['status', 'petugas', 'jadwal', 'latitude', 'longitude', 'catatan_lokasi']
+        extra_kwargs = {
+            'latitude': {'required': False, 'allow_null': True},
+            'longitude': {'required': False, 'allow_null': True},
+            'catatan_lokasi': {'required': False, 'allow_blank': True},
+        }
 
     def validate_petugas(self, value):
         if value is not None:
@@ -414,20 +574,47 @@ class PenjemputanUpdateSerializer(serializers.ModelSerializer):
                 instance, new_status, request.user, petugas=new_petugas,
             )
 
+        # Jika admin setujui via PATCH dengan petugas → naikkan ke dijadwalkan (atomik).
+        if (
+            request.user.role == 'admin'
+            and attrs.get('status') == 'disetujui'
+            and new_petugas is not None
+        ):
+            attrs['status'] = 'dijadwalkan'
+
+        lat = attrs['latitude'] if 'latitude' in attrs else instance.latitude
+        lng = attrs['longitude'] if 'longitude' in attrs else instance.longitude
+        if 'latitude' in attrs or 'longitude' in attrs:
+            from .services.pickups import validate_koordinat
+            validate_koordinat(lat, lng)
+
         return attrs
+
+
+def _validate_petugas_id(value):
+    from .services.pickups import validate_petugas_user
+    try:
+        petugas = User.objects.get(pk=value)
+    except User.DoesNotExist as exc:
+        raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
+    validate_petugas_user(petugas)
+    return value
 
 
 class PickupAssignSerializer(serializers.Serializer):
     petugas_id = serializers.IntegerField()
 
     def validate_petugas_id(self, value):
-        from .services.pickups import validate_petugas_user
-        try:
-            petugas = User.objects.get(pk=value)
-        except User.DoesNotExist as exc:
-            raise serializers.ValidationError('Petugas tidak ditemukan.') from exc
-        validate_petugas_user(petugas)
-        return value
+        return _validate_petugas_id(value)
+
+
+class PickupApproveSerializer(serializers.Serializer):
+    """Setujui + assign atomik — petugas_id wajib."""
+
+    petugas_id = serializers.IntegerField()
+
+    def validate_petugas_id(self, value):
+        return _validate_petugas_id(value)
 
 
 class PickupStatusActionSerializer(serializers.Serializer):
@@ -445,27 +632,81 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
             'estimasi_berat', 'alamat_jemput', 'jadwal', 'status',
+            'latitude', 'longitude', 'catatan_lokasi',
         ]
         read_only_fields = fields
+
+
+ALLOWED_UPLOAD_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+MAX_UPLOAD_SIZE_MB = 2
 
 
 class PenarikanSaldoCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PenarikanSaldo
-        fields = ['nominal', 'metode', 'nama_bank', 'no_rekening', 'nama_pemilik_rekening']
+        fields = [
+            'nominal', 'metode', 'nama_bank', 'no_rekening',
+            'nama_pemilik_rekening', 'lampiran_ktp',
+        ]
+        extra_kwargs = {
+            'lampiran_ktp': {'required': False, 'allow_null': True},
+        }
 
     def validate_nominal(self, value):
         from .services.withdrawals import validate_nominal
         return validate_nominal(value)
 
+    def validate_metode(self, value):
+        from .services.withdrawals import validate_metode
+        return validate_metode(value)
+
+    def validate_lampiran_ktp(self, value):
+        if value is None:
+            return value
+        # Validasi tipe file — hanya gambar
+        ext = os.path.splitext(value.name)[1].lower()
+        if ext not in ALLOWED_UPLOAD_EXTENSIONS:
+            raise serializers.ValidationError(
+                f'Format file tidak didukung. Gunakan: {", ".join(sorted(ALLOWED_UPLOAD_EXTENSIONS))}.'
+            )
+        # Validasi ukuran maksimal
+        if value.size > MAX_UPLOAD_SIZE_MB * 1024 * 1024:
+            raise serializers.ValidationError(
+                f'Ukuran file maksimal {MAX_UPLOAD_SIZE_MB} MB.'
+            )
+        # Larang executable — cek magic bytes header
+        header = value.read(4)
+        value.seek(0)
+        executable_magic = {b'\x4d\x5a', b'\x7fELF', b'\xca\xfe\xba\xbe', b'\xcf\xfa\xed\xfe'}
+        if header[:2] in {b'MZ', b'\x7f\x45'} or header in executable_magic:
+            raise serializers.ValidationError(
+                'File executable tidak diizinkan untuk diunggah.'
+            )
+        return value
+
     def validate(self, attrs):
         request = self.context['request']
         if request.user.role != 'nasabah':
-            raise serializers.ValidationError(
-                'Hanya nasabah yang dapat mengajukan penarikan saldo.'
-            )
-        from .services.withdrawals import validate_create_withdrawal
-        validate_create_withdrawal(request.user, attrs['nominal'])
+            raise serializers.ValidationError({
+                'non_field_errors': [
+                    'Hanya nasabah yang dapat mengajukan penarikan saldo.'
+                ],
+            })
+        from .services.profile import require_complete_address
+        require_complete_address(request.user, 'mengajukan penarikan')
+        from .services.withdrawals import (
+            validate_create_withdrawal,
+            is_besar,
+        )
+        nominal = attrs['nominal']
+        lampiran_ktp = attrs.get('lampiran_ktp')
+        if is_besar(nominal) and not lampiran_ktp:
+            raise serializers.ValidationError({
+                'lampiran_ktp': [
+                    'Penarikan ≥ Rp1.000.000 wajib melampirkan foto KTP.'
+                ],
+            })
+        validate_create_withdrawal(request.user, nominal, attrs.get('metode'))
         return attrs
 
     def create(self, validated_data):
@@ -504,12 +745,14 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
             'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
-            'status', 'tanggal',
+            'status', 'tanggal', 'ktp_diverifikasi',
         ]
         read_only_fields = fields
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
+        # Jangan expose URL file KTP — unduh hanya via endpoint role-gated.
+        data['ada_lampiran_ktp'] = bool(instance.lampiran_ktp)
         if instance.status == 'selesai':
             instance.nasabah.refresh_from_db()
             data['saldo_nasabah_baru'] = str(instance.nasabah.saldo)
@@ -540,16 +783,21 @@ class PenukaranPoinCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         request = self.context['request']
         if request.user.role != 'nasabah':
-            raise serializers.ValidationError(
-                'Hanya nasabah yang dapat menukar poin.'
-            )
+            raise serializers.ValidationError({
+                'non_field_errors': ['Hanya nasabah yang dapat menukar poin.'],
+            })
+        from .services.profile import require_complete_address
+        require_complete_address(request.user, 'menukar poin')
         from .services.redemptions import validate_create_redemption
         validate_create_redemption(request.user, attrs['reward'])
         return attrs
 
     def create(self, validated_data):
+        reward = validated_data['reward']
         validated_data['nasabah'] = self.context['request'].user
         validated_data['status'] = 'menunggu'
+        # Snapshot harga poin saat pengajuan (qty default = 1).
+        validated_data['poin_dibutuhkan'] = reward.poin_dibutuhkan
         return PenukaranPoin.objects.create(**validated_data)
 
 
@@ -561,7 +809,7 @@ class PenukaranPoinUpdateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         from api.exceptions import AlreadyProcessedError
 
-        if self.instance.status == 'selesai':
+        if self.instance.status != 'menunggu':
             raise AlreadyProcessedError('Penukaran poin sudah diproses.')
 
         new_status = attrs.get('status', self.instance.status)
@@ -571,15 +819,12 @@ class PenukaranPoinUpdateSerializer(serializers.ModelSerializer):
             )
 
         from .services.redemptions import validate_approve_redemption
-        validate_approve_redemption(self.instance.nasabah, self.instance.reward)
+        validate_approve_redemption(self.instance)
         return attrs
 
 
 class PenukaranPoinSerializer(serializers.ModelSerializer):
     reward_nama = serializers.CharField(source='reward.nama', read_only=True)
-    poin_dibutuhkan = serializers.IntegerField(
-        source='reward.poin_dibutuhkan', read_only=True,
-    )
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
 
     class Meta:
@@ -656,6 +901,111 @@ class PenjualanMitraSerializer(serializers.ModelSerializer):
         return data
 
 
+class WilayahLayananSerializer(serializers.ModelSerializer):
+    """CRUD wilayah layanan — admin/koordinator."""
+
+    class Meta:
+        model = WilayahLayanan
+        fields = ['id', 'kelurahan', 'rt', 'rw', 'aktif', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def validate_kelurahan(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Nama kelurahan wajib diisi.')
+        return value
+
+
+class MediaUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()
+    purpose = serializers.ChoiceField(
+        choices=['edukasi', 'avatar', 'konten'], default='edukasi',
+    )
+
+
+class KontenEdukasiSerializer(serializers.ModelSerializer):
+    """CRUD konten edukasi — admin/koordinator."""
+
+    kategori_terkait_nama = serializers.CharField(
+        source='kategori_terkait.nama', read_only=True, default=None,
+    )
+    featured_image = serializers.CharField(
+        required=False, allow_blank=True, allow_null=True, write_only=True,
+    )
+
+    class Meta:
+        model = KontenEdukasi
+        fields = [
+            'id', 'judul', 'isi', 'gambar_url', 'featured_image',
+            'kategori_terkait', 'kategori_terkait_nama',
+            'aktif', 'urutan', 'created_at', 'updated_at',
+        ]
+        read_only_fields = ['id', 'urutan', 'created_at', 'updated_at']
+
+    def to_internal_value(self, data):
+        if hasattr(data, 'copy'):
+            data = data.copy()
+        elif isinstance(data, dict):
+            data = dict(data)
+        if not data.get('gambar_url') and data.get('featured_image'):
+            data['gambar_url'] = data.get('featured_image')
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        from .services.object_storage import public_object_url
+
+        data = super().to_representation(instance)
+        resolved = public_object_url(instance.gambar_url, self.context.get('request'))
+        data['gambar_url'] = resolved or None
+        data['featured_image'] = data['gambar_url']
+        return data
+
+    def validate_judul(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Judul wajib diisi.')
+        return value
+
+    def validate_isi(self, value):
+        if not value.strip():
+            raise serializers.ValidationError('Isi konten wajib diisi.')
+        # Simpan Markdown mentah (subset didokumentasikan di model help_text).
+        return value
+
+    def validate_gambar_url(self, value):
+        from .services.object_storage import normalize_stored_media_ref
+
+        if value is None:
+            return ''
+        return normalize_stored_media_ref(value)
+
+    def validate(self, attrs):
+        attrs.pop('featured_image', None)
+        return attrs
+
+
+class KontenEdukasiPublicSerializer(serializers.ModelSerializer):
+    """List/detail publik untuk mobile — hanya konten aktif, tanpa updated_at."""
+
+    kategori_terkait_nama = serializers.CharField(
+        source='kategori_terkait.nama', read_only=True, default=None,
+    )
+
+    class Meta:
+        model = KontenEdukasi
+        fields = [
+            'id', 'judul', 'isi', 'gambar_url', 'kategori_terkait_nama',
+            'created_at',
+        ]
+
+    def to_representation(self, instance):
+        from .services.object_storage import public_object_url
+
+        data = super().to_representation(instance)
+        data['gambar_url'] = public_object_url(
+            instance.gambar_url, self.context.get('request'),
+        ) or None
+        return data
+
+
 class PengaduanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pengaduan
@@ -704,17 +1054,57 @@ class AuditLogSerializer(serializers.ModelSerializer):
 
 
 class PengaturanInstitusiSerializer(serializers.ModelSerializer):
+    """Profil institusi. logo_url read-only (diabaikan pada write)."""
+
     class Meta:
         model = PengaturanInstitusi
         fields = [
             'nama_institusi', 'alamat', 'kontak', 'email',
-            'logo_url', 'jam_operasional', 'pengumuman',
+            'logo_url', 'jam_operasional', 'jam_buka', 'jam_tutup',
+            'pengumuman', 'tentang', 'kebijakan', 'syarat_ketentuan',
         ]
+        read_only_fields = ['logo_url']
+        extra_kwargs = {
+            'jam_operasional': {
+                'help_text': (
+                    'Deprecated — prefer jam_buka/jam_tutup. '
+                    'Disinkron otomatis saat jam_buka & jam_tutup diisi.'
+                ),
+                'required': False,
+            },
+            'jam_buka': {'help_text': 'Jam buka layanan (WIT), format HH:MM:SS'},
+            'jam_tutup': {'help_text': 'Jam tutup layanan (WIT), format HH:MM:SS'},
+        }
 
     def validate_nama_institusi(self, value):
         if not value.strip():
             raise serializers.ValidationError('Nama institusi wajib diisi.')
         return value
+
+    def to_internal_value(self, data):
+        # Client lama boleh kirim logo_url — diabaikan tanpa error.
+        if hasattr(data, 'copy'):
+            data = data.copy()
+            data.pop('logo_url', None)
+        elif isinstance(data, dict):
+            data = {k: v for k, v in data.items() if k != 'logo_url'}
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        from api.services.privacy_policy import (
+            DEFAULT_KEBIJAKAN_MD,
+            DEFAULT_SYARAT_MD,
+            DEFAULT_TENTANG_MD,
+        )
+
+        data = super().to_representation(instance)
+        if not (data.get('tentang') or '').strip():
+            data['tentang'] = DEFAULT_TENTANG_MD
+        if not (data.get('kebijakan') or '').strip():
+            data['kebijakan'] = DEFAULT_KEBIJAKAN_MD
+        if not (data.get('syarat_ketentuan') or '').strip():
+            data['syarat_ketentuan'] = DEFAULT_SYARAT_MD
+        return data
 
 
 class PengumumanSerializer(serializers.ModelSerializer):
@@ -729,6 +1119,26 @@ class NotifikasiSerializer(serializers.ModelSerializer):
         model = Notifikasi
         fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'is_read', 'created_at']
         read_only_fields = ['id', 'user', 'judul', 'deskripsi', 'kategori', 'created_at']
+
+
+class DeviceTokenSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    token = serializers.CharField(max_length=512)
+    platform = serializers.ChoiceField(
+        choices=('android', 'ios', 'web'),
+        default='android',
+        required=False,
+    )
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
+
+    def validate_token(self, value):
+        value = (value or '').strip()
+        if not value:
+            raise serializers.ValidationError('Token tidak boleh kosong.')
+        if len(value) < 20:
+            raise serializers.ValidationError('Token FCM tidak valid.')
+        return value
 
 
 class PengaduanSerializer(serializers.ModelSerializer):

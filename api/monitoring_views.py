@@ -15,8 +15,13 @@ from .openapi import (
     report_weekly_schema,
     report_waste_schema,
 )
-from .permissions import IsMonitorReadOnly
-from .services.dashboard import get_deposit_chart, get_overview, get_recent_activity
+from .permissions import IsDashboardOverviewReader, IsMonitorReadOnly
+from .services.dashboard import (
+    get_deposit_chart,
+    get_overview,
+    get_petugas_overview,
+    get_recent_activity,
+)
 from .services.inventory import get_inventory_history, get_inventory_summary
 from .services.reports import (
     daily_report,
@@ -35,13 +40,19 @@ class MonitorView(APIView):
 
 
 @dashboard_overview_schema
-class DashboardOverviewView(MonitorView):
+class DashboardOverviewView(APIView):
+    """Overview admin penuh, atau widget petugas (jemput hari ini / antrian aktif)."""
+
+    permission_classes = [IsAuthenticated, IsDashboardOverviewReader]
+
     def get(self, request):
-        return success_response(
-            data=get_overview(),
-            message='Ringkasan dashboard berhasil diambil.',
-            request=request,
-        )
+        if request.user.role == 'petugas':
+            data = get_petugas_overview(request.user)
+            message = 'Ringkasan dashboard petugas berhasil diambil.'
+        else:
+            data = get_overview()
+            message = 'Ringkasan dashboard berhasil diambil.'
+        return success_response(data=data, message=message, request=request)
 
 
 @dashboard_deposit_chart_schema

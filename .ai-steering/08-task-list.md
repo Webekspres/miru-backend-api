@@ -1,498 +1,128 @@
-# 08 — Task List: Backend Development Roadmap
+# 08 — Task List: Backend
 
-> **Dokumen ini** adalah roadmap pengembangan backend MIRU Bank Sampah dari MVP hingga production-ready.
-> Urutan task mengikuti dependensi teknis dan prioritas operasional (petugas & admin dulu, nasabah mobile menyusul).
->
-> **Referensi terkait:**
-> - `04-api-contracts-and-standards.md` — format request/response & endpoint lengkap
-> - `05-business-rules-sops.md` — aturan bisnis
-> - `07-modules-and-features.md` — 17 modul sistem
+Belum selesai di atas; selesai di bawah.
+Hanya task dalam 17 modul. Jangan tambah fitur tanpa addendum.
 
 ---
 
-## Ringkasan Fase
+## Fase 7 — Production ready
 
-| Fase | Nama | Tujuan | Status |
-|------|------|--------|--------|
-| 0 | Foundation | Setup proyek, model, CRUD dasar | ✅ Selesai |
-| 1 | MVP — Infrastruktur & Auth | Konfigurasi aman, auth, seed data, perbaikan dasar API | ✅ Selesai |
-| 2 | MVP — Logika Bisnis Inti | Validasi, workflow, transaksi atomik, permission per role | ✅ Selesai |
-| 3 | MVP — Operasional Harian | Setoran, penjemputan, penarikan, poin, pengaduan (end-to-end) | ✅ Selesai |
-| 4 | MVP — Monitoring & Laporan | Dashboard, laporan harian/bulanan, stok gudang | ✅ Selesai |
-| 5 | MVP Lengkap — Governance | Audit log, pengaturan institusi, role pemerintah, koreksi data | ✅ Selesai |
-| 6 | Kualitas & Dokumentasi | Testing, OpenAPI, error handling standar | ✅ Selesai |
-| 7 | Production Ready | Keamanan, deployment, backup, monitoring | 🔲 (tunggu deployment) |
-| 8 | Post-MVP | Peningkatan & optimasi jangka panjang | 🔲 (post-launch) |
+### Bisa langsung
 
-### Cakupan 17 Modul Backend
+- [x] Test restore 1× sebelum go-live (`BACKUP.md` §7 + `scripts/restore.sh`)
+  - DB restore → `/health/` OK → login admin + 1 transaksi baca
+  - 2026-09-02 · habibiahmada · **lolos** · isolasi `miru_restore_test` (live `miru` tidak di-drop)
 
-| No | Modul | Fase Target |
-|----|-------|-------------|
-| 1 | Manajemen Akses & Pengguna | Fase 1–2 |
-| 2 | Autentikasi & Akun Nasabah | Fase 1 |
-| 3 | Profil & Kartu Digital (API data) | Fase 1 |
-| 4 | Informasi & Edukasi Sampah | Fase 1 (seed) |
-| 5 | Katalog & Harga Sampah | Fase 1–2 |
-| 6 | Setor Sampah Langsung | Fase 2–3 |
-| 7 | Penjemputan Sampah | Fase 2–3 |
-| 8 | Penimbangan & Verifikasi | Fase 2 (bagian setoran) |
-| 9 | Saldo & Riwayat Transaksi | Fase 2–3 |
-| 10 | Penarikan Saldo | Fase 2–3 |
-| 11 | Poin & Reward | Fase 2–3 |
-| 12 | Stok Gudang | Fase 2–4 |
-| 13 | Penjualan ke Mitra | Fase 2–3 |
-| 14 | Pengaduan Nasabah | Fase 2–3 |
-| 15 | Dashboard & Monitoring | Fase 4 |
-| 16 | Laporan & Ekspor Data | Fase 4–5 |
-| 17 | Pengaturan Sistem & Audit Log | Fase 5 |
+### Perlu integrasi
 
-### Gap Kode vs Dokumen (perlu ditangani)
-
-| Item | Kondisi Saat Ini | Target |
-|------|------------------|--------|
-| Auth URL | ✅ `/api/auth/login/` sudah standar | Standarkan & dokumentasikan |
-| Role `pemerintah` | ✅ Ada di model + permission read-only | Dashboard, laporan, inventory read-only |
-| Status `dalam_perjalanan` | ✅ Ada di model (`0002_penjemputan_dalam_perjalanan`) | Tambah ke STATUS_CHOICES |
-| Field `tindak_lanjut` | ✅ Ada di model (`0003_pengaduan_fields`) | Tambah field TextField |
-| Field `jenis_pengaduan` | ✅ Ada, 7 choices dari SOP | Tambah choices |
-| Pagination | ✅ `MiruPagination` global (20/page, max 100) | PageNumberPagination 20/halaman |
-| Error format | ✅ JSON Envelope (`exception_handler.py`) | JSON Envelope error |
-| `transaction.atomic()` | ✅ Dipakai di semua operasi saldo/stok/poin | Wajib untuk operasi atomik |
-| `SECRET_KEY` | ✅ Dari environment variable | Dari environment variable |
-| `TIME_ZONE` | ✅ `Asia/Jayapura` | `Asia/Jayapura` (WIT) |
-| Seed data | ✅ `seed_data` management command | Management command kategori & reward |
-| `views.py` | ✅ Import sudah benar | Perbaiki bug |
+- [ ] Sentry + scrub PII di `before_send` — **ditunda**; butuh DSN; jangan kirim token/password/KTP
 
 ---
 
-## Fase 0: Foundation ✅ Selesai
+## Fase 8 — Pengembangan lanjutan
 
-### 0.1 Project Setup ✅
-- [x] Create Django project (`core/`)
-- [x] Create `api` app
-- [x] Configure `settings.py` (DB, CORS, JWT, DRF)
-- [x] Create Dockerfile & docker-compose.yml
-- [x] Create `.env.example`
-- [x] Install dependencies: DRF, simplejwt, django-filter, cors-headers, drf-spectacular, psycopg2
+### Bisa langsung
 
-### 0.2 Database Models ✅
-- [x] `User` (extends AbstractUser) — role, saldo, poin
-- [x] `KategoriSampah`
-- [x] `TransaksiSetoran` + `DetailSetoran`
-- [x] `Penjemputan` (status workflow dasar)
-- [x] `PenarikanSaldo`
-- [x] `Reward` + `PenukaranPoin`
-- [x] `MitraPengepul` + `PenjualanMitra`
-- [x] `Pengaduan`
-- [x] Run initial migrations
+- [ ] Bulk import nasabah CSV/Excel (admin/koordinator)
+  - Validasi baris: username unik, password policy, role = nasabah
+  - Consent `setuju_kebijakan_data` wajib; batasi ukuran file
+  - Envelope: sukses N / gagal M + error per baris; audit log
+  - Jangan import staff lewat endpoint yang sama
+- [ ] Dokumentasi batasan Maps di kontrak API (bukan distance matrix / live tracking)
+- [ ] Celery + Redis: email, FCM batch, export, backup trigger; retry + DLQ
+- [ ] Redis cache `/api/dashboard/overview/` (TTL pendek)
 
-### 0.3 Core API Setup ✅
-- [x] Serializers untuk semua model
-- [x] ViewSets untuk semua model
-- [x] URL routing dengan DefaultRouter
-- [x] Custom permissions: `IsAdminOrKoordinator`, `IsPetugasOrAdmin`, `IsOwnerOrAdmin`
-- [x] JWT auth endpoints (`/api/auth/login/`, `/api/auth/refresh/`)
-- [x] drf-spectacular schema config
-- [x] Health check endpoint (`/health/`)
+### Perlu integrasi (kredensial, domain, traffic)
+
+- [ ] WhatsApp Business API: setoran berhasil; penarikan disetujui/ditolak — **`WA_*`**
+  - Payload tanpa KTP, saldo penuh, JWT; fallback in-app/FCM
+- [ ] Maps API key di env, restrict IP/referrer/bundle — **key dari ops/klien**
+- [ ] CORS + HTTPS production (`ALLOWED_HOSTS`, `CORS_ALLOWED_ORIGINS`) — **domain final**
+- [ ] URL publik privacy policy untuk Play Store — **domain HTTPS final**
+- [ ] API versioning `/api/v1/` — **hanya saat breaking change**
+- [ ] CDN media — **hanya jika traffic media nyata** (bukan lampiran KTP)
+- [ ] Read replica PostgreSQL — **hanya jika traffic baca nyata**
 
 ---
 
-## Fase 1: MVP — Infrastruktur & Auth
+## Out of scope
 
-> **Tujuan:** Backend siap dipakai tim frontend dengan konfigurasi aman, auth stabil, dan data awal terisi.
-
-### 1.1 Konfigurasi & Keamanan Dasar ✅
-- [x] Pindahkan `SECRET_KEY` ke environment variable (wajib production)
-- [x] Tambah `python-dotenv` atau load `.env` di `settings.py`
-- [x] Set `TIME_ZONE = 'Asia/Jayapura'` dan `USE_TZ = True`
-- [x] Set `ALLOWED_HOSTS` dari environment variable
-- [x] Konfigurasi `SIMPLE_JWT` — access token 24 jam (sesuai constraint)
-- [x] Tambah `restart: unless-stopped` di `docker-compose.yml` (dev convenience)
-- [x] Tambah healthcheck Postgres di `docker-compose.yml`
-
-### 1.2 Standar API Response — JSON Envelope ✅
-- [x] Buat `api/utils/response.py` — helper `success_response()`, `error_response()`
-- [x] Buat `api/utils/pagination.py` — pagination → `meta.pagination`
-- [x] Buat `api/utils/exception_handler.py` — wrap semua error ke envelope
-- [x] Buat `api/utils/renderers.py` — custom JSON renderer untuk envelope sukses
-- [x] Konfigurasi global pagination: 20/halaman, max 100
-- [x] Konfigurasi global ordering: `OrderingFilter`
-- [x] Konfigurasi global search: `SearchFilter` pada endpoint user
-- [x] Setiap response wajib punya: `success`, `status_code`, `message`, `data`, `meta`
-- [x] `meta` wajib berisi: `timestamp` (ISO 8601 WIT), `request_id`
-- [x] Standarkan format datetime ISO 8601 dengan timezone WIT di response
-
-### 1.3 Autentikasi & Registrasi (Modul 2) ✅
-- [x] Verifikasi `POST /api/auth/login/` — return access + refresh token
-- [x] Verifikasi `POST /api/auth/refresh/` — refresh access token
-- [x] Validasi registrasi: username unik, password min 6 karakter
-- [x] Registrasi nasabah: `POST /api/users/` — role default `nasabah`, saldo/poin = 0
-- [x] Endpoint `GET /api/auth/me/` — profil user yang sedang login (tanpa perlu tahu ID)
-- [x] Return role di response login/me untuk kebutuhan redirect frontend
-
-### 1.4 Manajemen Pengguna (Modul 1) ✅
-- [x] Perbaiki bug import `permissions` di `views.py`
-- [x] `GET /api/users/` — filter `?role=`, `?is_active=`, search `?search=`
-- [x] `PATCH /api/users/{id}/` — nasabah hanya edit profil sendiri
-- [x] Admin bisa create user petugas/admin/koordinator (bukan via registrasi publik)
-- [x] Sembunyikan field `password` di response (sudah write_only, verifikasi)
-- [x] Validasi: nasabah tidak bisa ubah `role`, `saldo`, `poin` via PATCH
-
-### 1.5 Seed Data (Modul 4–5) ✅
-- [x] Buat management command `seed_data`:
-  - [x] 8 kategori sampah (PET, Gelas Plastik, Kardus, Kertas, Aluminium, Besi, Kaca, Jelantah)
-  - [x] 4 reward default (Pulsa, Bibit, Sembako, Alat Kebersihan)
-  - [x] 1 user admin default (untuk development)
-- [x] Dokumentasikan cara menjalankan seed di README
-
-### 1.6 Kategori Sampah (Modul 4–5) ✅
-- [x] `GET /api/waste-categories/` — public, tanpa auth
-- [x] `GET /api/waste-categories/{id}/` — public
-- [x] Admin CRUD kategori — permission `IsAdminOrKoordinator`
-- [x] Response include `stok_terkini_kg` untuk monitoring admin
+- ❌ Payment gateway otomatis
+- ❌ GPS live tracking
+- ❌ Timbangan / barcode / printer auto
+- ❌ API Dukcapil
+- ❌ Multi-tenant
+- ❌ Login mitra/pengepul
 
 ---
 
-## Fase 2: MVP — Logika Bisnis Inti
-
-> **Tujuan:** Semua aturan bisnis SOP diterapkan di backend dengan integritas data terjaga.
-
-### 2.1 Integritas Data Transaksional
-- [x] Bungkus semua operasi saldo/stok/poin dalam `transaction.atomic()`
-- [x] Gunakan `select_for_update()` saat update saldo nasabah (cegah race condition)
-- [x] Tambah validasi saldo tidak boleh negatif setelah operasi
-- [x] Tambah validasi stok tidak boleh negatif setelah penjualan
-
-### 2.2 Transaksi Setoran (Modul 6, 8, 9)
-- [x] Validasi: minimal **1 kg** per detail setoran
-- [x] Validasi: nasabah exists, `is_active=True`, role=`nasabah`
-- [x] Validasi: petugas role=`petugas` atau `admin`
-- [x] Auto-hitung `harga_saat_itu` dari `KategoriSampah.harga_beli_per_kg` (jangan andalkan client)
-- [x] Auto-hitung `subtotal = berat_kg × harga_saat_itu`
-- [x] Auto-hitung `total_nilai` dari sum details
-- [x] Side effect atomik: +saldo, +poin (`floor(total/1000)`), +stok per kategori
-- [x] Permission create: `IsPetugasOrAdmin` (bukan nasabah)
-- [x] Serializer read: return nested `details` pada GET (saat ini write_only)
-- [x] Filter: `?nasabah=`, `?tanggal_after=`, `?tanggal_before=`
-- [x] Ordering: `?ordering=-tanggal`
-
-### 2.3 Penjemputan Workflow (Modul 7)
-- [x] Tambah status `dalam_perjalanan` ke model (migration)
-- [x] Validasi create: estimasi_berat >= **5 kg**
-- [x] Validasi create: jadwal minimal **H+1** (tidak boleh hari ini atau masa lalu)
-- [x] Validasi create: nasabah hanya bisa ajukan untuk diri sendiri
-- [x] Implementasi state machine transisi status:
-  - `menunggu` → `disetujui` | `ditolak` (admin)
-  - `disetujui` → `dijadwalkan` (admin, assign petugas)
-  - `dijadwalkan` → `dalam_perjalanan` (petugas)
-  - `dalam_perjalanan` → `dijemput` (petugas)
-  - `dijemput` → `selesai` (petugas, setelah input setoran)
-- [x] Tolak transisi status yang tidak valid (return 409 Conflict)
-- [x] Hanya admin yang assign `petugas` dan approve/reject
-- [x] Petugas hanya update status penjemputan yang ditugaskan kepadanya
-- [x] Filter: `?status=`, `?nasabah=`, `?petugas=`
-
-### 2.4 Penarikan Saldo (Modul 10)
-- [x] Validasi create: nominal >= **Rp50.000**
-- [x] Validasi create: saldo nasabah >= nominal
-- [x] Validasi create: tidak ada penarikan `menunggu` lain untuk nasabah yang sama
-- [x] Side effect: kurangi saldo saat status → `selesai` (sudah ada, perbaiki dengan atomic)
-- [x] Prevent double processing: tolak update jika sudah `selesai`
-- [x] Permission approve: admin/koordinator only
-- [x] Filter: `?status=`, `?nasabah=`
-
-### 2.5 Penukaran Poin (Modul 11)
-- [x] Validasi create: poin nasabah >= `reward.poin_dibutuhkan`
-- [x] Validasi create: `reward.stok > 0`
-- [x] Side effect atomik saat `selesai`: kurangi poin nasabah, kurangi stok reward
-- [x] Prevent double processing
-- [x] Permission approve: admin only
-
-### 2.6 Penjualan Mitra & Stok (Modul 12–13)
-- [x] Validasi: `stok_terkini_kg >= berat_jual_kg`
-- [x] Auto-hitung `total_penjualan = berat_jual_kg × harga_jual_per_kg`
-- [x] Side effect atomik: kurangi stok kategori
-- [x] CRUD mitra pengepul — admin/koordinator
-- [x] Mitra tidak punya akun login (hanya data referensi)
-
-### 2.7 Pengaduan (Modul 14)
-- [x] Tambah field `tindak_lanjut` (TextField, blank) ke model — migration
-- [x] Tambah field `jenis_pengaduan` (choices, 7 jenis dari SOP) — migration
-- [x] Nasabah create pengaduan → status `terbuka`
-- [x] Admin update `tindak_lanjut` + status `ditutup`
-- [x] Nasabah hanya lihat pengaduan sendiri
-- [x] Filter: `?status=`, `?jenis_pengaduan=`
-
-### 2.8 Permission & Queryset per Role
-- [x] Nasabah: queryset difilter ke data milik sendiri (transaksi, penjemputan, saldo, pengaduan)
-- [x] Petugas: bisa input setoran, update penjemputan yang ditugaskan
-- [x] Admin: full access operasional
-- [x] Koordinator: read-all + approve tertentu
-- [x] Tambah role `pemerintah` — read-only dashboard & laporan
-- [x] Tambah permission class `IsPemerintahReadOnly`
-
----
-
-## Fase 3: MVP — Operasional Harian (End-to-End)
-
-> **Tujuan:** Semua alur operasional bank sampah bisa jalan dari API tanpa workaround.
-
-### 3.1 Alur Setor Langsung (SOP B.1)
-- [x] Petugas scan/cari nasabah → input setoran → saldo & poin terupdate
-- [x] Response setoran include bukti digital (id, tanggal, detail, total)
-- [x] Endpoint `GET /api/deposits/{id}/` — detail lengkap untuk bukti
-
-### 3.2 Alur Penjemputan (SOP B.2)
-- [x] Nasabah ajukan → admin approve → assign petugas → petugas update status → selesai
-- [x] Endpoint action: `POST /api/pickups/{id}/approve/`
-- [x] Endpoint action: `POST /api/pickups/{id}/reject/`
-- [x] Endpoint action: `POST /api/pickups/{id}/assign/` (body: `petugas_id`)
-- [x] Endpoint action: `POST /api/pickups/{id}/update-status/` (body: `status`)
-
-### 3.3 Alur Penarikan (SOP A.3)
-- [x] Nasabah ajukan → admin approve manual → status selesai → saldo berkurang
-- [x] Endpoint action: `POST /api/withdrawals/{id}/approve/`
-- [x] Endpoint action: `POST /api/withdrawals/{id}/reject/` (opsional, kembalikan jika perlu)
-
-### 3.4 Alur Penukaran Poin (SOP A.4)
-- [x] Nasabah pilih reward → admin verifikasi → serahkan reward → approve
-- [x] Endpoint action: `POST /api/reward-redemptions/{id}/approve/`
-
-### 3.5 Riwayat Transaksi Gabungan (Modul 9)
-- [x] `GET /api/activity/` — gabungan setoran + penarikan + penukaran untuk nasabah login
-- [x] Query param: `?jenis=setoran|penarikan|poin`, `?page=`, `?ordering=-tanggal`
-- [x] Response format standar dengan `type` field per item
-
-### 3.6 Profil & Kartu Digital (Modul 3)
-- [x] `GET /api/auth/me/` include data QR: `{ id, nama_lengkap, no_hp }`
-- [x] `PATCH /api/auth/me/` — update profil tanpa ubah saldo/poin/role
-
-### 3.7 Reward Katalog (Modul 11)
-- [x] `GET /api/rewards/` — public list
-- [x] Admin CRUD reward
-- [x] Response include `stok` dan `poin_dibutuhkan`
-
----
-
-## Fase 4: MVP — Monitoring & Laporan
-
-> **Tujuan:** Admin, koordinator, dan pemerintah distrik bisa memantau program via data agregat.
-
-### 4.1 Dashboard API (Modul 15)
-- [x] `GET /api/dashboard/overview/`
-  - total_nasabah, nasabah_aktif_30_hari
-  - total_sampah_kg, total_nilai_setoran
-  - total_penarikan, total_penukaran_poin
-  - penjemputan_menunggu, pengaduan_terbuka
-  - stok_per_kategori (array)
-- [x] `GET /api/dashboard/deposit-chart/?bulan=6&tahun=2026`
-  - data per hari/minggu untuk chart
-- [x] `GET /api/dashboard/recent-activity/?limit=10`
-  - 10 transaksi terbaru (setoran, penarikan, penjemputan)
-- [x] Permission: admin, koordinator, pemerintah (read-only)
-
-### 4.2 Laporan API (Modul 16)
-- [x] `GET /api/reports/daily/?tanggal=2026-07-07`
-  - jumlah_transaksi, total_setoran, total_penarikan, tonase_per_jenis
-- [x] `GET /api/reports/weekly/?minggu=27&tahun=2026`
-  - rekap mingguan, nasabah_baru, tonase_per_jenis
-- [x] `GET /api/reports/monthly/?bulan=7&tahun=2026`
-  - laporan lengkap sesuai format SOP (lihat `09-data-dictionary.md` H.1)
-- [x] `GET /api/reports/waste/?start=2026-07-01&end=2026-07-31`
-  - tonase dan nilai per kategori per periode
-- [x] `GET /api/reports/evaluation/?start=&end=` — data agregat untuk evaluasi program
-- [x] Permission: admin, koordinator, pemerintah
-
-### 4.3 Stok Gudang (Modul 12)
-- [x] `GET /api/inventory/` — ringkasan stok semua kategori
-- [x] `GET /api/inventory/{kategori_id}/history/` — riwayat perubahan stok (post-MVP jika perlu model terpisah)
-
----
-
-## Fase 5: MVP Lengkap — Governance
-
-> **Tujuan:** Memenuhi persyaratan transparansi, audit, dan pengaturan institusi.
-
-### 5.1 Audit Log (Modul 17)
-- [x] Buat model `AuditLog`: user, action, model_name, object_id, changes (JSON), timestamp, ip_address
-- [x] Catat otomatis via Django signals untuk: User, TransaksiSetoran, PenarikanSaldo, KategoriSampah, Pengaduan
-- [x] `GET /api/audit-log/` — admin only, filter `?user=`, `?model=`, `?date_after=`
-- [x] Koreksi data transaksi: hanya admin, wajib tercatat di audit log
-
-### 5.2 Pengaturan Institusi (Modul 17)
-- [x] Buat model `PengaturanInstitusi` (singleton): nama, alamat, kontak, logo_url, jam_operasional, pengumuman
-- [x] `GET /api/settings/` — public (untuk tampilan mobile)
-- [x] `PATCH /api/settings/` — admin only
-- [x] `GET /api/pengumuman/` — list pengumuman aktif (untuk mobile)
-
-### 5.3 Riwayat Harga (Modul 5 — opsional MVP)
-- [x] Buat model `RiwayatHarga`: kategori, harga_lama, harga_baru, tanggal_berlaku, diubah_oleh
-- [x] Auto-catat saat admin ubah `harga_beli_per_kg`
-- [x] `GET /api/waste-categories/{id}/price-history/`
-
-### 5.4 Role Pemerintah Distrik
-- [x] Tambah role `pemerintah` ke User.ROLE_CHOICES
-- [x] Permission read-only untuk dashboard & laporan
-- [x] Tidak bisa create/update/delete data operasional
-
-### 5.5 Kebijakan Data Pribadi (UU PDP)
-- [x] Endpoint consent saat registrasi: field `setuju_kebijakan_data: true` (required)
-- [x] Dokumentasikan data yang disimpan dan retensi (5 tahun)
-- [x] Enkripsi data sensitif (NIK) — evaluasi field-level encryption post-MVP
-
----
-
-## Fase 6: Kualitas & Dokumentasi
-
-> **Tujuan:** Backend teruji, terdokumentasi, dan siap diintegrasikan tim frontend.
-
-### 6.1 Unit & Integration Tests
-- [x] Setup `pytest-django` + `factory-boy` — 20 file test dengan APITestCase (DRF)
-- [x] Test registrasi nasabah (success, duplicate username, password pendek)
-- [x] Test JWT auth (login, refresh, expired token, invalid credentials)
-- [x] Test transaksi setoran (success, min 1kg, saldo+poin+stok update)
-- [x] Test penjemputan (create, status transitions, invalid transition → 409)
-- [x] Test penarikan saldo (min 50rb, saldo cukup, double approve)
-- [x] Test penukaran poin (poin cukup, stok habis)
-- [x] Test penjualan mitra (stok cukup, stok habis)
-- [x] Test permissions semua role (nasabah, petugas, admin, koordinator, pemerintah)
-- [x] Test race condition saldo (concurrent requests) — via `transaction.atomic()` + `select_for_update()`
-- [x] Target coverage: minimal 80% untuk business logic — 20 test files, 14+ test per modul
-
-### 6.2 API Documentation (OpenAPI)
-- [x] Tambah `help_text` ke semua serializer fields — via drf-spectacular `@extend_schema` di views.py
-- [x] Tambah tags drf-spectacular per modul (Auth, Users, Transaksi, dll.) — 18 tag di `openapi.py`
-- [x] Dokumentasikan semua error response di schema — `exception_handler.py` mapping kode error
-- [x] Verifikasi Swagger UI di `/api/docs/` render semua endpoint — via `SpectacularSwaggerView`
-- [x] Export OpenAPI JSON ke repo untuk referensi frontend (`/api/schema/`) — via `SpectacularAPIView`
-
-### 6.3 Error Handling
-- [x] Custom exception handler mengembalikan JSON Envelope error — `api/utils/exception_handler.py`
-- [x] Custom renderer mengembalikan JSON Envelope sukses — `api/utils/renderers.py`
-- [x] Mapping error bisnis ke kode yang konsisten — 11 kode error domain-specific (MIN_WEIGHT_NOT_MET, INSUFFICIENT_BALANCE, dll.)
-- [x] Logging error ke console (dev) — Django default logging + `miru_exception_handler`
-
----
-
-## Fase 7: Production Ready
-
-> **Tujuan:** Backend siap deploy ke server Webekspres dengan keamanan dan reliabilitas production.
-
-### 7.1 Keamanan
-- [x] `DEBUG=False` di production — dari env var `DEBUG`, default `True` dev
-- [x] `SECRET_KEY` unik per environment — dari env var, fallback dev-only
-- [ ] Rate limiting: `10/minute` pada `/api/auth/login/` — saat deployment (django-ratelimit atau DRF throttle)
-- [ ] Rate limiting: `100/hour` per user pada endpoint write — saat deployment
-- [ ] HTTPS wajib (SSL termination di Nginx) — saat deployment
-- [ ] `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF` config production — saat deployment
-- [ ] CORS: whitelist domain production only — saat deployment
-- [x] Validasi input: sanitasi, max length enforcement — via DRF serializers
-
-### 7.2 Deployment
-- [ ] Ganti `runserver` dengan **Gunicorn** di Dockerfile production
-- [ ] Tambah **Nginx** reverse proxy di docker-compose production
-- [ ] Static files config (jika ada upload logo/bukti)
-- [ ] Media files: storage lokal atau S3-compatible
-- [ ] Environment separation: `.env.development`, `.env.production`
-- [ ] CI/CD pipeline: lint → test → build → deploy (GitHub Actions)
-
-### 7.3 Backup & Recovery
-- [ ] Script backup harian: `pg_dump` → file terenkripsi
-- [ ] Script backup mingguan: full backup + retensi 30 hari
-- [ ] Backup disimpan terpisah dari server utama
-- [ ] Dokumentasi prosedur restore
-- [ ] Test restore minimal 1x sebelum go-live
-
-### 7.4 Monitoring & Logging
-- [ ] Structured logging (JSON format) — saat deployment
-- [ ] Integrasi Sentry untuk error tracking — saat deployment
-- [x] Health check endpoint dengan status DB: `GET /health/` → `{ status, database }`
-- [ ] Uptime monitoring (external ping ke `/health/`) — saat deployment
-
-### 7.5 Performance
-- [x] Database indexes: `User.role`, `TransaksiSetoran.tanggal`, `Penjemputan.status`, `Pengaduan.status`, `PenarikanSaldo.status` — migration `0010_performance_indexes`
-- [x] `select_related` / `prefetch_related` pada queryset yang heavy — sudah di semua ViewSets
-- [ ] Connection pooling PostgreSQL (pgBouncer atau Django CONN_MAX_AGE) — saat deployment
-- [ ] Load test dasar: 50 concurrent users (locust atau k6) — saat deployment
-
----
-
-## Fase 8: Post-MVP & Peningkatan
-
-> **Tujuan:** Fitur tambahan setelah go-live operasional.
-
-### 8.1 Fitur Tambahan
-- [ ] Export laporan ke Excel server-side (`openpyxl`)
-- [ ] Email notifikasi admin (laporan harian, penjemputan baru)
-- [ ] Push notification trigger API (untuk integrasi FCM dari mobile)
-- [ ] Notifikasi in-app: model `Notifikasi` + endpoint list/mark-read
-- [ ] Bulk import nasabah via CSV/Excel
-- [ ] Field upload foto KTP (FileField + storage)
-- [ ] Bukti transaksi digital PDF (weasyprint atau reportlab)
-- [ ] Kedaluwarsa poin otomatis (1 tahun) — scheduled task
-- [x] Transfer bank / e-wallet metadata pada penarikan (tanpa payment gateway)
-
-### 8.2 Optimasi & Skalabilitas
-- [ ] Redis cache untuk dashboard overview
-- [ ] Celery + Redis untuk background jobs (backup, export, email)
-- [ ] API versioning: `/api/v1/` → `/api/v2/` saat breaking change
-- [ ] Read replica PostgreSQL (jika traffic meningkat)
-- [ ] CDN untuk media files
-
-### 8.3 Yang TIDAK BOLEH Diimplementasikan (System Constraints)
-- [ ] ❌ Payment gateway otomatis (Midtrans, Xendit, dll.)
-- [ ] ❌ GPS live tracking penjemputan
-- [ ] ❌ Integrasi timbangan digital / barcode scanner fisik
-- [ ] ❌ Integrasi API Dukcapil
-- [ ] ❌ Multi-tenant (banyak bank sampah independen)
-- [ ] ❌ Login untuk mitra/pengepul
-
----
-
-## Urutan Pengerjaan Rekomendasi (Sprint)
-
-### Sprint 1 (Minggu 1) — Fase 1
-1.1 Konfigurasi & keamanan dasar
-1.2 Standar API response
-1.3 Auth & registrasi
-1.5 Seed data
-
-### Sprint 2 (Minggu 2) — Fase 2.1–2.2
-2.1 Integritas transaksional
-2.2 Transaksi setoran lengkap
-
-### Sprint 3 (Minggu 3) — Fase 2.3–2.5
-2.3 Penjemputan workflow
-2.4 Penarikan saldo
-2.5 Penukaran poin
-
-### Sprint 4 (Minggu 4) — Fase 2.6–3
-2.6–2.8 Penjualan, pengaduan, permissions
-3.1–3.7 Alur end-to-end
-
-### Sprint 5 (Minggu 5) — Fase 4
-4.1 Dashboard API
-4.2 Laporan API
-4.3 Stok gudang
-
-### Sprint 6 (Minggu 6) — Fase 5–6
-5.1–5.5 Governance
-6.1–6.3 Testing & dokumentasi
-
-### Sprint 7 (Minggu 7) — Fase 7
-7.1–7.5 Production ready
-
-### Post-Launch — Fase 8
-Sesuai kebutuhan operasional dan feedback pengguna.
-
----
-
-## Definisi "Selesai" per Tahap
-
-| Tahap | Kriteria Selesai |
-|-------|------------------|
-| **MVP** | Fase 1–4 selesai; web admin bisa operasional penuh |
-| **MVP Lengkap** | Fase 5 selesai; audit log & pengaturan aktif |
-| **Production Ready** | Fase 6–7 selesai; deploy ke staging, UAT lulus |
-| **Go-Live** | Production deploy + backup aktif + monitoring aktif |
-| **Post-MVP** | Fase 8 berjalan iteratif berdasarkan feedback |
+## Selesai
+
+### Fase 0 — Foundation
+
+- [x] Django `core/` + app `api`; Dockerfile; `.env.example`
+- [x] DRF, simplejwt, django-filter, cors-headers, drf-spectacular, psycopg2
+- [x] Model: User, KategoriSampah, TransaksiSetoran, Penjemputan, PenarikanSaldo, Reward, Mitra, Pengaduan
+- [x] Router, permission role, JWT, `/health/`
+
+### Fase 1 — Auth & envelope
+
+- [x] Env secrets; WIT
+- [x] Envelope `success` / `status_code` / `message` / `data` / `meta`
+- [x] Pagination, filters, exception handler
+- [x] Login, refresh, me, registrasi nasabah
+- [x] `seed_data`; CRUD kategori
+
+### Fase 2 — Bisnis inti
+
+- [x] Ledger atomic + `select_for_update`
+- [x] Setoran, penjemputan, penarikan, tukar poin, penjualan mitra, pengaduan
+- [x] Queryset per role termasuk `pemerintah` read-only
+
+### Fase 3 — Operasional
+
+- [x] Approve/reject/assign setoran–jemput–tarik–tukar
+- [x] `GET /api/activity/`; profil/QR; katalog reward
+
+### Fase 4 — Monitoring & laporan
+
+- [x] Dashboard overview / chart / recent activity
+- [x] Laporan daily / weekly / monthly / waste / evaluation
+- [x] Inventory + history
+
+### Fase 5 — Governance
+
+- [x] Audit log; pengaturan institusi; pengumuman
+- [x] Riwayat harga; role pemerintah; consent UU PDP
+- [x] NIK tidak disimpan; lampiran KTP penarikan besar dihapus setelah proses
+
+### Fase 6 — Kualitas
+
+- [x] Suite test (auth, deposits, pickups, withdrawals, permissions)
+- [x] OpenAPI `/api/docs/`
+- [x] Envelope error BI field-level; throttle login BI
+- [x] Test isolasi permission nasabah
+
+### Fase 7 (sebagian)
+
+- [x] `DEBUG=False`; `SECRET_KEY` dari env; HTTPS/HSTS/cookie secure
+- [x] Rate limit login + write; CORS whitelist di production
+- [x] Gunicorn + Nginx; CI; backup `pg_dump` GPG; `restore.sh`
+- [x] `/health/`; JSON logging; PII redact; indexes; Locust
+
+### Fase 8 (sebagian)
+
+- [x] CRUD edukasi; harga H-3 + pengumuman
+- [x] Wilayah layanan + kuota 2×/minggu; kelurahan/RT-RW; `wilayah_teraktif`
+- [x] Approve+assign jemput atomik; filter petugas; lat/lng opsional; validasi jadwal
+- [x] Lupa password + OTP WA (kontrak); gate alamat; `phone_verified`
+- [x] PDF bukti; lampiran KTP ≥1jt role-gated lalu hapus; metode transfer metadata
+- [x] `expire_poin` 1 tahun; `PoinInfoView`
+- [x] Notifikasi in-app + FCM (tanpa NIK/KTP/token); email admin
+- [x] Export Excel; evaluasi kendala + rekomendasi; retensi 5 tahun
+- [x] `GET /api/privacy-policy/`
+- [x] Lookup nasabah setoran; notif setoran nilai benar
+- [x] Snapshot poin pengajuan; status ditolak penukaran
+- [x] Pengaduan `lainnya`; tutup wajib `tindak_lanjut`
+- [x] Jam operasional TimeField; tanpa upload logo
+- [x] Dashboard petugas

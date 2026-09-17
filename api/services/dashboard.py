@@ -14,10 +14,12 @@ from api.models import (
     Pengaduan,
     TransaksiSetoran,
     User,
+    WilayahLayanan,
 )
 
 from .aggregates import fmt, stok_per_kategori
-from .periods import month_bounds, parse_int, project_tz, range_bounds
+from .periods import day_bounds, month_bounds, parse_int, project_tz, range_bounds
+from .pickups import PETUGAS_VISIBLE_STATUSES
 
 ACTIVE_WINDOW_DAYS = 30
 
@@ -52,7 +54,47 @@ def get_overview() -> dict:
         'penjemputan_menunggu': Penjemputan.objects.filter(status='menunggu').count(),
         'pengaduan_terbuka': Pengaduan.objects.filter(status='terbuka').count(),
         'stok_per_kategori': stok_per_kategori(),
+        'wilayah_teraktif': _wilayah_teraktif(),
     }
+
+
+def get_petugas_overview(user: User) -> dict:
+    """Ringkasan widget untuk role petugas (bukan angka admin penuh)."""
+    start_dt, end_dt = day_bounds(timezone.localdate())
+
+    jemput_hari_ini = Penjemputan.objects.filter(
+        petugas=user,
+        jadwal__range=(start_dt, end_dt),
+        status__in=PETUGAS_VISIBLE_STATUSES,
+    ).count()
+
+    antrian_aktif = Penjemputan.objects.filter(
+        petugas=user,
+        status__in=PETUGAS_VISIBLE_STATUSES,
+    ).count()
+
+    return {
+        'role': 'petugas',
+        'jemput_ditugaskan_hari_ini': jemput_hari_ini,
+        'antrian_aktif': antrian_aktif,
+    }
+
+
+def _wilayah_teraktif() -> list[dict]:
+    """Daftar kelurahan dengan jumlah nasabah aktif terbanyak."""
+    rows = (
+        User.objects
+        .filter(role='nasabah', is_active=True, kelurahan__isnull=False)
+        .values('kelurahan_id', 'kelurahan__kelurahan')
+        .annotate(jumlah=Count('id'))
+        .order_by('-jumlah')[:5]
+    )
+    if not rows.exists():
+        return []
+    return [
+        {'kelurahan': row['kelurahan__kelurahan'], 'jumlah_nasabah': row['jumlah']}
+        for row in rows
+    ]
 
 
 def get_deposit_chart(bulan, tahun) -> dict:

@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api.models import KategoriSampah, MitraPengepul, PenarikanSaldo, PenjualanMitra
 from api.services.ledger import (
@@ -127,12 +128,9 @@ class TransactionIntegrityAPITests(TestCase):
         self.mitra = MitraPengepul.objects.create(nama='Mitra A', kontak='08111')
 
     def _auth(self, user):
-        login = self.client.post('/api/auth/login/', {
-            'username': user.username,
-            'password': 'secret12',
-        }, format='json')
+        token = AccessToken.for_user(user)
         self.client.credentials(
-            HTTP_AUTHORIZATION=f'Bearer {login.data["data"]["access"]}'
+            HTTP_AUTHORIZATION=f'Bearer {str(token)}'
         )
 
     def test_partner_sale_rejects_insufficient_stock(self):

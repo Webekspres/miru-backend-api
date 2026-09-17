@@ -138,3 +138,32 @@ class ActivityListTests(EnvelopeAPITestCase):
         response = self.client.get(f'/api/activity/?nasabah={self.nasabah_b.id}')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['data']), 1)
+
+    def test_setoran_activity_includes_nested_details_and_petugas(self):
+        self.auth_as(self.nasabah_a)
+        response = self.client.get('/api/activity/?jenis=setoran')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        item = response.data['data'][0]
+        self.assertEqual(item['type'], 'setoran')
+        self.assertEqual(item['petugas'], self.petugas.id)
+        self.assertEqual(item['petugas_nama'], self.petugas.nama_lengkap)
+        self.assertIn('details', item)
+        self.assertEqual(len(item['details']), 1)
+        detail = item['details'][0]
+        self.assertEqual(detail['kategori_nama'], 'PET')
+        self.assertEqual(detail['berat_kg'], '5.00')
+        self.assertIn('T', item['tanggal'])  # ISO datetime includes time
+
+    def test_deposit_detail_nested_fields_for_riwayat(self):
+        """RiwayatScreen detail: jenis, kg, petugas, tanggal/jam."""
+        self.auth_as(self.nasabah_a)
+        response = self.client.get(f'/api/deposits/{self.deposit.id}/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data['data']
+        self.assertEqual(data['petugas'], self.petugas.id)
+        self.assertEqual(data['petugas_nama'], self.petugas.nama_lengkap)
+        self.assertIn('tanggal', data)
+        self.assertEqual(len(data['details']), 1)
+        self.assertEqual(data['details'][0]['kategori_nama'], 'PET')
+        self.assertEqual(data['details'][0]['berat_kg'], '5.00')
+        self.assertIn('bukti_digital', data)

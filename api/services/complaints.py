@@ -10,6 +10,7 @@ VALID_JENIS = {
     'petugas_tidak_datang',
     'kesalahan_data',
     'bukti_tidak_muncul',
+    'lainnya',
 }
 
 
@@ -20,7 +21,7 @@ def validate_jenis_pengaduan(jenis: str) -> str:
 
 
 def validate_admin_close(tindak_lanjut: str, status: str) -> None:
-    if status == 'ditutup' and not tindak_lanjut.strip():
+    if status == 'ditutup' and not (tindak_lanjut or '').strip():
         raise ValidationError(
             {'tindak_lanjut': ['Tindak lanjut wajib diisi saat menutup pengaduan.']}
         )

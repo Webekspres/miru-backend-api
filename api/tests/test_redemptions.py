@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from rest_framework import status
 
-from api.models import PenukaranPoin, Reward
+from api.models import Notifikasi, PenukaranPoin, Reward
 
 from .base import EnvelopeAPITestCase
 
@@ -32,6 +32,41 @@ class RedemptionCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['status'], 'menunggu')
         self.assertEqual(data['poin_dibutuhkan'], 100)
         self.assertEqual(data['reward_nama'], 'Pulsa Rp10.000')
+        # Snapshot tersimpan di baris penukaran
+        row = PenukaranPoin.objects.get(pk=data['id'])
+        self.assertEqual(row.poin_dibutuhkan, 100)
+
+    def test_create_snapshots_poin_even_if_katalog_naik(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/reward-redemptions/',
+            {'reward': self.reward.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        rdm_id = response.data['data']['id']
+
+        self.reward.poin_dibutuhkan = 500
+        self.reward.save()
+
+        detail = self.client.get(f'/api/reward-redemptions/{rdm_id}/')
+        self.assertEqual(detail.status_code, status.HTTP_200_OK)
+        self.assertEqual(detail.data['data']['poin_dibutuhkan'], 100)
+
+    def test_create_notifies_admin(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/reward-redemptions/',
+            {'reward': self.reward.id},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        admin_notifs = Notifikasi.objects.filter(
+            user=self.admin,
+            kategori='penukaran',
+            judul='Pengajuan Penukaran Poin Baru',
+        )
+        self.assertTrue(admin_notifs.exists())
 
     def test_reject_insufficient_poin(self):
         self.nasabah.poin = 50
@@ -43,6 +78,7 @@ class RedemptionCreateTests(EnvelopeAPITestCase):
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('reward', response.data['errors'])
 
     def test_reject_empty_reward_stok(self):
         self.reward.stok = 0
@@ -80,6 +116,7 @@ class RedemptionApproveTests(EnvelopeAPITestCase):
         self.redemption = PenukaranPoin.objects.create(
             nasabah=self.nasabah,
             reward=self.reward,
+            poin_dibutuhkan=50,
             status='menunggu',
         )
 
@@ -99,6 +136,19 @@ class RedemptionApproveTests(EnvelopeAPITestCase):
         self.reward.refresh_from_db()
         self.assertEqual(self.nasabah.poin, 100)
         self.assertEqual(self.reward.stok, 2)
+
+    def test_approve_uses_snapshot_not_katalog_baru(self):
+        """Harga katalog naik setelah pengajuan — approve tetap pakai snapshot."""
+        self.reward.poin_dibutuhkan = 200
+        self.reward.save()
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/approve/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.nasabah.refresh_from_db()
+        # Snapshot 50, bukan 200
+        self.assertEqual(self.nasabah.poin, 100)
 
     def test_koordinator_cannot_approve(self):
         self.auth_as(self.koordinator)
@@ -162,6 +212,7 @@ class RedemptionApproveTests(EnvelopeAPITestCase):
         PenukaranPoin.objects.create(
             nasabah=other,
             reward=self.reward,
+            poin_dibutuhkan=50,
             status='menunggu',
         )
         self.auth_as(self.nasabah)
@@ -172,7 +223,7 @@ class RedemptionApproveTests(EnvelopeAPITestCase):
 
 
 class RedemptionActionTests(EnvelopeAPITestCase):
-    """SOP A.4 — action endpoint approve."""
+    """SOP A.4 — action endpoint approve / reject / cancel."""
 
     def setUp(self):
         self.nasabah = self.create_nasabah(username='nasabah_rdm3')
@@ -186,6 +237,7 @@ class RedemptionActionTests(EnvelopeAPITestCase):
         self.redemption = PenukaranPoin.objects.create(
             nasabah=self.nasabah,
             reward=self.reward,
+            poin_dibutuhkan=80,
             status='menunggu',
         )
 
@@ -202,6 +254,24 @@ class RedemptionActionTests(EnvelopeAPITestCase):
         self.reward.refresh_from_db()
         self.assertEqual(self.nasabah.poin, 70)
         self.assertEqual(self.reward.stok, 3)
+
+    def test_reject_action_sets_ditolak(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/reject/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'ditolak')
+        self.nasabah.refresh_from_db()
+        self.assertEqual(self.nasabah.poin, 150)
+
+    def test_cancel_action_sets_dibatalkan(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/cancel/',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'dibatalkan')
 
     def test_koordinator_cannot_approve_action(self):
         self.auth_as(self.koordinator)

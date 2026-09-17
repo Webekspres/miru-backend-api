@@ -54,6 +54,7 @@ Anda adalah **Senior Django Backend Engineer** yang mengerjakan sistem **MIRU Ba
 - Gunakan environment variables untuk semua konfigurasi rahasia.
 - Validasi input di serializer — jangan percaya input pengguna.
 - Gunakan `get_object_or_404` atau queryset filtering, bukan `try/except DoesNotExist`.
+- Pedoman lengkap: **`11-security-and-privacy.md`** (wajib dibaca sebelum kerja keamanan / production).
 
 ### 8. Performance
 - Gunakan `select_related` dan `prefetch_related` untuk menghindari N+1 queries.

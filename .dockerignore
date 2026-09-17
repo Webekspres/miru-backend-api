@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+
+# Environments
+.env
+.venv
+venv/
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# Version control
+.git/
+.gitignore
+
+# graphify
+graphify-out/cache/
+graphify-out/*.html
+
+# OS
+.DS_Store
+Thumbs.db

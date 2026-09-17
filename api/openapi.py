@@ -4,12 +4,6 @@ from drf_spectacular.utils import OpenApiExample, extend_schema, extend_schema_v
 
 from .serializers import NotifikasiSerializer, UserProfileSerializer
 
-DEMO_CREDENTIALS = OpenApiExample(
-    'Akun demo (setelah seed_data)',
-    value={'username': 'nasabah001', 'password': 'nasabah123'},
-    request_only=True,
-)
-
 AUTH_TAG = 'Auth'
 HEALTH_TAG = 'Health'
 USERS_TAG = 'Users'
@@ -27,6 +21,8 @@ DASHBOARD_TAG = 'Dashboard'
 REPORTS_TAG = 'Reports'
 AUDIT_LOG_TAG = 'Audit Log'
 INVENTORY_TAG = 'Inventory'
+EDUKASI_TAG = 'Edukasi'
+MEDIA_TAG = 'Media'
 NOTIFICATIONS_TAG = 'Notifications'
 SETTINGS_TAG = 'Settings'
 
@@ -43,11 +39,13 @@ def _query_param(name, schema_type='string', required=False, description=''):
 
 dashboard_overview_schema = extend_schema(
     tags=[DASHBOARD_TAG],
-    summary='Ringkasan monitoring program (admin/koordinator/pemerintah)',
+    summary='Ringkasan monitoring (admin/koordinator/pemerintah) atau widget petugas',
     description=(
-        'Data agregat untuk dashboard: total nasabah, nasabah aktif 30 hari, '
-        'total sampah & nilai setoran, penarikan, penukaran poin, penjemputan '
-        'menunggu, pengaduan terbuka, dan stok per kategori.'
+        'Admin/koordinator/pemerintah: data agregat (total nasabah, nasabah aktif '
+        '30 hari, total sampah & nilai setoran, penarikan, penukaran poin, '
+        'penjemputan menunggu, pengaduan terbuka, stok per kategori).\n\n'
+        'Petugas: widget ringkas — jemput_ditugaskan_hari_ini dan antrian_aktif '
+        '(hanya tugas milik sendiri).'
     ),
 )
 
@@ -133,10 +131,8 @@ auth_login_schema = extend_schema(
     tags=[AUTH_TAG],
     summary='Login — dapatkan access & refresh token',
     description=(
-        'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil singkat user. '
-        'Akun demo: `admin/admin123`, `nasabah001/nasabah123`, `petugas1/petugas123`.'
+        'Autentikasi JWT. Response berisi `access`, `refresh`, dan profil singkat user.'
     ),
-    examples=[DEMO_CREDENTIALS],
     auth=[],
 )
 
@@ -393,6 +389,101 @@ pengumuman_list_schema = extend_schema(
 )
 
 
+edukasi_schema = extend_schema_view(
+    list=extend_schema(
+        summary='Daftar konten edukasi (public)',
+        tags=[EDUKASI_TAG],
+        description='Konten edukasi sampah — artikel/panduan untuk nasabah. List public (tanpa auth).',
+    ),
+    retrieve=extend_schema(
+        summary='Detail konten edukasi (public)',
+        tags=[EDUKASI_TAG],
+    ),
+    create=extend_schema(
+        summary='Tambah konten edukasi (admin/koordinator)',
+        tags=[EDUKASI_TAG],
+        examples=[
+            OpenApiExample(
+                'Buat artikel edukasi',
+                value={
+                    'judul': 'Cara Memilah Sampah yang Benar',
+                    'isi': 'Panduan lengkap memilah sampah rumah tangga...',
+                    'gambar_url': 'edukasi/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.webp',
+                    'kategori_terkait': 1,
+                    'aktif': True,
+                },
+                request_only=True,
+            ),
+        ],
+    ),
+    partial_update=extend_schema(summary='Perbarui konten edukasi', tags=[EDUKASI_TAG]),
+    update=extend_schema(summary='Perbarui konten edukasi', tags=[EDUKASI_TAG]),
+    destroy=extend_schema(summary='Hapus konten edukasi (admin only)', tags=[EDUKASI_TAG]),
+)
+
+
+# ── Excel Export schemas (Fase 8.6) ──────────────────────────
+
+
+def _export_schema(summary: str, description: str, parameters: list) -> extend_schema:
+    return extend_schema(
+        tags=[REPORTS_TAG],
+        summary=summary,
+        description=description,
+        parameters=parameters,
+        responses={
+            200: {
+                'type': 'string',
+                'format': 'binary',
+                'description': 'Excel file (.xlsx)',
+            },
+        },
+    )
+
+
+export_daily_schema = _export_schema(
+    'Export laporan harian ke Excel (.xlsx)',
+    'Download laporan harian dalam format Excel.',
+    parameters=[_query_param('tanggal', 'string', required=True, description='Format YYYY-MM-DD')],
+)
+
+export_weekly_schema = _export_schema(
+    'Export laporan mingguan ke Excel (.xlsx)',
+    'Download laporan mingguan dalam format Excel.',
+    parameters=[
+        _query_param('minggu', 'integer', description='Nomor minggu ISO 1-53 (default: minggu berjalan)'),
+        _query_param('tahun', 'integer', description='Tahun (default: tahun berjalan)'),
+    ],
+)
+
+export_monthly_schema = _export_schema(
+    'Export laporan bulanan ke Excel (.xlsx)',
+    'Download laporan bulanan lengkap format SOP dalam Excel.',
+    parameters=[
+        _query_param('bulan', 'integer', description='Bulan 1-12 (default: bulan berjalan)'),
+        _query_param('tahun', 'integer', description='Tahun (default: tahun berjalan)'),
+    ],
+)
+
+export_waste_schema = _export_schema(
+    'Export laporan sampah ke Excel (.xlsx)',
+    'Download laporan tonase & nilai sampah per kategori dalam Excel.',
+    parameters=[
+        _query_param('start', 'string', required=True, description='Format YYYY-MM-DD'),
+        _query_param('end', 'string', required=True, description='Format YYYY-MM-DD'),
+    ],
+)
+
+export_evaluation_schema = _export_schema(
+    'Export laporan evaluasi ke Excel (.xlsx)',
+    'Download data agregat evaluasi program dalam format Excel.',
+    parameters=[
+        _query_param('start', 'string', required=True, description='Format YYYY-MM-DD'),
+        _query_param('end', 'string', required=True, description='Format YYYY-MM-DD'),
+    ],
+)
+
+
 notification_schema = extend_schema_view(
     list=extend_schema(
         tags=[NOTIFICATIONS_TAG],
@@ -411,6 +502,15 @@ notification_schema = extend_schema_view(
     retrieve=extend_schema(
         tags=[NOTIFICATIONS_TAG],
         summary='Detail notifikasi',
+        responses={200: NotifikasiSerializer},
+    ),
+    partial_update=extend_schema(
+        tags=[NOTIFICATIONS_TAG],
+        summary='Perbarui notifikasi (partial)',
+        description=(
+            'Partial update notifikasi. Untuk menandai sudah dibaca, '
+            'utamakan POST /api/notifications/{id}/read/.'
+        ),
         responses={200: NotifikasiSerializer},
     ),
     mark_read=extend_schema(

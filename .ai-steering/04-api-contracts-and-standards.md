@@ -154,7 +154,6 @@ Authorization: Bearer <access_token>
     "username": "nasabah1",
     "role": "nasabah",
     "nama_lengkap": "Budi Santoso",
-    "nik": "",
     "no_hp": "08123456789",
     "alamat": "Jl. Cendrawasih No. 1, Timika",
     "saldo": "125000.00",
@@ -587,10 +586,8 @@ Request:
 {
   "username": "budi_santoso",
   "password": "rahasia123",
-  "nama_lengkap": "Budi Santoso",
-  "no_hp": "08123456789",
+    "nama_lengkap": "Budi Santoso",
   "alamat": "Jl. Cendrawasih No. 1, Timika",
-  "nik": "",
   "setuju_kebijakan_data": true
 }
 ```
@@ -606,7 +603,6 @@ Response `201 Created`:
     "username": "budi_santoso",
     "role": "nasabah",
     "nama_lengkap": "Budi Santoso",
-    "nik": "",
     "no_hp": "08123456789",
     "alamat": "Jl. Cendrawasih No. 1, Timika",
     "saldo": "0.00",

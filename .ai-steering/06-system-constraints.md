@@ -20,7 +20,7 @@
 
 ### 4. TIDAK ADA Integrasi Dukcapil
 - **Larangan**: Jangan integrasikan API Dukcapil untuk validasi NIK.
-- NIK hanya data opsional, tidak divalidasi ke database kependudukan.
+- **NIK tidak dikumpulkan** di sistem (bukan field wajib proposal).
 
 ### 5. Google Maps API — Sederhana Saja
 - Integrasi peta hanya untuk menampilkan alamat penjemputan (static map atau input alamat).
@@ -29,8 +29,8 @@
 
 ### 6. Keamanan & Privasi
 - Data nasabah (nama, alamat, no HP) hanya untuk operasional bank sampah.
-- NIK/foto KTP hanya untuk verifikasi penarikan saldo besar.
-- Data disimpan terenkripsi, tidak dibagikan ke pihak ketiga.
+- NIK tidak disimpan. Foto KTP hanya lampiran sementara verifikasi penarikan ≥ Rp1.000.000, lalu dihapus.
+- Data tidak dibagikan kepada pihak ketiga.
 - Tunduk pada UU No. 27/2022 tentang Perlindungan Data Pribadi.
 
 ### 7. Backup & Maintenance
@@ -61,3 +61,8 @@
 - Database PostgreSQL 15 — gunakan fitur yang didukung.
 - JWT token expire 24 jam — jangan implementasikan refresh token otomatis tanpa expiry.
 - Gunakan SQLite untuk development lokal (set `USE_POSTGRES=False`).
+
+### 13. Keamanan & Privasi (dokumen khusus)
+- Pedoman lengkap lintas ekosistem: **`11-security-and-privacy.md`**
+- Versi platform: `web-admin` & `mirumobileapp` → `.ai-steering/11-security-and-privacy.md`
+- Checklist implementasi: `08-task-list.md` Fase 7 (+ Fase 8.4 untuk data sensitif)

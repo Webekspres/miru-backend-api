@@ -70,9 +70,9 @@ Semua klien frontend **wajib** mengikuti kontrak API **miru-backend-api**:
 Jalankan di **masing-masing repositori** (clone terpisah):
 
 ```bash
-# 1. miru-backend-api
-python -m venv venv && venv\Scripts\activate   # Windows
-pip install -r requirements.txt
+# 1. miru-backend-api (pakai uv)
+uv venv --python 3.12 .venv && .venv\Scripts\activate   # Windows: .venv\Scripts\activate
+uv pip install -r requirements.lock
 python manage.py migrate
 python manage.py seed_data --minimal --flush
 python manage.py runserver

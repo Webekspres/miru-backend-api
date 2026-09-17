@@ -11,9 +11,8 @@
 │ password         │       │ tanggal (auto_now_add)  │
 │ role             │       │ total_nilai (Decimal)   │
 │ nama_lengkap     │       │ status: selesai         │
-│ nik              │       └───────────┬─────────────┘
-│ no_hp            │                   │ 1
-│ alamat           │                   │
+│ no_hp            │       └───────────┬─────────────┘
+│ alamat           │                   │ 1
 │ saldo (Decimal)  │       ┌───────────┴─────────────┐
 │ poin (Integer)   │       │   DetailSetoran          │
 │ email            │       │─────────────────────────│
@@ -88,7 +87,6 @@
 | password | CharField(128) | write-only |
 | role | CharField(20) | choices: nasabah, petugas, admin, koordinator |
 | nama_lengkap | CharField(255) | required |
-| nik | CharField(16) | blank=True |
 | no_hp | CharField(15) | blank=True |
 | alamat | TextField | blank=True |
 | saldo | DecimalField(12,2) | default=0 |
@@ -151,7 +149,9 @@
 | nasabah | FK(User) | CASCADE |
 | nominal | DecimalField(12,2) | required, >= 50000 |
 | metode | CharField(50) | 'tunai' (default), 'transfer' |
-| status | CharField(20) | choices: menunggu, selesai |
+| lampiran_ktp | FileField | nullable; wajib jika nominal ≥ 1.000.000; **dihapus** setelah proses |
+| ktp_diverifikasi | Boolean | True setelah lampiran diproses & file dihapus |
+| status | CharField(20) | choices: menunggu, selesai, ditolak |
 | tanggal | DateTimeField | auto_now_add |
 
 **Logic**: Saat status diubah ke 'selesai', kurangi saldo nasabah (manual payment oleh admin)

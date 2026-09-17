@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.http import Http404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -6,7 +7,7 @@ from rest_framework.views import APIView
 
 from drf_spectacular.utils import extend_schema
 
-from .filters import TransaksiSetoranFilter
+from .filters import PenjemputanFilter, TransaksiSetoranFilter
 from .models import *
 from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staff_only
 from .services import (
@@ -20,7 +21,11 @@ from .services.pickups import (
     update_pickup_status,
 )
 from .services.withdrawals import approve_withdrawal, reject_withdrawal
-from .services.redemptions import approve_redemption
+from .services.redemptions import (
+    approve_redemption,
+    cancel_redemption,
+    reject_redemption,
+)
 from .services.activity import get_activity_items
 from .openapi import (
     ACTIVITY_TAG,
@@ -28,6 +33,7 @@ from .openapi import (
     CATEGORIES_TAG,
     complaint_schema,
     deposit_schema,
+    edukasi_schema,
     partner_sale_schema,
     partner_schema,
     pickup_schema,
@@ -52,7 +58,7 @@ from .permissions import (
 )
 from .serializers import *
 from .utils.pagination import MiruPagination
-from .utils.response import success_response
+from .utils.response import error_response, success_response
 
 
 class AuditLogListView(APIView):
@@ -136,7 +142,7 @@ class AuditLogListView(APIView):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     permission_classes = [IsAdminOrKoordinator]
-    search_fields = ['username', 'nama_lengkap', 'no_hp', 'nik']
+    search_fields = ['username', 'nama_lengkap', 'no_hp']
     filterset_fields = ['role', 'is_active']
     ordering_fields = ['date_joined', 'nama_lengkap', 'username']
     ordering = ['-date_joined']
@@ -154,6 +160,8 @@ class UserViewSet(viewsets.ModelViewSet):
             if self._is_staff_manager():
                 return UserAdminSerializer
             return UserRegistrationSerializer
+        if self.action == 'lookup':
+            return NasabahLookupSerializer
         if self._is_petugas_lookup() and self.action in ('list', 'retrieve'):
             return NasabahLookupSerializer
         if self.action in ('retrieve', 'update', 'partial_update'):
@@ -169,7 +177,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if self._is_staff_manager():
                 return [IsAdminOrKoordinator()]
             return [AllowAny()]
-        if self.action == 'list':
+        if self.action in ('list', 'lookup'):
             return [IsAuthenticated(), IsStaffManagerOrPetugas()]
         if self.action in ('retrieve', 'update', 'partial_update', 'destroy'):
             return [IsAuthenticated(), IsUserOwnerOrAdmin()]
@@ -191,18 +199,92 @@ class UserViewSet(viewsets.ModelViewSet):
             message=(
                 'Pengguna berhasil dibuat.'
                 if is_staff_create
-                else 'Registrasi nasabah berhasil.'
+                else (
+                    'Registrasi berhasil. Verifikasi nomor HP via OTP WhatsApp '
+                    'untuk mengaktifkan akun.'
+                )
             ),
             status_code=status.HTTP_201_CREATED,
             request=request,
         )
 
     def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
+        try:
+            instance = self.get_object()
+        except Http404:
+            if self._is_petugas_lookup():
+                return error_response(
+                    message='Nasabah dengan ID tersebut tidak ditemukan.',
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    code='NOT_FOUND',
+                    errors={
+                        'id': [
+                            'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+                        ],
+                    },
+                    request=request,
+                )
+            raise
         serializer = self.get_serializer(instance)
         return success_response(
             data=serializer.data,
             message='Data berhasil diambil.',
+            request=request,
+        )
+
+    @extend_schema(
+        tags=['Users'],
+        summary='Lookup nasabah aktif (id / username / QR JSON)',
+        description=(
+            'Cari nasabah aktif untuk input setoran. Parameter `q` menerima '
+            'ID angka, username, atau payload QR MIRU JSON `{id, nama_lengkap, no_hp}`.'
+        ),
+        parameters=[
+            {
+                'name': 'q',
+                'in': 'query',
+                'required': True,
+                'schema': {'type': 'string'},
+                'description': 'ID, username, atau payload QR MIRU',
+            },
+        ],
+    )
+    @action(detail=False, methods=['get'], url_path='lookup')
+    def lookup(self, request):
+        from .services.deposits import resolve_active_nasabah
+
+        raw = request.query_params.get('q', '')
+        if not str(raw).strip():
+            return error_response(
+                message='Satu atau lebih field tidak valid.',
+                status_code=status.HTTP_400_BAD_REQUEST,
+                code='VALIDATION_ERROR',
+                errors={
+                    'q': [
+                        'Parameter q wajib diisi (id, username, atau payload QR).',
+                    ],
+                },
+                request=request,
+            )
+
+        nasabah = resolve_active_nasabah(str(raw))
+        if nasabah is None:
+            return error_response(
+                message='Nasabah tidak ditemukan.',
+                status_code=status.HTTP_404_NOT_FOUND,
+                code='NOT_FOUND',
+                errors={
+                    'q': [
+                        'Nasabah tidak ditemukan, tidak aktif, atau bukan role nasabah.',
+                    ],
+                },
+                request=request,
+            )
+
+        serializer = NasabahLookupSerializer(nasabah)
+        return success_response(
+            data=serializer.data,
+            message='Data nasabah berhasil ditemukan.',
             request=request,
         )
 
@@ -356,7 +438,7 @@ class TransaksiSetoranViewSet(viewsets.ModelViewSet):
 @pickup_schema
 class PenjemputanViewSet(viewsets.ModelViewSet):
     queryset = Penjemputan.objects.select_related('nasabah', 'petugas')
-    filterset_fields = ['nasabah', 'status', 'petugas']
+    filterset_class = PenjemputanFilter
     ordering_fields = ['jadwal']
     ordering = ['-jadwal']
     http_method_names = ['get', 'post', 'patch', 'head', 'options']
@@ -385,11 +467,14 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         output = PenjemputanSerializer(serializer.instance, context={'request': request})
+        from .services.pickups import out_of_hours_meta
+        meta = out_of_hours_meta(serializer.instance.jadwal)
         return success_response(
             data=output.data,
             message='Penjemputan berhasil diajukan.',
             status_code=status.HTTP_201_CREATED,
             request=request,
+            meta=meta,
         )
 
     def retrieve(self, request, *args, **kwargs):
@@ -423,9 +508,15 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='approve')
     def approve(self, request, pk=None):
         instance = self.get_object()
-        approve_pickup(instance, request.user)
+        serializer = PickupApproveSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        approve_pickup(
+            instance, request.user, serializer.validated_data['petugas_id'],
+        )
         return self._pickup_response(
-            instance, 'Penjemputan berhasil disetujui.', request,
+            instance,
+            'Penjemputan berhasil disetujui dan petugas ditugaskan.',
+            request,
         )
 
     @action(detail=True, methods=['post'], url_path='reject')
@@ -490,7 +581,10 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
         output = PenarikanSaldoSerializer(serializer.instance, context={'request': request})
         return success_response(
             data=output.data,
-            message='Penarikan saldo berhasil diajukan.',
+            message=(
+                'Penarikan saldo berhasil diajukan. '
+                'Proses persetujuan biasanya 1–2 hari kerja.'
+            ),
             status_code=status.HTTP_201_CREATED,
             request=request,
         )
@@ -514,6 +608,9 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
 
         if old_status != 'selesai' and instance.status == 'selesai':
             debit_nasabah_saldo(instance.nasabah, instance.nominal)
+            from api.services.withdrawals import purge_lampiran_ktp
+            purge_lampiran_ktp(instance)
+            instance.save(update_fields=['lampiran_ktp', 'ktp_diverifikasi'])
 
         output = PenarikanSaldoSerializer(instance, context={'request': request})
         return success_response(
@@ -611,8 +708,10 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update', 'approve'):
+        if self.action in ('partial_update', 'update', 'approve', 'reject'):
             return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
+        if self.action == 'cancel':
+            return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
         return [IsAuthenticated(), IsOwnerOrAdmin(), IsPemerintahReadOnly()]
 
     def get_queryset(self):
@@ -648,7 +747,11 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
         instance = serializer.save()
 
         if old_status != 'selesai' and instance.status == 'selesai':
-            complete_penukaran_poin(instance.nasabah, instance.reward)
+            complete_penukaran_poin(
+                instance.nasabah,
+                instance.reward,
+                poin=instance.poin_dibutuhkan,
+            )
 
         output = PenukaranPoinSerializer(instance, context={'request': request})
         return success_response(
@@ -660,17 +763,41 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
+    def _redemption_response(self, instance, message, request):
+        output = PenukaranPoinSerializer(instance, context={'request': request})
+        return success_response(data=output.data, message=message, request=request)
+
     @transaction.atomic
     @action(detail=True, methods=['post'], url_path='approve')
     def approve(self, request, pk=None):
         instance = self.get_object()
         approve_redemption(instance)
-        complete_penukaran_poin(instance.nasabah, instance.reward)
-        output = PenukaranPoinSerializer(instance, context={'request': request})
-        return success_response(
-            data=output.data,
-            message='Penukaran poin berhasil disetujui.',
-            request=request,
+        complete_penukaran_poin(
+            instance.nasabah,
+            instance.reward,
+            poin=instance.poin_dibutuhkan,
+        )
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil disetujui.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='reject')
+    def reject(self, request, pk=None):
+        instance = self.get_object()
+        reject_redemption(instance)
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil ditolak.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='cancel')
+    def cancel(self, request, pk=None):
+        instance = self.get_object()
+        if instance.nasabah_id != request.user.id:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied('Anda hanya dapat membatalkan penukaran milik sendiri.')
+        cancel_redemption(instance)
+        return self._redemption_response(
+            instance, 'Penukaran poin berhasil dibatalkan.', request,
         )
 
 @partner_schema
@@ -761,6 +888,142 @@ class PenjualanMitraViewSet(viewsets.ModelViewSet):
             message='Data berhasil diambil.',
             request=request,
         )
+
+class WilayahLayananViewSet(viewsets.ModelViewSet):
+    queryset = WilayahLayanan.objects.all()
+    serializer_class = WilayahLayananSerializer
+    search_fields = ['kelurahan', 'rt', 'rw']
+    filterset_fields = ['aktif']
+    ordering_fields = ['kelurahan', 'created_at']
+    ordering = ['kelurahan', 'rt', 'rw']
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [IsAuthenticated(), IsMonitorReadOnly()]
+        return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Wilayah layanan berhasil ditambahkan.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Wilayah layanan berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response(
+            message='Wilayah layanan berhasil dihapus.',
+            status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
+
+@edukasi_schema
+class KontenEdukasiViewSet(viewsets.ModelViewSet):
+    queryset = KontenEdukasi.objects.select_related('kategori_terkait').all()
+    search_fields = ['judul', 'isi']
+    ordering_fields = ['judul', 'created_at']
+    ordering = ['-created_at']
+    http_method_names = ['get', 'post', 'patch', 'delete', 'head', 'options']
+
+    def get_serializer_class(self):
+        # Public list/detail (AllowAny) → tanpa field internal
+        if self.action in ('list', 'retrieve') and not self.request.user.is_authenticated:
+            return KontenEdukasiPublicSerializer
+        # Nasabah authenticated → tetap publik, tanpa field internal
+        if self.action in ('list', 'retrieve'):
+            role = getattr(self.request.user, 'role', None)
+            if role == 'nasabah':
+                return KontenEdukasiPublicSerializer
+        return KontenEdukasiSerializer
+
+    def get_permissions(self):
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        if self.action == 'destroy':
+            return [IsAuthenticated(), IsAdmin()]
+        return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.action in ('list', 'retrieve'):
+            user = self.request.user
+            if not user.is_authenticated or user.role != 'admin':
+                # Public/nasabah hanya lihat konten aktif
+                return qs.filter(aktif=True)
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Konten edukasi berhasil dibuat.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return success_response(
+            data=serializer.data,
+            message='Data berhasil diambil.',
+            request=request,
+        )
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return success_response(
+            data=serializer.data,
+            message='Konten edukasi berhasil diperbarui.',
+            request=request,
+        )
+
+    def update(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return success_response(
+            message='Konten edukasi berhasil dihapus.',
+            status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
 
 @complaint_schema
 class PengaduanViewSet(viewsets.ModelViewSet):

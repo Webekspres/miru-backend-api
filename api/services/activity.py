@@ -37,15 +37,31 @@ def _resolve_nasabah_filter(user: User, nasabah_id: str | None) -> int | None:
 
 def _setoran_items(qs) -> list[dict]:
     items = []
-    for row in qs.prefetch_related('details'):
-        detail_count = row.details.count()
+    for row in qs.select_related('petugas').prefetch_related('details__kategori'):
+        details = [
+            {
+                'id': d.id,
+                'kategori': d.kategori_id,
+                'kategori_nama': d.kategori.nama,
+                'berat_kg': f'{d.berat_kg:.2f}',
+                'harga_saat_itu': f'{d.harga_saat_itu:.2f}',
+                'subtotal': f'{d.subtotal:.2f}',
+            }
+            for d in row.details.all()
+        ]
+        petugas_nama = None
+        if row.petugas_id and row.petugas is not None:
+            petugas_nama = row.petugas.nama_lengkap
         items.append({
             '_sort_tanggal': row.tanggal,
             'id': row.id,
             'type': 'setoran',
             'nominal': f'{row.total_nilai:.2f}',
             'status': row.status,
-            'keterangan': f'Setoran {detail_count} jenis sampah',
+            'keterangan': f'Setoran {len(details)} jenis sampah',
+            'petugas': row.petugas_id,
+            'petugas_nama': petugas_nama,
+            'details': details,
         })
     return items
 
@@ -71,7 +87,7 @@ def _penukaran_items(qs) -> list[dict]:
             'id': row.id,
             'type': 'penukaran_poin',
             'nominal': None,
-            'poin': row.reward.poin_dibutuhkan,
+            'poin': row.poin_dibutuhkan,
             'status': row.status,
             'keterangan': row.reward.nama,
         }
