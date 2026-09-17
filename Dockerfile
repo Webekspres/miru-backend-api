@@ -1,7 +1,12 @@
 FROM python:3.10-slim
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+# Binari uv, versi di-pin agar build deterministik
+COPY --from=ghcr.io/astral-sh/uv:0.12.8 /uv /uvx /bin/
 
 WORKDIR /app
 
@@ -11,8 +16,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt /app/
-RUN pip install --upgrade pip && pip install -r requirements.txt
+COPY requirements.txt requirements.lock /app/
+# --system: instal ke site-packages image (setara pip), yang lalu dipakai Gunicorn langsung.
+# --no-cache: cegah limbah cache uv menambah ukuran image.
+RUN uv pip install --system --no-cache -r requirements.lock
 
 COPY . /app/
 

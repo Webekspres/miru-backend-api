@@ -9,9 +9,9 @@ Local development doesn't require Docker. It uses SQLite by default.
 ### 1. Setup Environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
+uv venv --python 3.12 .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+uv pip install -r requirements.lock  # lock di-resolve dari requirements.txt via `uv pip compile requirements.txt -o requirements.lock`
 ```
 
 ### 2. Run Migrations & Server

@@ -26,8 +26,8 @@ docker compose exec web python manage.py test api.tests --verbosity=2
 # Single module
 docker compose exec web python manage.py test api.tests.test_auth --verbosity=2
 
-# Local venv
-python manage.py test api.tests --verbosity=2
+# Local venv (uv)
+uv run python manage.py test api.tests --verbosity=2
 ```
 
 ## Test Standards
