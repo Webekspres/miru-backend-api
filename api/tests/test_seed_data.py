@@ -21,7 +21,7 @@ EXPECTED_REWARDS = [
 class SeedDataMinimalTests(TestCase):
     def test_minimal_seed_creates_core_data(self):
         out = StringIO()
-        call_command('seed_data', '--minimal', '--flush', stdout=out)
+        call_command('seed_data', '--minimal', '--flush', '--force', stdout=out)
 
         self.assertEqual(KategoriSampah.objects.count(), 8)
         self.assertEqual(
@@ -48,8 +48,8 @@ class SeedDataMinimalTests(TestCase):
             self.assertTrue(article.gambar_url.endswith('.webp'))
 
     def test_minimal_seed_is_idempotent(self):
-        call_command('seed_data', '--minimal', '--flush', stdout=StringIO())
-        call_command('seed_data', '--minimal', stdout=StringIO())
+        call_command('seed_data', '--minimal', '--flush', '--force', stdout=StringIO())
+        call_command('seed_data', '--minimal', '--force', stdout=StringIO())
 
         self.assertEqual(KategoriSampah.objects.count(), 8)
         self.assertEqual(Reward.objects.count(), 4)
@@ -58,7 +58,7 @@ class SeedDataMinimalTests(TestCase):
 
 class SeedDataFullTests(TestCase):
     def test_full_seed_creates_200_plus_records(self):
-        call_command('seed_data', '--flush', '--nasabah', '180', stdout=StringIO())
+        call_command('seed_data', '--flush', '--nasabah', '180', '--force', stdout=StringIO())
 
         total = (
             KategoriSampah.objects.count()

@@ -2,8 +2,10 @@
 Self-service hapus akun nasabah — kewajiban Play Store.
 
 Alur (konfirmasi mendalam, validasi OTP WhatsApp seperti saat login):
-1. `check`          — username → ringkasan akun + nomor HP tersamar.
-2. `request-otp`    — username + nomor HP lengkap (harus cocok) → kirim OTP WA.
+1. `check`          — username → nomor HP tersamar saja (belum ada bukti kepemilikan).
+2. `request-otp`    — username + nomor HP lengkap (harus cocok) → kirim OTP WA;
+                      baru di sinilah ringkasan akun (nama, saldo, poin, riwayat)
+                      dikembalikan, setelah kepemilikan nomor HP terbukti.
 3. `confirm`        — username + OTP + ketik konfirmasi + centang pemahaman
                       → verifikasi OTP lalu anonimkan & nonaktifkan akun.
 
@@ -84,11 +86,11 @@ def _get_nasabah_for_deletion(request, username: str):
 
 @extend_schema(
     tags=['Auth'],
-    summary='Hapus akun — cek username & ringkasan data',
+    summary='Hapus akun — cek username',
     description=(
-        'Langkah 1: masukkan username. Jika terdaftar, kembalikan ringkasan '
-        'akun (nama, nomor HP tersamar, saldo, poin, jumlah riwayat) agar '
-        'user tahu persis apa yang akan hilang sebelum menghapus.'
+        'Langkah 1: masukkan username. Jika terdaftar, kembalikan hanya '
+        'nomor HP tersamar (tanpa nama/saldo/poin/riwayat — data itu baru '
+        'ditampilkan pada langkah 2 setelah nomor HP lengkap dicocokkan).'
     ),
     request={
         'type': 'object',
@@ -126,21 +128,14 @@ class DeleteAccountCheckView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Hanya info minimal (username + HP tersamar) sebelum kepemilikan
+        # nomor HP dibuktikan — nama, saldo, poin, dan riwayat baru
+        # ditampilkan setelah request-otp berhasil mencocokkan no_hp.
         return Response(
             success_envelope(
                 data={
                     'username': user.username,
-                    'nama_lengkap': user.nama_lengkap,
                     'masked_phone': mask_phone(user.no_hp),
-                    'saldo': str(user.saldo),
-                    'poin': user.poin,
-                    'riwayat': {
-                        'jumlah_setoran': TransaksiSetoran.objects.filter(nasabah=user).count(),
-                        'jumlah_penjemputan': Penjemputan.objects.filter(nasabah=user).count(),
-                        'jumlah_penarikan': PenarikanSaldo.objects.filter(nasabah=user).count(),
-                        'jumlah_penukaran_poin': PenukaranPoin.objects.filter(nasabah=user).count(),
-                        'jumlah_pengaduan': Pengaduan.objects.filter(nasabah=user).count(),
-                    },
                     'next': 'confirm_phone',
                 },
                 message=(
@@ -159,7 +154,10 @@ class DeleteAccountCheckView(APIView):
     summary='Hapus akun — konfirmasi HP & kirim OTP WA',
     description=(
         'Langkah 2: nomor HP harus cocok dengan profil. OTP dikirim ke '
-        'WhatsApp (stub/log jika WA_* belum diisi).'
+        'WhatsApp (stub/log jika WA_* belum diisi). Setelah nomor HP '
+        'terbukti cocok, response ini juga menyertakan ringkasan akun '
+        '(nama, saldo, poin, jumlah riwayat) untuk ditampilkan sebelum '
+        'konfirmasi penghapusan akhir.'
     ),
     request={
         'type': 'object',
@@ -215,7 +213,17 @@ class DeleteAccountRequestOtpView(APIView):
             success_envelope(
                 data={
                     'username': user.username,
+                    'nama_lengkap': user.nama_lengkap,
                     'masked_phone': mask_phone(user.no_hp),
+                    'saldo': str(user.saldo),
+                    'poin': user.poin,
+                    'riwayat': {
+                        'jumlah_setoran': TransaksiSetoran.objects.filter(nasabah=user).count(),
+                        'jumlah_penjemputan': Penjemputan.objects.filter(nasabah=user).count(),
+                        'jumlah_penarikan': PenarikanSaldo.objects.filter(nasabah=user).count(),
+                        'jumlah_penukaran_poin': PenukaranPoin.objects.filter(nasabah=user).count(),
+                        'jumlah_pengaduan': Pengaduan.objects.filter(nasabah=user).count(),
+                    },
                     'expires_in_seconds': 300,
                     **otp_dev_response_extras(),
                 },

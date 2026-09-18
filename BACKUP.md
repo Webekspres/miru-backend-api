@@ -91,7 +91,9 @@
 ### Di Server Produksi
 
 ```bash
-# 1. Install PostgreSQL client (pg_dump, pg_restore)
+# 1. Install PostgreSQL client (pg_dump, pg_restore, psql)
+#    Opsional di mesin yang sudah menjalankan Postgres via Docker/Podman:
+#    scripts memakai `docker/podman exec` ke container yang publish DB_PORT.
 sudo apt-get install postgresql-client
 
 # 2. Install GPG
@@ -106,12 +108,12 @@ gpg --gen-key  # atau gunakan --symmetric dengan passphrase
 
 ### Environment Variables
 
-Tambahkan ke `/opt/miru/.env`:
+Tambahkan ke `.env` (production: `/opt/miru/.env`). Script backup/restore memuat file ini dari root repo.
 
 ```bash
 # Backup
 GPG_PASSPHRASE=<generate-strong-random-passphrase>
-BACKUP_DIR=/opt/miru/backups
+BACKUP_DIR=/opt/miru/backups/daily
 RETENTION_DAYS=30
 
 # Remote backup (opsional)
@@ -182,19 +184,23 @@ bash scripts/restore.sh /opt/miru/backups/daily/miru_2026-07-14_030001.dump.gz.g
 
 ### 6.2 Restore Darurat (ketika aplikasi tidak bisa jalan)
 
+File backup berformat custom `pg_dump` yang **sudah dienkripsi GPG**. Jangan pipe file `.gpg` langsung ke `pg_restore`.
+
 ```bash
-# 1. Hentikan container web
-docker compose -f docker-compose.yml -f docker-compose.production.yml stop web
+# 1. Hentikan proses web (gunicorn / runserver / compose web)
+#    docker compose stop web
 
-# 2. Drop dan recreate database
-docker compose exec db psql -U postgres -c "DROP DATABASE IF EXISTS miru;"
-docker compose exec db psql -U postgres -c "CREATE DATABASE miru OWNER postgres;"
+# 2. Recreate database kosong (ini menimpa data live — hanya darurat)
+#    docker compose exec db psql -U postgres -c "DROP DATABASE IF EXISTS miru;"
+#    docker compose exec db psql -U postgres -c "CREATE DATABASE miru OWNER postgres;"
 
-# 3. Restore langsung dari container db
-docker compose exec -T db pg_restore -U postgres -d miru --clean < /path/to/backup.dump.gz.gpg
+# 3. Decrypt lalu restore (butuh GPG_PASSPHRASE dari .env)
+cd /opt/miru   # atau root repo backend
+export DB_NAME=miru
+bash scripts/restore.sh /opt/miru/backups/daily/miru_YYYY-MM-DD_HHMMSS.dump.gz.gpg
+# ketik RESTORE
 
-# 4. Start container web
-docker compose -f docker-compose.yml -f docker-compose.production.yml start web
+# 4. Start ulang web, lalu cek /health/ (data.database harus connected)
 ```
 
 ### 6.3 Restore di Server Baru (migrasi)
@@ -215,8 +221,9 @@ docker compose up -d db
 # 4. Tunggu hingga db siap
 docker compose exec db pg_isready -U postgres
 
-# 5. Restore
-docker compose exec -T db pg_restore -U postgres -d miru --clean < /path/to/backup.dump.gz.gpg
+# 5. Restore (decrypt GPG dulu — jangan pipe file .gpg mentah ke pg_restore)
+export DB_NAME=miru
+bash scripts/restore.sh /opt/miru/miru_2026-07-14.dump.gz.gpg
 
 # 6. Jalankan migrasi (jika ada schema change)
 docker compose run --rm web python manage.py migrate
@@ -247,38 +254,45 @@ docker compose logs --tail=50 web
 
 ### Sebelum Go-Live
 
-Backup dan restore **WAJIB di-test minimal 1×** sebelum go-live.
+Backup dan restore **wajib di-test minimal 1×** sebelum go-live.
 
-**Prosedur Test:**
+Jangan drop database live (`DB_NAME`, biasanya `miru`). Uji memakai database isolasi `miru_restore_test`.
+
+**Prosedur:**
 
 ```bash
-# 1. Di server staging (bukan production!)
-#    Setup environment staging identik dengan production
+cd backend   # root repo API
+# .env harus punya USE_POSTGRES=True, kredensial DB, dan GPG_PASSPHRASE
+# (test_restore.sh membuat GPG_PASSPHRASE lokal jika belum ada)
 
-# 2. Jalankan backup harian
-bash scripts/backup.sh
-
-# 3. Hapus database staging
-docker compose exec db psql -U postgres -c "DROP DATABASE IF EXISTS miru_test;"
-docker compose exec db psql -U postgres -c "CREATE DATABASE miru_test OWNER postgres;"
-
-# 4. Restore ke database test
-export DB_NAME=miru_test
-bash scripts/restore.sh /opt/miru/backups/daily/miru_2026-07-14.dump.gz.gpg
-
-# 5. Jalankan health check
-curl -f http://localhost:8000/health/
-
-# 6. Verifikasi data: hitung jumlah user, transaksi, dll.
-python manage.py shell -c "from api.models import User; print(f'Users: {User.objects.count()}')"
-python manage.py shell -c "from api.models import TransaksiSetoran; print(f'Deposits: {TransaksiSetoran.objects.count()}')"
+bash scripts/test_restore.sh
 ```
 
-**Kriteria Lulus Test:**
-- ✅ Database berhasil di-restore tanpa error
-- ✅ Jumlah record sesuai dengan sebelum drop
-- ✅ Semua endpoint health check return 200
-- ✅ Aplikasi bisa login dan menampilkan data
+Script itu menjalankan:
+
+1. `scripts/backup.sh` terhadap database live (hanya baca/dump)
+2. `CREATE DATABASE miru_restore_test`
+3. `scripts/restore.sh --yes` ke database isolasi
+4. Bandingkan jumlah `User` dan `TransaksiSetoran` dengan sumber
+5. `runserver` sementara di `127.0.0.1:18000` dengan `DB_NAME=miru_restore_test`
+6. `GET /health/` — HTTP 200 dan `data.database=connected`
+7. `POST /api/auth/login/` sebagai admin
+8. `GET /api/deposits/` (satu halaman baca transaksi)
+9. Drop hanya `miru_restore_test` jika semua lolos
+
+Log: `backups/restore-test/RESTORE_TEST_LOG.txt` (folder `backups/` tidak di-commit).
+
+**Kriteria lulus:**
+- Restore ke DB isolasi tanpa menyentuh DB live
+- Jumlah user dan setoran sama dengan sumber
+- `/health/` 200 dan `database=connected`
+- Login admin berhasil dan `GET /api/deposits/` mengembalikan data (jika sumber punya setoran)
+
+### Catatan uji
+
+| Tanggal | Operator | Lingkungan | Hasil | Catatan |
+|---------|----------|------------|-------|---------|
+| 2026-09-02 | habibiahmada | lokal Postgres `miru` → isolasi `miru_restore_test` (live tidak di-drop) | **lolos** | `scripts/test_restore.sh`: dump GPG, restore, `/health/` 200 `database=connected`, login admin, `GET /api/deposits/` count=1 |
 
 ---
 
@@ -309,9 +323,11 @@ python manage.py shell -c "from api.models import TransaksiSetoran; print(f'Depo
 
 | Masalah | Penyebab | Solusi |
 |---------|----------|--------|
-| `pg_dump: error: connection to server` | DB_HOST salah atau DB tidak running | Cek `docker compose ps`, pastikan db running |
-| `gpg: decryption failed: No secret key` | GPG_PASSPHRASE salah | Cek .env, pastikan passphrase sesuai |
-| `pg_restore: error: could not execute` | Database masih terpakai | Hentikan service web: `docker compose stop web` |
+| `pg_dump: error: connection to server` | DB_HOST salah atau DB tidak running | Cek `docker compose ps` / `podman ps`, pastikan db running |
+| `.env` error `$'\r'` | File `.env` pakai CRLF (Windows) | Script sudah strip CR saat load; atau konversi ke LF |
+| Restore mengenai DB live padahal `DB_NAME` di-export | `.env` menimpa environment | Script **tidak** menimpa variabel yang sudah di-set (penting untuk `miru_restore_test`) |
+| `gpg: decryption failed` | GPG_PASSPHRASE salah | Cek `.env`, pastikan passphrase sesuai |
+| `pg_restore: error: could not execute` | Database masih terpakai | Hentikan service web, atau restore ke DB isolasi |
 | `rsync: connection refused` | Remote server tidak reachable | Cek koneksi: `ssh backup_user@backup_host` |
 | Backup file terlalu besar (>1GB) | Banyak data | Pertimbangkan `--compress=9` atau partisi |
 | `Permission denied` saat cron | User cron tidak punya akses | Jalankan cron sebagai root atau user deploy |
@@ -320,9 +336,11 @@ python manage.py shell -c "from api.models import TransaksiSetoran; print(f'Depo
 
 ## Referensi
 
-- `scripts/backup.sh` — Script backup harian
-- `scripts/backup_weekly.sh` — Script backup mingguan + rsync remote
-- `scripts/restore.sh` — Script restore interaktif
+- `scripts/backup.sh` — backup harian (`pg_dump` custom + GPG)
+- `scripts/backup_weekly.sh` — backup mingguan + rsync remote
+- `scripts/restore.sh` — restore interaktif (`--yes` hanya untuk uji isolasi)
+- `scripts/test_restore.sh` — drill restore sebelum go-live (BACKUP.md §7)
+- `scripts/verify_restored_api.py` — cek HTTP `/health/`, login, `GET /api/deposits/`
 - `06-system-constraints.md` §7 — Backup & Maintenance
 - `05-business-rules-sops.md` §N — Aturan Arsip & Retensi Data
 - `09-data-dictionary.md` §I.4 — Domain & Server info

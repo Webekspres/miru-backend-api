@@ -84,20 +84,22 @@ class DeleteAccountTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['code'], 'VALIDATION_ERROR')
         self.assertIn('username', response.data['errors'])
 
-    def test_check_success_returns_summary(self):
+    def test_check_success_returns_minimal_info_only(self):
+        """`check` must not disclose nama/saldo/poin/riwayat before the
+        caller proves ownership of the phone number (regression test for
+        unauthenticated PII disclosure)."""
         response = self._check()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response, 200)
         data = response.data['data']
         self.assertEqual(data['username'], 'hapus_akun')
-        self.assertEqual(data['nama_lengkap'], 'Nasabah Test')
         self.assertEqual(data['masked_phone'], '081****89')
-        self.assertEqual(data['saldo'], '50000.00')
-        self.assertEqual(data['poin'], 30)
-        self.assertEqual(data['riwayat']['jumlah_setoran'], 1)
-        self.assertEqual(data['riwayat']['jumlah_penjemputan'], 0)
         self.assertEqual(data['next'], 'confirm_phone')
         self.assertNotIn('no_hp', data)
+        self.assertNotIn('nama_lengkap', data)
+        self.assertNotIn('saldo', data)
+        self.assertNotIn('poin', data)
+        self.assertNotIn('riwayat', data)
 
     # ── Langkah 2: request OTP ────────────────────────────────────────
 
@@ -110,7 +112,16 @@ class DeleteAccountTests(EnvelopeAPITestCase):
         response = self._send_otp()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response, 200)
-        self.assertEqual(response.data['data']['masked_phone'], '081****89')
+        data = response.data['data']
+        self.assertEqual(data['masked_phone'], '081****89')
+
+        # Ownership of no_hp is now proven, so the account summary is
+        # returned here instead of in `check`.
+        self.assertEqual(data['nama_lengkap'], 'Nasabah Test')
+        self.assertEqual(data['saldo'], '50000.00')
+        self.assertEqual(data['poin'], 30)
+        self.assertEqual(data['riwayat']['jumlah_setoran'], 1)
+        self.assertEqual(data['riwayat']['jumlah_penjemputan'], 0)
 
         otp = PhoneOTP.objects.filter(
             user=self.user, purpose=PhoneOTP.PURPOSE_ACCOUNT_DELETION,

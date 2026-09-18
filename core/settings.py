@@ -3,6 +3,7 @@ import sys
 from datetime import timedelta
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,8 +17,21 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
+if not DEBUG and (not SECRET_KEY or SECRET_KEY == 'django-insecure-dev-only-change-in-production'):
+    raise ImproperlyConfigured(
+        'CRITICAL: SECRET_KEY must be set to a secure, unique value when DEBUG=False.'
+    )
+
 _allowed_hosts = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1')
 ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(',') if h.strip()]
+
+# Domain cookie auth web admin (access_token/refresh_token/csrf_token).
+# Kosong (default) = host-only, cocok untuk dev/localhost. Di staging/
+# production set ke apex domain (mis. "mirubanksampah.id") supaya cookie
+# yang di-set dari api.mirubanksampah.id ikut terkirim ke admin.mirubanksampah.id
+# (subdomain berbeda, apex sama) — dibutuhkan karena admin panel dan API
+# berada di subdomain terpisah.
+COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', '').strip() or None
 
 INSTALLED_APPS = [
     'django.contrib.auth',
@@ -25,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'django_filters',
     'drf_spectacular',
     'api',
@@ -144,9 +159,14 @@ elif not CORS_ALLOW_ALL_ORIGINS and not DEBUG:
         'https://mirubanksampah.id',
     ]
 
+# Wajib untuk cookie auth web admin lintas subdomain (api.* <-> admin.*):
+# browser menolak mengirim/menyimpan cookie pada request cross-origin
+# ber-kredensial kecuali server membalas Access-Control-Allow-Credentials.
+CORS_ALLOW_CREDENTIALS = True
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'api.authentication.CookieOrHeaderJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -179,10 +199,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': False,
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -376,14 +396,9 @@ SPECTACULAR_SETTINGS = {
         '- Panduan alur per role (onboarding): [`/api/guide/`](/api/guide/)\n'
         '- Schema OpenAPI mentah: [`/api/schema/`](/api/schema/)\n'
         '- ReDoc: [`/api/redoc/`](/api/redoc/)\n\n'
-        '## Akun demo (setelah `python manage.py seed_data`)\n\n'
-        '| Role | Username | Password |\n'
-        '|---|---|---|\n'
-        '| admin | `admin` | `admin123` |\n'
-        '| koordinator | `koordinator` | `koordinator123` |\n'
-        '| petugas | `petugas1` | `petugas123` |\n'
-        '| pemerintah | `pemerintah` | `pemerintah123` |\n'
-        '| nasabah | `nasabah001` | `nasabah123` |\n'
+        '## Akun demo\n\n'
+        'Kredensial akun demo (setelah `python manage.py seed_data`) tidak '
+        'dipublikasikan di sini. Minta ke tim internal jika Anda perlu akun uji.\n'
     ),
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,

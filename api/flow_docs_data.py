@@ -30,32 +30,34 @@ def _json(obj):
     return json.dumps(obj, indent=2, ensure_ascii=False)
 
 
+_REDACTED_PASSWORD = '(minta ke tim internal)'
+
 DEMO_USERS = [
     {
         'role': 'nasabah',
         'username': 'nasabah001',
-        'password': 'nasabah123',
+        'password': _REDACTED_PASSWORD,
         'nama_lengkap': 'Nasabah Satu',
         'keterangan': 'Akun nasabah untuk uji setoran, penjemputan, penarikan, dan penukaran poin.',
     },
     {
         'role': 'petugas',
         'username': 'petugas1',
-        'password': 'petugas123',
+        'password': _REDACTED_PASSWORD,
         'nama_lengkap': 'Petugas Satu',
         'keterangan': 'Petugas lapangan — mencatat setoran sampah dari nasabah.',
     },
     {
         'role': 'koordinator',
         'username': 'koordinator',
-        'password': 'koordinator123',
+        'password': _REDACTED_PASSWORD,
         'nama_lengkap': 'Arfan Koordinator',
         'keterangan': 'Koordinator — kelola kategori, lihat laporan, setujui penarikan.',
     },
     {
         'role': 'admin',
         'username': 'admin',
-        'password': 'admin123',
+        'password': _REDACTED_PASSWORD,
         'nama_lengkap': 'Harorld Sopacua',
         'keterangan': 'Admin penuh — kelola user, mitra, penjualan, dan semua transaksi.',
     },
@@ -132,7 +134,7 @@ FLOW_SECTIONS = [
                 'request_headers': 'Content-Type: application/json',
                 'request_body': _json({
                     'username': 'nasabah001',
-                    'password': 'nasabah123',
+                    'password': _REDACTED_PASSWORD,
                 }),
                 'response': _json(_envelope(
                     {

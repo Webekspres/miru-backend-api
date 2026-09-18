@@ -193,8 +193,7 @@ class LoginTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assert_envelope_error(response, 401)
         self.assertEqual(response.data['code'], 'AUTHENTICATION_FAILED')
-        self.assertEqual(response.data['message'], 'Password salah.')
-        self.assertIn('password', response.data['errors'])
+        self.assertEqual(response.data['message'], 'Username atau password salah.')
 
     def test_login_username_not_found(self):
         response = self.client.post('/api/auth/login/', {
@@ -204,8 +203,8 @@ class LoginTests(EnvelopeAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assert_envelope_error(response, 401)
-        self.assertEqual(response.data['message'], 'Username tidak terdaftar.')
-        self.assertIn('username', response.data['errors'])
+        self.assertEqual(response.data['code'], 'AUTHENTICATION_FAILED')
+        self.assertEqual(response.data['message'], 'Username atau password salah.')
 
     def test_login_inactive_needs_phone_verify(self):
         self.user.is_active = False
@@ -217,6 +216,56 @@ class LoginTests(EnvelopeAPITestCase):
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertIn('Verifikasi nomor HP', response.data['message'])
+
+
+class PhoneRequestOtpHijackTests(EnvelopeAPITestCase):
+    """Regression test for the unauthenticated phone-hijack takeover bug.
+
+    An unauthenticated caller who only knows a victim's username must not be
+    able to overwrite the victim's verified no_hp and redirect the OTP to a
+    phone number they control.
+    """
+
+    def setUp(self):
+        cache.clear()
+        self.victim = self.create_nasabah(
+            username='victim_user', password='secret12',
+        )
+
+    def test_unauthenticated_mismatched_phone_is_rejected_not_overwritten(self):
+        response = self.client.post('/api/auth/phone/request-otp/', {
+            'username': 'victim_user',
+            'no_hp': '089900001111',
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('no_hp', response.data.get('errors', {}))
+
+        self.victim.refresh_from_db()
+        self.assertEqual(self.victim.no_hp, '08123456789')
+        self.assertTrue(self.victim.phone_verified)
+
+    def test_unauthenticated_matching_phone_still_allows_resend(self):
+        response = self.client.post('/api/auth/phone/request-otp/', {
+            'username': 'victim_user',
+            'no_hp': '08123456789',
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.victim.refresh_from_db()
+        self.assertEqual(self.victim.no_hp, '08123456789')
+        self.assertTrue(self.victim.phone_verified)
+
+    def test_authenticated_user_can_still_change_own_phone(self):
+        self.auth_as(self.victim)
+        response = self.client.post('/api/auth/phone/request-otp/', {
+            'no_hp': '089900001111',
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.victim.refresh_from_db()
+        self.assertEqual(self.victim.no_hp, '089900001111')
+        self.assertFalse(self.victim.phone_verified)
 
 
 class RefreshTokenTests(EnvelopeAPITestCase):
@@ -233,6 +282,15 @@ class RefreshTokenTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assert_envelope_success(response, 200)
         self.assertIn('access', response.data['data'])
+        self.assertIn('refresh', response.data['data'])
+        new_refresh = response.data['data']['refresh']
+        self.assertNotEqual(new_refresh, self.refresh)
+
+        # Old refresh token should now be blacklisted (F-04)
+        reuse_response = self.client.post('/api/auth/refresh/', {
+            'refresh': self.refresh,
+        }, format='json')
+        self.assertEqual(reuse_response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_refresh_token_invalid(self):
         response = self.client.post('/api/auth/refresh/', {
