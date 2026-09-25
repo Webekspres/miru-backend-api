@@ -222,3 +222,14 @@ Poin Bertambah = floor(Total_Nilai_Setoran / 1000)
 | Penjemputan tahap awal | **Terbatas** pada kelurahan sekitar kantor distrik |
 | Perluasan | Dilakukan **bertahap** sesuai kemampuan operasional |
 | Rincian RT/RW prioritas | Akan dilampirkan oleh pengelola |
+
+Kelurahan/kampung resmi Distrik Mimika Baru (kode Kemendagri 94.04.01, sumber
+wilayah.id 2025-07-04) — di-seed lewat migrasi `0032` dan `api/services/wilayah.py`:
+
+| Jenis | Nama |
+|------|------|
+| Kelurahan | Koperapoka, Kwamki, Timika Jaya, Sempan, Pasar Sentral, Wanagon, Kebun Sirih, Otomona, Perintis, Dingo Narama, Timika Indah |
+| Kampung | Nayaro, Minabua, Hangaitji |
+
+Pembatasan penjemputan tahap awal cukup lewat jadwal jemput: admin hanya membuat
+jadwal untuk kelurahan yang sudah dilayani.

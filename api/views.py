@@ -904,9 +904,23 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
     ordering = ['kelurahan', 'rt', 'rw']
 
     def get_permissions(self):
+        if self.action == 'cakupan':
+            return [AllowAny()]
         if self.action in ('list', 'retrieve'):
             return [IsAuthenticated(), IsMonitorReadOnly()]
         return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    @action(detail=False, methods=['get'], url_path='cakupan', pagination_class=None)
+    def cakupan(self, request):
+        """Pilihan alamat bertingkat: provinsi/kabupaten/distrik terkunci + kelurahan aktif."""
+        from .services.wilayah import payload_cakupan
+
+        kelurahan = WilayahLayanan.objects.filter(aktif=True, rt='', rw='').order_by('kelurahan')
+        return success_response(
+            data=payload_cakupan(kelurahan),
+            message='Data berhasil diambil.',
+            request=request,
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
