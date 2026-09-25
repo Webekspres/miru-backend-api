@@ -18,6 +18,7 @@ PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_s
 
 class UserProfileSerializer(serializers.ModelSerializer):
     qr = serializers.SerializerMethodField()
+    email_required = serializers.BooleanField(read_only=True)
     kelurahan_nama = serializers.CharField(
         source='kelurahan.kelurahan', read_only=True, default=None,
     )
@@ -29,11 +30,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'date_joined', 'qr',
-            'avatar_url',
+            'avatar_url', 'email', 'email_verified', 'email_required',
         ]
         read_only_fields = [
             'id', 'role', 'saldo', 'poin', 'is_active',
             'date_joined', 'qr', 'phone_verified',
+            # Email hanya berubah lewat OTP (/api/auth/email/*).
+            'email', 'email_verified', 'email_required',
         ]
 
     def get_qr(self, obj) -> dict:
@@ -173,6 +176,7 @@ class UserAdminSerializer(serializers.ModelSerializer):
     )
     # Pendaftaran nasabah dibantu admin/koordinator: consent PDP tetap wajib.
     setuju_kebijakan_data = serializers.BooleanField(write_only=True, required=False)
+    email_required = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
@@ -182,8 +186,19 @@ class UserAdminSerializer(serializers.ModelSerializer):
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'avatar_url',
             'setuju_kebijakan_data',
+            'email', 'email_verified', 'email_exempt', 'email_required',
         ]
-        read_only_fields = ['id', 'phone_verified']
+        read_only_fields = ['id', 'phone_verified', 'email_verified', 'email_exempt']
+
+    def validate_email(self, value):
+        from .services.email_otp import normalize_email
+        value = normalize_email(value)
+        if value and (
+            User.objects.filter(email__iexact=value, email_verified=True)
+            .exclude(pk=getattr(self.instance, 'pk', None)).exists()
+        ):
+            raise serializers.ValidationError('Email sudah dipakai akun lain.')
+        return value
 
     def validate_username(self, value):
         qs = User.objects.filter(username__iexact=value)
@@ -219,6 +234,10 @@ class UserAdminSerializer(serializers.ModelSerializer):
         if validated_data.pop('setuju_kebijakan_data', False):
             validated_data['setuju_kebijakan_data'] = True
             validated_data['tanggal_persetujuan_kebijakan'] = timezone.now()
+        # Nasabah didaftarkan admin tanpa email: sudah diverifikasi tatap muka,
+        # tidak wajib verifikasi email. Staf selalu wajib verifikasi email.
+        if validated_data.get('role') == 'nasabah' and not validated_data.get('email'):
+            validated_data['email_exempt'] = True
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
         # T10: nomor HP dari admin → belum terverifikasi
@@ -232,6 +251,11 @@ class UserAdminSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
         validated_data.pop('setuju_kebijakan_data', None)
+        new_email = validated_data.get('email')
+        if new_email is not None and new_email != (instance.email or '').lower():
+            # Email diganti admin → perlu diverifikasi ulang oleh pemiliknya.
+            instance.email_verified = False
+            instance.email_exempt = instance.role == 'nasabah' and not new_email
         new_hp = validated_data.get('no_hp')
         phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():

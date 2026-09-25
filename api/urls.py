@@ -5,6 +5,8 @@ from .auth_views import (
     ForgotPasswordView,
     PhoneRequestOtpView,
     PhoneVerifyOtpView,
+    EmailRequestOtpView,
+    EmailVerifyOtpView,
     PoinInfoView,
     ResetPasswordRequestOtpView,
     ResetPasswordVerifyOtpView,
@@ -108,6 +110,8 @@ urlpatterns = [
     path('auth/reset-password/', ResetPasswordView.as_view(), name='reset-password'),
     path('auth/phone/request-otp/', PhoneRequestOtpView.as_view(), name='phone-request-otp'),
     path('auth/phone/verify-otp/', PhoneVerifyOtpView.as_view(), name='phone-verify-otp'),
+    path('auth/email/request-otp/', EmailRequestOtpView.as_view(), name='email-request-otp'),
+    path('auth/email/verify-otp/', EmailVerifyOtpView.as_view(), name='email-verify-otp'),
 
     # Play Store — self-service hapus akun (konfirmasi mendalam + OTP WA)
     path(

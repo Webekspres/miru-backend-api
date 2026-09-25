@@ -172,6 +172,12 @@ class UserViewSet(viewsets.ModelViewSet):
             return UserAdminSerializer
         return UserAdminSerializer
 
+    def get_throttles(self):
+        if self.action == 'create' and not self.request.user.is_authenticated:
+            from .throttles import RegisterAnonRateThrottle
+            return [RegisterAnonRateThrottle(), *super().get_throttles()]
+        return super().get_throttles()
+
     def get_permissions(self):
         if self.action == 'create':
             if self._is_staff_manager():
@@ -200,7 +206,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'Pengguna berhasil dibuat.'
                 if is_staff_create
                 else (
-                    'Registrasi berhasil. Verifikasi nomor HP via OTP WhatsApp '
+                    'Registrasi berhasil. Verifikasi email dengan kode OTP '
                     'untuk mengaktifkan akun.'
                 )
             ),

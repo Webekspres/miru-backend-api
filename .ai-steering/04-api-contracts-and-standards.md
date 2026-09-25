@@ -569,6 +569,28 @@ Public
 
 ---
 
+### 6.1a Verifikasi Email (OTP email)
+
+OTP WhatsApp ditunda (biaya); endpoint `auth/phone/*` membalas `404 OTP_CHANNEL_DISABLED`
+kecuali `OTP_WHATSAPP_ENABLED=True`. OTP: 6 digit, berlaku 5 menit, maks 5 percobaan,
+jeda 60 detik per akun, maks 3/jam & 6/hari per alamat email, domain email sementara ditolak.
+
+| Method | Endpoint | Auth | Keterangan |
+|--------|----------|------|------------|
+| `POST` | `/api/auth/email/request-otp/` | Opsional | Login: `{email}`. Belum login (registrasi): `{username, password, email}` |
+| `POST` | `/api/auth/email/verify-otp/` | Opsional | Login: `{otp}` → `data.user` (payload login baru). Registrasi: `{username, otp}` → akun aktif |
+
+- Payload login/`me` berisi `email`, `email_verified`, `email_required`. Jika `email_required=true`
+  klien wajib menampilkan layar verifikasi email sebelum fitur lain (semua role).
+- Email baru disimpan ke akun hanya setelah OTP benar; `PATCH /auth/me/` tidak bisa mengubah email.
+- Nasabah dibuat admin tanpa email → `email_exempt=true` (tidak wajib verifikasi).
+- Login akun belum aktif: `401` `code=EMAIL_VERIFICATION_PENDING` (registrasi belum selesai) atau
+  `ACCOUNT_DISABLED` (dinonaktifkan admin).
+- Lupa password & hapus akun: langkah konfirmasi memakai `email` (bukan `no_hp`), response `masked_email`,
+  `next=confirm_email`. Akun tanpa email terverifikasi → hubungi admin.
+- Registrasi publik `POST /api/users/` dibatasi 10/hari per IP. `manage.py cleanup_unverified_accounts`
+  menghapus pendaftaran yang tidak diverifikasi > 24 jam (jalankan harian).
+
 ### 6.2 Users — Manajemen Pengguna
 
 | Method | Endpoint | Auth | Permission |

@@ -14,6 +14,7 @@ from .base import EnvelopeAPITestCase
 User = get_user_model()
 
 
+@override_settings(OTP_WHATSAPP_ENABLED=True)
 class RegistrationTests(EnvelopeAPITestCase):
     def setUp(self):
         cache.clear()
@@ -206,18 +207,33 @@ class LoginTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['code'], 'AUTHENTICATION_FAILED')
         self.assertEqual(response.data['message'], 'Username atau password salah.')
 
-    def test_login_inactive_needs_phone_verify(self):
+    def test_login_pending_registration_needs_email_verify(self):
         self.user.is_active = False
-        self.user.phone_verified = False
-        self.user.save(update_fields=['is_active', 'phone_verified'])
+        self.user.last_login = None
+        self.user.email_verified = False
+        self.user.save(update_fields=['is_active', 'last_login', 'email_verified'])
         response = self.client.post('/api/auth/login/', {
             'username': 'login_user',
             'password': 'secret12',
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertIn('Verifikasi nomor HP', response.data['message'])
+        self.assertEqual(response.data['code'], 'EMAIL_VERIFICATION_PENDING')
+        self.assertIn('Verifikasi email', response.data['message'])
+
+    def test_login_deactivated_account_says_disabled(self):
+        from django.utils import timezone
+        self.user.is_active = False
+        self.user.last_login = timezone.now()
+        self.user.save(update_fields=['is_active', 'last_login'])
+        response = self.client.post('/api/auth/login/', {
+            'username': 'login_user',
+            'password': 'secret12',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['code'], 'ACCOUNT_DISABLED')
 
 
+@override_settings(OTP_WHATSAPP_ENABLED=True)
 class PhoneRequestOtpHijackTests(EnvelopeAPITestCase):
     """Regression test for the unauthenticated phone-hijack takeover bug.
 
@@ -378,6 +394,7 @@ class MeEndpointTests(EnvelopeAPITestCase):
         self.assertEqual(self.user.poin, 0)
 
 
+@override_settings(OTP_WHATSAPP_ENABLED=True)
 class ForgotPasswordOtpTests(EnvelopeAPITestCase):
     def setUp(self):
         cache.clear()
@@ -489,6 +506,7 @@ class AdminPhoneVerifiedTests(EnvelopeAPITestCase):
 
 
 @override_settings(DEBUG=True, OTP_DEV_FIXED_CODE='123456')
+@override_settings(OTP_WHATSAPP_ENABLED=True)
 class OtpDevFixedCodeTests(EnvelopeAPITestCase):
     """OTP tetap untuk local/dev — lihat docs/OTP_DEV.md."""
 

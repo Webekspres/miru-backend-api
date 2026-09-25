@@ -13,6 +13,14 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
     nama_lengkap = models.CharField(max_length=255)
     no_hp = models.CharField(max_length=15, blank=True)
+    email_verified = models.BooleanField(
+        default=False,
+        help_text='True jika email sudah diverifikasi OTP email',
+    )
+    email_exempt = models.BooleanField(
+        default=False,
+        help_text='Akun dibuat admin tanpa email — tidak wajib verifikasi email',
+    )
     phone_verified = models.BooleanField(
         default=False,
         help_text='True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)',
@@ -47,6 +55,11 @@ class User(AbstractUser):
     poin = models.IntegerField(default=0)
     setuju_kebijakan_data = models.BooleanField(default=False)
     tanggal_persetujuan_kebijakan = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def email_required(self) -> bool:
+        """Wajib isi & verifikasi email sebelum memakai aplikasi/web."""
+        return not self.email_verified and not self.email_exempt
 
     class Meta:
         indexes = [
@@ -442,13 +455,15 @@ class PasswordResetToken(models.Model):
 
 
 class PhoneOTP(models.Model):
-    """OTP WhatsApp untuk reset password / verifikasi HP (T2). Kode disimpan sebagai hash."""
+    """OTP (email; WhatsApp jika diaktifkan) untuk registrasi, verifikasi, reset, hapus akun. Kode di-hash."""
 
     PURPOSE_PASSWORD_RESET = 'password_reset'
     PURPOSE_PHONE_VERIFY = 'phone_verify'
     PURPOSE_REGISTRATION = 'registration'
     PURPOSE_ACCOUNT_DELETION = 'account_deletion'
+    PURPOSE_EMAIL_VERIFY = 'email_verify'
     PURPOSE_CHOICES = (
+        (PURPOSE_EMAIL_VERIFY, 'Verifikasi Email'),
         (PURPOSE_PASSWORD_RESET, 'Reset Password'),
         (PURPOSE_PHONE_VERIFY, 'Verifikasi HP'),
         (PURPOSE_REGISTRATION, 'Registrasi'),
@@ -459,7 +474,9 @@ class PhoneOTP(models.Model):
         User, on_delete=models.CASCADE, related_name='phone_otps',
     )
     purpose = models.CharField(max_length=32, choices=PURPOSE_CHOICES)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, blank=True, default='')
+    # Tujuan OTP email (email baru disimpan ke user hanya setelah OTP benar).
+    email = models.EmailField(blank=True, default='')
     code_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()

@@ -302,6 +302,13 @@ class Command(BaseCommand):
                 created += 1
         return created or len(WILAYAH_KELURAHAN)
 
+    def _verify_demo_emails(self):
+        """Akun demo: email contoh terverifikasi agar tidak tertahan gerbang OTP email."""
+        for user in User.objects.filter(email_verified=False, is_superuser=False):
+            user.email = user.email or f'{user.username}@example.com'
+            user.email_verified = True
+            user.save(update_fields=['email', 'email_verified'])
+
     def _assign_kelurahan(self):
         """Nasabah tanpa kelurahan dibagi rata ke wilayah aktif (syarat ajukan jemput)."""
         wilayah = list(WilayahLayanan.objects.filter(aktif=True).order_by('id'))
@@ -440,6 +447,7 @@ class Command(BaseCommand):
         counts['jadwal_jemput'] = self._seed_jadwal_jemput()
 
         if minimal:
+            self._verify_demo_emails()
             connect_notification_signals()
             total = sum(counts.values())
             self._print_summary(total, counts, minimal=True)
@@ -482,6 +490,7 @@ class Command(BaseCommand):
         # Terakhir: langkah sebelumnya menyimpan ulang objek nasabah di memori.
         self._step('Kelurahan nasabah')
         self._assign_kelurahan()
+        self._verify_demo_emails()
 
         connect_notification_signals()
 
