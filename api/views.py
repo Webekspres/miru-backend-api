@@ -15,8 +15,11 @@ from .services import (
     debit_nasabah_saldo,
 )
 from .services.pickups import (
+    MAX_PICKUPS_PER_WEEK_PER_WILAYAH,
     approve_pickup,
     assign_pickup,
+    pickups_in_week_by_wilayah,
+    week_bounds_wit,
     reject_pickup,
     update_pickup_status,
 )
@@ -898,9 +901,60 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
     ordering = ['kelurahan', 'rt', 'rw']
 
     def get_permissions(self):
-        if self.action in ('list', 'retrieve'):
+        if self.action in ('list', 'retrieve', 'kuota'):
             return [IsAuthenticated(), IsMonitorReadOnly()]
         return [IsAuthenticated(), IsAdminOrKoordinator()]
+
+    @action(detail=False, methods=['get'], url_path='kuota')
+    def kuota(self, request):
+        """Pemakaian kuota jemput 2×/minggu per wilayah (minggu Senin–Minggu WIT).
+
+        `?tanggal=YYYY-MM-DD` memilih minggu; default minggu ini.
+        """
+        from datetime import datetime, time, timedelta
+
+        from django.utils import timezone
+        from django.utils.dateparse import parse_date
+
+        ref = None
+        raw = request.query_params.get('tanggal')
+        if raw:
+            tanggal = parse_date(raw)
+            if tanggal is None:
+                return error_response(
+                    message='Format tanggal harus YYYY-MM-DD.',
+                    code='VALIDATION_ERROR',
+                    errors={'tanggal': ['Format tanggal harus YYYY-MM-DD.']},
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    request=request,
+                )
+            ref = timezone.make_aware(datetime.combine(tanggal, time(12)))
+
+        start, end = week_bounds_wit(ref)
+        counts = pickups_in_week_by_wilayah(ref)
+        maks = MAX_PICKUPS_PER_WEEK_PER_WILAYAH
+        data = [
+            {
+                'id': w.id,
+                'kelurahan': w.kelurahan,
+                'rt': w.rt,
+                'rw': w.rw,
+                'aktif': w.aktif,
+                'terpakai': counts.get(w.id, 0),
+                'maks': maks,
+                'sisa': max(maks - counts.get(w.id, 0), 0),
+            }
+            for w in self.filter_queryset(self.get_queryset())
+        ]
+        return success_response(
+            data=data,
+            meta={
+                'minggu_mulai': start.date().isoformat(),
+                'minggu_selesai': (end - timedelta(days=1)).date().isoformat(),
+            },
+            message='Kuota penjemputan berhasil diambil.',
+            request=request,
+        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

@@ -534,7 +534,7 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
         validate_nasabah_owner(request.user)
         require_complete_address(request.user, 'mengajukan penjemputan')
         validate_wilayah_layanan(request.user)
-        validate_max_pickups_per_week(request.user)
+        validate_max_pickups_per_week(request.user, attrs.get('jadwal'))
         validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
@@ -546,7 +546,7 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
             from .models import WilayahLayanan
             from .services.pickups import validate_max_pickups_per_week
             WilayahLayanan.objects.select_for_update().filter(pk=user.kelurahan_id).first()
-            validate_max_pickups_per_week(user)
+            validate_max_pickups_per_week(user, validated_data.get('jadwal'))
 
         validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'

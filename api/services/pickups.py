@@ -73,36 +73,60 @@ def validate_wilayah_layanan(nasabah: User) -> None:
         })
 
 
-def validate_max_pickups_per_week(nasabah: User) -> None:
-    """Validasi max 2x penjemputan per minggu per wilayah.
+# Status yang memakai kuota mingguan (ditolak/dibatalkan tidak dihitung).
+KUOTA_STATUSES = (
+    'menunggu', 'disetujui', 'dijadwalkan', 'dalam_perjalanan', 'dijemput', 'selesai',
+)
 
-    Menggunakan kelurahan_id sebagai identifikasi wilayah.
+
+def week_bounds_wit(ref=None):
+    """(Senin 00:00, Senin berikutnya 00:00) WIT untuk minggu yang memuat `ref`."""
+    ref = ref or timezone.now()
+    if timezone.is_naive(ref):
+        ref = timezone.make_aware(ref, WIT)
+    local = ref.astimezone(WIT)
+    start = (local - timedelta(days=local.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0,
+    )
+    return start, start + timedelta(days=7)
+
+
+def pickups_in_week_by_wilayah(ref=None) -> dict[int, int]:
+    """Jumlah penjemputan pemakai kuota per kelurahan_id pada minggu `ref`."""
+    from django.db.models import Count
+
+    start, end = week_bounds_wit(ref)
+    rows = (
+        Penjemputan.objects
+        .filter(
+            nasabah__kelurahan_id__isnull=False,
+            jadwal__gte=start,
+            jadwal__lt=end,
+            status__in=KUOTA_STATUSES,
+        )
+        .values('nasabah__kelurahan_id')
+        .annotate(total=Count('id'))
+    )
+    return {r['nasabah__kelurahan_id']: r['total'] for r in rows}
+
+
+def validate_max_pickups_per_week(nasabah: User, jadwal=None) -> None:
+    """Validasi max 2x penjemputan per minggu (Senin–Minggu WIT) per wilayah.
+
+    Minggu dihitung dari `jadwal` yang diminta (default: sekarang).
     Jika nasabah tidak punya kelurahan, lewati validasi.
     """
     if nasabah.kelurahan_id is None:
         return
 
-    now = timezone.now()
-    start_of_week = now - timedelta(days=now.weekday())
-    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
-
-    count_this_week = (
-        Penjemputan.objects
-        .filter(
-            nasabah__kelurahan_id=nasabah.kelurahan_id,
-            jadwal__gte=start_of_week,
-            status__in=['menunggu', 'disetujui', 'dijadwalkan', 'dalam_perjalanan', 'dijemput', 'selesai'],
-        )
-        .exclude(status='ditolak')
-        .count()
-    )
-
-    if count_this_week >= MAX_PICKUPS_PER_WEEK_PER_WILAYAH:
+    count = pickups_in_week_by_wilayah(jadwal).get(nasabah.kelurahan_id, 0)
+    if count >= MAX_PICKUPS_PER_WEEK_PER_WILAYAH:
         raise ValidationError({
             'jadwal': [
                 f'Maksimal {MAX_PICKUPS_PER_WEEK_PER_WILAYAH}x penjemputan '
                 f'per minggu per wilayah. '
-                f'Minggu ini sudah ada {count_this_week} penjemputan untuk wilayah ini.'
+                f'Minggu jadwal ini sudah ada {count} penjemputan untuk wilayah Anda. '
+                f'Silakan pilih jadwal di minggu berikutnya.'
             ],
         })
 
