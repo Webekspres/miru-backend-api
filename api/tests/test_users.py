@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import status
 
+from api.models import WilayahLayanan
+
 from .base import EnvelopeAPITestCase
 
 User = get_user_model()
@@ -48,6 +50,17 @@ class UserListFilterTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         usernames = {u['username'] for u in response.data['data']}
         self.assertIn('inactive_user', usernames)
+
+    def test_filter_by_kelurahan(self):
+        wilayah = WilayahLayanan.objects.create(kelurahan='Kwamki')
+        warga = self.create_nasabah(username='warga_kwamki')
+        warga.kelurahan = wilayah
+        warga.save()
+
+        response = self.client.get(f'/api/users/?kelurahan={wilayah.id}')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        usernames = {u['username'] for u in response.data['data']}
+        self.assertEqual(usernames, {'warga_kwamki'})
 
     def test_search_users(self):
         response = self.client.get('/api/users/?search=budi')
@@ -145,7 +158,7 @@ class AdminCreateStaffTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['data']['role'], 'koordinator')
 
-    def test_admin_cannot_create_nasabah_via_staff_endpoint(self):
+    def test_admin_create_nasabah_requires_consent(self):
         response = self.client.post('/api/users/', {
             'username': 'nasabah_admin',
             'password': 'secret12',
@@ -155,7 +168,31 @@ class AdminCreateStaffTests(EnvelopeAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assert_envelope_error(response, 400)
-        self.assertIn('role', response.data['errors'])
+        self.assertIn('setuju_kebijakan_data', response.data['errors'])
+        self.assertFalse(User.objects.filter(username='nasabah_admin').exists())
+
+    def test_admin_create_nasabah_with_consent(self):
+        wilayah = WilayahLayanan.objects.create(kelurahan='Kwamki')
+        response = self.client.post('/api/users/', {
+            'username': 'nasabah_admin',
+            'password': 'secret12',
+            'role': 'nasabah',
+            'nama_lengkap': 'Nasabah Admin',
+            'kelurahan': wilayah.id,
+            'rt': '01',
+            'rw': '02',
+            'setuju_kebijakan_data': True,
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = response.data['data']
+        self.assertEqual(data['role'], 'nasabah')
+        self.assertEqual(data['kelurahan_nama'], 'Kwamki')
+        self.assertNotIn('setuju_kebijakan_data', data)
+        user = User.objects.get(username='nasabah_admin')
+        self.assertTrue(user.setuju_kebijakan_data)
+        self.assertIsNotNone(user.tanggal_persetujuan_kebijakan)
+        self.assertEqual((user.rt, user.rw), ('01', '02'))
 
     def test_public_registration_still_nasabah_only(self):
         self.client.credentials()

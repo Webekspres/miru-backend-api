@@ -140,10 +140,10 @@ class AuditLogListView(APIView):
 
 @user_viewset_schema
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related('kelurahan')
     permission_classes = [IsAdminOrKoordinator]
     search_fields = ['username', 'nama_lengkap', 'no_hp']
-    filterset_fields = ['role', 'is_active']
+    filterset_fields = ['role', 'is_active', 'kelurahan']
     ordering_fields = ['date_joined', 'nama_lengkap', 'username']
     ordering = ['-date_joined']
 
@@ -171,6 +171,12 @@ class UserViewSet(viewsets.ModelViewSet):
                 return UserAdminSerializer
             return UserAdminSerializer
         return UserAdminSerializer
+
+    def get_throttles(self):
+        if self.action == 'create' and not self.request.user.is_authenticated:
+            from .throttles import RegisterAnonRateThrottle
+            return [RegisterAnonRateThrottle(), *super().get_throttles()]
+        return super().get_throttles()
 
     def get_permissions(self):
         if self.action == 'create':
@@ -200,7 +206,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'Pengguna berhasil dibuat.'
                 if is_staff_create
                 else (
-                    'Registrasi berhasil. Verifikasi nomor HP via OTP WhatsApp '
+                    'Registrasi berhasil. Verifikasi email dengan kode OTP '
                     'untuk mengaktifkan akun.'
                 )
             ),
@@ -942,6 +948,85 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
         return success_response(
             message='Wilayah layanan berhasil dihapus.',
             status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
+
+class JadwalJemputWilayahViewSet(viewsets.ModelViewSet):
+    """Jadwal jemput per wilayah (maks 2/minggu). Nasabah: jadwal wilayahnya yang masih bisa dipesan.
+
+    Filter: `?wilayah=<id>`, `?tanggal=YYYY-MM-DD` (minggu Senin–Minggu WIT yang memuat tanggal).
+    """
+
+    serializer_class = JadwalJemputWilayahSerializer
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
+    pagination_class = None
+
+    def get_permissions(self):
+        if self.action in ('create', 'destroy'):
+            return [IsAuthenticated(), IsAdminOrKoordinator()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        from datetime import datetime, time
+
+        from django.db.models import Count, Q
+        from django.utils.dateparse import parse_date
+
+        from .services.jadwal_jemput import ACTIVE_PICKUP_STATUSES, today_wit
+        from .services.pickups import WIT, week_bounds_wit
+
+        qs = JadwalJemputWilayah.objects.select_related('wilayah').annotate(
+            jumlah_pesanan=Count(
+                'penjemputan',
+                filter=Q(penjemputan__status__in=ACTIVE_PICKUP_STATUSES),
+            ),
+        )
+        user = self.request.user
+        if user.role == 'nasabah':
+            if not user.kelurahan_id:
+                return qs.none()
+            return qs.filter(
+                wilayah_id=user.kelurahan_id, wilayah__aktif=True,
+                tanggal__gt=today_wit(),
+            )
+
+        params = self.request.query_params
+        if params.get('wilayah'):
+            qs = qs.filter(wilayah_id=params['wilayah'])
+        tanggal = parse_date(params.get('tanggal') or '')
+        if tanggal:
+            start, end = week_bounds_wit(datetime.combine(tanggal, time(12), tzinfo=WIT))
+            qs = qs.filter(tanggal__gte=start.date(), tanggal__lt=end.date())
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return success_response(
+            data=serializer.data,
+            message='Jadwal penjemputan berhasil diambil.',
+            request=request,
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        jadwal = serializer.save()
+        output = self.get_serializer(self.get_queryset().get(pk=jadwal.pk))
+        return success_response(
+            data=output.data,
+            message='Jadwal penjemputan ditambahkan. Warga di wilayah ini sudah diberi notifikasi.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        from .services.jadwal_jemput import validate_can_delete
+        instance = self.get_object()
+        validate_can_delete(instance)
+        instance.delete()
+        return success_response(
+            message='Jadwal penjemputan berhasil dihapus.',
             request=request,
         )
 

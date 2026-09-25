@@ -1,8 +1,8 @@
 """Pickup request validation and status state machine.
 
-Fase 8.3 — Wilayah layanan & kuota penjemputan:
+Fase 8.3 — Wilayah layanan penjemputan:
 - Validasi penjemputan hanya di wilayah terdaftar
-- Validasi frekuensi max 2x seminggu per wilayah
+- Frekuensi 2x seminggu per wilayah: lihat services/jadwal_jemput.py
 
 T3 — Alur approve+assign atomik, validasi jadwal, koordinat opsional.
 """
@@ -19,7 +19,6 @@ from api.exceptions import InvalidStatusTransitionError
 from api.models import PengaturanInstitusi, Penjemputan, User, WilayahLayanan
 
 MIN_ESTIMASI_BERAT_KG = Decimal('5')
-MAX_PICKUPS_PER_WEEK_PER_WILAYAH = 2
 MIN_JADWAL_AHEAD = timedelta(hours=1)
 WIT = ZoneInfo('Asia/Jayapura')
 
@@ -73,38 +72,16 @@ def validate_wilayah_layanan(nasabah: User) -> None:
         })
 
 
-def validate_max_pickups_per_week(nasabah: User) -> None:
-    """Validasi max 2x penjemputan per minggu per wilayah.
-
-    Menggunakan kelurahan_id sebagai identifikasi wilayah.
-    Jika nasabah tidak punya kelurahan, lewati validasi.
-    """
-    if nasabah.kelurahan_id is None:
-        return
-
-    now = timezone.now()
-    start_of_week = now - timedelta(days=now.weekday())
-    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
-
-    count_this_week = (
-        Penjemputan.objects
-        .filter(
-            nasabah__kelurahan_id=nasabah.kelurahan_id,
-            jadwal__gte=start_of_week,
-            status__in=['menunggu', 'disetujui', 'dijadwalkan', 'dalam_perjalanan', 'dijemput', 'selesai'],
-        )
-        .exclude(status='ditolak')
-        .count()
+def week_bounds_wit(ref=None):
+    """(Senin 00:00, Senin berikutnya 00:00) WIT untuk minggu yang memuat `ref`."""
+    ref = ref or timezone.now()
+    if timezone.is_naive(ref):
+        ref = timezone.make_aware(ref, WIT)
+    local = ref.astimezone(WIT)
+    start = (local - timedelta(days=local.weekday())).replace(
+        hour=0, minute=0, second=0, microsecond=0,
     )
-
-    if count_this_week >= MAX_PICKUPS_PER_WEEK_PER_WILAYAH:
-        raise ValidationError({
-            'jadwal': [
-                f'Maksimal {MAX_PICKUPS_PER_WEEK_PER_WILAYAH}x penjemputan '
-                f'per minggu per wilayah. '
-                f'Minggu ini sudah ada {count_this_week} penjemputan untuk wilayah ini.'
-            ],
-        })
+    return start, start + timedelta(days=7)
 
 
 def validate_estimasi_berat(berat: Decimal) -> Decimal:

@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from api.models import (
+    JadwalJemputWilayah,
     DetailSetoran,
     KategoriSampah,
     KontenEdukasi,
@@ -301,6 +302,45 @@ class Command(BaseCommand):
                 created += 1
         return created or len(WILAYAH_KELURAHAN)
 
+    def _verify_demo_emails(self):
+        """Akun demo: email contoh terverifikasi agar tidak tertahan gerbang OTP email."""
+        for user in User.objects.filter(email_verified=False, is_superuser=False):
+            user.email = user.email or f'{user.username}@example.com'
+            user.email_verified = True
+            user.save(update_fields=['email', 'email_verified'])
+
+    def _assign_kelurahan(self):
+        """Nasabah tanpa kelurahan dibagi rata ke wilayah aktif (syarat ajukan jemput)."""
+        wilayah = list(WilayahLayanan.objects.filter(aktif=True).order_by('id'))
+        if not wilayah:
+            return
+        nasabah = User.objects.filter(role='nasabah', kelurahan__isnull=True).order_by('id')
+        for i, user in enumerate(nasabah):
+            user.kelurahan = wilayah[i % len(wilayah)]
+            user.save(update_fields=['kelurahan'])
+
+    def _seed_jadwal_jemput(self):
+        """Jadwal demo Selasa & Jumat 08.00–12.00 untuk 2 minggu ke depan per wilayah."""
+        from datetime import time
+
+        from api.services.jadwal_jemput import today_wit
+
+        self._assign_kelurahan()
+        today = today_wit()
+        dates = [
+            today + timedelta(days=d) for d in range(1, 15)
+            if (today + timedelta(days=d)).weekday() in (1, 4)
+        ]
+        created = 0
+        for wilayah in WilayahLayanan.objects.filter(aktif=True):
+            for tanggal in dates:
+                _, was_created = JadwalJemputWilayah.objects.get_or_create(
+                    wilayah=wilayah, tanggal=tanggal,
+                    defaults={'jam_mulai': time(8), 'jam_selesai': time(12)},
+                )
+                created += int(was_created)
+        return created
+
     def _ensure_avatar(self, user):
         if user.avatar_url:
             return
@@ -403,8 +443,11 @@ class Command(BaseCommand):
         counts['edukasi'] = self._seed_edukasi()
         self._step('Wilayah layanan')
         counts['wilayah'] = self._seed_wilayah()
+        self._step('Jadwal jemput wilayah')
+        counts['jadwal_jemput'] = self._seed_jadwal_jemput()
 
         if minimal:
+            self._verify_demo_emails()
             connect_notification_signals()
             total = sum(counts.values())
             self._print_summary(total, counts, minimal=True)
@@ -444,6 +487,11 @@ class Command(BaseCommand):
         self._step('Notifikasi')
         counts['notifications'] = self._seed_notifications(nasabah_list, showcase_users)
 
+        # Terakhir: langkah sebelumnya menyimpan ulang objek nasabah di memori.
+        self._step('Kelurahan nasabah')
+        self._assign_kelurahan()
+        self._verify_demo_emails()
+
         connect_notification_signals()
 
         total = sum(counts.values())
@@ -474,6 +522,7 @@ class Command(BaseCommand):
         KategoriSampah.objects.all().delete()
         Reward.objects.all().delete()
         MitraPengepul.objects.all().delete()
+        JadwalJemputWilayah.objects.all().delete()
         WilayahLayanan.objects.all().delete()
 
     def _print_summary(self, total, counts, minimal):

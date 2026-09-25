@@ -12,6 +12,7 @@ Alur (konfirmasi mendalam, validasi OTP WhatsApp seperti saat login):
 Ketiga endpoint publik (tanpa login) karena nasabah tidak login ke panel web.
 """
 
+from django.conf import settings
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -28,6 +29,7 @@ from .models import (
     User,
 )
 from .services.account_deletion import delete_nasabah_account
+from .services.email_otp import create_and_send_email_otp, emails_match, mask_email
 from .services.whatsapp import (
     create_and_send_otp,
     mask_phone,
@@ -74,7 +76,15 @@ def _get_nasabah_for_deletion(request, username: str):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
-    if not user.no_hp:
+    if not settings.OTP_WHATSAPP_ENABLED:
+        if not (user.email_verified and user.email):
+            return None, _validation_error(
+                request,
+                'Akun ini belum punya email terverifikasi. Hubungi admin '
+                'untuk penghapusan akun.',
+                {'email': ['Email belum terverifikasi pada akun ini.']},
+            )
+    elif not user.no_hp:
         return None, _validation_error(
             request,
             'Nomor HP belum terdaftar pada akun ini. Hubungi admin.',
@@ -128,9 +138,26 @@ class DeleteAccountCheckView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        # Hanya info minimal (username + HP tersamar) sebelum kepemilikan
-        # nomor HP dibuktikan — nama, saldo, poin, dan riwayat baru
-        # ditampilkan setelah request-otp berhasil mencocokkan no_hp.
+        # Hanya info minimal (username + email/HP tersamar) sebelum kepemilikan
+        # dibuktikan — nama, saldo, poin, dan riwayat baru ditampilkan setelah
+        # request-otp berhasil mencocokkan email/no_hp.
+        if not settings.OTP_WHATSAPP_ENABLED:
+            return Response(
+                success_envelope(
+                    data={
+                        'username': user.username,
+                        'masked_email': mask_email(user.email),
+                        'next': 'confirm_email',
+                    },
+                    message=(
+                        'Akun ditemukan. Masukkan email yang terdaftar, '
+                        'lalu kami kirim kode OTP ke email tersebut.'
+                    ),
+                    status_code=status.HTTP_200_OK,
+                    request=request,
+                ),
+                status=status.HTTP_200_OK,
+            )
         return Response(
             success_envelope(
                 data={
@@ -175,11 +202,15 @@ class DeleteAccountRequestOtpView(APIView):
     def post(self, request):
         username = (request.data.get('username') or '').strip()
         no_hp = (request.data.get('no_hp') or '').strip()
+        email = (request.data.get('email') or '').strip()
+        use_email = not settings.OTP_WHATSAPP_ENABLED
 
         errors = {}
         if not username:
             errors['username'] = ['Username wajib diisi.']
-        if not no_hp:
+        if use_email and not email:
+            errors['email'] = ['Email wajib diisi.']
+        if not use_email and not no_hp:
             errors['no_hp'] = ['Nomor HP wajib diisi.']
         if errors:
             return _validation_error(request, 'Data tidak lengkap.', errors)
@@ -199,22 +230,42 @@ class DeleteAccountRequestOtpView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not phones_match(no_hp, user.no_hp):
-            return _validation_error(
-                request,
-                'Nomor HP tidak cocok dengan profil.',
-                {'no_hp': ['Nomor HP tidak cocok dengan yang terdaftar.']},
+        if use_email:
+            if not emails_match(email, user.email):
+                return _validation_error(
+                    request,
+                    'Email tidak cocok dengan yang terdaftar.',
+                    {'email': ['Email tidak cocok dengan yang terdaftar.']},
+                )
+            create_and_send_email_otp(
+                user, PhoneOTP.PURPOSE_ACCOUNT_DELETION, user.email,
             )
-
-        create_and_send_otp(
-            user, PhoneOTP.PURPOSE_ACCOUNT_DELETION, user.no_hp,
-        )
+            target = {'masked_email': mask_email(user.email)}
+            sent_message = (
+                'Kode OTP telah dikirim ke email Anda. '
+                'Periksa kotak masuk atau folder spam.'
+            )
+        else:
+            if not phones_match(no_hp, user.no_hp):
+                return _validation_error(
+                    request,
+                    'Nomor HP tidak cocok dengan profil.',
+                    {'no_hp': ['Nomor HP tidak cocok dengan yang terdaftar.']},
+                )
+            create_and_send_otp(
+                user, PhoneOTP.PURPOSE_ACCOUNT_DELETION, user.no_hp,
+            )
+            target = {'masked_phone': mask_phone(user.no_hp)}
+            sent_message = (
+                'Kode OTP telah dikirim ke WhatsApp Anda. '
+                'Periksa notifikasi WhatsApp.'
+            )
         return Response(
             success_envelope(
                 data={
                     'username': user.username,
                     'nama_lengkap': user.nama_lengkap,
-                    'masked_phone': mask_phone(user.no_hp),
+                    **target,
                     'saldo': str(user.saldo),
                     'poin': user.poin,
                     'riwayat': {
@@ -227,10 +278,7 @@ class DeleteAccountRequestOtpView(APIView):
                     'expires_in_seconds': 300,
                     **otp_dev_response_extras(),
                 },
-                message=otp_request_message(
-                    'Kode OTP telah dikirim ke WhatsApp Anda. '
-                    'Periksa notifikasi WhatsApp.'
-                ),
+                message=otp_request_message(sent_message),
                 status_code=status.HTTP_200_OK,
                 request=request,
             ),

@@ -569,6 +569,28 @@ Public
 
 ---
 
+### 6.1a Verifikasi Email (OTP email)
+
+OTP WhatsApp ditunda (biaya); endpoint `auth/phone/*` membalas `404 OTP_CHANNEL_DISABLED`
+kecuali `OTP_WHATSAPP_ENABLED=True`. OTP: 6 digit, berlaku 5 menit, maks 5 percobaan,
+jeda 60 detik per akun, maks 3/jam & 6/hari per alamat email, domain email sementara ditolak.
+
+| Method | Endpoint | Auth | Keterangan |
+|--------|----------|------|------------|
+| `POST` | `/api/auth/email/request-otp/` | Opsional | Login: `{email}`. Belum login (registrasi): `{username, password, email}` |
+| `POST` | `/api/auth/email/verify-otp/` | Opsional | Login: `{otp}` → `data.user` (payload login baru). Registrasi: `{username, otp}` → akun aktif |
+
+- Payload login/`me` berisi `email`, `email_verified`, `email_required`. Jika `email_required=true`
+  klien wajib menampilkan layar verifikasi email sebelum fitur lain (semua role).
+- Email baru disimpan ke akun hanya setelah OTP benar; `PATCH /auth/me/` tidak bisa mengubah email.
+- Nasabah dibuat admin tanpa email → `email_exempt=true` (tidak wajib verifikasi).
+- Login akun belum aktif: `401` `code=EMAIL_VERIFICATION_PENDING` (registrasi belum selesai) atau
+  `ACCOUNT_DISABLED` (dinonaktifkan admin).
+- Lupa password & hapus akun: langkah konfirmasi memakai `email` (bukan `no_hp`), response `masked_email`,
+  `next=confirm_email`. Akun tanpa email terverifikasi → hubungi admin.
+- Registrasi publik `POST /api/users/` dibatasi 10/hari per IP. `manage.py cleanup_unverified_accounts`
+  menghapus pendaftaran yang tidak diverifikasi > 24 jam (jalankan harian).
+
 ### 6.2 Users — Manajemen Pengguna
 
 | Method | Endpoint | Auth | Permission |
@@ -787,17 +809,22 @@ Business error `422`:
 
 **POST /api/pickups/ — Ajukan Penjemputan**
 
+Nasabah memilih salah satu jadwal wilayahnya (`GET /api/jadwal-jemput/`).
+`jadwal` diisi server dari tanggal + `jam_mulai` jadwal (WIT); field `jadwal`
+di request diabaikan. Syarat: kelurahan profil terisi, jadwal milik wilayah
+nasabah, dipesan sebelum tanggal jadwal (H-1), belum memesan jadwal yang sama.
+
 Request:
 ```json
 {
   "estimasi_berat": "8.00",
   "alamat_jemput": "Jl. Cendrawasih Poros SP.II, Timika",
-  "jadwal": "2026-07-08T09:00:00+09:00",
-  "catatan": "Sampah sudah dipilah di depan rumah"
+  "jadwal_wilayah": 12,
+  "catatan_lokasi": "Dekat warung Bu Siti"
 }
 ```
 
-Response `201 Created`:
+Response `201 Created` (`data`):
 ```json
 {
   "id": 10,
@@ -806,10 +833,36 @@ Response `201 Created`:
   "petugas": null,
   "estimasi_berat": "8.00",
   "alamat_jemput": "Jl. Cendrawasih Poros SP.II, Timika",
-  "jadwal": "2026-07-08T09:00:00+09:00",
-  "status": "menunggu",
-  "catatan": "Sampah sudah dipilah di depan rumah",
-  "tanggal_pengajuan": "2026-07-07T10:00:00+09:00"
+  "jadwal": "2026-10-06T08:00:00+09:00",
+  "jadwal_wilayah": 12,
+  "jam_selesai": "12:00:00",
+  "status": "menunggu"
+}
+```
+
+### 6.5a Jadwal Jemput Wilayah
+
+Aturan klien: "terjadwal 2x seminggu per wilayah". Admin/koordinator menetapkan
+maks **2 hari jemput per wilayah per minggu** (Senin–Minggu WIT, hari bebas).
+Membuat jadwal mengirim notifikasi `kategori=jadwal_jemput` ke nasabah aktif
+di wilayah itu.
+
+| Method | Endpoint | Auth | Role |
+|--------|----------|------|------|
+| `GET` | `/api/jadwal-jemput/` | JWT | Semua (nasabah: hanya wilayahnya & masih bisa dipesan) |
+| `POST` | `/api/jadwal-jemput/` | JWT | Admin, Koordinator |
+| `DELETE` | `/api/jadwal-jemput/{id}/` | JWT | Admin, Koordinator (ditolak jika sudah ada pesanan aktif) |
+
+Filter staff: `?wilayah=<id>`, `?tanggal=YYYY-MM-DD` (minggu yang memuat tanggal). Tanpa paginasi.
+
+Request `POST`: `{"wilayah": 3, "tanggal": "2026-10-06", "jam_mulai": "08:00", "jam_selesai": "12:00", "catatan": ""}`
+
+Item response:
+```json
+{
+  "id": 12, "wilayah": 3, "wilayah_nama": "Kwamki",
+  "tanggal": "2026-10-06", "jam_mulai": "08:00:00", "jam_selesai": "12:00:00",
+  "catatan": "", "jumlah_pesanan": 4, "bisa_dipesan": true
 }
 ```
 

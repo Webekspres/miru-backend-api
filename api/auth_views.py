@@ -2,6 +2,7 @@ import hmac
 import secrets
 
 from django.conf import settings
+from django.db.models import Sum
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -31,6 +32,15 @@ from .openapi import (
     auth_refresh_schema,
 )
 from .serializers import UserProfileSerializer
+from .services.email_otp import (
+    create_and_send_email_otp,
+    emails_match,
+    is_pending_registration,
+    mark_email_verified,
+    mask_email,
+    skip_otp_enabled,
+    validate_email_target,
+)
 from .services.whatsapp import (
     create_and_send_otp,
     mask_phone,
@@ -52,10 +62,43 @@ def user_auth_payload(user, request=None) -> dict:
         'nama_lengkap': user.nama_lengkap,
         'no_hp': user.no_hp,
         'phone_verified': user.phone_verified,
+        'email': user.email,
+        'email_verified': user.email_verified,
+        'email_required': user.email_required,
         'saldo': str(user.saldo),
         'poin': user.poin,
         'avatar_url': serialized_media_url(user.avatar_url, request),
     }
+
+
+def _whatsapp_disabled(request):
+    return Response(
+        error_envelope(
+            message='Verifikasi WhatsApp tidak tersedia. Gunakan verifikasi email.',
+            status_code=status.HTTP_404_NOT_FOUND,
+            code='OTP_CHANNEL_DISABLED',
+            request=request,
+        ),
+        status=status.HTTP_404_NOT_FOUND,
+    )
+
+
+def _otp_sent_response(request, user, email, purpose, message):
+    return Response(
+        success_envelope(
+            data={
+                'username': user.username,
+                'masked_email': mask_email(email),
+                'purpose': purpose,
+                'expires_in_seconds': 300,
+                **otp_dev_response_extras(),
+            },
+            message=otp_request_message(message),
+            status_code=status.HTTP_200_OK,
+            request=request,
+        ),
+        status=status.HTTP_200_OK,
+    )
 
 
 def _validation_error(request, message, errors, status_code=status.HTTP_400_BAD_REQUEST):
@@ -177,19 +220,30 @@ class MiruTokenObtainPairView(TokenObtainPairView):
             )
 
         if not user_obj.is_active:
+            if is_pending_registration(user_obj):
+                return Response(
+                    error_envelope(
+                        message=(
+                            'Akun belum aktif. Verifikasi email terlebih dahulu '
+                            'sebelum login.'
+                        ),
+                        status_code=status.HTTP_401_UNAUTHORIZED,
+                        code='EMAIL_VERIFICATION_PENDING',
+                        errors={
+                            'email_verified': [
+                                'Akun belum aktif. Selesaikan verifikasi OTP email.',
+                            ],
+                        },
+                        request=request,
+                    ),
+                    status=status.HTTP_401_UNAUTHORIZED,
+                )
             return Response(
                 error_envelope(
-                    message=(
-                        'Akun belum aktif. Verifikasi nomor HP terlebih dahulu '
-                        'sebelum login.'
-                    ),
+                    message='Akun dinonaktifkan. Hubungi admin MIRU.',
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    code='AUTHENTICATION_FAILED',
-                    errors={
-                        'phone_verified': [
-                            'Akun belum aktif. Selesaikan verifikasi OTP WhatsApp.',
-                        ],
-                    },
+                    code='ACCOUNT_DISABLED',
+                    errors={'detail': ['Akun dinonaktifkan. Hubungi admin MIRU.']},
                     request=request,
                 ),
                 status=status.HTTP_401_UNAUTHORIZED,
@@ -385,11 +439,30 @@ class ForgotPasswordView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        if not user.no_hp:
+        if user.email_verified and user.email:
+            return Response(
+                success_envelope(
+                    data={
+                        'username': user.username,
+                        'masked_email': mask_email(user.email),
+                        'next': 'confirm_email',
+                    },
+                    message=(
+                        'Username ditemukan. Masukkan email yang terdaftar, '
+                        'lalu kami kirim kode OTP ke email tersebut.'
+                    ),
+                    status_code=status.HTTP_200_OK,
+                    request=request,
+                ),
+                status=status.HTTP_200_OK,
+            )
+
+        if not settings.OTP_WHATSAPP_ENABLED or not user.no_hp:
             return _validation_error(
                 request,
-                'Nomor HP belum terdaftar pada akun ini. Hubungi admin.',
-                {'no_hp': ['Nomor HP belum terdaftar pada akun ini.']},
+                'Akun ini belum punya email terverifikasi. Hubungi admin '
+                'untuk reset kata sandi.',
+                {'email': ['Email belum terverifikasi pada akun ini.']},
             )
 
         return Response(
@@ -432,7 +505,10 @@ class ResetPasswordRequestOtpView(APIView):
 
     def post(self, request):
         username = (request.data.get('username') or '').strip()
+        email = (request.data.get('email') or '').strip()
         no_hp = (request.data.get('no_hp') or '').strip()
+        if email or not settings.OTP_WHATSAPP_ENABLED:
+            return self._post_email(request, username, email)
         if not username or not no_hp:
             errors = {}
             if not username:
@@ -481,6 +557,41 @@ class ResetPasswordRequestOtpView(APIView):
                 request=request,
             ),
             status=status.HTTP_200_OK,
+        )
+
+
+    def _post_email(self, request, username, email):
+        errors = {}
+        if not username:
+            errors['username'] = ['Username wajib diisi.']
+        if not email:
+            errors['email'] = ['Email wajib diisi.']
+        if errors:
+            return _validation_error(request, 'Data tidak lengkap.', errors)
+
+        user = User.objects.filter(username=username).first()
+        if user is None:
+            return Response(
+                error_envelope(
+                    message='Username tidak terdaftar.',
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    code='NOT_FOUND',
+                    errors={'username': ['Username tidak terdaftar.']},
+                    request=request,
+                ),
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        if not user.email_verified or not emails_match(email, user.email):
+            return _validation_error(
+                request,
+                'Email tidak cocok dengan yang terdaftar.',
+                {'email': ['Email tidak cocok dengan yang terdaftar.']},
+            )
+
+        create_and_send_email_otp(user, PhoneOTP.PURPOSE_PASSWORD_RESET, user.email)
+        return _otp_sent_response(
+            request, user, user.email, PhoneOTP.PURPOSE_PASSWORD_RESET,
+            'Kode OTP telah dikirim ke email Anda. Periksa kotak masuk atau folder spam.',
         )
 
 
@@ -686,6 +797,8 @@ class PhoneRequestOtpView(APIView):
     throttle_classes = [OtpAnonRateThrottle]
 
     def post(self, request):
+        if not settings.OTP_WHATSAPP_ENABLED:
+            return _whatsapp_disabled(request)
         no_hp = (request.data.get('no_hp') or '').strip()
         username = (request.data.get('username') or '').strip()
 
@@ -815,6 +928,8 @@ class PhoneVerifyOtpView(APIView):
     throttle_classes = [OtpAnonRateThrottle]
 
     def post(self, request):
+        if not settings.OTP_WHATSAPP_ENABLED:
+            return _whatsapp_disabled(request)
         otp_code = (request.data.get('otp') or '').strip()
         username = (request.data.get('username') or '').strip()
         no_hp = (request.data.get('no_hp') or '').strip()
@@ -885,6 +1000,199 @@ class PhoneVerifyOtpView(APIView):
         )
 
 
+def _resolve_otp_user(request, *, require_password: bool):
+    """User dari sesi login, atau username (+ password) untuk akun belum aktif.
+
+    Returns (user, error_response).
+    """
+    if request.user and request.user.is_authenticated:
+        return request.user, None
+    username = (request.data.get('username') or '').strip()
+    password = request.data.get('password') or ''
+    errors = {}
+    if not username:
+        errors['username'] = ['Username wajib diisi.']
+    if require_password and not password:
+        errors['password'] = ['Kata sandi wajib diisi.']
+    if errors:
+        return None, _validation_error(
+            request, 'Login terlebih dahulu atau lengkapi data akun.', errors,
+        )
+    user = User.objects.filter(username=username).first()
+    if require_password and (user is None or not user.check_password(password)):
+        return None, Response(
+            error_envelope(
+                message='Username atau kata sandi salah.',
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                code='AUTHENTICATION_FAILED',
+                errors={'detail': ['Username atau kata sandi salah.']},
+                request=request,
+            ),
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
+    if user is None:
+        return None, Response(
+            error_envelope(
+                message='Username tidak terdaftar.',
+                status_code=status.HTTP_404_NOT_FOUND,
+                code='NOT_FOUND',
+                errors={'username': ['Username tidak terdaftar.']},
+                request=request,
+            ),
+            status=status.HTTP_404_NOT_FOUND,
+        )
+    if not user.is_active and not is_pending_registration(user):
+        return None, Response(
+            error_envelope(
+                message='Akun dinonaktifkan. Hubungi admin MIRU.',
+                status_code=status.HTTP_403_FORBIDDEN,
+                code='ACCOUNT_DISABLED',
+                request=request,
+            ),
+            status=status.HTTP_403_FORBIDDEN,
+        )
+    return user, None
+
+
+@extend_schema(
+    tags=['Auth'],
+    summary='Verifikasi email — minta OTP',
+    description=(
+        'Registrasi (akun belum aktif): kirim username + password + email. '
+        'User login: cukup email. Email baru disimpan setelah OTP benar. '
+        'Batas: 3/jam & 6/hari per email; domain email sementara ditolak.'
+    ),
+    request={
+        'type': 'object',
+        'properties': {
+            'username': {'type': 'string'},
+            'password': {'type': 'string'},
+            'email': {'type': 'string'},
+        },
+        'required': ['email'],
+    },
+)
+class EmailRequestOtpView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [OtpAnonRateThrottle]
+
+    def post(self, request):
+        user, error = _resolve_otp_user(request, require_password=True)
+        if error:
+            return error
+        email = validate_email_target(request.data.get('email'), user)
+        purpose = (
+            PhoneOTP.PURPOSE_REGISTRATION if is_pending_registration(user)
+            else PhoneOTP.PURPOSE_EMAIL_VERIFY
+        )
+
+        if skip_otp_enabled():
+            mark_email_verified(
+                user, email, activate=purpose == PhoneOTP.PURPOSE_REGISTRATION,
+            )
+            return Response(
+                success_envelope(
+                    data={
+                        'username': user.username,
+                        'email': user.email,
+                        'email_verified': True,
+                        'is_active': user.is_active,
+                    },
+                    message='Verifikasi email dilewati (mode testing).',
+                    status_code=status.HTTP_200_OK,
+                    request=request,
+                ),
+                status=status.HTTP_200_OK,
+            )
+
+        create_and_send_email_otp(user, purpose, email)
+        return _otp_sent_response(
+            request, user, email, purpose,
+            'Kode OTP telah dikirim ke email Anda. Periksa kotak masuk atau folder spam.',
+        )
+
+
+@extend_schema(
+    tags=['Auth'],
+    summary='Verifikasi email — cek OTP',
+    description=(
+        'Registrasi: username + otp → akun aktif. User login: otp saja. '
+        'Response berisi `user` (payload login) bila sesi login.'
+    ),
+    request={
+        'type': 'object',
+        'properties': {
+            'username': {'type': 'string'},
+            'otp': {'type': 'string'},
+        },
+        'required': ['otp'],
+    },
+)
+class EmailVerifyOtpView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = [OtpAnonRateThrottle]
+
+    def post(self, request):
+        otp_code = (request.data.get('otp') or '').strip()
+        if not otp_code:
+            return _validation_error(
+                request, 'Kode OTP wajib diisi.', {'otp': ['Kode OTP wajib diisi.']},
+            )
+        user, error = _resolve_otp_user(request, require_password=False)
+        if error:
+            return error
+
+        last_otp = (
+            PhoneOTP.objects.filter(
+                user=user, is_used=False,
+                purpose__in=[
+                    PhoneOTP.PURPOSE_REGISTRATION, PhoneOTP.PURPOSE_EMAIL_VERIFY,
+                ],
+            )
+            .exclude(email='')
+            .order_by('-created_at')
+            .first()
+        )
+        if last_otp is None:
+            return _validation_error(
+                request,
+                'Kode OTP tidak ditemukan. Minta OTP baru.',
+                {'otp': ['Kode OTP tidak ditemukan. Minta OTP baru.']},
+            )
+        otp = verify_otp_code(user, last_otp.purpose, otp_code)
+        # Cek ulang: email bisa saja sudah diverifikasi akun lain sejak OTP dikirim.
+        email = validate_email_target(otp.email, user)
+        mark_email_verified(
+            user, email,
+            activate=(
+                otp.purpose == PhoneOTP.PURPOSE_REGISTRATION
+                and is_pending_registration(user)
+            ),
+        )
+
+        data = {
+            'username': user.username,
+            'email': user.email,
+            'email_verified': True,
+            'is_active': user.is_active,
+        }
+        if request.user and request.user.is_authenticated:
+            data['user'] = user_auth_payload(user, request)
+        return Response(
+            success_envelope(
+                data=data,
+                message=(
+                    'Email berhasil diverifikasi.'
+                    if request.user and request.user.is_authenticated
+                    else 'Email berhasil diverifikasi. Silakan login.'
+                ),
+                status_code=status.HTTP_200_OK,
+                request=request,
+            ),
+            status=status.HTTP_200_OK,
+        )
+
+
 @extend_schema_view(get=auth_me_get_schema, patch=auth_me_patch_schema)
 class MeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -941,28 +1249,30 @@ class PoinInfoView(APIView):
 
     def get(self, request):
         user = request.user
-        now = timezone.now()
 
-        # Total poin aktif
         poin_aktif = PoinTransaksi.objects.filter(
             user=user, is_expired=False, sisa__gt=0,
         )
-
-        total_akan_hangus = 0
-        tanggal_kedaluwarsa_terdekat = None
-
-        for pt in poin_aktif:
-            total_akan_hangus += pt.sisa
-            if (
-                tanggal_kedaluwarsa_terdekat is None
-                or pt.tanggal_kedaluwarsa < tanggal_kedaluwarsa_terdekat
-            ):
-                tanggal_kedaluwarsa_terdekat = pt.tanggal_kedaluwarsa
+        total_akan_hangus = poin_aktif.aggregate(total=Sum('sisa'))['total'] or 0
+        tanggal_kedaluwarsa_terdekat = (
+            poin_aktif.order_by('tanggal_kedaluwarsa')
+            .values_list('tanggal_kedaluwarsa', flat=True)
+            .first()
+        )
+        # Poin yang hangus pada tanggal (WIT) terdekat — untuk teks
+        # "X poin hangus pada <tanggal>" di aplikasi.
+        poin_hangus_terdekat = 0
+        if tanggal_kedaluwarsa_terdekat:
+            tanggal = timezone.localtime(tanggal_kedaluwarsa_terdekat).date()
+            poin_hangus_terdekat = poin_aktif.filter(
+                tanggal_kedaluwarsa__date=tanggal,
+            ).aggregate(total=Sum('sisa'))['total'] or 0
 
         return success_response(
             data={
                 'poin_saat_ini': user.poin,
                 'total_akan_hangus': total_akan_hangus,
+                'poin_hangus_terdekat': poin_hangus_terdekat,
                 'tanggal_kedaluwarsa_terdekat': (
                     tanggal_kedaluwarsa_terdekat.isoformat()
                     if tanggal_kedaluwarsa_terdekat
