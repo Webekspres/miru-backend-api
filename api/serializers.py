@@ -501,10 +501,22 @@ TransaksiSetoranSerializer = TransaksiSetoranCreateSerializer
 
 
 class PenjemputanCreateSerializer(serializers.ModelSerializer):
+    """Nasabah memilih salah satu jadwal jemput wilayahnya; `jadwal` diturunkan."""
+
+    jadwal_wilayah = serializers.PrimaryKeyRelatedField(
+        queryset=JadwalJemputWilayah.objects.select_related('wilayah'),
+        error_messages={
+            'required': 'Pilih jadwal penjemputan dari daftar jadwal wilayah Anda.',
+            'null': 'Pilih jadwal penjemputan dari daftar jadwal wilayah Anda.',
+            'does_not_exist': 'Jadwal penjemputan tidak ditemukan.',
+            'incorrect_type': 'Jadwal penjemputan tidak valid.',
+        },
+    )
+
     class Meta:
         model = Penjemputan
         fields = [
-            'estimasi_berat', 'alamat_jemput', 'jadwal',
+            'estimasi_berat', 'alamat_jemput', 'jadwal_wilayah',
             'latitude', 'longitude', 'catatan_lokasi',
         ]
         extra_kwargs = {
@@ -517,40 +529,58 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
         from .services.pickups import validate_estimasi_berat
         return validate_estimasi_berat(value)
 
-    def validate_jadwal(self, value):
-        from .services.pickups import validate_jadwal
-        validate_jadwal(value)
-        return value
-
     def validate(self, attrs):
         request = self.context['request']
-        from .services.pickups import (
-            validate_koordinat,
-            validate_max_pickups_per_week,
-            validate_nasabah_owner,
-            validate_wilayah_layanan,
-        )
+        from .services.jadwal_jemput import validate_booking
+        from .services.pickups import validate_koordinat, validate_nasabah_owner
         from .services.profile import require_complete_address
         validate_nasabah_owner(request.user)
         require_complete_address(request.user, 'mengajukan penjemputan')
-        validate_wilayah_layanan(request.user)
-        validate_max_pickups_per_week(request.user, attrs.get('jadwal'))
+        validate_booking(request.user, attrs['jadwal_wilayah'])
         validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
     @transaction.atomic
     def create(self, validated_data):
+        from .services.jadwal_jemput import jadwal_datetime, validate_booking
         user = self.context['request'].user
-        if user.kelurahan_id:
-            # Lock the WilayahLayanan row to serialize concurrent submissions from the same kelurahan
-            from .models import WilayahLayanan
-            from .services.pickups import validate_max_pickups_per_week
-            WilayahLayanan.objects.select_for_update().filter(pk=user.kelurahan_id).first()
-            validate_max_pickups_per_week(user, validated_data.get('jadwal'))
-
+        # Kunci jadwal lalu cek ulang — cegah pesanan ganda saat tap beruntun.
+        jadwal = (
+            JadwalJemputWilayah.objects.select_for_update()
+            .select_related('wilayah').get(pk=validated_data['jadwal_wilayah'].pk)
+        )
+        validate_booking(user, jadwal)
+        validated_data['jadwal_wilayah'] = jadwal
+        validated_data['jadwal'] = jadwal_datetime(jadwal)
         validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'
         return Penjemputan.objects.create(**validated_data)
+
+
+class JadwalJemputWilayahSerializer(serializers.ModelSerializer):
+    wilayah_nama = serializers.CharField(source='wilayah.__str__', read_only=True)
+    jumlah_pesanan = serializers.IntegerField(read_only=True, default=0)
+    bisa_dipesan = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JadwalJemputWilayah
+        fields = [
+            'id', 'wilayah', 'wilayah_nama', 'tanggal', 'jam_mulai', 'jam_selesai',
+            'catatan', 'jumlah_pesanan', 'bisa_dipesan', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_at']
+
+    def get_bisa_dipesan(self, obj) -> bool:
+        from .services.jadwal_jemput import is_bookable
+        return is_bookable(obj)
+
+    def create(self, validated_data):
+        from .services.jadwal_jemput import create_jadwal
+        request = self.context.get('request')
+        return create_jadwal(
+            dibuat_oleh=getattr(request, 'user', None),
+            **validated_data,
+        )
 
 
 class PenjemputanUpdateSerializer(serializers.ModelSerializer):
@@ -640,6 +670,9 @@ class PickupStatusActionSerializer(serializers.Serializer):
 
 class PenjemputanSerializer(serializers.ModelSerializer):
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+    jam_selesai = serializers.TimeField(
+        source='jadwal_wilayah.jam_selesai', read_only=True, default=None,
+    )
     petugas_nama = serializers.CharField(
         source='petugas.nama_lengkap', read_only=True, default=None,
     )
@@ -648,8 +681,8 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         model = Penjemputan
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
-            'estimasi_berat', 'alamat_jemput', 'jadwal', 'status',
-            'latitude', 'longitude', 'catatan_lokasi',
+            'estimasi_berat', 'alamat_jemput', 'jadwal', 'jadwal_wilayah',
+            'jam_selesai', 'status', 'latitude', 'longitude', 'catatan_lokasi',
         ]
         read_only_fields = fields
 

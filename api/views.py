@@ -15,11 +15,8 @@ from .services import (
     debit_nasabah_saldo,
 )
 from .services.pickups import (
-    MAX_PICKUPS_PER_WEEK_PER_WILAYAH,
     approve_pickup,
     assign_pickup,
-    pickups_in_week_by_wilayah,
-    week_bounds_wit,
     reject_pickup,
     update_pickup_status,
 )
@@ -901,60 +898,9 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
     ordering = ['kelurahan', 'rt', 'rw']
 
     def get_permissions(self):
-        if self.action in ('list', 'retrieve', 'kuota'):
+        if self.action in ('list', 'retrieve'):
             return [IsAuthenticated(), IsMonitorReadOnly()]
         return [IsAuthenticated(), IsAdminOrKoordinator()]
-
-    @action(detail=False, methods=['get'], url_path='kuota')
-    def kuota(self, request):
-        """Pemakaian kuota jemput 2×/minggu per wilayah (minggu Senin–Minggu WIT).
-
-        `?tanggal=YYYY-MM-DD` memilih minggu; default minggu ini.
-        """
-        from datetime import datetime, time, timedelta
-
-        from django.utils import timezone
-        from django.utils.dateparse import parse_date
-
-        ref = None
-        raw = request.query_params.get('tanggal')
-        if raw:
-            tanggal = parse_date(raw)
-            if tanggal is None:
-                return error_response(
-                    message='Format tanggal harus YYYY-MM-DD.',
-                    code='VALIDATION_ERROR',
-                    errors={'tanggal': ['Format tanggal harus YYYY-MM-DD.']},
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    request=request,
-                )
-            ref = timezone.make_aware(datetime.combine(tanggal, time(12)))
-
-        start, end = week_bounds_wit(ref)
-        counts = pickups_in_week_by_wilayah(ref)
-        maks = MAX_PICKUPS_PER_WEEK_PER_WILAYAH
-        data = [
-            {
-                'id': w.id,
-                'kelurahan': w.kelurahan,
-                'rt': w.rt,
-                'rw': w.rw,
-                'aktif': w.aktif,
-                'terpakai': counts.get(w.id, 0),
-                'maks': maks,
-                'sisa': max(maks - counts.get(w.id, 0), 0),
-            }
-            for w in self.filter_queryset(self.get_queryset())
-        ]
-        return success_response(
-            data=data,
-            meta={
-                'minggu_mulai': start.date().isoformat(),
-                'minggu_selesai': (end - timedelta(days=1)).date().isoformat(),
-            },
-            message='Kuota penjemputan berhasil diambil.',
-            request=request,
-        )
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -996,6 +942,85 @@ class WilayahLayananViewSet(viewsets.ModelViewSet):
         return success_response(
             message='Wilayah layanan berhasil dihapus.',
             status_code=status.HTTP_200_OK,
+            request=request,
+        )
+
+
+class JadwalJemputWilayahViewSet(viewsets.ModelViewSet):
+    """Jadwal jemput per wilayah (maks 2/minggu). Nasabah: jadwal wilayahnya yang masih bisa dipesan.
+
+    Filter: `?wilayah=<id>`, `?tanggal=YYYY-MM-DD` (minggu Senin–Minggu WIT yang memuat tanggal).
+    """
+
+    serializer_class = JadwalJemputWilayahSerializer
+    http_method_names = ['get', 'post', 'delete', 'head', 'options']
+    pagination_class = None
+
+    def get_permissions(self):
+        if self.action in ('create', 'destroy'):
+            return [IsAuthenticated(), IsAdminOrKoordinator()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        from datetime import datetime, time
+
+        from django.db.models import Count, Q
+        from django.utils.dateparse import parse_date
+
+        from .services.jadwal_jemput import ACTIVE_PICKUP_STATUSES, today_wit
+        from .services.pickups import WIT, week_bounds_wit
+
+        qs = JadwalJemputWilayah.objects.select_related('wilayah').annotate(
+            jumlah_pesanan=Count(
+                'penjemputan',
+                filter=Q(penjemputan__status__in=ACTIVE_PICKUP_STATUSES),
+            ),
+        )
+        user = self.request.user
+        if user.role == 'nasabah':
+            if not user.kelurahan_id:
+                return qs.none()
+            return qs.filter(
+                wilayah_id=user.kelurahan_id, wilayah__aktif=True,
+                tanggal__gt=today_wit(),
+            )
+
+        params = self.request.query_params
+        if params.get('wilayah'):
+            qs = qs.filter(wilayah_id=params['wilayah'])
+        tanggal = parse_date(params.get('tanggal') or '')
+        if tanggal:
+            start, end = week_bounds_wit(datetime.combine(tanggal, time(12), tzinfo=WIT))
+            qs = qs.filter(tanggal__gte=start.date(), tanggal__lt=end.date())
+        return qs
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return success_response(
+            data=serializer.data,
+            message='Jadwal penjemputan berhasil diambil.',
+            request=request,
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        jadwal = serializer.save()
+        output = self.get_serializer(self.get_queryset().get(pk=jadwal.pk))
+        return success_response(
+            data=output.data,
+            message='Jadwal penjemputan ditambahkan. Warga di wilayah ini sudah diberi notifikasi.',
+            status_code=status.HTTP_201_CREATED,
+            request=request,
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        from .services.jadwal_jemput import validate_can_delete
+        instance = self.get_object()
+        validate_can_delete(instance)
+        instance.delete()
+        return success_response(
+            message='Jadwal penjemputan berhasil dihapus.',
             request=request,
         )
 

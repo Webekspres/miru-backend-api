@@ -134,6 +134,11 @@ class Penjemputan(models.Model):
         help_text='Patokan lokasi (opsional), mis. dekat warung X.',
     )
     jadwal = models.DateTimeField()
+    jadwal_wilayah = models.ForeignKey(
+        'JadwalJemputWilayah', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='penjemputan',
+        help_text='Jadwal jemput wilayah yang dipilih nasabah.',
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
 
     class Meta:
@@ -351,6 +356,7 @@ class Notifikasi(models.Model):
         ('pengaduan', 'Pengaduan'),
         ('pengumuman', 'Pengumuman'),
         ('harga', 'Perubahan Harga'),
+        ('jadwal_jemput', 'Jadwal Penjemputan'),
         ('sistem', 'Sistem'),
     )
 
@@ -559,6 +565,37 @@ EDUKASI_MARKDOWN_SUBSET = (
     'Tidak perlu HTML; server menyimpan teks mentah tanpa sanitizer HTML berat.'
 )
 
+
+
+class JadwalJemputWilayah(models.Model):
+    """Hari jemput yang ditetapkan admin per wilayah — maks 2 per minggu (WIT)."""
+
+    wilayah = models.ForeignKey(
+        WilayahLayanan, on_delete=models.CASCADE, related_name='jadwal_jemput',
+    )
+    tanggal = models.DateField()
+    jam_mulai = models.TimeField()
+    jam_selesai = models.TimeField()
+    catatan = models.CharField(max_length=255, blank=True, default='')
+    dibuat_oleh = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Jadwal Jemput Wilayah'
+        verbose_name_plural = 'Jadwal Jemput Wilayah'
+        ordering = ['tanggal', 'jam_mulai']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['wilayah', 'tanggal'], name='uniq_jadwal_jemput_wilayah_tanggal',
+            ),
+        ]
+        indexes = [models.Index(fields=['tanggal'])]
+
+    def __str__(self):
+        return f'{self.wilayah} — {self.tanggal:%Y-%m-%d}'
 
 class KontenEdukasi(models.Model):
     """Konten edukasi sampah — artikel/panduan untuk nasabah (Modul 4)."""

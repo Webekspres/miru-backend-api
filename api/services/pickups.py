@@ -1,8 +1,8 @@
 """Pickup request validation and status state machine.
 
-Fase 8.3 — Wilayah layanan & kuota penjemputan:
+Fase 8.3 — Wilayah layanan penjemputan:
 - Validasi penjemputan hanya di wilayah terdaftar
-- Validasi frekuensi max 2x seminggu per wilayah
+- Frekuensi 2x seminggu per wilayah: lihat services/jadwal_jemput.py
 
 T3 — Alur approve+assign atomik, validasi jadwal, koordinat opsional.
 """
@@ -19,7 +19,6 @@ from api.exceptions import InvalidStatusTransitionError
 from api.models import PengaturanInstitusi, Penjemputan, User, WilayahLayanan
 
 MIN_ESTIMASI_BERAT_KG = Decimal('5')
-MAX_PICKUPS_PER_WEEK_PER_WILAYAH = 2
 MIN_JADWAL_AHEAD = timedelta(hours=1)
 WIT = ZoneInfo('Asia/Jayapura')
 
@@ -73,12 +72,6 @@ def validate_wilayah_layanan(nasabah: User) -> None:
         })
 
 
-# Status yang memakai kuota mingguan (ditolak/dibatalkan tidak dihitung).
-KUOTA_STATUSES = (
-    'menunggu', 'disetujui', 'dijadwalkan', 'dalam_perjalanan', 'dijemput', 'selesai',
-)
-
-
 def week_bounds_wit(ref=None):
     """(Senin 00:00, Senin berikutnya 00:00) WIT untuk minggu yang memuat `ref`."""
     ref = ref or timezone.now()
@@ -89,46 +82,6 @@ def week_bounds_wit(ref=None):
         hour=0, minute=0, second=0, microsecond=0,
     )
     return start, start + timedelta(days=7)
-
-
-def pickups_in_week_by_wilayah(ref=None) -> dict[int, int]:
-    """Jumlah penjemputan pemakai kuota per kelurahan_id pada minggu `ref`."""
-    from django.db.models import Count
-
-    start, end = week_bounds_wit(ref)
-    rows = (
-        Penjemputan.objects
-        .filter(
-            nasabah__kelurahan_id__isnull=False,
-            jadwal__gte=start,
-            jadwal__lt=end,
-            status__in=KUOTA_STATUSES,
-        )
-        .values('nasabah__kelurahan_id')
-        .annotate(total=Count('id'))
-    )
-    return {r['nasabah__kelurahan_id']: r['total'] for r in rows}
-
-
-def validate_max_pickups_per_week(nasabah: User, jadwal=None) -> None:
-    """Validasi max 2x penjemputan per minggu (Senin–Minggu WIT) per wilayah.
-
-    Minggu dihitung dari `jadwal` yang diminta (default: sekarang).
-    Jika nasabah tidak punya kelurahan, lewati validasi.
-    """
-    if nasabah.kelurahan_id is None:
-        return
-
-    count = pickups_in_week_by_wilayah(jadwal).get(nasabah.kelurahan_id, 0)
-    if count >= MAX_PICKUPS_PER_WEEK_PER_WILAYAH:
-        raise ValidationError({
-            'jadwal': [
-                f'Maksimal {MAX_PICKUPS_PER_WEEK_PER_WILAYAH}x penjemputan '
-                f'per minggu per wilayah. '
-                f'Minggu jadwal ini sudah ada {count} penjemputan untuk wilayah Anda. '
-                f'Silakan pilih jadwal di minggu berikutnya.'
-            ],
-        })
 
 
 def validate_estimasi_berat(berat: Decimal) -> Decimal:

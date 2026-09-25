@@ -5,7 +5,9 @@ from zoneinfo import ZoneInfo
 from django.utils import timezone
 from rest_framework import status
 
-from api.models import Notifikasi, Penjemputan, PengaturanInstitusi
+from api.models import (
+    JadwalJemputWilayah, Notifikasi, Penjemputan, PengaturanInstitusi, WilayahLayanan,
+)
 
 from .base import EnvelopeAPITestCase
 
@@ -14,18 +16,26 @@ WIT = ZoneInfo('Asia/Jayapura')
 
 class PickupCreateTests(EnvelopeAPITestCase):
     def setUp(self):
+        self.wilayah = WilayahLayanan.objects.create(kelurahan='Kwamki')
         self.nasabah = self.create_nasabah(username='nasabah_pickup')
+        self.nasabah.kelurahan = self.wilayah
+        self.nasabah.save()
         self.petugas = self.create_petugas()
         self.admin = self.create_admin(username='admin_pickup')
-        self.jadwal = (timezone.now().astimezone(WIT) + timedelta(days=2)).replace(
-            hour=9, minute=0, second=0, microsecond=0,
+        self.jadwal = self._jadwal(days=2)
+
+    def _jadwal(self, days, jam_mulai=time(9, 0), jam_selesai=time(12, 0), wilayah=None):
+        return JadwalJemputWilayah.objects.create(
+            wilayah=wilayah or self.wilayah,
+            tanggal=timezone.now().astimezone(WIT).date() + timedelta(days=days),
+            jam_mulai=jam_mulai, jam_selesai=jam_selesai,
         )
 
     def _payload(self, **overrides):
         payload = {
             'estimasi_berat': '8.00',
             'alamat_jemput': 'Jl. Cendrawasih, Timika',
-            'jadwal': self.jadwal.isoformat(),
+            'jadwal_wilayah': self.jadwal.id,
         }
         payload.update(overrides)
         return payload
@@ -38,6 +48,11 @@ class PickupCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['status'], 'menunggu')
         self.assertEqual(data['nasabah'], self.nasabah.id)
         self.assertIsNone(data['petugas'])
+        self.assertEqual(data['jadwal_wilayah'], self.jadwal.id)
+        self.assertEqual(data['jam_selesai'], '12:00:00')
+        pickup = Penjemputan.objects.get(pk=data['id'])
+        self.assertEqual(pickup.jadwal.astimezone(WIT).date(), self.jadwal.tanggal)
+        self.assertEqual(pickup.jadwal.astimezone(WIT).time(), time(9, 0))
 
     def test_create_out_of_hours_sets_meta_warning(self):
         settings = PengaturanInstitusi.load()
@@ -45,13 +60,11 @@ class PickupCreateTests(EnvelopeAPITestCase):
         settings.jam_tutup = time(17, 0)
         settings.save()
 
-        late = (timezone.now().astimezone(WIT) + timedelta(days=2)).replace(
-            hour=20, minute=0, second=0, microsecond=0,
-        )
+        late = self._jadwal(days=3, jam_mulai=time(20, 0), jam_selesai=time(21, 0))
         self.auth_as(self.nasabah)
         response = self.client.post(
             '/api/pickups/',
-            self._payload(jadwal=late.isoformat()),
+            self._payload(jadwal_wilayah=late.id),
             format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -104,35 +117,54 @@ class PickupCreateTests(EnvelopeAPITestCase):
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_reject_jadwal_in_past(self):
+    def test_reject_without_jadwal_wilayah(self):
         self.auth_as(self.nasabah)
-        past = timezone.now() - timedelta(hours=2)
+        payload = self._payload()
+        del payload['jadwal_wilayah']
+        response = self.client.post('/api/pickups/', payload, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('jadwal_wilayah', response.data['errors'])
+
+    def test_reject_booking_closed_h_minus_1(self):
+        today = self._jadwal(days=0)
+        self.auth_as(self.nasabah)
         response = self.client.post(
-            '/api/pickups/',
-            self._payload(jadwal=past.isoformat()),
-            format='json',
+            '/api/pickups/', self._payload(jadwal_wilayah=today.id), format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('H-1', response.data['message'])
+
+    def test_reject_jadwal_other_wilayah(self):
+        other = self._jadwal(days=2, wilayah=WilayahLayanan.objects.create(kelurahan='Nawaripi'))
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/pickups/', self._payload(jadwal_wilayah=other.id), format='json',
         )
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_reject_jadwal_less_than_one_hour(self):
+    def test_reject_without_kelurahan(self):
+        self.nasabah.kelurahan = None
+        self.nasabah.save()
         self.auth_as(self.nasabah)
-        soon = timezone.now() + timedelta(minutes=30)
-        response = self.client.post(
-            '/api/pickups/',
-            self._payload(jadwal=soon.isoformat()),
-            format='json',
-        )
+        response = self.client.post('/api/pickups/', self._payload(), format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('kelurahan', response.data['message'])
 
-    def test_accept_jadwal_more_than_one_hour(self):
+    def test_reject_double_booking_same_jadwal(self):
         self.auth_as(self.nasabah)
-        ahead = timezone.now() + timedelta(hours=2)
-        response = self.client.post(
-            '/api/pickups/',
-            self._payload(jadwal=ahead.isoformat()),
-            format='json',
-        )
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        first = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(first.status_code, status.HTTP_201_CREATED)
+        second = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(second.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_many_nasabah_can_book_same_jadwal(self):
+        for i in range(3):
+            warga = self.create_nasabah(username=f'warga_{i}')
+            warga.kelurahan = self.wilayah
+            warga.save()
+            self.auth_as(warga)
+            response = self.client.post('/api/pickups/', self._payload(), format='json')
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_notifies_admin_and_koordinator(self):
         admin = self.admin

@@ -62,6 +62,7 @@ router.register(r'partner-sales', PenjualanMitraViewSet, basename='partner-sale'
 router.register(r'complaints', PengaduanViewSet, basename='complaint')
 router.register(r'edukasi', KontenEdukasiViewSet, basename='edukasi')
 router.register(r'wilayah', WilayahLayananViewSet, basename='wilayah')
+router.register(r'jadwal-jemput', JadwalJemputWilayahViewSet, basename='jadwal-jemput')
 router.register(r'notifications', NotifikasiViewSet, basename='notification')
 router.register(r'device-tokens', DeviceTokenViewSet, basename='device-token')
 

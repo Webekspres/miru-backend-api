@@ -546,12 +546,18 @@ class AddressGateTests(EnvelopeAPITestCase):
         self.auth_as(self.nasabah)
 
     def test_pickup_blocked_without_address(self):
+        from datetime import time, timedelta
         from django.utils import timezone
-        from datetime import timedelta
+        from api.models import JadwalJemputWilayah, WilayahLayanan
+        wilayah = WilayahLayanan.objects.create(kelurahan='Kwamki')
+        jadwal = JadwalJemputWilayah.objects.create(
+            wilayah=wilayah, tanggal=timezone.localdate() + timedelta(days=2),
+            jam_mulai=time(9), jam_selesai=time(12),
+        )
         response = self.client.post('/api/pickups/', {
             'estimasi_berat': '10.00',
             'alamat_jemput': 'Jl. Test',
-            'jadwal': (timezone.now() + timedelta(days=2)).isoformat(),
+            'jadwal_wilayah': jadwal.id,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('alamat', response.data['errors'])
