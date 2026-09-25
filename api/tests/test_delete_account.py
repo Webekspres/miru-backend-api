@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
+from django.test import override_settings
 from rest_framework import status
 
 from api.models import (
@@ -18,6 +19,7 @@ from .base import EnvelopeAPITestCase
 User = get_user_model()
 
 
+@override_settings(OTP_WHATSAPP_ENABLED=True)
 class DeleteAccountTests(EnvelopeAPITestCase):
     def setUp(self):
         cache.clear()

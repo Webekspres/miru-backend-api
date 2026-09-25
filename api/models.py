@@ -13,6 +13,14 @@ class User(AbstractUser):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='nasabah')
     nama_lengkap = models.CharField(max_length=255)
     no_hp = models.CharField(max_length=15, blank=True)
+    email_verified = models.BooleanField(
+        default=False,
+        help_text='True jika email sudah diverifikasi OTP email',
+    )
+    email_exempt = models.BooleanField(
+        default=False,
+        help_text='Akun dibuat admin tanpa email — tidak wajib verifikasi email',
+    )
     phone_verified = models.BooleanField(
         default=False,
         help_text='True jika nomor HP sudah diverifikasi OTP WhatsApp (T2/T10)',
@@ -47,6 +55,11 @@ class User(AbstractUser):
     poin = models.IntegerField(default=0)
     setuju_kebijakan_data = models.BooleanField(default=False)
     tanggal_persetujuan_kebijakan = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def email_required(self) -> bool:
+        """Wajib isi & verifikasi email sebelum memakai aplikasi/web."""
+        return not self.email_verified and not self.email_exempt
 
     class Meta:
         indexes = [
@@ -134,6 +147,11 @@ class Penjemputan(models.Model):
         help_text='Patokan lokasi (opsional), mis. dekat warung X.',
     )
     jadwal = models.DateTimeField()
+    jadwal_wilayah = models.ForeignKey(
+        'JadwalJemputWilayah', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='penjemputan',
+        help_text='Jadwal jemput wilayah yang dipilih nasabah.',
+    )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
 
     class Meta:
@@ -351,6 +369,7 @@ class Notifikasi(models.Model):
         ('pengaduan', 'Pengaduan'),
         ('pengumuman', 'Pengumuman'),
         ('harga', 'Perubahan Harga'),
+        ('jadwal_jemput', 'Jadwal Penjemputan'),
         ('sistem', 'Sistem'),
     )
 
@@ -436,13 +455,15 @@ class PasswordResetToken(models.Model):
 
 
 class PhoneOTP(models.Model):
-    """OTP WhatsApp untuk reset password / verifikasi HP (T2). Kode disimpan sebagai hash."""
+    """OTP (email; WhatsApp jika diaktifkan) untuk registrasi, verifikasi, reset, hapus akun. Kode di-hash."""
 
     PURPOSE_PASSWORD_RESET = 'password_reset'
     PURPOSE_PHONE_VERIFY = 'phone_verify'
     PURPOSE_REGISTRATION = 'registration'
     PURPOSE_ACCOUNT_DELETION = 'account_deletion'
+    PURPOSE_EMAIL_VERIFY = 'email_verify'
     PURPOSE_CHOICES = (
+        (PURPOSE_EMAIL_VERIFY, 'Verifikasi Email'),
         (PURPOSE_PASSWORD_RESET, 'Reset Password'),
         (PURPOSE_PHONE_VERIFY, 'Verifikasi HP'),
         (PURPOSE_REGISTRATION, 'Registrasi'),
@@ -453,7 +474,9 @@ class PhoneOTP(models.Model):
         User, on_delete=models.CASCADE, related_name='phone_otps',
     )
     purpose = models.CharField(max_length=32, choices=PURPOSE_CHOICES)
-    phone = models.CharField(max_length=15)
+    phone = models.CharField(max_length=15, blank=True, default='')
+    # Tujuan OTP email (email baru disimpan ke user hanya setelah OTP benar).
+    email = models.EmailField(blank=True, default='')
     code_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
@@ -528,7 +551,14 @@ class PoinTransaksi(models.Model):
 class WilayahLayanan(models.Model):
     """Referensi wilayah layanan — kelurahan/kampung di Distrik Mimika Baru."""
 
+    JENIS_CHOICES = [('kelurahan', 'Kelurahan'), ('kampung', 'Kampung')]
+
     kelurahan = models.CharField(max_length=100, db_index=True)
+    kode = models.CharField(
+        max_length=16, unique=True, null=True, blank=True,
+        help_text='Kode Kemendagri kelurahan/kampung (mis. 94.04.01.1001)',
+    )
+    jenis = models.CharField(max_length=10, choices=JENIS_CHOICES, blank=True, default='')
     rt = models.CharField(max_length=10, blank=True, default='', help_text='RT (opsional)')
     rw = models.CharField(max_length=10, blank=True, default='', help_text='RW (opsional)')
     aktif = models.BooleanField(default=True, help_text='Wilayah yang masih dilayani')
@@ -559,6 +589,37 @@ EDUKASI_MARKDOWN_SUBSET = (
     'Tidak perlu HTML; server menyimpan teks mentah tanpa sanitizer HTML berat.'
 )
 
+
+
+class JadwalJemputWilayah(models.Model):
+    """Hari jemput yang ditetapkan admin per wilayah — maks 2 per minggu (WIT)."""
+
+    wilayah = models.ForeignKey(
+        WilayahLayanan, on_delete=models.CASCADE, related_name='jadwal_jemput',
+    )
+    tanggal = models.DateField()
+    jam_mulai = models.TimeField()
+    jam_selesai = models.TimeField()
+    catatan = models.CharField(max_length=255, blank=True, default='')
+    dibuat_oleh = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Jadwal Jemput Wilayah'
+        verbose_name_plural = 'Jadwal Jemput Wilayah'
+        ordering = ['tanggal', 'jam_mulai']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['wilayah', 'tanggal'], name='uniq_jadwal_jemput_wilayah_tanggal',
+            ),
+        ]
+        indexes = [models.Index(fields=['tanggal'])]
+
+    def __str__(self):
+        return f'{self.wilayah} — {self.tanggal:%Y-%m-%d}'
 
 class KontenEdukasi(models.Model):
     """Konten edukasi sampah — artikel/panduan untuk nasabah (Modul 4)."""

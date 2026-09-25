@@ -91,7 +91,7 @@ Poin = floor(Total Nilai Setoran / 1000)
 
 - **Hari**: Senin – Sabtu
 - **Jam**: 08.00 – 17.00 WIT (UTC+9)
-- **Penjemputan**: Maksimal 2x seminggu per wilayah, pesan minimal H-1.
+- **Penjemputan**: Terjadwal 2x seminggu per wilayah — admin menetapkan maks 2 hari jemput/wilayah/minggu (hari bebas); nasabah memilih dari jadwal itu, pesan minimal H-1.
 
 ## G. Aturan Perubahan Harga
 
@@ -119,7 +119,7 @@ Poin = floor(Total Nilai Setoran / 1000)
 | Konversi poin ke reward | 100 poin ≈ Rp10.000 |
 | Masa berlaku poin | 1 tahun |
 | Target penyelesaian pengaduan | 1-2 hari kerja |
-| Frekuensi penjemputan | Max 2x/minggu/wilayah |
+| Frekuensi penjemputan | Max 2 hari jemput/minggu/wilayah (jadwal admin) |
 
 ---
 
@@ -174,7 +174,7 @@ Indikator ini digunakan oleh Koordinator Program dan Pemerintah Distrik untuk:
 
 - **Tahap awal**: Terbatas pada kelurahan sekitar kantor Distrik Mimika Baru
 - **Perluasan**: Dilakukan secara bertahap
-- **Frekuensi**: Maksimal 2x seminggu per wilayah
+- **Frekuensi**: Maksimal 2 hari jemput seminggu per wilayah, ditetapkan admin (hari bebas); warga di wilayah itu dinotifikasi saat jadwal dibuat
 - **Pemesanan**: Minimal H-1 sebelum jadwal
 - **Minimal berat**: 5 kg total estimasi
 

@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from api.models import (
+    JadwalJemputWilayah,
     DetailSetoran,
     KategoriSampah,
     KontenEdukasi,
@@ -24,6 +25,7 @@ from api.models import (
     WilayahLayanan,
 )
 from api.notification_signals import connect_notification_signals, disconnect_notification_signals
+from api.services.wilayah import KELURAHAN_MIMIKA_BARU, upsert_kelurahan
 
 
 WASTE_CATEGORIES = [
@@ -44,18 +46,13 @@ REWARDS = [
     ('Alat Kebersihan', 300, 15),
 ]
 
-WILAYAH_KELURAHAN = [
-    'Timika Baru',
-    'Mimika Baru',
-    'Nayaro',
-    'Kuala Kencana',
-    'Kampung Harapan',
-    'Wonosari Jaya',
-    'Hiripau',
-    'Wania',
-    'Koperapoka',
-    'Karangsari',
-]
+def _demo_coord(i):
+    """Titik demo tersebar di sekitar pusat Timika (bukan alamat sungguhan)."""
+    rng = random.Random(i)
+    return (
+        Decimal(f'{-4.5467 + rng.uniform(-0.03, 0.03):.6f}'),
+        Decimal(f'{136.8833 + rng.uniform(-0.03, 0.03):.6f}'),
+    )
 
 
 EDUKASI_CONTENT = [
@@ -290,16 +287,48 @@ class Command(BaseCommand):
         self._log(f'-> {label}...')
 
     def _seed_wilayah(self):
-        """Seed data wilayah layanan dari data dictionary §K."""
+        """Kelurahan/kampung resmi Distrik Mimika Baru (data dictionary §K)."""
+        created = upsert_kelurahan(WilayahLayanan, KELURAHAN_MIMIKA_BARU)
+        return created or len(KELURAHAN_MIMIKA_BARU)
+
+    def _verify_demo_emails(self):
+        """Akun demo: email contoh terverifikasi agar tidak tertahan gerbang OTP email."""
+        for user in User.objects.filter(email_verified=False, is_superuser=False):
+            user.email = user.email or f'{user.username}@example.com'
+            user.email_verified = True
+            user.save(update_fields=['email', 'email_verified'])
+
+    def _assign_kelurahan(self):
+        """Nasabah tanpa kelurahan dibagi rata ke wilayah aktif (syarat ajukan jemput)."""
+        wilayah = list(WilayahLayanan.objects.filter(aktif=True, rt='', rw='').order_by('id'))
+        if not wilayah:
+            return
+        nasabah = User.objects.filter(role='nasabah', kelurahan__isnull=True).order_by('id')
+        for i, user in enumerate(nasabah):
+            user.kelurahan = wilayah[i % len(wilayah)]
+            user.save(update_fields=['kelurahan'])
+
+    def _seed_jadwal_jemput(self):
+        """Jadwal demo Selasa & Jumat 08.00–12.00 untuk 2 minggu ke depan per wilayah."""
+        from datetime import time
+
+        from api.services.jadwal_jemput import today_wit
+
+        self._assign_kelurahan()
+        today = today_wit()
+        dates = [
+            today + timedelta(days=d) for d in range(1, 15)
+            if (today + timedelta(days=d)).weekday() in (1, 4)
+        ]
         created = 0
-        for kelurahan in WILAYAH_KELURAHAN:
-            _, was_created = WilayahLayanan.objects.get_or_create(
-                kelurahan=kelurahan,
-                defaults={'aktif': True},
-            )
-            if was_created:
-                created += 1
-        return created or len(WILAYAH_KELURAHAN)
+        for wilayah in WilayahLayanan.objects.filter(aktif=True):
+            for tanggal in dates:
+                _, was_created = JadwalJemputWilayah.objects.get_or_create(
+                    wilayah=wilayah, tanggal=tanggal,
+                    defaults={'jam_mulai': time(8), 'jam_selesai': time(12)},
+                )
+                created += int(was_created)
+        return created
 
     def _ensure_avatar(self, user):
         if user.avatar_url:
@@ -403,8 +432,11 @@ class Command(BaseCommand):
         counts['edukasi'] = self._seed_edukasi()
         self._step('Wilayah layanan')
         counts['wilayah'] = self._seed_wilayah()
+        self._step('Jadwal jemput wilayah')
+        counts['jadwal_jemput'] = self._seed_jadwal_jemput()
 
         if minimal:
+            self._verify_demo_emails()
             connect_notification_signals()
             total = sum(counts.values())
             self._print_summary(total, counts, minimal=True)
@@ -444,6 +476,11 @@ class Command(BaseCommand):
         self._step('Notifikasi')
         counts['notifications'] = self._seed_notifications(nasabah_list, showcase_users)
 
+        # Terakhir: langkah sebelumnya menyimpan ulang objek nasabah di memori.
+        self._step('Kelurahan nasabah')
+        self._assign_kelurahan()
+        self._verify_demo_emails()
+
         connect_notification_signals()
 
         total = sum(counts.values())
@@ -474,6 +511,7 @@ class Command(BaseCommand):
         KategoriSampah.objects.all().delete()
         Reward.objects.all().delete()
         MitraPengepul.objects.all().delete()
+        JadwalJemputWilayah.objects.all().delete()
         WilayahLayanan.objects.all().delete()
 
     def _print_summary(self, total, counts, minimal):
@@ -643,11 +681,12 @@ class Command(BaseCommand):
                     'nama_lengkap': f'Nasabah {i:03d}',
                     'role': 'nasabah',
                     'no_hp': f'0812{i:07d}'[:15],
-                    'alamat': f'Kelurahan Timika Baru RT {i % 20:02d}',
+                    'alamat': f'Jl. Contoh Warga No. {i}',
                     'saldo': Decimal('0.00'),
                     'poin': 0,
                     'phone_verified': True,
                 }
+            defaults['latitude'], defaults['longitude'] = _demo_coord(i)
 
             user, created = User.objects.get_or_create(
                 username=username, defaults=defaults,
@@ -716,6 +755,8 @@ class Command(BaseCommand):
                 petugas=random.choice(list(petugas)) if petugas else None,
                 estimasi_berat=Decimal(str(random.randint(5, 30))),
                 alamat_jemput=nasabah.alamat or 'Timika',
+                latitude=nasabah.latitude,
+                longitude=nasabah.longitude,
                 jadwal=timezone.now() + timedelta(days=random.randint(1, 7)),
                 status=random.choice(statuses),
             )
@@ -840,6 +881,7 @@ class Command(BaseCommand):
                 nasabah=user, petugas=petugas,
                 estimasi_berat=berat,
                 alamat_jemput=user.alamat or 'Timika',
+                latitude=user.latitude, longitude=user.longitude,
                 jadwal=jadwal, status=status,
             )
             counts['showcase_pickups'] += 1

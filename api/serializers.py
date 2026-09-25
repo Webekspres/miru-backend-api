@@ -16,8 +16,20 @@ from .services.deposits import (
 PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_superuser')
 
 
+def validate_kelurahan_layanan(value):
+    """Kelurahan harus wilayah aktif di Distrik Mimika Baru."""
+    if value is not None and not value.aktif:
+        from .services.wilayah import PESAN_CAKUPAN
+
+        raise serializers.ValidationError(
+            f'Kelurahan/kampung ini tidak dilayani. {PESAN_CAKUPAN}'
+        )
+    return value
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     qr = serializers.SerializerMethodField()
+    email_required = serializers.BooleanField(read_only=True)
     kelurahan_nama = serializers.CharField(
         source='kelurahan.kelurahan', read_only=True, default=None,
     )
@@ -29,11 +41,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
             'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'date_joined', 'qr',
-            'avatar_url',
+            'avatar_url', 'email', 'email_verified', 'email_required',
         ]
         read_only_fields = [
             'id', 'role', 'saldo', 'poin', 'is_active',
             'date_joined', 'qr', 'phone_verified',
+            # Email hanya berubah lewat OTP (/api/auth/email/*).
+            'email', 'email_verified', 'email_required',
         ]
 
     def get_qr(self, obj) -> dict:
@@ -51,6 +65,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.phone_verified = False
             instance.save(update_fields=['phone_verified'])
         return instance
+
+    def validate_kelurahan(self, value):
+        return validate_kelurahan_layanan(value)
 
     def validate_username(self, value):
         value = (value or '').strip()
@@ -168,16 +185,37 @@ class NasabahLookupSerializer(serializers.ModelSerializer):
 
 class UserAdminSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, min_length=6)
+    kelurahan_nama = serializers.CharField(
+        source='kelurahan.kelurahan', read_only=True, default=None,
+    )
+    # Pendaftaran nasabah dibantu admin/koordinator: consent PDP tetap wajib.
+    setuju_kebijakan_data = serializers.BooleanField(write_only=True, required=False)
+    email_required = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = User
         fields = [
             'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
-            'kelurahan', 'rt', 'rw',
+            'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'avatar_url',
+            'setuju_kebijakan_data',
+            'email', 'email_verified', 'email_exempt', 'email_required',
         ]
-        read_only_fields = ['id', 'phone_verified']
+        read_only_fields = ['id', 'phone_verified', 'email_verified', 'email_exempt']
+
+    def validate_email(self, value):
+        from .services.email_otp import normalize_email
+        value = normalize_email(value)
+        if value and (
+            User.objects.filter(email__iexact=value, email_verified=True)
+            .exclude(pk=getattr(self.instance, 'pk', None)).exists()
+        ):
+            raise serializers.ValidationError('Email sudah dipakai akun lain.')
+        return value
+
+    def validate_kelurahan(self, value):
+        return validate_kelurahan_layanan(value)
 
     def validate_username(self, value):
         qs = User.objects.filter(username__iexact=value)
@@ -190,19 +228,33 @@ class UserAdminSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.instance is None and not attrs.get('password'):
             raise serializers.ValidationError({'password': ['Password wajib diisi.']})
+        if (
+            self.instance is None
+            and attrs.get('role') == 'nasabah'
+            and not attrs.get('setuju_kebijakan_data')
+        ):
+            raise serializers.ValidationError({
+                'setuju_kebijakan_data': [
+                    'Nasabah harus menyetujui kebijakan data pribadi.'
+                ],
+            })
         return attrs
 
     def validate_role(self, value):
         if value not in dict(User.ROLE_CHOICES):
             raise serializers.ValidationError('Role tidak valid.')
-        if self.instance is None and value == 'nasabah':
-            raise serializers.ValidationError(
-                'Nasabah didaftarkan melalui registrasi publik.'
-            )
         return value
 
     def create(self, validated_data):
+        from django.utils import timezone
         password = validated_data.pop('password')
+        if validated_data.pop('setuju_kebijakan_data', False):
+            validated_data['setuju_kebijakan_data'] = True
+            validated_data['tanggal_persetujuan_kebijakan'] = timezone.now()
+        # Nasabah didaftarkan admin tanpa email: sudah diverifikasi tatap muka,
+        # tidak wajib verifikasi email. Staf selalu wajib verifikasi email.
+        if validated_data.get('role') == 'nasabah' and not validated_data.get('email'):
+            validated_data['email_exempt'] = True
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
         # T10: nomor HP dari admin → belum terverifikasi
@@ -215,6 +267,12 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        validated_data.pop('setuju_kebijakan_data', None)
+        new_email = validated_data.get('email')
+        if new_email is not None and new_email != (instance.email or '').lower():
+            # Email diganti admin → perlu diverifikasi ulang oleh pemiliknya.
+            instance.email_verified = False
+            instance.email_exempt = instance.role == 'nasabah' and not new_email
         new_hp = validated_data.get('no_hp')
         phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():
@@ -484,10 +542,22 @@ TransaksiSetoranSerializer = TransaksiSetoranCreateSerializer
 
 
 class PenjemputanCreateSerializer(serializers.ModelSerializer):
+    """Nasabah memilih salah satu jadwal jemput wilayahnya; `jadwal` diturunkan."""
+
+    jadwal_wilayah = serializers.PrimaryKeyRelatedField(
+        queryset=JadwalJemputWilayah.objects.select_related('wilayah'),
+        error_messages={
+            'required': 'Pilih jadwal penjemputan dari daftar jadwal wilayah Anda.',
+            'null': 'Pilih jadwal penjemputan dari daftar jadwal wilayah Anda.',
+            'does_not_exist': 'Jadwal penjemputan tidak ditemukan.',
+            'incorrect_type': 'Jadwal penjemputan tidak valid.',
+        },
+    )
+
     class Meta:
         model = Penjemputan
         fields = [
-            'estimasi_berat', 'alamat_jemput', 'jadwal',
+            'estimasi_berat', 'alamat_jemput', 'jadwal_wilayah',
             'latitude', 'longitude', 'catatan_lokasi',
         ]
         extra_kwargs = {
@@ -500,40 +570,58 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
         from .services.pickups import validate_estimasi_berat
         return validate_estimasi_berat(value)
 
-    def validate_jadwal(self, value):
-        from .services.pickups import validate_jadwal
-        validate_jadwal(value)
-        return value
-
     def validate(self, attrs):
         request = self.context['request']
-        from .services.pickups import (
-            validate_koordinat,
-            validate_max_pickups_per_week,
-            validate_nasabah_owner,
-            validate_wilayah_layanan,
-        )
+        from .services.jadwal_jemput import validate_booking
+        from .services.pickups import validate_koordinat, validate_nasabah_owner
         from .services.profile import require_complete_address
         validate_nasabah_owner(request.user)
         require_complete_address(request.user, 'mengajukan penjemputan')
-        validate_wilayah_layanan(request.user)
-        validate_max_pickups_per_week(request.user)
+        validate_booking(request.user, attrs['jadwal_wilayah'])
         validate_koordinat(attrs.get('latitude'), attrs.get('longitude'))
         return attrs
 
     @transaction.atomic
     def create(self, validated_data):
+        from .services.jadwal_jemput import jadwal_datetime, validate_booking
         user = self.context['request'].user
-        if user.kelurahan_id:
-            # Lock the WilayahLayanan row to serialize concurrent submissions from the same kelurahan
-            from .models import WilayahLayanan
-            from .services.pickups import validate_max_pickups_per_week
-            WilayahLayanan.objects.select_for_update().filter(pk=user.kelurahan_id).first()
-            validate_max_pickups_per_week(user)
-
+        # Kunci jadwal lalu cek ulang — cegah pesanan ganda saat tap beruntun.
+        jadwal = (
+            JadwalJemputWilayah.objects.select_for_update()
+            .select_related('wilayah').get(pk=validated_data['jadwal_wilayah'].pk)
+        )
+        validate_booking(user, jadwal)
+        validated_data['jadwal_wilayah'] = jadwal
+        validated_data['jadwal'] = jadwal_datetime(jadwal)
         validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'
         return Penjemputan.objects.create(**validated_data)
+
+
+class JadwalJemputWilayahSerializer(serializers.ModelSerializer):
+    wilayah_nama = serializers.CharField(source='wilayah.__str__', read_only=True)
+    jumlah_pesanan = serializers.IntegerField(read_only=True, default=0)
+    bisa_dipesan = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JadwalJemputWilayah
+        fields = [
+            'id', 'wilayah', 'wilayah_nama', 'tanggal', 'jam_mulai', 'jam_selesai',
+            'catatan', 'jumlah_pesanan', 'bisa_dipesan', 'created_at',
+        ]
+        read_only_fields = ['id', 'created_at']
+
+    def get_bisa_dipesan(self, obj) -> bool:
+        from .services.jadwal_jemput import is_bookable
+        return is_bookable(obj)
+
+    def create(self, validated_data):
+        from .services.jadwal_jemput import create_jadwal
+        request = self.context.get('request')
+        return create_jadwal(
+            dibuat_oleh=getattr(request, 'user', None),
+            **validated_data,
+        )
 
 
 class PenjemputanUpdateSerializer(serializers.ModelSerializer):
@@ -623,6 +711,9 @@ class PickupStatusActionSerializer(serializers.Serializer):
 
 class PenjemputanSerializer(serializers.ModelSerializer):
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
+    jam_selesai = serializers.TimeField(
+        source='jadwal_wilayah.jam_selesai', read_only=True, default=None,
+    )
     petugas_nama = serializers.CharField(
         source='petugas.nama_lengkap', read_only=True, default=None,
     )
@@ -631,8 +722,8 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         model = Penjemputan
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
-            'estimasi_berat', 'alamat_jemput', 'jadwal', 'status',
-            'latitude', 'longitude', 'catatan_lokasi',
+            'estimasi_berat', 'alamat_jemput', 'jadwal', 'jadwal_wilayah',
+            'jam_selesai', 'status', 'latitude', 'longitude', 'catatan_lokasi',
         ]
         read_only_fields = fields
 
@@ -906,8 +997,8 @@ class WilayahLayananSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WilayahLayanan
-        fields = ['id', 'kelurahan', 'rt', 'rw', 'aktif', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'kelurahan', 'kode', 'jenis', 'rt', 'rw', 'aktif', 'created_at']
+        read_only_fields = ['id', 'kode', 'jenis', 'created_at']
 
     def validate_kelurahan(self, value):
         if not value.strip():

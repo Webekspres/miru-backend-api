@@ -191,9 +191,14 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
         'api.throttles.WriteUserRateThrottle',
     ],
+    # IP klien untuk throttle: nginx (satu-satunya proxy) MENIMPA X-Forwarded-For
+    # dengan $remote_addr, jadi ambil 1 entri terakhir. Tanpa ini DRF memakai
+    # seluruh header dari klien → throttle bisa diakali dengan XFF palsu.
+    'NUM_PROXIES': int(os.environ.get('NUM_PROXIES', '1')),
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/minute',   # AnonRateThrottle untuk /api/auth/login/
-        'otp': '5/minute',      # AnonRateThrottle untuk OTP WA (T2)
+        'otp': '5/minute',      # AnonRateThrottle untuk OTP (email/WA)
+        'register': '10/day',   # Registrasi publik per IP (anti-bot)
         'write': '100/hour',    # UserRateThrottle untuk semua write operation
     },
 }
@@ -301,6 +306,7 @@ if os.environ.get('EMAIL_HOST'):
 else:
     # Dev fallback — cetak email ke console (tidak benar-benar dikirim)
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'MIRU Bank Sampah <noreply@mirubanksampah.id>'
 
 
 # ---------------------------------------------------------------------------
@@ -326,6 +332,15 @@ OTP_DEV_FIXED_CODE = os.environ.get('OTP_DEV_FIXED_CODE', '').strip()
 # Saat True, request-otp langsung verifikasi tanpa perlu kode OTP.
 # Hanya gunakan di staging/testing; JANGAN aktifkan di production.
 SKIP_PHONE_VERIFICATION = os.environ.get('SKIP_PHONE_VERIFICATION', 'False') == 'True'
+
+# OTP dikirim lewat email (WA ditunda karena biaya). Endpoint OTP WhatsApp
+# dimatikan kecuali OTP_WHATSAPP_ENABLED=True.
+OTP_WHATSAPP_ENABLED = os.environ.get('OTP_WHATSAPP_ENABLED', 'False') == 'True'
+# Lewati OTP email untuk internal testing (fallback ke flag lama SKIP_PHONE_VERIFICATION).
+SKIP_OTP_VERIFICATION = (
+    os.environ.get('SKIP_OTP_VERIFICATION', '').strip() == 'True'
+    or SKIP_PHONE_VERIFICATION
+)
 
 
 # ---------------------------------------------------------------------------
