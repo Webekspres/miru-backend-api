@@ -191,6 +191,10 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_CLASSES': [
         'api.throttles.WriteUserRateThrottle',
     ],
+    # IP klien untuk throttle: nginx (satu-satunya proxy) MENIMPA X-Forwarded-For
+    # dengan $remote_addr, jadi ambil 1 entri terakhir. Tanpa ini DRF memakai
+    # seluruh header dari klien → throttle bisa diakali dengan XFF palsu.
+    'NUM_PROXIES': int(os.environ.get('NUM_PROXIES', '1')),
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/minute',   # AnonRateThrottle untuk /api/auth/login/
         'otp': '5/minute',      # AnonRateThrottle untuk OTP WA (T2)

@@ -115,3 +115,36 @@ class WriteRateLimitTests(EnvelopeAPITestCase):
         # Harusnya di-throttle (allow_request panggil super)
         result = WriteUserRateThrottle().allow_request(MockPostRequest(), None)
         self.assertIsNotNone(result)  # Tidak error
+
+
+class SpoofedForwardedForTests(EnvelopeAPITestCase):
+    """XFF palsu dari klien tidak boleh membuat bucket throttle baru."""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+
+    def test_spoofed_xff_prefix_still_throttled(self):
+        codes = []
+        for i in range(12):
+            response = self.client.post(
+                '/api/auth/login/',
+                {'username': 'tidak_ada', 'password': 'salah123'},
+                format='json',
+                # Klien memalsukan entri depan; nginx menambah/menimpa IP asli di akhir.
+                HTTP_X_FORWARDED_FOR=f'10.0.0.{i}, 203.0.113.7',
+            )
+            codes.append(response.status_code)
+        self.assertIn(status.HTTP_429_TOO_MANY_REQUESTS, codes)
+
+    def test_different_real_ip_has_own_bucket(self):
+        for _ in range(10):
+            self.client.post(
+                '/api/auth/login/', {'username': 'x', 'password': 'salah123'},
+                format='json', HTTP_X_FORWARDED_FOR='203.0.113.7',
+            )
+        response = self.client.post(
+            '/api/auth/login/', {'username': 'x', 'password': 'salah123'},
+            format='json', HTTP_X_FORWARDED_FOR='198.51.100.9',
+        )
+        self.assertNotEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
