@@ -140,10 +140,10 @@ class AuditLogListView(APIView):
 
 @user_viewset_schema
 class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.select_related('kelurahan')
     permission_classes = [IsAdminOrKoordinator]
     search_fields = ['username', 'nama_lengkap', 'no_hp']
-    filterset_fields = ['role', 'is_active']
+    filterset_fields = ['role', 'is_active', 'kelurahan']
     ordering_fields = ['date_joined', 'nama_lengkap', 'username']
     ordering = ['-date_joined']
 

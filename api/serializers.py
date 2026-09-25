@@ -168,14 +168,20 @@ class NasabahLookupSerializer(serializers.ModelSerializer):
 
 class UserAdminSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, min_length=6)
+    kelurahan_nama = serializers.CharField(
+        source='kelurahan.kelurahan', read_only=True, default=None,
+    )
+    # Pendaftaran nasabah dibantu admin/koordinator: consent PDP tetap wajib.
+    setuju_kebijakan_data = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = User
         fields = [
             'id', 'username', 'password', 'role', 'nama_lengkap', 'no_hp',
             'phone_verified', 'alamat', 'latitude', 'longitude', 'patokan',
-            'kelurahan', 'rt', 'rw',
+            'kelurahan', 'kelurahan_nama', 'rt', 'rw',
             'saldo', 'poin', 'is_active', 'avatar_url',
+            'setuju_kebijakan_data',
         ]
         read_only_fields = ['id', 'phone_verified']
 
@@ -190,19 +196,29 @@ class UserAdminSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.instance is None and not attrs.get('password'):
             raise serializers.ValidationError({'password': ['Password wajib diisi.']})
+        if (
+            self.instance is None
+            and attrs.get('role') == 'nasabah'
+            and not attrs.get('setuju_kebijakan_data')
+        ):
+            raise serializers.ValidationError({
+                'setuju_kebijakan_data': [
+                    'Nasabah harus menyetujui kebijakan data pribadi.'
+                ],
+            })
         return attrs
 
     def validate_role(self, value):
         if value not in dict(User.ROLE_CHOICES):
             raise serializers.ValidationError('Role tidak valid.')
-        if self.instance is None and value == 'nasabah':
-            raise serializers.ValidationError(
-                'Nasabah didaftarkan melalui registrasi publik.'
-            )
         return value
 
     def create(self, validated_data):
+        from django.utils import timezone
         password = validated_data.pop('password')
+        if validated_data.pop('setuju_kebijakan_data', False):
+            validated_data['setuju_kebijakan_data'] = True
+            validated_data['tanggal_persetujuan_kebijakan'] = timezone.now()
         validated_data.setdefault('saldo', 0)
         validated_data.setdefault('poin', 0)
         # T10: nomor HP dari admin → belum terverifikasi
@@ -215,6 +231,7 @@ class UserAdminSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
+        validated_data.pop('setuju_kebijakan_data', None)
         new_hp = validated_data.get('no_hp')
         phone_changed = new_hp is not None and new_hp != instance.no_hp
         for attr, value in validated_data.items():
