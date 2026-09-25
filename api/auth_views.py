@@ -2,6 +2,7 @@ import hmac
 import secrets
 
 from django.conf import settings
+from django.db.models import Sum
 from django.utils import timezone
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -941,28 +942,30 @@ class PoinInfoView(APIView):
 
     def get(self, request):
         user = request.user
-        now = timezone.now()
 
-        # Total poin aktif
         poin_aktif = PoinTransaksi.objects.filter(
             user=user, is_expired=False, sisa__gt=0,
         )
-
-        total_akan_hangus = 0
-        tanggal_kedaluwarsa_terdekat = None
-
-        for pt in poin_aktif:
-            total_akan_hangus += pt.sisa
-            if (
-                tanggal_kedaluwarsa_terdekat is None
-                or pt.tanggal_kedaluwarsa < tanggal_kedaluwarsa_terdekat
-            ):
-                tanggal_kedaluwarsa_terdekat = pt.tanggal_kedaluwarsa
+        total_akan_hangus = poin_aktif.aggregate(total=Sum('sisa'))['total'] or 0
+        tanggal_kedaluwarsa_terdekat = (
+            poin_aktif.order_by('tanggal_kedaluwarsa')
+            .values_list('tanggal_kedaluwarsa', flat=True)
+            .first()
+        )
+        # Poin yang hangus pada tanggal (WIT) terdekat — untuk teks
+        # "X poin hangus pada <tanggal>" di aplikasi.
+        poin_hangus_terdekat = 0
+        if tanggal_kedaluwarsa_terdekat:
+            tanggal = timezone.localtime(tanggal_kedaluwarsa_terdekat).date()
+            poin_hangus_terdekat = poin_aktif.filter(
+                tanggal_kedaluwarsa__date=tanggal,
+            ).aggregate(total=Sum('sisa'))['total'] or 0
 
         return success_response(
             data={
                 'poin_saat_ini': user.poin,
                 'total_akan_hangus': total_akan_hangus,
+                'poin_hangus_terdekat': poin_hangus_terdekat,
                 'tanggal_kedaluwarsa_terdekat': (
                     tanggal_kedaluwarsa_terdekat.isoformat()
                     if tanggal_kedaluwarsa_terdekat
