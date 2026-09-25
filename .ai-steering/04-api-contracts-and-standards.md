@@ -866,6 +866,34 @@ Item response:
 }
 ```
 
+### 6.5b Cakupan Wilayah (alamat bertingkat)
+
+Aplikasi hanya untuk **Distrik Mimika Baru**. Alamat dipilih bertingkat
+provinsi → kabupaten → distrik → kelurahan/kampung; tiga tingkat pertama terkunci.
+Kelurahan/kampung = `WilayahLayanan` aktif (14 wilayah resmi, kode Kemendagri).
+
+| Method | Endpoint | Auth | Keterangan |
+|---|---|---|---|
+| `GET` | `/api/wilayah/cakupan/` | Publik | Pilihan alamat + pesan cakupan + setelan peta |
+
+```json
+{
+  "provinsi": {"kode": "94", "nama": "Papua Tengah"},
+  "kabupaten": {"kode": "94.04", "nama": "Kabupaten Mimika"},
+  "distrik": {"kode": "94.04.01", "nama": "Mimika Baru"},
+  "kelurahan": [{"id": 3, "kode": "94.04.01.1001", "nama": "Koperapoka", "jenis": "kelurahan"}],
+  "pesan": "MIRU Bank Sampah hanya melayani warga Distrik Mimika Baru, Kabupaten Mimika, Papua Tengah.",
+  "peta": {"pusat": {"lat": -4.5467, "lng": 136.8833}, "batas": {"selatan": -4.7, "barat": 136.65, "utara": -4.25, "timur": 137.05}, "zoom": 13}
+}
+```
+
+- `kelurahan` pada profil (`PATCH /api/auth/me/`) dan user admin harus wilayah **aktif**;
+  selain itu `400` dengan `errors.kelurahan`.
+- Peta memakai OpenStreetMap (Leaflet/flutter_map), tanpa API key. `batas` hanya
+  membatasi geser peta (OSM belum punya poligon resmi distrik); batas yang mengikat
+  adalah pilihan kelurahan.
+- Perbarui data resmi: `python manage.py sync_wilayah [--dry-run]` (sumber wilayah.id).
+
 **POST /api/pickups/{id}/assign/ — Tugaskan Petugas**
 
 Request:

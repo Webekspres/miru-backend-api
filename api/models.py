@@ -551,7 +551,14 @@ class PoinTransaksi(models.Model):
 class WilayahLayanan(models.Model):
     """Referensi wilayah layanan — kelurahan/kampung di Distrik Mimika Baru."""
 
+    JENIS_CHOICES = [('kelurahan', 'Kelurahan'), ('kampung', 'Kampung')]
+
     kelurahan = models.CharField(max_length=100, db_index=True)
+    kode = models.CharField(
+        max_length=16, unique=True, null=True, blank=True,
+        help_text='Kode Kemendagri kelurahan/kampung (mis. 94.04.01.1001)',
+    )
+    jenis = models.CharField(max_length=10, choices=JENIS_CHOICES, blank=True, default='')
     rt = models.CharField(max_length=10, blank=True, default='', help_text='RT (opsional)')
     rw = models.CharField(max_length=10, blank=True, default='', help_text='RW (opsional)')
     aktif = models.BooleanField(default=True, help_text='Wilayah yang masih dilayani')

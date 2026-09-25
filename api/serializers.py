@@ -16,6 +16,17 @@ from .services.deposits import (
 PROTECTED_USER_FIELDS = ('role', 'saldo', 'poin', 'is_active', 'is_staff', 'is_superuser')
 
 
+def validate_kelurahan_layanan(value):
+    """Kelurahan harus wilayah aktif di Distrik Mimika Baru."""
+    if value is not None and not value.aktif:
+        from .services.wilayah import PESAN_CAKUPAN
+
+        raise serializers.ValidationError(
+            f'Kelurahan/kampung ini tidak dilayani. {PESAN_CAKUPAN}'
+        )
+    return value
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     qr = serializers.SerializerMethodField()
     email_required = serializers.BooleanField(read_only=True)
@@ -54,6 +65,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             instance.phone_verified = False
             instance.save(update_fields=['phone_verified'])
         return instance
+
+    def validate_kelurahan(self, value):
+        return validate_kelurahan_layanan(value)
 
     def validate_username(self, value):
         value = (value or '').strip()
@@ -199,6 +213,9 @@ class UserAdminSerializer(serializers.ModelSerializer):
         ):
             raise serializers.ValidationError('Email sudah dipakai akun lain.')
         return value
+
+    def validate_kelurahan(self, value):
+        return validate_kelurahan_layanan(value)
 
     def validate_username(self, value):
         qs = User.objects.filter(username__iexact=value)
@@ -980,8 +997,8 @@ class WilayahLayananSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WilayahLayanan
-        fields = ['id', 'kelurahan', 'rt', 'rw', 'aktif', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'kelurahan', 'kode', 'jenis', 'rt', 'rw', 'aktif', 'created_at']
+        read_only_fields = ['id', 'kode', 'jenis', 'created_at']
 
     def validate_kelurahan(self, value):
         if not value.strip():
