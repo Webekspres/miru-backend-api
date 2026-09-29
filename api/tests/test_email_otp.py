@@ -181,6 +181,44 @@ class LoggedInEmailVerificationTests(EmailOtpTestCase):
         self.assertTrue(response.data['data']['email_required'])
 
 
+class ChangeEmailTests(EmailOtpTestCase):
+    def setUp(self):
+        super().setUp()
+        self.user = self.create_nasabah(username='ganti_email')
+        self.user.email = 'lama@gmail.com'
+        self.user.email_verified = True
+        self.user.save()
+        self.auth_as(self.user)
+
+    def test_change_requires_password(self):
+        response = self._request(email='baru@gmail.com')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password', response.data['errors'])
+        response = self._request(email='baru@gmail.com', password='salah999')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(mail.outbox, [])
+
+    def test_change_with_password_saves_after_otp_and_notifies_old_email(self):
+        response = self._request(email='baru@gmail.com', password='secret12')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(mail.outbox[-1].to, ['baru@gmail.com'])
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, 'lama@gmail.com')  # belum berubah sebelum OTP
+
+        response = self._verify(otp=_otp_from_outbox())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.email, 'baru@gmail.com')
+        self.assertTrue(self.user.email_verified)
+        notice = mail.outbox[-1]
+        self.assertEqual(notice.to, ['lama@gmail.com'])
+        self.assertIn('ba***@gmail.com', notice.body)
+
+    def test_resending_to_same_email_needs_no_password(self):
+        response = self._request(email='LAMA@gmail.com')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class PasswordResetEmailTests(EmailOtpTestCase):
     def setUp(self):
         super().setUp()

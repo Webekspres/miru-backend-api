@@ -1081,6 +1081,19 @@ class EmailRequestOtpView(APIView):
         if error:
             return error
         email = validate_email_target(request.data.get('email'), user)
+        # Ganti email yang sudah terverifikasi: konfirmasi kata sandi agar sesi
+        # yang tertinggal/dicuri tidak bisa memindahkan akun ke email lain.
+        if (
+            request.user.is_authenticated
+            and user.email_verified
+            and not emails_match(email, user.email)
+            and not user.check_password(request.data.get('password') or '')
+        ):
+            return _validation_error(
+                request,
+                'Masukkan kata sandi untuk mengganti email.',
+                {'password': ['Kata sandi salah atau belum diisi.']},
+            )
         purpose = (
             PhoneOTP.PURPOSE_REGISTRATION if is_pending_registration(user)
             else PhoneOTP.PURPOSE_EMAIL_VERIFY

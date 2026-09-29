@@ -577,7 +577,7 @@ jeda 60 detik per akun, maks 3/jam & 6/hari per alamat email, domain email semen
 
 | Method | Endpoint | Auth | Keterangan |
 |--------|----------|------|------------|
-| `POST` | `/api/auth/email/request-otp/` | Opsional | Login: `{email}`. Belum login (registrasi): `{username, password, email}` |
+| `POST` | `/api/auth/email/request-otp/` | Opsional | Login: `{email}`; **ganti** email terverifikasi ke alamat lain wajib `{email, password}`. Belum login (registrasi): `{username, password, email}`. Setelah ganti berhasil, email lama menerima pemberitahuan. |
 | `POST` | `/api/auth/email/verify-otp/` | Opsional | Login: `{otp}` → `data.user` (payload login baru). Registrasi: `{username, otp}` → akun aktif |
 
 - Payload login/`me` berisi `email`, `email_verified`, `email_required`. Jika `email_required=true`
