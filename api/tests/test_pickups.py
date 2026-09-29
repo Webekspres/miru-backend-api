@@ -99,6 +99,23 @@ class PickupCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['longitude'], '136.540123')
         self.assertEqual(data['catatan_lokasi'], 'Dekat warung Bu Siti')
 
+    def test_create_without_coordinates_uses_home_point(self):
+        self.nasabah.latitude = Decimal('-4.550000')
+        self.nasabah.longitude = Decimal('136.880000')
+        self.nasabah.save(update_fields=['latitude', 'longitude'])
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data = response.data['data']
+        self.assertEqual(data['latitude'], '-4.550000')
+        self.assertEqual(data['longitude'], '136.880000')
+
+    def test_create_without_any_point_stays_empty(self):
+        self.auth_as(self.nasabah)
+        response = self.client.post('/api/pickups/', self._payload(), format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIsNone(response.data['data']['latitude'])
+
     def test_reject_invalid_latitude(self):
         self.auth_as(self.nasabah)
         response = self.client.post(
