@@ -595,6 +595,10 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
         validated_data['jadwal'] = jadwal_datetime(jadwal)
         validated_data['nasabah'] = user
         validated_data['status'] = 'menunggu'
+        # Tanpa titik khusus → pakai titik rumah di profil agar tampil di peta petugas.
+        if validated_data.get('latitude') is None and user.latitude is not None:
+            validated_data['latitude'] = user.latitude
+            validated_data['longitude'] = user.longitude
         return Penjemputan.objects.create(**validated_data)
 
 
