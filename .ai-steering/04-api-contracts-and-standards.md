@@ -1250,14 +1250,16 @@ Response `200 OK`:
   "jumlah_penukaran_poin": 2,
   "tonase_per_jenis": [
     {
-      "kategori": "Plastik PET",
-      "berat_kg": "35.50",
-      "nilai": "106500.00"
+      "kategori_id": 1,
+      "nama": "Plastik PET",
+      "total_berat_kg": "35.50",
+      "total_nilai": "106500.00"
     },
     {
-      "kategori": "Kardus",
-      "berat_kg": "28.00",
-      "nilai": "42000.00"
+      "kategori_id": 3,
+      "nama": "Kardus",
+      "total_berat_kg": "28.00",
+      "total_nilai": "42000.00"
     }
   ],
   "nasabah_baru": 2
