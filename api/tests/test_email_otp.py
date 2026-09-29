@@ -47,7 +47,7 @@ class RegistrationEmailOtpTests(EmailOtpTestCase):
 
         response = self._request(username='warga_baru', password='secret12', email='Warga@Gmail.com')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['data']['masked_email'], 'wa***@gmail.com')
+        self.assertEqual(response.data['data']['masked_email'], 'wa***@g***l.com')
         self.assertEqual(response.data['data']['purpose'], 'registration')
         self.assertEqual(mail.outbox[-1].to, ['warga@gmail.com'])
 
@@ -212,7 +212,7 @@ class ChangeEmailTests(EmailOtpTestCase):
         self.assertTrue(self.user.email_verified)
         notice = mail.outbox[-1]
         self.assertEqual(notice.to, ['lama@gmail.com'])
-        self.assertIn('ba***@gmail.com', notice.body)
+        self.assertIn('ba***@g***l.com', notice.body)
 
     def test_resending_to_same_email_needs_no_password(self):
         response = self._request(email='LAMA@gmail.com')
@@ -230,7 +230,7 @@ class PasswordResetEmailTests(EmailOtpTestCase):
     def test_full_reset_flow(self):
         response = self.client.post('/api/auth/forgot-password/', {'username': 'lupa_sandi'}, format='json')
         self.assertEqual(response.data['data']['next'], 'confirm_email')
-        self.assertEqual(response.data['data']['masked_email'], 'lu***@gmail.com')
+        self.assertEqual(response.data['data']['masked_email'], 'lu***@g***l.com')
 
         response = self.client.post('/api/auth/reset-password/request-otp/', {
             'username': 'lupa_sandi', 'email': 'LUPA@gmail.com',
@@ -276,7 +276,7 @@ class DeleteAccountEmailTests(EmailOtpTestCase):
             'username': 'hapus_email', 'email': 'hapus@gmail.com',
         }, format='json')
         self.assertEqual(req.status_code, status.HTTP_200_OK)
-        self.assertEqual(req.data['data']['masked_email'], 'ha***@gmail.com')
+        self.assertEqual(req.data['data']['masked_email'], 'ha***@g***l.com')
 
         confirm = self.client.post('/api/auth/delete-account/confirm/', {
             'username': 'hapus_email', 'otp': _otp_from_outbox(),
@@ -309,3 +309,12 @@ class CleanupUnverifiedTests(EmailOtpTestCase):
         self.assertNotIn('lama_pending', remaining)
         self.assertIn('baru_pending', remaining)
         self.assertIn('dinonaktifkan', remaining)
+
+
+class MaskEmailTests(EmailOtpTestCase):
+    def test_masks_local_part_and_domain_name_but_keeps_tld(self):
+        from api.services.email_otp import mask_email
+
+        self.assertEqual(mask_email('admin@mirubanksampah.id'), 'ad***@m************h.id')
+        self.assertEqual(mask_email('Budi@Gmail.com'), 'bu***@g***l.com')
+        self.assertEqual(mask_email('x@ab.co.id'), 'x***@**.co.id')

@@ -52,11 +52,16 @@ def normalize_email(email: str) -> str:
 
 
 def mask_email(email: str) -> str:
-    """'budi.santoso@gmail.com' → 'bu***@gmail.com'."""
+    """'admin@mirubanksampah.id' → 'ad***@m************h.id' (TLD tetap)."""
     local, _, domain = normalize_email(email).partition('@')
     if not domain:
         return '***'
-    return f'{local[:2]}***@{domain}'
+    name, dot, tld = domain.partition('.')
+    if len(name) > 2:
+        name = f'{name[0]}{"*" * (len(name) - 2)}{name[-1]}'
+    else:
+        name = '*' * len(name)
+    return f'{local[:2]}***@{name}{dot}{tld}'
 
 
 def emails_match(a: str, b: str) -> bool:
