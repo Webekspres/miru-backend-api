@@ -136,6 +136,8 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22022 }}
           username: ${{ secrets.SSH_USER || 'developer' }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          # Pull pertama image besar di server bisa > 10 menit (default).
+          command_timeout: 30m
           script: |
             set -e
             echo "==> Logging in to GHCR on server..."
