@@ -368,6 +368,16 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
             jadwal=timezone.now() + timedelta(days=6),
             status='ditolak',
         )
+        # Disetujui tapi belum dijadwalkan admin → belum tugas petugas,
+        # meski kolom petugas sudah terisi (data lama).
+        approved = Penjemputan.objects.create(
+            nasabah=self.nasabah,
+            petugas=self.petugas,
+            estimasi_berat=Decimal('9.00'),
+            alamat_jemput='Timika 5',
+            jadwal=timezone.now() + timedelta(days=7),
+            status='disetujui',
+        )
 
         self.auth_as(self.petugas)
         response = self.client.get('/api/pickups/')
@@ -377,6 +387,7 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
         self.assertIn(done.id, ids)
         self.assertNotIn(waiting.id, ids)
         self.assertNotIn(rejected.id, ids)
+        self.assertNotIn(approved.id, ids)
         statuses = {row['status'] for row in response.data['data']}
         self.assertNotIn('menunggu', statuses)
         self.assertNotIn('ditolak', statuses)
