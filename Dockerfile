@@ -1,4 +1,4 @@
-FROM python:3.10-slim AS builder
+FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -23,7 +23,7 @@ RUN uv venv /opt/venv
 RUN uv pip install --python /opt/venv/bin/python --no-cache -r requirements.lock
 
 
-FROM python:3.10-slim
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
