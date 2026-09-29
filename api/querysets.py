@@ -25,8 +25,10 @@ def filter_pickup_queryset(qs, user):
         return qs.filter(nasabah=user)
     if user.role == 'petugas':
         # Ditugaskan ke petugas ini; termasuk selesai (tab Selesai).
-        # Sembunyikan antrian menunggu/ditolak (bukan tugas petugas).
-        return qs.filter(petugas=user).exclude(status__in=('menunggu', 'ditolak'))
+        # Sembunyikan yang belum dijadwalkan admin (menunggu/disetujui) & ditolak.
+        return qs.filter(petugas=user).exclude(
+            status__in=('menunggu', 'disetujui', 'ditolak'),
+        )
     if user.role in READ_ALL_ROLES:
         return qs
     return qs.none()

@@ -750,15 +750,18 @@ class Command(BaseCommand):
         statuses = ['menunggu', 'disetujui', 'dijadwalkan', 'selesai', 'ditolak']
         created = 0
         for nasabah in random.sample(nasabah_list, min(40, len(nasabah_list))):
+            status = random.choice(statuses)
+            # Petugas baru ada setelah admin menjadwalkan (dijadwalkan/selesai).
+            ditugaskan = status in ('dijadwalkan', 'selesai') and petugas
             Penjemputan.objects.create(
                 nasabah=nasabah,
-                petugas=random.choice(list(petugas)) if petugas else None,
+                petugas=random.choice(list(petugas)) if ditugaskan else None,
                 estimasi_berat=Decimal(str(random.randint(5, 30))),
                 alamat_jemput=nasabah.alamat or 'Timika',
                 latitude=nasabah.latitude,
                 longitude=nasabah.longitude,
                 jadwal=timezone.now() + timedelta(days=random.randint(1, 7)),
-                status=random.choice(statuses),
+                status=status,
             )
             created += 1
         return created
@@ -877,6 +880,8 @@ class Command(BaseCommand):
         # Helper to create a timed pickup
         def _make_pickup(user, days_ago, status, berat, petugas=None):
             jadwal = now - timedelta(days=days_ago - 1)
+            if status in ('menunggu', 'disetujui', 'ditolak'):
+                petugas = None  # belum dijadwalkan admin → belum ada petugas
             Penjemputan.objects.create(
                 nasabah=user, petugas=petugas,
                 estimasi_berat=berat,
