@@ -52,11 +52,16 @@ def normalize_email(email: str) -> str:
 
 
 def mask_email(email: str) -> str:
-    """'budi.santoso@gmail.com' → 'bu***@gmail.com'."""
+    """'admin@mirubanksampah.id' → 'ad***@m************h.id' (TLD tetap)."""
     local, _, domain = normalize_email(email).partition('@')
     if not domain:
         return '***'
-    return f'{local[:2]}***@{domain}'
+    name, dot, tld = domain.partition('.')
+    if len(name) > 2:
+        name = f'{name[0]}{"*" * (len(name) - 2)}{name[-1]}'
+    else:
+        name = '*' * len(name)
+    return f'{local[:2]}***@{name}{dot}{tld}'
 
 
 def emails_match(a: str, b: str) -> bool:
@@ -166,8 +171,29 @@ def is_pending_registration(user: User) -> bool:
     )
 
 
+def notify_email_changed(old_email: str, new_email: str) -> None:
+    """Beri tahu alamat lama bahwa email akun diganti (deteksi pengambilalihan)."""
+    body = (
+        f'Email akun MIRU Anda baru saja diganti ke {mask_email(new_email)}.\n\n'
+        f'Jika ini bukan Anda, segera hubungi admin MIRU Bank Sampah untuk '
+        f'mengamankan akun.\n\n'
+        f'— MIRU Bank Sampah, Distrik Mimika Baru'
+    )
+    try:
+        send_mail(
+            'Email akun MIRU diganti', body, settings.DEFAULT_FROM_EMAIL,
+            [old_email], fail_silently=False,
+        )
+    except Exception as exc:
+        logger.error('Gagal kirim pemberitahuan ganti email ke %s: %s', mask_email(old_email), exc)
+
+
 def mark_email_verified(user: User, email: str, *, activate: bool) -> None:
-    """Simpan email terverifikasi; `activate` hanya untuk pendaftaran baru."""
+    """Simpan email terverifikasi; `activate` hanya untuk pendaftaran baru.
+
+    Bila email terverifikasi sebelumnya berbeda, alamat lama diberi tahu.
+    """
+    old_email = user.email if user.email_verified else ''
     user.email = normalize_email(email)
     user.email_verified = True
     fields = ['email', 'email_verified']
@@ -175,3 +201,5 @@ def mark_email_verified(user: User, email: str, *, activate: bool) -> None:
         user.is_active = True
         fields.append('is_active')
     user.save(update_fields=fields)
+    if old_email and not emails_match(old_email, user.email):
+        notify_email_changed(old_email, user.email)
