@@ -284,6 +284,7 @@ def complete_pickup_with_setoran(
     setoran = create_setoran_with_side_effects(
         {'nasabah': locked.nasabah, 'petugas': user, 'status': 'selesai'},
         prepare_details_data(details_input),
+        notify=False,  # nominal disebut di notifikasi "Penjemputan selesai"
     )
     locked.setoran = setoran
     locked.status = 'selesai'

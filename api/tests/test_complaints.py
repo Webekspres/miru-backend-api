@@ -56,7 +56,7 @@ class ComplaintCreateTests(EnvelopeAPITestCase):
         )
         self.assertTrue(admin_notif.exists())
         nasabah_notif = Notifikasi.objects.filter(
-            user=self.nasabah, kategori='pengaduan', judul='Pengaduan Diterima',
+            user=self.nasabah, kategori='pengaduan', judul='📨 Pengaduan Anda kami terima',
         )
         self.assertTrue(nasabah_notif.exists())
 

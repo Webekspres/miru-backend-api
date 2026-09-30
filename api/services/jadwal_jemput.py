@@ -98,11 +98,12 @@ def notify_jadwal_baru(jadwal: JadwalJemputWilayah) -> int:
     if not nasabah_ids:
         return 0
 
-    judul = 'Jadwal penjemputan baru'
+    judul = f'🗓️ Petugas akan berkeliling di {wilayah_label(jadwal.wilayah)}'
     deskripsi = (
         f'Ada jadwal penjemputan di {wilayah_label(jadwal.wilayah)} pada '
-        f'{format_tanggal_id(jadwal.tanggal)} pukul {format_jam(jadwal)}. '
-        f'Segera jadwalkan penjemputan Anda.'
+        f'{format_tanggal_id(jadwal.tanggal)} pukul '
+        f'{format_jam(jadwal)}. Segera jadwalkan penjemputan Anda dan ubah '
+        f'sampah jadi saldo!'
     )
     Notifikasi.objects.bulk_create([
         Notifikasi(user_id=uid, judul=judul, deskripsi=deskripsi, kategori='jadwal_jemput')

@@ -44,10 +44,10 @@ def _notif_penjemputan(instance, created, **kwargs):
         trigger_email_new_pickup(instance)
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Pengajuan Penjemputan Diterima',
+            judul='📦 Pengajuan penjemputan diterima',
             deskripsi=(
-                'Pengajuan penjemputan sampah Anda telah diterima. '
-                'Menunggu persetujuan admin MIRU.'
+                'Terima kasih sudah peduli lingkungan! Pengajuan Anda sedang '
+                'kami cek — kabar selanjutnya segera menyusul.'
             ),
             kategori='penjemputan',
         )
@@ -56,8 +56,8 @@ def _notif_penjemputan(instance, created, **kwargs):
             ('admin', 'koordinator'),
             judul='Penjemputan Baru',
             deskripsi=(
-                f'Ada pengajuan penjemputan baru (ID {instance.id}). '
-                f'Segera tindak lanjuti. Alamat: {instance.alamat_jemput}.'
+                f'Ada pengajuan penjemputan baru (ID {instance.id}) di '
+                f'{instance.alamat_jemput}. Yuk segera tindak lanjuti!'
             ),
             kategori='penjemputan',
         )
@@ -69,32 +69,33 @@ def _notif_penjemputan(instance, created, **kwargs):
 
     status_messages = {
         'disetujui': {
-            'judul': 'Penjemputan Disetujui',
-            'deskripsi': 'Penjemputan sampah Anda telah disetujui. '
-                          'Petugas akan segera dijadwalkan.',
+            'judul': '👍 Kabar baik, penjemputan disetujui!',
+            'deskripsi': 'Pengajuan Anda sudah disetujui. Petugas akan segera '
+                         'dijadwalkan untuk menjemput sampah Anda.',
         },
         'dijadwalkan': {
-            'judul': 'Penjemputan Akan Dijemput',
+            'judul': '🗓️ Siap-siap, sampah Anda akan dijemput',
             'deskripsi': _nasabah_dijadwalkan_deskripsi(instance),
         },
         'dalam_perjalanan': {
-            'judul': 'Petugas Dalam Perjalanan',
-            'deskripsi': 'Petugas MIRU sedang dalam perjalanan ke '
-                         'lokasi Anda untuk menjemput sampah.',
+            'judul': '🚚 Petugas dalam perjalanan ke rumah Anda',
+            'deskripsi': 'Bersiap ya! Letakkan sampah yang sudah dipilah di depan '
+                         'rumah supaya penjemputan lebih cepat.',
         },
         'dijemput': {
-            'judul': 'Sampah Sedang Dijemput',
-            'deskripsi': 'Petugas sedang melakukan penjemputan sampah di lokasi Anda.',
+            'judul': '♻️ Sampah Anda sedang dijemput',
+            'deskripsi': 'Petugas sudah tiba dan sedang menimbang sampah Anda. '
+                         'Terima kasih sudah memilah dengan baik!',
         },
         'selesai': {
-            'judul': 'Penjemputan Selesai',
-            'deskripsi': 'Penjemputan sampah Anda telah selesai. '
-                         'Saldo akan bertambah setelah setoran dicatat.',
+            'judul': '🎉 Selamat! Penjemputan selesai',
+            'deskripsi': _nasabah_selesai_deskripsi(instance),
         },
         'ditolak': {
-            'judul': 'Penjemputan Ditolak',
-            'deskripsi': 'Mohon maaf, penjemputan sampah Anda ditolak. '
-                         'Hubungi admin MIRU untuk informasi lebih lanjut.',
+            'judul': '😔 Penjemputan belum bisa diproses',
+            'deskripsi': 'Mohon maaf, pengajuan penjemputan Anda ditolak. Jangan '
+                         'berkecil hati — hubungi admin MIRU atau ajukan lagi di '
+                         'jadwal berikutnya.',
         },
     }
 
@@ -113,16 +114,17 @@ def _notif_penjemputan(instance, created, **kwargs):
     if instance.status == 'dijadwalkan' and instance.petugas_id:
         create_notification(
             user_id=instance.petugas_id,
-            judul='Tugas Penjemputan Baru',
+            judul='🧹 Tugas penjemputan baru',
             deskripsi=_petugas_tugas_deskripsi(instance),
             kategori='penjemputan',
         )
 
     # Saat selesai → notifikasi ke petugas + admin
     if instance.status == 'selesai':
+        total = _setoran_total_fmt(instance)
         selesai_deskripsi = (
-            f'Penjemputan ID {instance.id} telah selesai. '
-            f'Alamat: {instance.alamat_jemput}.'
+            f'Kerja bagus! Penjemputan ID {instance.id} di {instance.alamat_jemput} '
+            f'selesai' + (f' dengan setoran Rp{total}.' if total else '.')
         )
         if instance.petugas_id:
             create_notification(
@@ -138,6 +140,29 @@ def _notif_penjemputan(instance, created, **kwargs):
             kategori='penjemputan',
             exclude_user_ids={instance.petugas_id} if instance.petugas_id else None,
         )
+
+
+def _rupiah(nilai) -> str:
+    """12000 → 'Rp12.000' (format Indonesia)."""
+    return 'Rp' + f'{nilai:,.0f}'.replace(',', '.')
+
+
+def _setoran_total_fmt(instance: Penjemputan) -> str:
+    """Nilai setoran hasil timbang (mis. '12.000'), kosong bila belum ada."""
+    setoran = getattr(instance, 'setoran', None) if instance.setoran_id else None
+    if setoran is None or not setoran.total_nilai:
+        return ''
+    return f'{setoran.total_nilai:,.0f}'.replace(',', '.')
+
+
+def _nasabah_selesai_deskripsi(instance: Penjemputan) -> str:
+    total = _setoran_total_fmt(instance)
+    if total:
+        return (
+            f'Hasil timbang Rp{total} sudah masuk ke saldo Anda. Terima kasih '
+            f'telah ikut menjaga Mimika tetap bersih! 💚'
+        )
+    return 'Terima kasih telah ikut menjaga Mimika tetap bersih! 💚'
 
 
 def _nasabah_dijadwalkan_deskripsi(instance: Penjemputan) -> str:
@@ -158,14 +183,13 @@ def _nasabah_dijadwalkan_deskripsi(instance: Penjemputan) -> str:
     if petugas_nama:
         return (
             f'Sampah Anda sudah disetujui dan akan dijemput oleh petugas kami '
-            f'({petugas_nama}). '
-            f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
-            f'Mohon siapkan sampah Anda.'
+            f'({petugas_nama}) pada {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
+            f'Yuk siapkan sampahnya dan pastikan sudah terpilah!'
         )
     return (
-        'Sampah Anda sudah disetujui dan akan dijemput oleh petugas kami. '
-        f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
-        f'Mohon siapkan sampah Anda.'
+        'Sampah Anda sudah disetujui dan akan dijemput oleh petugas kami pada '
+        f'{instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
+        f'Yuk siapkan sampahnya dan pastikan sudah terpilah!'
     )
 
 
@@ -184,10 +208,9 @@ def _petugas_tugas_deskripsi(instance: Penjemputan) -> str:
         )
 
     return (
-        f'Anda mendapat tugas menjemput sampah. '
-        f'Nasabah: {nasabah_nama}. '
-        f'Alamat: {instance.alamat_jemput}. '
-        f'Jadwal: {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT.'
+        f'Anda mendapat tugas menjemput sampah {nasabah_nama} di '
+        f'{instance.alamat_jemput}, {instance.jadwal.strftime("%d %b %Y, %H:%M")} WIT. '
+        f'Semangat bertugas! 💪'
     )
 
 
@@ -195,11 +218,10 @@ def _notif_penarikan(instance, created, **kwargs):
     if created:
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penarikan Saldo Diajukan',
+            judul='💸 Penarikan saldo diajukan',
             deskripsi=(
-                f'Pengajuan penarikan saldo sebesar '
-                f'Rp{instance.nominal:,.0f} telah diterima. '
-                f'Tunggu proses persetujuan admin (1-2 hari kerja).'
+                f'Pengajuan penarikan {_rupiah(instance.nominal)} sudah kami terima '
+                f'dan akan diproses dalam 1–2 hari kerja.'
             ),
             kategori='penarikan',
         )
@@ -212,21 +234,20 @@ def _notif_penarikan(instance, created, **kwargs):
     if instance.status == 'selesai':
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penarikan Saldo Disetujui',
+            judul='✅ Penarikan saldo disetujui',
             deskripsi=(
-                f'Penarikan saldo sebesar Rp{instance.nominal:,.0f} telah disetujui. '
-                f'Saldo Anda telah terpotong. Silakan ambil tunai di kantor MIRU.'
+                f'Hasil memilah sampah Anda siap dinikmati! {_rupiah(instance.nominal)} '
+                f'bisa diambil tunai di kantor MIRU. 🙌'
             ),
             kategori='penarikan',
         )
     elif instance.status == 'ditolak':
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penarikan Saldo Ditolak',
+            judul='😔 Penarikan saldo belum disetujui',
             deskripsi=(
-                f'Mohon maaf, penarikan saldo sebesar '
-                f'Rp{instance.nominal:,.0f} ditolak. '
-                f'Hubungi admin MIRU untuk informasi lebih lanjut.'
+                f'Mohon maaf, penarikan {_rupiah(instance.nominal)} ditolak dan saldo '
+                f'Anda tetap utuh. Hubungi admin MIRU untuk informasi lebih lanjut.'
             ),
             kategori='penarikan',
         )
@@ -237,10 +258,10 @@ def _notif_penukaran(instance, created, **kwargs):
         reward_nama = instance.reward.nama if instance.reward else 'Reward'
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penukaran Poin Diajukan',
+            judul='🎁 Penukaran poin diajukan',
             deskripsi=(
-                f'Penukaran poin untuk {reward_nama} telah diajukan. '
-                f'Tunggu persetujuan admin.'
+                f'Penukaran {reward_nama} sedang menunggu persetujuan admin. '
+                f'Sebentar lagi hadiahnya!'
             ),
             kategori='penukaran',
         )
@@ -275,29 +296,30 @@ def _notif_penukaran(instance, created, **kwargs):
     if instance.status == 'selesai':
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penukaran Poin Berhasil',
+            judul='🎉 Selamat! Penukaran poin berhasil',
             deskripsi=(
-                f'Selamat! Penukaran poin untuk {reward_nama} telah disetujui. '
-                f'Hubungi admin MIRU untuk pengambilan reward.'
+                f'{reward_nama} siap untuk Anda. Hubungi admin MIRU untuk '
+                f'mengambil hadiahnya — terima kasih sudah rajin menabung sampah!'
             ),
             kategori='penukaran',
         )
     elif instance.status == 'ditolak':
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penukaran Poin Ditolak',
+            judul='😔 Penukaran poin belum disetujui',
             deskripsi=(
-                f'Mohon maaf, penukaran poin untuk {reward_nama} ditolak. '
-                f'Hubungi admin MIRU untuk informasi lebih lanjut.'
+                f'Mohon maaf, penukaran {reward_nama} ditolak. Hubungi admin MIRU '
+                f'untuk informasi lebih lanjut.'
             ),
             kategori='penukaran',
         )
     elif instance.status == 'dibatalkan':
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Penukaran Poin Dibatalkan',
+            judul='Penukaran poin dibatalkan',
             deskripsi=(
-                f'Penukaran poin untuk {reward_nama} telah dibatalkan.'
+                f'Penukaran {reward_nama} dibatalkan. Masih banyak hadiah lain '
+                f'yang bisa Anda pilih!'
             ),
             kategori='penukaran',
         )
@@ -307,10 +329,11 @@ def _notif_pengaduan(instance, created, **kwargs):
     if created:
         create_notification(
             user_id=instance.nasabah_id,
-            judul='Pengaduan Diterima',
+            judul='📨 Pengaduan Anda kami terima',
             deskripsi=(
-                f'Pengaduan "{instance.get_jenis_pengaduan_display()}" telah diterima. '
-                f'Admin akan menindaklanjuti maksimal 2 hari kerja.'
+                f'Terima kasih sudah memberi tahu kami soal '
+                f'"{instance.get_jenis_pengaduan_display()}". Admin akan '
+                f'menindaklanjuti maksimal 2 hari kerja.'
             ),
             kategori='pengaduan',
         )
@@ -341,10 +364,10 @@ def _notif_pengaduan(instance, created, **kwargs):
 
     create_notification(
         user_id=instance.nasabah_id,
-        judul='Pengaduan Telah Ditindaklanjuti',
+        judul='✅ Pengaduan sudah ditindaklanjuti',
         deskripsi=(
-            f'Pengaduan "{instance.get_jenis_pengaduan_display()}" telah '
-            f'ditindaklanjuti oleh admin. Lihat detail di menu Pengaduan.'
+            f'Pengaduan "{instance.get_jenis_pengaduan_display()}" sudah ditangani '
+            f'admin. Lihat detailnya di menu Pengaduan — terima kasih atas masukannya!'
         ),
         kategori='pengaduan',
     )
