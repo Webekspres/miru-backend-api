@@ -1,6 +1,6 @@
 import django_filters
 
-from api.models import Penjemputan, TransaksiSetoran
+from api.models import PenarikanSaldo, Penjemputan, TransaksiSetoran
 
 
 class CharInFilter(django_filters.BaseInFilter, django_filters.CharFilter):
@@ -26,3 +26,14 @@ class PenjemputanFilter(django_filters.FilterSet):
     class Meta:
         model = Penjemputan
         fields = ['nasabah', 'status', 'petugas']
+
+
+class PenarikanSaldoFilter(django_filters.FilterSet):
+    """?status=menunggu dan ?status__in=selesai,ditolak (tab web Penarikan Saldo)."""
+
+    status = django_filters.CharFilter(field_name='status')
+    status__in = CharInFilter(field_name='status', lookup_expr='in')
+
+    class Meta:
+        model = PenarikanSaldo
+        fields = ['nasabah', 'status']

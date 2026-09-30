@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from drf_spectacular.utils import extend_schema
 
-from .filters import PenjemputanFilter, TransaksiSetoranFilter
+from .filters import PenarikanSaldoFilter, PenjemputanFilter, TransaksiSetoranFilter
 from .models import *
 from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staff_only
 from .services import (
@@ -573,7 +573,7 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
 @withdrawal_schema
 class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     queryset = PenarikanSaldo.objects.select_related('nasabah')
-    filterset_fields = ['nasabah', 'status']
+    filterset_class = PenarikanSaldoFilter
     ordering_fields = ['tanggal', 'nominal']
     ordering = ['-tanggal']
     http_method_names = ['get', 'post', 'patch', 'head', 'options']
