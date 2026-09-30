@@ -124,6 +124,16 @@ class PickupCreateTests(EnvelopeAPITestCase):
         self.assertEqual(data['latitude'], '-4.550000')
         self.assertEqual(data['longitude'], '136.880000')
 
+    def test_create_keeps_chosen_waste_type_for_the_weighing_form(self):
+        kategori = _kategori()
+        self.auth_as(self.nasabah)
+        response = self.client.post(
+            '/api/pickups/', self._payload(kategori=kategori.id), format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['data']['kategori'], kategori.id)
+        self.assertEqual(response.data['data']['kategori_nama'], 'PET')
+
     def test_create_without_any_point_stays_empty(self):
         self.auth_as(self.nasabah)
         response = self.client.post('/api/pickups/', self._payload(), format='json')

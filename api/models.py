@@ -132,6 +132,11 @@ class Penjemputan(models.Model):
     nasabah = models.ForeignKey(User, on_delete=models.CASCADE, related_name='penjemputan_nasabah')
     petugas = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='penjemputan_petugas')
     estimasi_berat = models.DecimalField(max_digits=8, decimal_places=2)
+    # Jenis sampah pilihan nasabah saat mengajukan — mengisi otomatis form timbang.
+    kategori = models.ForeignKey(
+        'KategoriSampah', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='penjemputan',
+    )
     alamat_jemput = models.TextField()
     # Koordinat opsional untuk peta di mobile — bukan GPS live tracking.
     latitude = models.DecimalField(
