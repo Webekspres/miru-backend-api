@@ -250,10 +250,11 @@ def approve_pickup(instance: Penjemputan, user: User, petugas_id: int) -> Penjem
     return instance
 
 
-def reject_pickup(instance: Penjemputan, user: User) -> Penjemputan:
+def reject_pickup(instance: Penjemputan, user: User, alasan: str = '') -> Penjemputan:
     validate_status_transition(instance, 'ditolak', user)
     instance.status = 'ditolak'
-    instance.save(update_fields=['status'])
+    instance.alasan_penolakan = (alasan or '').strip()[:500]
+    instance.save(update_fields=['status', 'alasan_penolakan'])
     return instance
 
 

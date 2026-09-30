@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from rest_framework import status
 
-from api.models import PenarikanSaldo
+from api.models import Notifikasi, PenarikanSaldo
 
 from .base import EnvelopeAPITestCase
 
@@ -214,6 +214,18 @@ class WithdrawalActionTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['data']['status'], 'ditolak')
         self.nasabah.refresh_from_db()
         self.assertEqual(self.nasabah.saldo, saldo_before)
+
+    def test_reject_keeps_the_admin_reason_for_the_nasabah(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/reject/',
+            {'alasan': 'Nama rekening tidak sesuai KTP'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['alasan_penolakan'], 'Nama rekening tidak sesuai KTP')
+        notif = Notifikasi.objects.filter(user=self.nasabah, kategori='penarikan').latest('created_at')
+        self.assertIn('Alasan: Nama rekening tidak sesuai KTP.', notif.deskripsi)
 
     def test_nasabah_cannot_approve_action(self):
         self.auth_as(self.nasabah)

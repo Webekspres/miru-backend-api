@@ -265,6 +265,18 @@ class RedemptionActionTests(EnvelopeAPITestCase):
         self.nasabah.refresh_from_db()
         self.assertEqual(self.nasabah.poin, 150)
 
+    def test_reject_keeps_the_admin_reason_for_the_nasabah(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/reward-redemptions/{self.redemption.id}/reject/',
+            {'alasan': 'Stok hadiah habis'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['alasan_penolakan'], 'Stok hadiah habis')
+        notif = Notifikasi.objects.filter(user=self.nasabah, kategori='penukaran').latest('created_at')
+        self.assertIn('Alasan: Stok hadiah habis.', notif.deskripsi)
+
     def test_cancel_action_sets_dibatalkan(self):
         self.auth_as(self.nasabah)
         response = self.client.post(

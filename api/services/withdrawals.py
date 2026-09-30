@@ -92,12 +92,13 @@ def approve_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
     return instance
 
 
-def reject_withdrawal(instance: PenarikanSaldo) -> PenarikanSaldo:
+def reject_withdrawal(instance: PenarikanSaldo, alasan: str = '') -> PenarikanSaldo:
     """Tolak pengajuan — saldo tidak pernah didebit saat create, jadi tidak perlu refund."""
     _ensure_pending(instance)
     instance.status = 'ditolak'
+    instance.alasan_penolakan = (alasan or '').strip()[:500]
     purge_lampiran_ktp(instance)
-    instance.save(update_fields=['status', 'lampiran_ktp', 'ktp_diverifikasi'])
+    instance.save(update_fields=['status', 'alasan_penolakan', 'lampiran_ktp', 'ktp_diverifikasi'])
     return instance
 
 

@@ -93,9 +93,10 @@ def _notif_penjemputan(instance, created, **kwargs):
         },
         'ditolak': {
             'judul': '😔 Penjemputan belum bisa diproses',
-            'deskripsi': 'Mohon maaf, pengajuan penjemputan Anda ditolak. Jangan '
-                         'berkecil hati — hubungi admin MIRU atau ajukan lagi di '
-                         'jadwal berikutnya.',
+            'deskripsi': 'Mohon maaf, pengajuan penjemputan Anda ditolak.'
+                         + _alasan(instance)
+                         + ' Jangan berkecil hati — ajukan lagi di jadwal berikutnya '
+                         'atau hubungi admin MIRU.',
         },
     }
 
@@ -140,6 +141,12 @@ def _notif_penjemputan(instance, created, **kwargs):
             kategori='penjemputan',
             exclude_user_ids={instance.petugas_id} if instance.petugas_id else None,
         )
+
+
+def _alasan(instance) -> str:
+    """' Alasan: … .' bila admin mengisi alasan penolakan."""
+    alasan = (getattr(instance, 'alasan_penolakan', '') or '').strip().rstrip('.')
+    return f' Alasan: {alasan}.' if alasan else ''
 
 
 def _rupiah(nilai) -> str:
@@ -247,7 +254,8 @@ def _notif_penarikan(instance, created, **kwargs):
             judul='😔 Penarikan saldo belum disetujui',
             deskripsi=(
                 f'Mohon maaf, penarikan {_rupiah(instance.nominal)} ditolak dan saldo '
-                f'Anda tetap utuh. Hubungi admin MIRU untuk informasi lebih lanjut.'
+                f'Anda tetap utuh.{_alasan(instance)} Hubungi admin MIRU bila ada '
+                f'pertanyaan.'
             ),
             kategori='penarikan',
         )
@@ -308,8 +316,8 @@ def _notif_penukaran(instance, created, **kwargs):
             user_id=instance.nasabah_id,
             judul='😔 Penukaran poin belum disetujui',
             deskripsi=(
-                f'Mohon maaf, penukaran {reward_nama} ditolak. Hubungi admin MIRU '
-                f'untuk informasi lebih lanjut.'
+                f'Mohon maaf, penukaran {reward_nama} ditolak dan poin Anda tetap utuh.'
+                f'{_alasan(instance)} Hubungi admin MIRU bila ada pertanyaan.'
             ),
             kategori='penukaran',
         )

@@ -502,6 +502,18 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['data']['status'], 'ditolak')
 
+    def test_reject_keeps_the_admin_reason_for_the_nasabah(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/reject/',
+            {'alasan': 'Alamat di luar wilayah layanan'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['alasan_penolakan'], 'Alamat di luar wilayah layanan')
+        notif = Notifikasi.objects.filter(user=self.nasabah, kategori='penjemputan').latest('created_at')
+        self.assertIn('Alasan: Alamat di luar wilayah layanan.', notif.deskripsi)
+
     def test_assign_action(self):
         self.pickup.status = 'disetujui'
         self.pickup.save()

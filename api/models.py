@@ -158,6 +158,8 @@ class Penjemputan(models.Model):
         help_text='Jadwal jemput wilayah yang dipilih nasabah.',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
+    # Alasan dari admin saat menolak — ditampilkan ke nasabah & di notifikasi.
+    alasan_penolakan = models.CharField(max_length=500, blank=True, default='')
     # Hasil timbang saat petugas menyelesaikan penjemputan (menambah saldo nasabah).
     setoran = models.OneToOneField(
         'TransaksiSetoran', on_delete=models.SET_NULL, null=True, blank=True,
@@ -193,6 +195,8 @@ class PenarikanSaldo(models.Model):
         help_text='True setelah lampiran KTP dilihat dan penarikan disetujui/ditolak (file sudah dihapus).',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
+    # Alasan dari admin saat menolak — ditampilkan ke nasabah & di notifikasi.
+    alasan_penolakan = models.CharField(max_length=500, blank=True, default='')
     tanggal = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -222,6 +226,8 @@ class PenukaranPoin(models.Model):
         help_text='Snapshot poin saat pengajuan; tidak berubah jika harga katalog berubah.',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
+    # Alasan dari admin saat menolak — ditampilkan ke nasabah & di notifikasi.
+    alasan_penolakan = models.CharField(max_length=500, blank=True, default='')
     tanggal = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):

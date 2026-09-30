@@ -745,8 +745,8 @@ class PenjemputanSerializer(serializers.ModelSerializer):
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
             'estimasi_berat', 'kategori', 'kategori_nama',
             'alamat_jemput', 'jadwal', 'jadwal_wilayah',
-            'jam_selesai', 'status', 'latitude', 'longitude', 'catatan_lokasi',
-            'setoran', 'setoran_total',
+            'jam_selesai', 'status', 'alasan_penolakan',
+            'latitude', 'longitude', 'catatan_lokasi', 'setoran', 'setoran_total',
         ]
         read_only_fields = fields
 
@@ -859,7 +859,7 @@ class PenarikanSaldoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'nominal', 'metode',
             'nama_bank', 'no_rekening', 'nama_pemilik_rekening',
-            'status', 'tanggal', 'ktp_diverifikasi',
+            'status', 'alasan_penolakan', 'tanggal', 'ktp_diverifikasi',
         ]
         read_only_fields = fields
 
@@ -945,7 +945,7 @@ class PenukaranPoinSerializer(serializers.ModelSerializer):
         model = PenukaranPoin
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'reward', 'reward_nama',
-            'poin_dibutuhkan', 'status', 'tanggal',
+            'poin_dibutuhkan', 'status', 'alasan_penolakan', 'tanggal',
         ]
         read_only_fields = fields
 
@@ -1219,6 +1219,15 @@ class PengaturanInstitusiSerializer(serializers.ModelSerializer):
         if not (data.get('syarat_ketentuan') or '').strip():
             data['syarat_ketentuan'] = DEFAULT_SYARAT_MD
         return data
+
+
+class PengumumanWriteSerializer(serializers.ModelSerializer):
+    """Admin/koordinator membuat & mengubah pengumuman (tampil di beranda aplikasi)."""
+
+    class Meta:
+        model = Pengumuman
+        fields = ['id', 'judul', 'isi', 'aktif', 'tanggal']
+        read_only_fields = ['id', 'tanggal']
 
 
 class PengumumanSerializer(serializers.ModelSerializer):
