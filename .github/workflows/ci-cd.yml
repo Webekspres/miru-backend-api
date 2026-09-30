@@ -154,10 +154,14 @@ jobs:
             fi
 
             docker compose pull api
-            docker compose up -d --no-deps api
 
+            # Migrasi SEKALI dengan image baru sebelum container diganti.
+            # (Menjalankannya lewat exec setelah `up` berebut dengan migrate di
+            # perintah start container → "column already exists".)
             echo "==> Running database migrations..."
-            docker compose exec -T api python manage.py migrate --noinput
+            docker compose run --rm --no-deps api python manage.py migrate --noinput
+
+            docker compose up -d --no-deps api
 
             docker compose ps api
             echo "==> API deployment completed (stack infra: Webekspres/miru-infra)."
