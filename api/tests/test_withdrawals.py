@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from rest_framework import status
 
-from api.models import PenarikanSaldo
+from api.models import Notifikasi, PenarikanSaldo
 
 from .base import EnvelopeAPITestCase
 
@@ -214,6 +214,30 @@ class WithdrawalActionTests(EnvelopeAPITestCase):
         self.assertEqual(response.data['data']['status'], 'ditolak')
         self.nasabah.refresh_from_db()
         self.assertEqual(self.nasabah.saldo, saldo_before)
+
+    def test_status_in_filter_separates_web_tabs(self):
+        done = PenarikanSaldo.objects.create(
+            nasabah=self.nasabah, nominal=Decimal('50000.00'), metode='tunai', status='selesai',
+        )
+        self.auth_as(self.admin)
+        waiting = self.client.get('/api/withdrawals/', {'status__in': 'menunggu'})
+        ids = {row['id'] for row in waiting.data['data']}
+        self.assertIn(self.withdrawal.id, ids)
+        self.assertNotIn(done.id, ids)
+        finished = self.client.get('/api/withdrawals/', {'status__in': 'selesai,ditolak'})
+        self.assertEqual({row['status'] for row in finished.data['data']}, {'selesai'})
+
+    def test_reject_keeps_the_admin_reason_for_the_nasabah(self):
+        self.auth_as(self.admin)
+        response = self.client.post(
+            f'/api/withdrawals/{self.withdrawal.id}/reject/',
+            {'alasan': 'Nama rekening tidak sesuai KTP'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['alasan_penolakan'], 'Nama rekening tidak sesuai KTP')
+        notif = Notifikasi.objects.filter(user=self.nasabah, kategori='penarikan').latest('created_at')
+        self.assertIn('Alasan: Nama rekening tidak sesuai KTP.', notif.deskripsi)
 
     def test_nasabah_cannot_approve_action(self):
         self.auth_as(self.nasabah)

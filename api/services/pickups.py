@@ -193,6 +193,7 @@ def validate_status_transition(
     new_status: str,
     user: User,
     petugas: User | None = None,
+    with_setoran: bool = False,
 ) -> None:
     current_status = instance.status
 
@@ -215,6 +216,11 @@ def validate_status_transition(
         return
 
     if transition in PETUGAS_TRANSITIONS:
+        if new_status == 'selesai' and not with_setoran:
+            # Saldo nasabah hanya bertambah lewat setoran — selesai wajib hasil timbang.
+            raise ValidationError({
+                'status': ['Selesaikan penjemputan dengan mencatat hasil timbang sampah.'],
+            })
         if user.role == 'admin':
             return
         if user.role != 'petugas':
@@ -244,15 +250,47 @@ def approve_pickup(instance: Penjemputan, user: User, petugas_id: int) -> Penjem
     return instance
 
 
-def reject_pickup(instance: Penjemputan, user: User) -> Penjemputan:
+def reject_pickup(instance: Penjemputan, user: User, alasan: str = '') -> Penjemputan:
     validate_status_transition(instance, 'ditolak', user)
     instance.status = 'ditolak'
-    instance.save(update_fields=['status'])
+    instance.alasan_penolakan = (alasan or '').strip()[:500]
+    instance.save(update_fields=['status', 'alasan_penolakan'])
     return instance
 
 
 def assign_pickup(instance: Penjemputan, user: User, petugas_id: int) -> Penjemputan:
     return approve_pickup(instance, user, petugas_id)
+
+
+@transaction.atomic
+def complete_pickup_with_setoran(
+    instance: Penjemputan, user: User, details_input: list[dict],
+) -> Penjemputan:
+    """Selesaikan penjemputan dengan hasil timbang: catat setoran (saldo & poin
+    nasabah bertambah), kaitkan ke penjemputan, lalu status → selesai."""
+    from api.services.deposits import (
+        prepare_details_data, validate_nasabah_for_setoran, validate_petugas_for_setoran,
+    )
+    from api.services.ledger import create_setoran_with_side_effects
+
+    locked = Penjemputan.objects.select_for_update().select_related('nasabah').get(pk=instance.pk)
+    if locked.status != 'dijemput':
+        raise InvalidStatusTransitionError(
+            'Penjemputan hanya bisa diselesaikan setelah sampah dijemput.'
+        )
+    validate_status_transition(locked, 'selesai', user, with_setoran=True)
+    validate_petugas_for_setoran(user)
+    validate_nasabah_for_setoran(locked.nasabah)
+
+    setoran = create_setoran_with_side_effects(
+        {'nasabah': locked.nasabah, 'petugas': user, 'status': 'selesai'},
+        prepare_details_data(details_input),
+        notify=False,  # nominal disebut di notifikasi "Penjemputan selesai"
+    )
+    locked.setoran = setoran
+    locked.status = 'selesai'
+    locked.save(update_fields=['setoran', 'status'])
+    return locked
 
 
 def update_pickup_status(instance: Penjemputan, user: User, new_status: str) -> Penjemputan:

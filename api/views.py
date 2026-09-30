@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 
 from drf_spectacular.utils import extend_schema
 
-from .filters import PenjemputanFilter, TransaksiSetoranFilter
+from .filters import PenarikanSaldoFilter, PenjemputanFilter, TransaksiSetoranFilter
 from .models import *
 from .querysets import filter_nasabah_owned, filter_pickup_queryset, filter_staff_only
 from .services import (
@@ -18,6 +18,7 @@ from .services.pickups import (
     approve_pickup,
     assign_pickup,
     reject_pickup,
+    complete_pickup_with_setoran,
     update_pickup_status,
 )
 from .services.withdrawals import approve_withdrawal, reject_withdrawal
@@ -459,7 +460,7 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update', 'update_status'):
+        if self.action in ('partial_update', 'update', 'update_status', 'complete'):
             return [IsAuthenticated(), IsPickupManager(), IsPemerintahReadOnly()]
         if self.action in ('approve', 'reject', 'assign'):
             return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
@@ -528,7 +529,7 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_pickup(instance, request.user)
+        reject_pickup(instance, request.user, request.data.get('alasan', ''))
         return self._pickup_response(
             instance, 'Penjemputan berhasil ditolak.', request,
         )
@@ -555,10 +556,24 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
             instance, 'Status penjemputan berhasil diperbarui.', request,
         )
 
+    @action(detail=True, methods=['post'], url_path='complete')
+    def complete(self, request, pk=None):
+        """Selesaikan penjemputan dengan hasil timbang → setoran & saldo nasabah."""
+        instance = self.get_object()
+        serializer = PickupCompleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = complete_pickup_with_setoran(
+            instance, request.user, serializer.validated_data['details'],
+        )
+        return self._pickup_response(
+            instance, 'Penjemputan selesai. Setoran tercatat dan saldo nasabah bertambah.',
+            request,
+        )
+
 @withdrawal_schema
 class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     queryset = PenarikanSaldo.objects.select_related('nasabah')
-    filterset_fields = ['nasabah', 'status']
+    filterset_class = PenarikanSaldoFilter
     ordering_fields = ['tanggal', 'nominal']
     ordering = ['-tanggal']
     http_method_names = ['get', 'post', 'patch', 'head', 'options']
@@ -645,7 +660,7 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_withdrawal(instance)
+        reject_withdrawal(instance, request.data.get('alasan', ''))
         return self._withdrawal_response(
             instance, 'Penarikan saldo berhasil ditolak.', request,
         )
@@ -790,7 +805,7 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_redemption(instance)
+        reject_redemption(instance, request.data.get('alasan', ''))
         return self._redemption_response(
             instance, 'Penukaran poin berhasil ditolak.', request,
         )

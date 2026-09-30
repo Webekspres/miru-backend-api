@@ -16,6 +16,9 @@ from django.conf import settings
 
 logger = logging.getLogger('miru.request')
 
+# Channel Android bawaan aplikasi (lihat MainActivity.createNotificationChannel).
+ANDROID_CHANNEL_ID = 'miru_utama'
+
 # Hanya kunci data yang diizinkan di FCM data payload.
 ALLOWED_DATA_KEYS = frozenset({
     'kategori',
@@ -151,6 +154,18 @@ def send_to_tokens(
 
         message = messaging.MulticastMessage(
             notification=messaging.Notification(title=title, body=body),
+            # Prioritas tinggi + channel `miru_utama` (IMPORTANCE_HIGH, dibuat
+            # aplikasi) → muncul sebagai popup; ikon & warna khas MIRU.
+            android=messaging.AndroidConfig(
+                priority='high',
+                notification=messaging.AndroidNotification(
+                    channel_id=ANDROID_CHANNEL_ID,
+                    icon='ic_notification',
+                    color='#16A34A',
+                    default_sound=True,
+                    priority='high',
+                ),
+            ),
             data=safe_data,
             tokens=tokens,
         )
