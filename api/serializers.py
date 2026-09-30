@@ -557,7 +557,7 @@ class PenjemputanCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Penjemputan
         fields = [
-            'estimasi_berat', 'alamat_jemput', 'jadwal_wilayah',
+            'estimasi_berat', 'kategori', 'alamat_jemput', 'jadwal_wilayah',
             'latitude', 'longitude', 'catatan_lokasi',
         ]
         extra_kwargs = {
@@ -731,6 +731,9 @@ class PenjemputanSerializer(serializers.ModelSerializer):
     petugas_nama = serializers.CharField(
         source='petugas.nama_lengkap', read_only=True, default=None,
     )
+    kategori_nama = serializers.CharField(
+        source='kategori.nama', read_only=True, default=None,
+    )
     setoran_total = serializers.DecimalField(
         source='setoran.total_nilai', max_digits=12, decimal_places=2,
         read_only=True, default=None,
@@ -740,7 +743,8 @@ class PenjemputanSerializer(serializers.ModelSerializer):
         model = Penjemputan
         fields = [
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
-            'estimasi_berat', 'alamat_jemput', 'jadwal', 'jadwal_wilayah',
+            'estimasi_berat', 'kategori', 'kategori_nama',
+            'alamat_jemput', 'jadwal', 'jadwal_wilayah',
             'jam_selesai', 'status', 'latitude', 'longitude', 'catatan_lokasi',
             'setoran', 'setoran_total',
         ]
