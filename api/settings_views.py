@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 
@@ -5,8 +7,10 @@ from drf_spectacular.utils import extend_schema
 
 from .models import Pengumuman
 from .openapi import SETTINGS_TAG, pengumuman_list_schema, settings_schema
-from .permissions import IsAdmin
-from .serializers import PengaturanInstitusiSerializer, PengumumanSerializer
+from .permissions import IsAdmin, IsAdminOrKoordinator
+from .serializers import (
+    PengaturanInstitusiSerializer, PengumumanSerializer, PengumumanWriteSerializer,
+)
 from .services.settings import get_institution_settings
 from .utils.pagination import MiruPagination
 from .utils.response import success_response
@@ -62,6 +66,49 @@ class PengumumanListView(APIView):
         page = paginator.paginate_queryset(qs, request)
         serializer = PengumumanSerializer(page, many=True)
         return paginator.get_paginated_response(serializer.data)
+
+
+@extend_schema(tags=[SETTINGS_TAG], summary='Kelola pengumuman (admin/koordinator)')
+class PengumumanKelolaView(APIView):
+    """Semua pengumuman (termasuk nonaktif) + buat baru. Pengumuman aktif yang
+    baru dibuat otomatis dikirim sebagai push ke nasabah (notification_signals)."""
+
+    permission_classes = [IsAuthenticated, IsAdminOrKoordinator]
+
+    def get(self, request):
+        qs = Pengumuman.objects.all()
+        paginator = MiruPagination()
+        page = paginator.paginate_queryset(qs, request)
+        return paginator.get_paginated_response(
+            PengumumanWriteSerializer(page, many=True).data,
+        )
+
+    def post(self, request):
+        serializer = PengumumanWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return success_response(
+            data=serializer.data, message='Pengumuman diterbitkan.',
+            status_code=status.HTTP_201_CREATED, request=request,
+        )
+
+
+@extend_schema(tags=[SETTINGS_TAG], summary='Ubah / hapus pengumuman (admin/koordinator)')
+class PengumumanKelolaDetailView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOrKoordinator]
+
+    def patch(self, request, pk):
+        instance = get_object_or_404(Pengumuman, pk=pk)
+        serializer = PengumumanWriteSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return success_response(
+            data=serializer.data, message='Pengumuman diperbarui.', request=request,
+        )
+
+    def delete(self, request, pk):
+        get_object_or_404(Pengumuman, pk=pk).delete()
+        return success_response(data=None, message='Pengumuman dihapus.', request=request)
 
 
 @extend_schema(

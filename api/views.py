@@ -529,7 +529,7 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_pickup(instance, request.user)
+        reject_pickup(instance, request.user, request.data.get('alasan', ''))
         return self._pickup_response(
             instance, 'Penjemputan berhasil ditolak.', request,
         )
@@ -660,7 +660,7 @@ class PenarikanSaldoViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_withdrawal(instance)
+        reject_withdrawal(instance, request.data.get('alasan', ''))
         return self._withdrawal_response(
             instance, 'Penarikan saldo berhasil ditolak.', request,
         )
@@ -805,7 +805,7 @@ class PenukaranPoinViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reject')
     def reject(self, request, pk=None):
         instance = self.get_object()
-        reject_redemption(instance)
+        reject_redemption(instance, request.data.get('alasan', ''))
         return self._redemption_response(
             instance, 'Penukaran poin berhasil ditolak.', request,
         )

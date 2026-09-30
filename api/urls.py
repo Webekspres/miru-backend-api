@@ -29,6 +29,8 @@ from .notifications_views import NotifikasiViewSet
 from .device_token_views import DeviceTokenViewSet
 from .settings_views import (
     InstitutionSettingsView,
+    PengumumanKelolaDetailView,
+    PengumumanKelolaView,
     PengumumanListView,
     PrivacyPolicyView,
     TermsOfServiceView,
@@ -74,6 +76,8 @@ urlpatterns = [
     path('audit-log/', AuditLogListView.as_view(), name='audit-log'),
     path('settings/', InstitutionSettingsView.as_view(), name='settings'),
     path('pengumuman/', PengumumanListView.as_view(), name='pengumuman'),
+    path('pengumuman/kelola/', PengumumanKelolaView.as_view(), name='pengumuman-kelola'),
+    path('pengumuman/kelola/<int:pk>/', PengumumanKelolaDetailView.as_view(), name='pengumuman-kelola-detail'),
     path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
     path('terms/', TermsOfServiceView.as_view(), name='terms'),
     path(

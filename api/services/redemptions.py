@@ -54,11 +54,12 @@ def approve_redemption(instance: PenukaranPoin) -> PenukaranPoin:
     return instance
 
 
-def reject_redemption(instance: PenukaranPoin) -> PenukaranPoin:
+def reject_redemption(instance: PenukaranPoin, alasan: str = '') -> PenukaranPoin:
     """Admin menolak pengajuan — poin tidak pernah didebit saat create."""
     _ensure_pending(instance)
     instance.status = 'ditolak'
-    instance.save(update_fields=['status'])
+    instance.alasan_penolakan = (alasan or '').strip()[:500]
+    instance.save(update_fields=['status', 'alasan_penolakan'])
     return instance
 
 
