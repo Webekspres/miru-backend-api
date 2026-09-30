@@ -684,6 +684,19 @@ class PickupActionTests(EnvelopeAPITestCase):
         again = _complete(self.client, self.pickup.id, kategori)
         self.assertEqual(again.status_code, status.HTTP_409_CONFLICT)
 
+    def test_complete_sends_one_celebration_with_the_amount(self):
+        self._to_dijemput()
+        self.auth_as(self.petugas)
+        self.assertEqual(_complete(self.client, self.pickup.id, _kategori()).status_code, 200)
+
+        notif = Notifikasi.objects.filter(
+            user=self.nasabah, kategori='penjemputan',
+        ).order_by('-created_at').first()
+        self.assertTrue(notif.judul.startswith('🎉 Selamat!'))
+        self.assertIn('Rp12.000', notif.deskripsi)
+        # Tidak ada notifikasi "setoran" terpisah (tidak dobel push).
+        self.assertFalse(Notifikasi.objects.filter(user=self.nasabah, kategori='setoran').exists())
+
     def test_other_petugas_cannot_complete(self):
         self._to_dijemput()
         other = self.create_petugas(username='petugas_lain')

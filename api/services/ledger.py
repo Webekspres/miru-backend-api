@@ -199,6 +199,7 @@ def decrease_kategori_stok(kategori: KategoriSampah, berat_kg: Decimal) -> Kateg
 def create_setoran_with_side_effects(
     transaksi_data: dict,
     details_data: list[dict],
+    notify: bool = True,
 ) -> TransaksiSetoran:
     """Create deposit transaction and apply all side effects atomically."""
     transaksi = TransaksiSetoran.objects.create(**transaksi_data)
@@ -215,16 +216,18 @@ def create_setoran_with_side_effects(
     credit_nasabah_setoran(transaksi.nasabah, total_nilai, setoran=transaksi)
 
     # Notifikasi SETELAH total_nilai di-set (bukan saat create dengan default 0).
-    if transaksi.nasabah_id and total_nilai > 0:
+    # Setoran dari penjemputan tidak diberi notifikasi terpisah: nominalnya
+    # sudah disebut di notifikasi "Penjemputan selesai".
+    if notify and transaksi.nasabah_id and total_nilai > 0:
         from api.services.notifications import create_notification
 
         nilai_fmt = f'{total_nilai:,.0f}'.replace(',', '.')
         create_notification(
             user_id=transaksi.nasabah_id,
-            judul='Setoran Sampah Berhasil',
+            judul='💰 Setoran berhasil, saldo bertambah!',
             deskripsi=(
-                f'Setoran sampah sebesar Rp{nilai_fmt} '
-                f'telah dicatat ke akun Anda. Cek saldo di halaman utama.'
+                f'Mantap! Setoran sampah Rp{nilai_fmt} sudah masuk ke saldo Anda. '
+                f'Terus kumpulkan dan pilah sampahnya, ya!'
             ),
             kategori='setoran',
         )

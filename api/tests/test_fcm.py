@@ -187,3 +187,26 @@ class FcmTriggerTests(EnvelopeAPITestCase):
         )
         data = mock_send.call_args[1]['data']
         self.assertEqual(data['kategori'], 'harga')
+
+
+class FcmAndroidConfigTests(EnvelopeAPITestCase):
+    """Push harus muncul sebagai popup: prioritas tinggi + channel miru_utama."""
+
+    @patch('api.services.fcm._get_firebase_app', return_value=object())
+    @patch('firebase_admin.messaging.send_each_for_multicast')
+    def test_multicast_uses_high_priority_channel_icon_and_color(self, mock_send, _app):
+        from types import SimpleNamespace
+
+        from api.services.fcm import send_to_tokens
+
+        mock_send.return_value = SimpleNamespace(
+            responses=[SimpleNamespace(success=True, exception=None)],
+            success_count=1, failure_count=0,
+        )
+        self.assertEqual(send_to_tokens(['tok'], title='🎉 Selamat!', body='isi'), 1)
+
+        android = mock_send.call_args[0][0].android
+        self.assertEqual(android.priority, 'high')
+        self.assertEqual(android.notification.channel_id, 'miru_utama')
+        self.assertEqual(android.notification.icon, 'ic_notification')
+        self.assertEqual(android.notification.color, '#16A34A')
