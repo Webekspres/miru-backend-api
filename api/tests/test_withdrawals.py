@@ -215,6 +215,18 @@ class WithdrawalActionTests(EnvelopeAPITestCase):
         self.nasabah.refresh_from_db()
         self.assertEqual(self.nasabah.saldo, saldo_before)
 
+    def test_status_in_filter_separates_web_tabs(self):
+        done = PenarikanSaldo.objects.create(
+            nasabah=self.nasabah, nominal=Decimal('50000.00'), metode='tunai', status='selesai',
+        )
+        self.auth_as(self.admin)
+        waiting = self.client.get('/api/withdrawals/', {'status__in': 'menunggu'})
+        ids = {row['id'] for row in waiting.data['data']}
+        self.assertIn(self.withdrawal.id, ids)
+        self.assertNotIn(done.id, ids)
+        finished = self.client.get('/api/withdrawals/', {'status__in': 'selesai,ditolak'})
+        self.assertEqual({row['status'] for row in finished.data['data']}, {'selesai'})
+
     def test_reject_keeps_the_admin_reason_for_the_nasabah(self):
         self.auth_as(self.admin)
         response = self.client.post(
