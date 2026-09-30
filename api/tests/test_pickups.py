@@ -6,12 +6,26 @@ from django.utils import timezone
 from rest_framework import status
 
 from api.models import (
-    JadwalJemputWilayah, Notifikasi, Penjemputan, PengaturanInstitusi, WilayahLayanan,
+    JadwalJemputWilayah, KategoriSampah, Notifikasi, Penjemputan, PengaturanInstitusi,
+    WilayahLayanan,
 )
 
 from .base import EnvelopeAPITestCase
 
 WIT = ZoneInfo('Asia/Jayapura')
+
+
+def _complete(client, pickup_id, kategori, berat='4.00'):
+    """Selesaikan penjemputan dengan hasil timbang (satu jenis sampah)."""
+    return client.post(
+        f'/api/pickups/{pickup_id}/complete/',
+        {'details': [{'kategori': kategori.id, 'berat_kg': berat}]},
+        format='json',
+    )
+
+
+def _kategori():
+    return KategoriSampah.objects.create(nama='PET', harga_beli_per_kg=Decimal('3000.00'))
 
 
 class PickupCreateTests(EnvelopeAPITestCase):
@@ -282,7 +296,7 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
         self.pickup.save()
 
         self.auth_as(self.petugas)
-        for new_status in ('dalam_perjalanan', 'dijemput', 'selesai'):
+        for new_status in ('dalam_perjalanan', 'dijemput'):
             response = self.client.patch(
                 f'/api/pickups/{self.pickup.id}/',
                 {'status': new_status},
@@ -291,6 +305,10 @@ class PickupWorkflowTests(EnvelopeAPITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK, new_status)
             self.assertEqual(response.data['data']['status'], new_status)
             self.pickup.refresh_from_db()
+
+        response = _complete(self.client, self.pickup.id, _kategori())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['status'], 'selesai')
 
     def test_invalid_transition_returns_409(self):
         self.auth_as(self.admin)
@@ -517,11 +535,7 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.auth_as(self.petugas)
         before_petugas = Notifikasi.objects.filter(user=self.petugas).count()
         before_admin = Notifikasi.objects.filter(user=self.admin).count()
-        response = self.client.patch(
-            f'/api/pickups/{self.pickup.id}/',
-            {'status': 'selesai'},
-            format='json',
-        )
+        response = _complete(self.client, self.pickup.id, _kategori())
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         self.assertEqual(
@@ -549,16 +563,21 @@ class PickupActionTests(EnvelopeAPITestCase):
             'selesai': 'selesai',
         }
         self.auth_as(self.petugas)
+        kategori = _kategori()
         for new_status, keyword in expected.items():
             before = Notifikasi.objects.filter(user=self.nasabah).count()
-            response = self.client.patch(
-                f'/api/pickups/{self.pickup.id}/',
-                {'status': new_status},
-                format='json',
-            )
+            if new_status == 'selesai':
+                response = _complete(self.client, self.pickup.id, kategori)
+            else:
+                response = self.client.patch(
+                    f'/api/pickups/{self.pickup.id}/',
+                    {'status': new_status},
+                    format='json',
+                )
             self.assertEqual(response.status_code, status.HTTP_200_OK, new_status)
             after = Notifikasi.objects.filter(user=self.nasabah).count()
-            self.assertEqual(after, before + 1, new_status)
+            # selesai: notifikasi penjemputan + notifikasi setoran.
+            self.assertGreaterEqual(after, before + 1, new_status)
             latest = Notifikasi.objects.filter(
                 user=self.nasabah, kategori='penjemputan',
             ).order_by('-created_at').first()
@@ -598,7 +617,7 @@ class PickupActionTests(EnvelopeAPITestCase):
         self.assertEqual(approve.data['data']['status'], 'dijadwalkan')
 
         self.auth_as(self.petugas)
-        for next_status in ('dalam_perjalanan', 'dijemput', 'selesai'):
+        for next_status in ('dalam_perjalanan', 'dijemput'):
             response = self.client.post(
                 f'/api/pickups/{self.pickup.id}/update-status/',
                 {'status': next_status},
@@ -607,5 +626,69 @@ class PickupActionTests(EnvelopeAPITestCase):
             self.assertEqual(response.status_code, status.HTTP_200_OK, next_status)
             self.assertEqual(response.data['data']['status'], next_status)
 
+        saldo_awal = self.nasabah.saldo
+        response = _complete(self.client, self.pickup.id, _kategori(), berat='4.00')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['data']['setoran_total'], '12000.00')
+
         self.pickup.refresh_from_db()
+        self.nasabah.refresh_from_db()
         self.assertEqual(self.pickup.status, 'selesai')
+        self.assertIsNotNone(self.pickup.setoran)
+        self.assertEqual(self.pickup.setoran.nasabah, self.nasabah)
+        self.assertEqual(self.pickup.setoran.petugas, self.petugas)
+        self.assertEqual(self.nasabah.saldo, saldo_awal + Decimal('12000.00'))
+
+    def _to_dijemput(self):
+        self.pickup.status = 'dijemput'
+        self.pickup.petugas = self.petugas
+        self.pickup.save()
+
+    def test_selesai_without_timbang_is_rejected(self):
+        self._to_dijemput()
+        self.auth_as(self.petugas)
+        response = self.client.post(
+            f'/api/pickups/{self.pickup.id}/update-status/',
+            {'status': 'selesai'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.pickup.refresh_from_db()
+        self.assertEqual(self.pickup.status, 'dijemput')
+
+    def test_complete_credits_poin_and_needs_details(self):
+        self._to_dijemput()
+        self.auth_as(self.petugas)
+        empty = self.client.post(
+            f'/api/pickups/{self.pickup.id}/complete/', {'details': []}, format='json',
+        )
+        self.assertEqual(empty.status_code, status.HTTP_400_BAD_REQUEST)
+
+        poin_awal = self.nasabah.poin
+        response = _complete(self.client, self.pickup.id, _kategori(), berat='4.00')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.nasabah.refresh_from_db()
+        self.assertEqual(self.nasabah.poin, poin_awal + 12)  # Rp12.000 → 12 poin
+
+    def test_complete_only_from_dijemput_and_only_once(self):
+        self.pickup.status = 'dijadwalkan'
+        self.pickup.petugas = self.petugas
+        self.pickup.save()
+        self.auth_as(self.petugas)
+        kategori = _kategori()
+        early = _complete(self.client, self.pickup.id, kategori)
+        self.assertEqual(early.status_code, status.HTTP_409_CONFLICT)
+
+        self._to_dijemput()
+        self.assertEqual(_complete(self.client, self.pickup.id, kategori).status_code, 200)
+        again = _complete(self.client, self.pickup.id, kategori)
+        self.assertEqual(again.status_code, status.HTTP_409_CONFLICT)
+
+    def test_other_petugas_cannot_complete(self):
+        self._to_dijemput()
+        other = self.create_petugas(username='petugas_lain')
+        self.auth_as(other)
+        response = _complete(self.client, self.pickup.id, _kategori())
+        self.assertIn(response.status_code, (403, 404))
+        self.pickup.refresh_from_db()
+        self.assertEqual(self.pickup.status, 'dijemput')

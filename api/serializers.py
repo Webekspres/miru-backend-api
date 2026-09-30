@@ -713,6 +713,16 @@ class PickupStatusActionSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=Penjemputan.STATUS_CHOICES)
 
 
+class PickupCompleteSerializer(serializers.Serializer):
+    """Hasil timbang saat menyelesaikan penjemputan (menjadi setoran nasabah)."""
+    details = DetailSetoranWriteSerializer(many=True)
+
+    def validate_details(self, value):
+        if not value:
+            raise serializers.ValidationError('Minimal satu jenis sampah ditimbang.')
+        return value
+
+
 class PenjemputanSerializer(serializers.ModelSerializer):
     nasabah_nama = serializers.CharField(source='nasabah.nama_lengkap', read_only=True)
     jam_selesai = serializers.TimeField(
@@ -721,6 +731,10 @@ class PenjemputanSerializer(serializers.ModelSerializer):
     petugas_nama = serializers.CharField(
         source='petugas.nama_lengkap', read_only=True, default=None,
     )
+    setoran_total = serializers.DecimalField(
+        source='setoran.total_nilai', max_digits=12, decimal_places=2,
+        read_only=True, default=None,
+    )
 
     class Meta:
         model = Penjemputan
@@ -728,6 +742,7 @@ class PenjemputanSerializer(serializers.ModelSerializer):
             'id', 'nasabah', 'nasabah_nama', 'petugas', 'petugas_nama',
             'estimasi_berat', 'alamat_jemput', 'jadwal', 'jadwal_wilayah',
             'jam_selesai', 'status', 'latitude', 'longitude', 'catatan_lokasi',
+            'setoran', 'setoran_total',
         ]
         read_only_fields = fields
 

@@ -153,6 +153,11 @@ class Penjemputan(models.Model):
         help_text='Jadwal jemput wilayah yang dipilih nasabah.',
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='menunggu')
+    # Hasil timbang saat petugas menyelesaikan penjemputan (menambah saldo nasabah).
+    setoran = models.OneToOneField(
+        'TransaksiSetoran', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='penjemputan',
+    )
 
     class Meta:
         indexes = [

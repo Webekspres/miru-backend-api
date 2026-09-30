@@ -18,6 +18,7 @@ from .services.pickups import (
     approve_pickup,
     assign_pickup,
     reject_pickup,
+    complete_pickup_with_setoran,
     update_pickup_status,
 )
 from .services.withdrawals import approve_withdrawal, reject_withdrawal
@@ -459,7 +460,7 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'create':
             return [IsAuthenticated(), IsNasabah(), IsPemerintahReadOnly()]
-        if self.action in ('partial_update', 'update', 'update_status'):
+        if self.action in ('partial_update', 'update', 'update_status', 'complete'):
             return [IsAuthenticated(), IsPickupManager(), IsPemerintahReadOnly()]
         if self.action in ('approve', 'reject', 'assign'):
             return [IsAuthenticated(), IsAdmin(), IsPemerintahReadOnly()]
@@ -553,6 +554,20 @@ class PenjemputanViewSet(viewsets.ModelViewSet):
         )
         return self._pickup_response(
             instance, 'Status penjemputan berhasil diperbarui.', request,
+        )
+
+    @action(detail=True, methods=['post'], url_path='complete')
+    def complete(self, request, pk=None):
+        """Selesaikan penjemputan dengan hasil timbang → setoran & saldo nasabah."""
+        instance = self.get_object()
+        serializer = PickupCompleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = complete_pickup_with_setoran(
+            instance, request.user, serializer.validated_data['details'],
+        )
+        return self._pickup_response(
+            instance, 'Penjemputan selesai. Setoran tercatat dan saldo nasabah bertambah.',
+            request,
         )
 
 @withdrawal_schema
